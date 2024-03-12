@@ -25,10 +25,10 @@ void PerspectiveCameraGUI::update()
 
 void PerspectiveCameraGUI::getValues()
 {
-	m_fovDeg = static_cast<int>(glm::degrees(m_camera.getFOVRad()));
+	m_fovDeg = m_camera.getFOVDeg();
 }
 
 void PerspectiveCameraGUI::setValues()
 {
-	m_camera.setFOVRad(glm::radians(static_cast<float>(m_fovDeg)));
+	m_camera.setFOVDeg(m_fovDeg);
 }

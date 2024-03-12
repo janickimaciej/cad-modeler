@@ -2,11 +2,11 @@
 
 #include <cmath>
 
-PerspectiveCamera::PerspectiveCamera(float fovRad, float aspectRatio, float nearPlane,
+PerspectiveCamera::PerspectiveCamera(float fovDeg, float aspectRatio, float nearPlane,
 	float farPlane, ShaderProgram& solidShaderProgram, ShaderProgram& wireframeShaderProgram) :
 	Camera{aspectRatio, nearPlane, farPlane, solidShaderProgram, wireframeShaderProgram},
 	m_gui{*this},
-	m_fovRad{fovRad}
+	m_fovDeg{fovDeg}
 {
 	updateProjectionMatrix();
 }
@@ -16,14 +16,14 @@ CameraGUI& PerspectiveCamera::getGUI()
 	return m_gui;
 }
 
-float PerspectiveCamera::getFOVRad() const
+float PerspectiveCamera::getFOVDeg() const
 {
-	return m_fovRad;
+	return m_fovDeg;
 }
 
-void PerspectiveCamera::setFOVRad(float FOVRad)
+void PerspectiveCamera::setFOVDeg(float FOVDeg)
 {
-	m_fovRad = FOVRad;
+	m_fovDeg = FOVDeg;
 
 	updateProjectionMatrix();
 }
@@ -37,7 +37,8 @@ void PerspectiveCamera::zoom(float zoom)
 
 void PerspectiveCamera::updateProjectionMatrix()
 {
-	float cot = std::cos(m_fovRad / 2) / std::sin(m_fovRad / 2);
+	float fovRad = glm::radians(m_fovDeg);
+	float cot = std::cos(fovRad / 2) / std::sin(fovRad / 2);
 	m_projectionMatrix =
 		glm::mat4
 		{

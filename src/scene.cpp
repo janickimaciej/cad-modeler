@@ -16,8 +16,8 @@ constexpr float farPlane = 100.0f;
 Scene::Scene(float aspectRatio, Window& window) :
 	m_orthographicCamera{viewWidth, aspectRatio, nearPlane, farPlane, m_solidShaderProgram,
 		m_wireframeShaderProgram},
-	m_perspectiveCamera{glm::radians(fovDeg), aspectRatio, nearPlane, farPlane,
-		m_solidShaderProgram, m_wireframeShaderProgram}
+	m_perspectiveCamera{fovDeg, aspectRatio, nearPlane, farPlane, m_solidShaderProgram,
+		m_wireframeShaderProgram}
 {
 	m_models.push_back(std::make_unique<Torus>(3.0f, 0.3f, 16, 8));
 	m_activeModel = m_models.back().get();
