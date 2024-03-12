@@ -7,11 +7,11 @@
 class PerspectiveCamera : public Camera
 {
 public:
-	PerspectiveCamera(float fovDeg, float aspectRatio, float nearPlane, float farPlane,
-		ShaderProgram& solidShaderProgram, ShaderProgram& wireframeShaderProgram);
+	PerspectiveCamera(float fovYDeg, float aspectRatio, float nearPlane, float farPlane,
+		ShaderProgram& wireframeShaderProgram, ShaderProgram& solidShaderProgram);
 	virtual CameraGUI& getGUI() override;
-	float getFOVDeg() const;
-	void setFOVDeg(float fovDeg);
+	float getFOVYDeg() const;
+	void setFOVYDeg(float fovYDeg);
 	virtual void zoom(float zoom) override;
 
 protected:
@@ -20,5 +20,5 @@ protected:
 private:
 	PerspectiveCameraGUI m_gui;
 
-	float m_fovDeg{};
+	float m_fovYDeg{};
 };

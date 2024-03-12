@@ -9,15 +9,15 @@
 #include <cmath>
 
 constexpr float viewWidth = 20.0f;
-constexpr float fovDeg = 60.0f;
+constexpr float fovYDeg = 60.0f;
 constexpr float nearPlane = 0.1f;
 constexpr float farPlane = 100.0f;
 
 Scene::Scene(float aspectRatio, Window& window) :
-	m_orthographicCamera{viewWidth, aspectRatio, nearPlane, farPlane, m_solidShaderProgram,
-		m_wireframeShaderProgram},
-	m_perspectiveCamera{fovDeg, aspectRatio, nearPlane, farPlane, m_solidShaderProgram,
-		m_wireframeShaderProgram}
+	m_orthographicCamera{viewWidth, aspectRatio, nearPlane, farPlane, m_wireframeShaderProgram,
+		m_solidShaderProgram},
+	m_perspectiveCamera{fovYDeg, aspectRatio, nearPlane, farPlane, m_wireframeShaderProgram,
+		m_solidShaderProgram}
 {
 	m_models.push_back(std::make_unique<Torus>(3.0f, 0.3f, 16, 8));
 	m_activeModel = m_models.back().get();
@@ -33,6 +33,8 @@ Scene::Scene(float aspectRatio, Window& window) :
 		m_activeCamera = &m_perspectiveCamera;
 		break;
 	}
+
+	updateShaders();
 }
 
 void Scene::render()
@@ -40,24 +42,24 @@ void Scene::render()
 	constexpr glm::vec3 backgroundColor{0.1f, 0.1f, 0.1f};
 	glClearColor(backgroundColor.r, backgroundColor.g, backgroundColor.b, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	
+	m_activeCamera->use();
 
 	ShaderProgram* activeShaderProgram = &m_solidShaderProgram;
 	switch (m_renderMode)
 	{
-	case RenderMode::solid:
-		activeShaderProgram = &m_solidShaderProgram;
-		break;
-		
 	case RenderMode::wireframe:
 		activeShaderProgram = &m_wireframeShaderProgram;
 		break;
-	}
 
-	m_activeCamera->use();
+	case RenderMode::solid:
+		activeShaderProgram = &m_solidShaderProgram;
+		break;
+	}
 	activeShaderProgram->use();
 	for (const std::unique_ptr<Model>& model : m_models)
 	{
-		model->render(*activeShaderProgram);
+		model->render(m_renderMode, *activeShaderProgram);
 	}
 }
 
@@ -140,4 +142,13 @@ void Scene::setCameraType(CameraType cameraType)
 		m_activeCamera = &m_perspectiveCamera;
 		break;
 	}
+}
+
+void Scene::updateShaders() const
+{
+	m_solidShaderProgram.use();
+	m_solidShaderProgram.setUniform1f("ambient", m_ambient);
+	m_solidShaderProgram.setUniform1f("diffuse", m_diffuse);
+	m_solidShaderProgram.setUniform1f("specular", m_specular);
+	m_solidShaderProgram.setUniform1f("shininess", m_shininess);
 }

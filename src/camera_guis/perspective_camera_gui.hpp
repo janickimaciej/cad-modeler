@@ -13,7 +13,7 @@ public:
 private:
 	PerspectiveCamera& m_camera;
 
-	int m_fovDeg{};
+	int m_fovYDeg{};
 
 	void getValues();
 	void setValues();

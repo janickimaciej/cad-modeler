@@ -35,7 +35,6 @@
     <ClCompile Include="src\camera_guis\perspective_camera_gui.cpp" />
     <ClCompile Include="src\gui.cpp" />
     <ClCompile Include="src\main.cpp" />
-    <ClCompile Include="src\material.cpp" />
     <ClCompile Include="src\mesh.cpp" />
     <ClCompile Include="src\models\model.cpp" />
     <ClCompile Include="src\models\torus.cpp" />
@@ -70,7 +69,6 @@
     <ClInclude Include="src\render_mode.hpp" />
     <ClInclude Include="src\scene.hpp" />
     <ClInclude Include="src\shader_program.hpp" />
-    <ClInclude Include="src\material.hpp" />
     <ClInclude Include="src\vertex.hpp" />
     <ClInclude Include="src\window.hpp" />
     <ClInclude Include="src\window_user_data.hpp" />

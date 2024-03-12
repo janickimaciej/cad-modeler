@@ -8,8 +8,8 @@
 class Camera
 {
 public:
-	Camera(float aspectRatio, float nearPlane, float farPlane, ShaderProgram& solidShaderProgram,
-		ShaderProgram& wireframeShaderProgram);
+	Camera(float aspectRatio, float nearPlane, float farPlane,
+		ShaderProgram& wireframeShaderProgram, ShaderProgram& solidShaderProgram);
 	void use();
 	virtual CameraGUI& getGUI() = 0;
 	glm::vec3 getPosition() const;
@@ -39,6 +39,6 @@ private:
 	float m_pitchRad = 0;
 	float m_yawRad = 0;
 	
-	ShaderProgram& m_solidShaderProgram;
 	ShaderProgram& m_wireframeShaderProgram;
+	ShaderProgram& m_solidShaderProgram;
 };

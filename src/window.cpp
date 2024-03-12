@@ -19,6 +19,8 @@ Window::Window(int width, int height)
 	glfwSetCursorPosCallback(m_windowPtr, cursorMovementCallback);
 	glfwSetScrollCallback(m_windowPtr, scrollCallback);
 	gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
+	glEnable(GL_DEPTH_TEST);
+	glEnable(GL_CULL_FACE);
 }
 
 void Window::setScene(Scene& scene)

@@ -17,18 +17,18 @@ void PerspectiveCameraGUI::update()
 {
 	getValues();
 
-	ImGui::InputInt("FOV", &m_fovDeg, 1, 1);
-	m_fovDeg = std::clamp(m_fovDeg, 1, 179);
+	ImGui::InputInt("FOV Y", &m_fovYDeg, 1, 1);
+	m_fovYDeg = std::clamp(m_fovYDeg, 1, 179);
 
 	setValues();
 }
 
 void PerspectiveCameraGUI::getValues()
 {
-	m_fovDeg = m_camera.getFOVDeg();
+	m_fovYDeg = m_camera.getFOVYDeg();
 }
 
 void PerspectiveCameraGUI::setValues()
 {
-	m_camera.setFOVDeg(m_fovDeg);
+	m_camera.setFOVYDeg(m_fovYDeg);
 }

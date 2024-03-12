@@ -4,12 +4,12 @@
 #include <glm/gtc/constants.hpp>
 
 Camera::Camera(float aspectRatio, float nearPlane, float farPlane,
-	ShaderProgram& solidShaderProgram, ShaderProgram& wireframeShaderProgram) :
+	ShaderProgram& wireframeShaderProgram, ShaderProgram& solidShaderProgram) :
 	m_aspectRatio{aspectRatio},
 	m_nearPlane{nearPlane},
 	m_farPlane{farPlane},
-	m_solidShaderProgram{solidShaderProgram},
-	m_wireframeShaderProgram{wireframeShaderProgram}
+	m_wireframeShaderProgram{wireframeShaderProgram},
+	m_solidShaderProgram{solidShaderProgram}
 {
 	updateViewMatrix();
 }
@@ -97,11 +97,12 @@ void Camera::updateShaders()
 	glm::mat4 projectionViewMatrix = m_projectionMatrix * glm::inverse(m_viewMatrixInverse);
 	glm::vec3 cameraPosition = getPosition();
 
-	m_solidShaderProgram.use();
-	m_solidShaderProgram.setUniformMatrix4f("projectionViewMatrix", projectionViewMatrix);
-
 	m_wireframeShaderProgram.use();
 	m_wireframeShaderProgram.setUniformMatrix4f("projectionViewMatrix", projectionViewMatrix);
+
+	m_solidShaderProgram.use();
+	m_solidShaderProgram.setUniformMatrix4f("projectionViewMatrix", projectionViewMatrix);
+	m_solidShaderProgram.setUniform3f("cameraPosition", cameraPosition);
 }
 
 void Camera::updateViewMatrix()

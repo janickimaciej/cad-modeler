@@ -2,11 +2,11 @@
 
 #include <cmath>
 
-PerspectiveCamera::PerspectiveCamera(float fovDeg, float aspectRatio, float nearPlane,
-	float farPlane, ShaderProgram& solidShaderProgram, ShaderProgram& wireframeShaderProgram) :
-	Camera{aspectRatio, nearPlane, farPlane, solidShaderProgram, wireframeShaderProgram},
+PerspectiveCamera::PerspectiveCamera(float fovYDeg, float aspectRatio, float nearPlane,
+	float farPlane, ShaderProgram& wireframeShaderProgram, ShaderProgram& solidShaderProgram) :
+	Camera{aspectRatio, nearPlane, farPlane, wireframeShaderProgram, solidShaderProgram},
 	m_gui{*this},
-	m_fovDeg{fovDeg}
+	m_fovYDeg{fovYDeg}
 {
 	updateProjectionMatrix();
 }
@@ -16,14 +16,14 @@ CameraGUI& PerspectiveCamera::getGUI()
 	return m_gui;
 }
 
-float PerspectiveCamera::getFOVDeg() const
+float PerspectiveCamera::getFOVYDeg() const
 {
-	return m_fovDeg;
+	return m_fovYDeg;
 }
 
-void PerspectiveCamera::setFOVDeg(float FOVDeg)
+void PerspectiveCamera::setFOVYDeg(float fovYDeg)
 {
-	m_fovDeg = FOVDeg;
+	m_fovYDeg = fovYDeg;
 
 	updateProjectionMatrix();
 }
@@ -37,8 +37,8 @@ void PerspectiveCamera::zoom(float zoom)
 
 void PerspectiveCamera::updateProjectionMatrix()
 {
-	float fovRad = glm::radians(m_fovDeg);
-	float cot = std::cos(fovRad / 2) / std::sin(fovRad / 2);
+	float fovYRad = glm::radians(m_fovYDeg);
+	float cot = std::cos(fovYRad / 2) / std::sin(fovYRad / 2);
 	m_projectionMatrix =
 		glm::mat4
 		{

@@ -1,8 +1,8 @@
 #include "cameras/orthographic_camera.hpp"
 
 OrthographicCamera::OrthographicCamera(float viewWidth, float aspectRatio, float nearPlane,
-	float farPlane, ShaderProgram& solidShaderProgram, ShaderProgram& wireframeShaderProgram) :
-	Camera{aspectRatio, nearPlane, farPlane, solidShaderProgram, wireframeShaderProgram},
+	float farPlane, ShaderProgram& wireframeShaderProgram, ShaderProgram& solidShaderProgram) :
+	Camera{aspectRatio, nearPlane, farPlane, wireframeShaderProgram, solidShaderProgram},
 	m_gui{*this},
 	m_viewWidth{viewWidth}
 {

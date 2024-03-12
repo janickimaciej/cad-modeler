@@ -6,12 +6,12 @@ layout (location = 1) in vec3 inNormalVectorMesh;
 uniform mat4 modelMatrix;
 uniform mat4 projectionViewMatrix;
 
-out vec4 position;
-out vec4 normalVector;
+out vec3 position;
+out vec3 unnormalizedNormalVector;
 
 void main()
 {
-	position = modelMatrix * vec4(inPositionMesh, 1);
-	normalVector = normalize(modelMatrix * vec4(inNormalVectorMesh, 0));
-	gl_Position = projectionViewMatrix * position;
+	position = (modelMatrix * vec4(inPositionMesh, 1)).xyz;
+	unnormalizedNormalVector = (modelMatrix * vec4(inNormalVectorMesh, 0)).xyz;
+	gl_Position = projectionViewMatrix * vec4(position, 1);
 }
