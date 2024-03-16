@@ -19,6 +19,7 @@ int main()
 	while (!window.shouldClose())
 	{
 		gui.update();
+		window.clear();
 		scene.render();
 		gui.render();
 		window.swapBuffers();

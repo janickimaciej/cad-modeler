@@ -12,8 +12,9 @@ public:
 	Window(int width, int height);
 	void setScene(Scene& scene);
 	bool shouldClose();
-	void pollEvents();
-	void swapBuffers();
+	void clear() const;
+	void swapBuffers() const;
+	void pollEvents() const;
 	GLFWwindow* getPtr();
 	static void resizeCallback(GLFWwindow* window, int width, int height);
 	static void cursorMovementCallback(GLFWwindow* window, double x, double y);

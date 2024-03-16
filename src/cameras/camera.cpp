@@ -3,18 +3,19 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/constants.hpp>
 
-Camera::Camera(float aspectRatio, float nearPlane, float farPlane,
+Camera::Camera(float aspectRatio, float nearPlane, float farPlane, ShaderProgram& gridShaderProgram,
 	ShaderProgram& wireframeShaderProgram, ShaderProgram& solidShaderProgram) :
 	m_aspectRatio{aspectRatio},
 	m_nearPlane{nearPlane},
 	m_farPlane{farPlane},
+	m_gridShaderProgram{gridShaderProgram},
 	m_wireframeShaderProgram{wireframeShaderProgram},
 	m_solidShaderProgram{solidShaderProgram}
 {
 	updateViewMatrix();
 }
 
-void Camera::use()
+void Camera::use() const
 {
 	updateShaders();
 }
@@ -92,17 +93,23 @@ void Camera::setAspectRatio(float aspectRatio)
 	updateProjectionMatrix();
 }
 
-void Camera::updateShaders()
+void Camera::updateShaders() const
 {
 	glm::mat4 projectionViewMatrix = m_projectionMatrix * glm::inverse(m_viewMatrixInverse);
+	glm::mat4 projectionViewMatrixInverse = glm::inverse(projectionViewMatrix);
 	glm::vec3 cameraPosition = getPosition();
+
+	m_gridShaderProgram.use();
+	m_gridShaderProgram.setUniformMatrix4f("projectionViewMatrix", projectionViewMatrix);
+	m_gridShaderProgram.setUniformMatrix4f("projectionViewMatrixInverse",
+		projectionViewMatrixInverse);
 
 	m_wireframeShaderProgram.use();
 	m_wireframeShaderProgram.setUniformMatrix4f("projectionViewMatrix", projectionViewMatrix);
 
 	m_solidShaderProgram.use();
 	m_solidShaderProgram.setUniformMatrix4f("projectionViewMatrix", projectionViewMatrix);
-	m_solidShaderProgram.setUniform3f("cameraPosition", cameraPosition);
+	m_solidShaderProgram.setUniform3f("cameraPos", cameraPosition);
 }
 
 void Camera::updateViewMatrix()

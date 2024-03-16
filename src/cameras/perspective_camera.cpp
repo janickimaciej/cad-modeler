@@ -3,8 +3,10 @@
 #include <cmath>
 
 PerspectiveCamera::PerspectiveCamera(float fovYDeg, float aspectRatio, float nearPlane,
-	float farPlane, ShaderProgram& wireframeShaderProgram, ShaderProgram& solidShaderProgram) :
-	Camera{aspectRatio, nearPlane, farPlane, wireframeShaderProgram, solidShaderProgram},
+	float farPlane, ShaderProgram& gridShaderProgram, ShaderProgram& wireframeShaderProgram,
+	ShaderProgram& solidShaderProgram) :
+	Camera{aspectRatio, nearPlane, farPlane, gridShaderProgram, wireframeShaderProgram,
+		solidShaderProgram},
 	m_gui{*this},
 	m_fovYDeg{fovYDeg}
 {

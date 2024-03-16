@@ -11,6 +11,7 @@ Window::Window(int width, int height)
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+	glfwWindowHint(GLFW_SAMPLES, 4);
 	const std::string windowTitle = "cad-opengl";
 	m_windowPtr = glfwCreateWindow(width, height, windowTitle.c_str(), nullptr, nullptr);
 	glfwSetWindowUserPointer(m_windowPtr, &m_userData);
@@ -21,6 +22,9 @@ Window::Window(int width, int height)
 	gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_CULL_FACE);
+	glEnable(GL_BLEND);
+	glEnable(GL_MULTISAMPLE);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 }
 
 void Window::setScene(Scene& scene)
@@ -33,14 +37,21 @@ bool Window::shouldClose()
 	return glfwWindowShouldClose(m_windowPtr);
 }
 
-void Window::pollEvents()
+void Window::clear() const
 {
-	glfwPollEvents();
+	constexpr glm::vec3 backgroundColor{0.1f, 0.1f, 0.1f};
+	glClearColor(backgroundColor.r, backgroundColor.g, backgroundColor.b, 1.0f);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 
-void Window::swapBuffers()
+void Window::swapBuffers() const
 {
 	glfwSwapBuffers(m_windowPtr);
+}
+
+void Window::pollEvents() const
+{
+	glfwPollEvents();
 }
 
 GLFWwindow* Window::getPtr()

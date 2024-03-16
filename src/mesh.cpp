@@ -20,12 +20,14 @@ void Mesh::render(RenderMode renderMode) const
 	{
 	case RenderMode::wireframe:
 		glBindVertexArray(m_VAOWireframe);
-		glDrawElements(GL_LINES, m_indexCountWireframe, GL_UNSIGNED_INT, nullptr);
+		glDrawElements(GL_LINES, static_cast<GLsizei>(m_indexCountWireframe), GL_UNSIGNED_INT,
+			nullptr);
 		break;
 
 	case RenderMode::solid:
 		glBindVertexArray(m_VAOSolid);
-		glDrawElements(GL_TRIANGLES, m_indexCountSolid, GL_UNSIGNED_INT, nullptr);
+		glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(m_indexCountSolid), GL_UNSIGNED_INT,
+			nullptr);
 		break;
 	}
 	glBindVertexArray(0);
@@ -59,7 +61,7 @@ void Mesh::createBuffersWireframe(const std::vector<Vertex>& vertices,
 		GL_STATIC_DRAW);
 
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex),
-		(void*)offsetof(Vertex, position));
+		reinterpret_cast<void*>(offsetof(Vertex, position)));
 	glEnableVertexAttribArray(0);
 
 	glBindVertexArray(0);

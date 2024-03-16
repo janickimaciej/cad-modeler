@@ -1,9 +1,9 @@
 #version 330 core
 
-in vec3 position;
+in vec3 pos;
 in vec3 unnormalizedNormalVector;
 
-uniform vec3 cameraPosition;
+uniform vec3 cameraPos;
 uniform float ambient;
 uniform float diffuse;
 uniform float specular;
@@ -16,7 +16,7 @@ void main()
 	float brightness = ambient;
 
 	vec3 normalVector = normalize(unnormalizedNormalVector);
-	vec3 viewVector = normalize(cameraPosition - position);
+	vec3 viewVector = normalize(cameraPos - pos);
 	vec3 lightVector = viewVector;
 
 	float lightNormalCos = dot(lightVector, normalVector);

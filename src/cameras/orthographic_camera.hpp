@@ -8,7 +8,8 @@ class OrthographicCamera : public Camera
 {
 public:
 	OrthographicCamera(float viewWidth, float aspectRatio, float nearPlane, float farPlane,
-		ShaderProgram& wireframeShaderProgram, ShaderProgram& solidShaderProgram);
+		ShaderProgram& gridShaderProgram, ShaderProgram& wireframeShaderProgram,
+		ShaderProgram& solidShaderProgram);
 	virtual CameraGUI& getGUI() override;
 	float getViewWidth() const;
 	void setViewWidth(float viewWidth);

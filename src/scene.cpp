@@ -11,41 +11,118 @@
 constexpr float viewWidth = 20.0f;
 constexpr float fovYDeg = 60.0f;
 constexpr float nearPlane = 0.1f;
-constexpr float farPlane = 100.0f;
+constexpr float farPlane = 1000.0f;
 
 Scene::Scene(float aspectRatio, Window& window) :
-	m_orthographicCamera{viewWidth, aspectRatio, nearPlane, farPlane, m_wireframeShaderProgram,
-		m_solidShaderProgram},
-	m_perspectiveCamera{fovYDeg, aspectRatio, nearPlane, farPlane, m_wireframeShaderProgram,
-		m_solidShaderProgram}
+	m_perspectiveCamera{fovYDeg, aspectRatio, nearPlane, farPlane, m_gridShaderProgram,
+		m_wireframeShaderProgram, m_solidShaderProgram},
+	m_orthographicCamera{viewWidth, aspectRatio, nearPlane, farPlane, m_gridShaderProgram,
+		m_wireframeShaderProgram, m_solidShaderProgram}
 {
-	m_models.push_back(std::make_unique<Torus>(3.0f, 0.3f, 16, 8));
+	m_models.push_back(std::make_unique<Torus>(3.0f, 1.0f, 32, 16));
 	m_activeModel = m_models.back().get();
 	window.setScene(*this);
 
-	switch (m_cameraType)
-	{
-	case CameraType::orthographic:
-		m_activeCamera = &m_orthographicCamera;
-		break;
-
-	case CameraType::perspective:
-		m_activeCamera = &m_perspectiveCamera;
-		break;
-	}
+	setCameraType(m_cameraType);
+	zoom(0.5);
+	addPitch(glm::radians(-30.0f));
+	addYaw(glm::radians(30.0f));
 
 	updateShaders();
 }
 
-void Scene::render()
+void Scene::render() const
 {
-	constexpr glm::vec3 backgroundColor{0.1f, 0.1f, 0.1f};
-	glClearColor(backgroundColor.r, backgroundColor.g, backgroundColor.b, 1.0f);
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	
 	m_activeCamera->use();
+	renderModels();
+	renderGrid();
+}
 
-	ShaderProgram* activeShaderProgram = &m_solidShaderProgram;
+Camera& Scene::getActiveCamera()
+{
+	return *m_activeCamera;
+}
+
+Model& Scene::getActiveModel()
+{
+	return *m_activeModel;
+}
+
+void Scene::addPitch(float pitchRad)
+{
+	m_perspectiveCamera.addPitch(pitchRad);
+	m_orthographicCamera.addPitch(pitchRad);
+}
+
+void Scene::addYaw(float yawRad)
+{
+	m_perspectiveCamera.addYaw(yawRad);
+	m_orthographicCamera.addYaw(yawRad);
+}
+
+void Scene::addRadius(float radius)
+{
+	m_perspectiveCamera.addRadius(radius);
+	m_orthographicCamera.addRadius(radius);
+}
+
+void Scene::moveX(float x)
+{
+	m_perspectiveCamera.moveX(x);
+	m_orthographicCamera.moveX(x);
+}
+
+void Scene::moveY(float y)
+{
+	m_perspectiveCamera.moveY(y);
+	m_orthographicCamera.moveY(y);
+}
+
+void Scene::zoom(float zoom)
+{
+	m_perspectiveCamera.zoom(zoom);
+	m_orthographicCamera.zoom(zoom);
+}
+
+RenderMode Scene::getRenderMode() const
+{
+	return m_renderMode;
+}
+
+CameraType Scene::getCameraType() const
+{
+	return m_cameraType;
+}
+
+void Scene::setAspectRatio(float aspectRatio)
+{
+	m_perspectiveCamera.setAspectRatio(aspectRatio);
+	m_orthographicCamera.setAspectRatio(aspectRatio);
+}
+
+void Scene::setRenderMode(RenderMode renderMode)
+{
+	m_renderMode = renderMode;
+}
+
+void Scene::setCameraType(CameraType cameraType)
+{
+	m_cameraType = cameraType;
+	switch (cameraType)
+	{
+	case CameraType::perspective:
+		m_activeCamera = &m_perspectiveCamera;
+		break;
+
+	case CameraType::orthographic:
+		m_activeCamera = &m_orthographicCamera;
+		break;
+	}
+}
+
+void Scene::renderModels() const
+{
+	const ShaderProgram* activeShaderProgram = &m_solidShaderProgram;
 	switch (m_renderMode)
 	{
 	case RenderMode::wireframe:
@@ -63,85 +140,10 @@ void Scene::render()
 	}
 }
 
-Camera& Scene::getActiveCamera()
+void Scene::renderGrid() const
 {
-	return *m_activeCamera;
-}
-
-Model& Scene::getActiveModel()
-{
-	return *m_activeModel;
-}
-
-void Scene::addPitch(float pitchRad)
-{
-	m_orthographicCamera.addPitch(pitchRad);
-	m_perspectiveCamera.addPitch(pitchRad);
-}
-
-void Scene::addYaw(float yawRad)
-{
-	m_orthographicCamera.addYaw(yawRad);
-	m_perspectiveCamera.addYaw(yawRad);
-}
-
-void Scene::addRadius(float radius)
-{
-	m_orthographicCamera.addRadius(radius);
-	m_perspectiveCamera.addRadius(radius);
-}
-
-void Scene::moveX(float x)
-{
-	m_orthographicCamera.moveX(x);
-	m_perspectiveCamera.moveX(x);
-}
-
-void Scene::moveY(float y)
-{
-	m_orthographicCamera.moveY(y);
-	m_perspectiveCamera.moveY(y);
-}
-
-void Scene::zoom(float zoom)
-{
-	m_orthographicCamera.zoom(zoom);
-	m_perspectiveCamera.zoom(zoom);
-}
-
-RenderMode Scene::getRenderMode() const
-{
-	return m_renderMode;
-}
-
-CameraType Scene::getCameraType() const
-{
-	return m_cameraType;
-}
-
-void Scene::setAspectRatio(float aspectRatio)
-{
-	m_orthographicCamera.setAspectRatio(aspectRatio);
-	m_perspectiveCamera.setAspectRatio(aspectRatio);
-}
-
-void Scene::setRenderMode(RenderMode renderMode)
-{
-	m_renderMode = renderMode;
-}
-
-void Scene::setCameraType(CameraType cameraType)
-{
-	m_cameraType = cameraType;
-	switch (cameraType)
-	{
-	case CameraType::orthographic:
-		m_activeCamera = &m_orthographicCamera;
-		break;
-	case CameraType::perspective:
-		m_activeCamera = &m_perspectiveCamera;
-		break;
-	}
+	m_gridShaderProgram.use();
+	m_grid.render(m_gridShaderProgram, m_cameraType);
 }
 
 void Scene::updateShaders() const
