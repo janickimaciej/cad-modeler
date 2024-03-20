@@ -1,6 +1,6 @@
 #pragma once
 
-#include "model_guis/model_gui.hpp"
+#include "guis/model_guis/model_gui.hpp"
 
 class Torus;
 
@@ -12,6 +12,14 @@ public:
 
 private:
 	Torus& m_torus;
+
+	float m_x{};
+	float m_y{};
+	float m_z{};
+
+	float m_scaleX{};
+	float m_scaleY{};
+	float m_scaleZ{};
 
 	float m_majorRadius{};
 	float m_minorRadius{};

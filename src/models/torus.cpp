@@ -5,19 +5,29 @@
 #include <cmath>
 #include <vector>
 
-Torus::Torus(float majorRadius, float minorRadius, int major, int minor) :
+constexpr float initialMajorRadius = 3.0f;
+constexpr float initialMinorRadius = 1.0f;
+constexpr int initialMajor = 32;
+constexpr int initialMinor = 16;
+
+Torus::Torus(const ShaderProgram& wireframeShaderProgram, const ShaderProgram& solidShaderProgram,
+	glm::vec3 position) :
+	Model{position, "Torus " + std::to_string(m_count)},
+	m_id{m_count++},
+	m_wireframeShaderProgram{wireframeShaderProgram},
+	m_solidShaderProgram{solidShaderProgram},
 	m_gui{*this},
-	m_majorRadius{majorRadius},
-	m_minorRadius{minorRadius},
-	m_major{major},
-	m_minor{minor}
+	m_majorRadius{initialMajorRadius},
+	m_minorRadius{initialMinorRadius},
+	m_major{initialMajor},
+	m_minor{initialMinor}
 {
 	updateMesh();
 }
 
-void Torus::render(RenderMode renderMode, const ShaderProgram& shaderProgram) const
+void Torus::render(RenderMode renderMode) const
 {
-	updateShaders(shaderProgram);
+	updateShaders(renderMode);
 	m_mesh->render(renderMode);
 }
 
@@ -82,6 +92,26 @@ void Torus::setMinor(int minor)
 	}
 }
 
+int Torus::m_count = 0;
+
+void Torus::updateShaders(RenderMode renderMode) const
+{
+	switch (renderMode)
+	{
+	case RenderMode::wireframe:
+		m_wireframeShaderProgram.use();
+		m_wireframeShaderProgram.setUniformMatrix4f("modelMatrix", m_modelMatrix);
+		m_wireframeShaderProgram.setUniform1b("isActive", isActive());
+		break;
+
+	case RenderMode::solid:
+		m_solidShaderProgram.use();
+		m_solidShaderProgram.setUniformMatrix4f("modelMatrix", m_modelMatrix);
+		m_solidShaderProgram.setUniform1b("isActive", isActive());
+		break;
+	}
+}
+
 void Torus::updateMesh()
 {
 	m_mesh.reset();
@@ -105,8 +135,8 @@ std::vector<Vertex> Torus::createVertices() const
 			vertices.push_back(
 				Vertex
 				{
-					getPosition(s, t),
-					getNormalVector(s, t)
+					getSurfacePosition(s, t),
+					getSurfaceNormalVector(s, t)
 				}
 			);
 		}
@@ -164,7 +194,7 @@ std::vector<unsigned int> Torus::createIndicesSolid() const
 	return indices;
 }
 
-glm::vec3 Torus::getPosition(float s, float t) const
+glm::vec3 Torus::getSurfacePosition(float s, float t) const
 {
 	float common = m_minorRadius * std::cos(t) + m_majorRadius;
 
@@ -177,7 +207,7 @@ glm::vec3 Torus::getPosition(float s, float t) const
 		};
 }
 
-glm::vec3 Torus::getNormalVector(float s, float t) const
+glm::vec3 Torus::getSurfaceNormalVector(float s, float t) const
 {
 	float sins = std::sin(s);
 	float coss = std::cos(s);

@@ -1,15 +1,15 @@
 #pragma once
 
-#include "camera_guis/camera_gui.hpp"
-#include "camera_guis/orthographic_camera_gui.hpp"
+#include "guis/camera_guis/camera_gui.hpp"
+#include "guis/camera_guis/orthographic_camera_gui.hpp"
 #include "cameras/camera.hpp"
+#include "shader_programs.hpp"
 
 class OrthographicCamera : public Camera
 {
 public:
 	OrthographicCamera(float viewWidth, float aspectRatio, float nearPlane, float farPlane,
-		ShaderProgram& gridShaderProgram, ShaderProgram& wireframeShaderProgram,
-		ShaderProgram& solidShaderProgram);
+		const ShaderPrograms& shaderPrograms);
 	virtual CameraGUI& getGUI() override;
 	float getViewWidth() const;
 	void setViewWidth(float viewWidth);

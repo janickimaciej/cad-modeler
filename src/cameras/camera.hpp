@@ -2,14 +2,14 @@
 
 #include <glm/glm.hpp>
 
-#include "camera_guis/camera_gui.hpp"
-#include "shader_program.hpp"
+#include "guis/camera_guis/camera_gui.hpp"
+#include "shader_programs.hpp"
 
 class Camera
 {
 public:
-	Camera(float aspectRatio, float nearPlane, float farPlane, ShaderProgram& gridShaderProgram,
-		ShaderProgram& wireframeShaderProgram, ShaderProgram& solidShaderProgram);
+	Camera(float aspectRatio, float nearPlane, float farPlane,
+		const ShaderPrograms& shaderPrograms);
 	void use() const;
 	virtual CameraGUI& getGUI() = 0;
 	glm::vec3 getPosition() const;
@@ -39,7 +39,5 @@ private:
 	float m_pitchRad = 0;
 	float m_yawRad = 0;
 	
-	ShaderProgram& m_gridShaderProgram;
-	ShaderProgram& m_wireframeShaderProgram;
-	ShaderProgram& m_solidShaderProgram;
+	const ShaderPrograms& m_shaderPrograms;
 };

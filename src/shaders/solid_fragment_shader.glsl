@@ -8,6 +8,7 @@ uniform float ambient;
 uniform float diffuse;
 uniform float specular;
 uniform float shininess;
+uniform bool isActive;
 
 out vec4 outColor;
 
@@ -26,5 +27,6 @@ void main()
 	float reflectionViewCos = dot(reflectionVector, viewVector);
 	brightness += reflectionViewCos > 0 ? specular * pow(reflectionViewCos, shininess) : 0;
 
-	outColor = vec4(brightness, brightness, brightness, 1);
+	outColor =
+		isActive ? vec4(brightness, brightness, 0, 1) : vec4(brightness, brightness, brightness, 1);
 }

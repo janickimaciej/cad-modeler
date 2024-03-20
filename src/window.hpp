@@ -10,7 +10,7 @@ class Window
 {
 public:
 	Window(int width, int height);
-	void setScene(Scene& scene);
+	void setUserData(Scene& scene, GUI& gui);
 	bool shouldClose();
 	void clear() const;
 	void swapBuffers() const;
@@ -19,6 +19,7 @@ public:
 	static void resizeCallback(GLFWwindow* window, int width, int height);
 	static void cursorMovementCallback(GLFWwindow* window, double x, double y);
 	static void scrollCallback(GLFWwindow* window, double, double yOffset);
+	static void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods);
 	~Window();
 
 private:

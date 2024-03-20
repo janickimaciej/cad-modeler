@@ -1,15 +1,15 @@
 #pragma once
 
-#include "camera_guis/camera_gui.hpp"
-#include "camera_guis/perspective_camera_gui.hpp"
+#include "guis/camera_guis/camera_gui.hpp"
+#include "guis/camera_guis/perspective_camera_gui.hpp"
 #include "cameras/camera.hpp"
+#include "shader_programs.hpp"
 
 class PerspectiveCamera : public Camera
 {
 public:
 	PerspectiveCamera(float fovYDeg, float aspectRatio, float nearPlane, float farPlane,
-		ShaderProgram& gridShaderProgram, ShaderProgram& wireframeShaderProgram,
-		ShaderProgram& solidShaderProgram);
+		const ShaderPrograms& shaderPrograms);
 	virtual CameraGUI& getGUI() override;
 	float getFOVYDeg() const;
 	void setFOVYDeg(float fovYDeg);

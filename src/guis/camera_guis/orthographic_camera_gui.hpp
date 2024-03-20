@@ -1,6 +1,6 @@
 #pragma once
 
-#include "camera_guis/camera_gui.hpp"
+#include "guis/camera_guis/camera_gui.hpp"
 
 class OrthographicCamera;
 

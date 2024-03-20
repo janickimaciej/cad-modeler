@@ -44,15 +44,19 @@ vec4 gridColor(vec3 posWorld)
 	float minDistFromGrid = min(distFromGrid.x, distFromGrid.y);
 	vec4 color = vec4(0.2, 0.2, 0.2, 1.0 - min(minDistFromGrid, 1.0));
 	const float axisWidth = 5;
-	if (posWorld.x > -axisWidth * min(posGridDeriv.x, 1) &&
-		posWorld.x < axisWidth * min(posGridDeriv.x, 1))
-	{
-		color.b = 1.0;
-	}
-	if (posWorld.z > -axisWidth * min(posGridDeriv.y, 1) &&
-		posWorld.z < axisWidth * min(posGridDeriv.y, 1))
+
+	float posGridDerivZ = min(posGridDeriv.y, 1);
+	if (posWorld.z > -axisWidth * posGridDerivZ &&
+		posWorld.z < axisWidth * posGridDerivZ)
 	{
 		color.r = 1.0;
+	}
+
+	float posGridDerivX = min(posGridDeriv.x, 1);
+	if (posWorld.x > -axisWidth * min(posGridDerivX, 1) &&
+		posWorld.x < axisWidth * min(posGridDerivX, 1))
+	{
+		color.b = 1.0;
 	}
 	return color;
 }

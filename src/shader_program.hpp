@@ -10,6 +10,8 @@ class ShaderProgram
 {
 public:
 	ShaderProgram(const std::string& vertexShaderPath, const std::string& fragmentShaderPath);
+	ShaderProgram(const std::string& vertexShaderPath, const std::string& geometryShaderPath,
+		const std::string& fragmentShaderPath);
 	ShaderProgram(const ShaderProgram&) = delete;
 	ShaderProgram(ShaderProgram&&) = delete;
 	void use() const;
@@ -24,7 +26,8 @@ private:
 	unsigned int m_id{};
 
 	unsigned int createShader(GLenum shaderType, const std::string& shaderPath) const;
-	unsigned int createShaderProgram(unsigned int vertexShader,
+	unsigned int createShaderProgram(unsigned int vertexShader, unsigned int fragmentShader) const;
+	unsigned int createShaderProgram(unsigned int vertexShader, unsigned int geometryShader,
 		unsigned int fragmentShader) const;
 	std::string readShaderFile(const std::string& shaderPath) const;
 	void printCompilationError(GLenum shaderType, unsigned int shaderId) const;

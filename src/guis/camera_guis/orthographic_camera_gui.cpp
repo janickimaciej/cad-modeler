@@ -1,4 +1,4 @@
-#include "camera_guis/orthographic_camera_gui.hpp"
+#include "guis/camera_guis/orthographic_camera_gui.hpp"
 
 #include "cameras/orthographic_camera.hpp"
 
@@ -7,6 +7,7 @@
 #include <imgui/backends/imgui_impl_opengl3.h>
 
 #include <algorithm>
+#include <string>
 
 OrthographicCameraGUI::OrthographicCameraGUI(OrthographicCamera& camera) :
 	m_camera{camera}
@@ -14,9 +15,11 @@ OrthographicCameraGUI::OrthographicCameraGUI(OrthographicCamera& camera) :
 
 void OrthographicCameraGUI::update()
 {
+	const std::string suffix = "##orthographicCamera";
+
 	getValues();
 
-	ImGui::InputFloat("view width", &m_viewWidth, 0.1f, 0.1f, "%.2f");
+	ImGui::InputFloat(("view width" + suffix).c_str(), &m_viewWidth, 0.1f, 0.1f, "%.2f");
 	m_viewWidth = std::max(m_viewWidth, 0.01f);
 
 	setValues();

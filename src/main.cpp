@@ -1,4 +1,4 @@
-#include "gui.hpp"
+#include "guis/gui.hpp"
 #include "scene.hpp"
 #include "shader_program.hpp"
 #include "window.hpp"
@@ -13,8 +13,9 @@ int main()
 		static_cast<float>(initialWindowWidth) / initialWindowHeight;
 
 	Window window{initialWindowWidth, initialWindowHeight};
-	Scene scene{initialAspectRatio, window};
-	GUI gui{window.getPtr(), scene};
+	Scene scene{initialAspectRatio};
+	GUI gui{window.getPtr(), scene, initialWindowWidth, initialWindowHeight};
+	window.setUserData(scene, gui);
 
 	while (!window.shouldClose())
 	{

@@ -3,14 +3,12 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/constants.hpp>
 
-Camera::Camera(float aspectRatio, float nearPlane, float farPlane, ShaderProgram& gridShaderProgram,
-	ShaderProgram& wireframeShaderProgram, ShaderProgram& solidShaderProgram) :
+Camera::Camera(float aspectRatio, float nearPlane, float farPlane,
+	const ShaderPrograms& shaderPrograms) :
 	m_aspectRatio{aspectRatio},
 	m_nearPlane{nearPlane},
 	m_farPlane{farPlane},
-	m_gridShaderProgram{gridShaderProgram},
-	m_wireframeShaderProgram{wireframeShaderProgram},
-	m_solidShaderProgram{solidShaderProgram}
+	m_shaderPrograms{shaderPrograms}
 {
 	updateViewMatrix();
 }
@@ -99,17 +97,27 @@ void Camera::updateShaders() const
 	glm::mat4 projectionViewMatrixInverse = glm::inverse(projectionViewMatrix);
 	glm::vec3 cameraPosition = getPosition();
 
-	m_gridShaderProgram.use();
-	m_gridShaderProgram.setUniformMatrix4f("projectionViewMatrix", projectionViewMatrix);
-	m_gridShaderProgram.setUniformMatrix4f("projectionViewMatrixInverse",
+	m_shaderPrograms.wireframe.use();
+	m_shaderPrograms.wireframe.setUniformMatrix4f("projectionViewMatrix", projectionViewMatrix);
+
+	m_shaderPrograms.solid.use();
+	m_shaderPrograms.solid.setUniformMatrix4f("projectionViewMatrix", projectionViewMatrix);
+	m_shaderPrograms.solid.setUniform3f("cameraPos", cameraPosition);
+
+	m_shaderPrograms.wireframePoint.use();
+	m_shaderPrograms.wireframePoint.setUniformMatrix4f("projectionViewMatrix",
+		projectionViewMatrix);
+
+	m_shaderPrograms.solidPoint.use();
+	m_shaderPrograms.solidPoint.setUniformMatrix4f("projectionViewMatrix", projectionViewMatrix);
+
+	m_shaderPrograms.cursor.use();
+	m_shaderPrograms.cursor.setUniformMatrix4f("projectionViewMatrix", projectionViewMatrix);
+
+	m_shaderPrograms.grid.use();
+	m_shaderPrograms.grid.setUniformMatrix4f("projectionViewMatrix", projectionViewMatrix);
+	m_shaderPrograms.grid.setUniformMatrix4f("projectionViewMatrixInverse",
 		projectionViewMatrixInverse);
-
-	m_wireframeShaderProgram.use();
-	m_wireframeShaderProgram.setUniformMatrix4f("projectionViewMatrix", projectionViewMatrix);
-
-	m_solidShaderProgram.use();
-	m_solidShaderProgram.setUniformMatrix4f("projectionViewMatrix", projectionViewMatrix);
-	m_solidShaderProgram.setUniform3f("cameraPos", cameraPosition);
 }
 
 void Camera::updateViewMatrix()

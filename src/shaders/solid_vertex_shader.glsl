@@ -12,6 +12,6 @@ out vec3 unnormalizedNormalVector;
 void main()
 {
 	pos = (modelMatrix * vec4(inPosMesh, 1)).xyz;
-	unnormalizedNormalVector = (modelMatrix * vec4(inNormalVectorMesh, 0)).xyz;
+	unnormalizedNormalVector = (transpose(inverse(modelMatrix)) * vec4(inNormalVectorMesh, 0)).xyz;
 	gl_Position = projectionViewMatrix * vec4(pos, 1);
 }

@@ -1,10 +1,11 @@
 #include "window.hpp"
 
+#include "guis/gui.hpp"
 #include "scene.hpp"
 #include "window_user_data.hpp"
 
 #include <string>
-#include <iostream>
+
 Window::Window(int width, int height)
 {
 	glfwInit();
@@ -19,6 +20,7 @@ Window::Window(int width, int height)
 	glfwSetFramebufferSizeCallback(m_windowPtr, resizeCallback);
 	glfwSetCursorPosCallback(m_windowPtr, cursorMovementCallback);
 	glfwSetScrollCallback(m_windowPtr, scrollCallback);
+	glfwSetKeyCallback(m_windowPtr, keyCallback);
 	gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_CULL_FACE);
@@ -27,9 +29,10 @@ Window::Window(int width, int height)
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 }
 
-void Window::setScene(Scene& scene)
+void Window::setUserData(Scene& scene, GUI& gui)
 {
 	m_userData.scene = &scene;
+	m_userData.gui = &gui;
 }
 
 bool Window::shouldClose()
@@ -68,6 +71,7 @@ void Window::resizeCallback(GLFWwindow* window, int width, int height)
 
 	WindowUserData* userData = static_cast<WindowUserData*>(glfwGetWindowUserPointer(window));
 	userData->scene->setAspectRatio(static_cast<float>(width) / height);
+	userData->gui->setWindowSize(width, height);
 	glViewport(0, 0, width, height);
 }
 
@@ -93,8 +97,8 @@ void Window::cursorMovementCallback(GLFWwindow* window, double x, double y)
 		glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_MIDDLE) == GLFW_PRESS))
 	{
 		float sensitivity = 0.002f;
-		windowUserData->scene->addPitch(-sensitivity * yOffset);
-		windowUserData->scene->addYaw(sensitivity * xOffset);
+		windowUserData->scene->addPitchCamera(-sensitivity * yOffset);
+		windowUserData->scene->addYawCamera(sensitivity * xOffset);
 	}
 
 	if ((glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS ||
@@ -102,15 +106,15 @@ void Window::cursorMovementCallback(GLFWwindow* window, double x, double y)
 		glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_MIDDLE) == GLFW_PRESS)
 	{
 		float sensitivity = 0.001f;
-		windowUserData->scene->moveX(-sensitivity * xOffset);
-		windowUserData->scene->moveY(sensitivity * yOffset);
+		windowUserData->scene->moveXCamera(-sensitivity * xOffset);
+		windowUserData->scene->moveYCamera(sensitivity * yOffset);
 	}
 
 	if (glfwGetKey(window, GLFW_KEY_RIGHT_ALT) == GLFW_PRESS &&
 		glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)
 	{
 		float sensitivity = 1.005f;
-		windowUserData->scene->zoom(std::pow(sensitivity, -yOffset));
+		windowUserData->scene->zoomCamera(std::pow(sensitivity, -yOffset));
 	}
 }
 
@@ -120,7 +124,29 @@ void Window::scrollCallback(GLFWwindow* window, double, double yOffset)
 		static_cast<WindowUserData*>(glfwGetWindowUserPointer(window));
 
 	float sensitivity = 1.1f;
-	windowUserData->scene->zoom(std::pow(sensitivity, static_cast<float>(yOffset)));
+	windowUserData->scene->zoomCamera(std::pow(sensitivity, static_cast<float>(yOffset)));
+}
+
+void Window::keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods)
+{
+	WindowUserData* windowUserData =
+		static_cast<WindowUserData*>(glfwGetWindowUserPointer(window));
+
+	if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
+	{
+		windowUserData->scene->clearActiveModels();
+		windowUserData->gui->stopRenaming();
+	}
+
+	if (key == GLFW_KEY_F2 && action == GLFW_PRESS)
+	{
+		windowUserData->gui->startRenaming();
+	}
+
+	if (key == GLFW_KEY_DELETE && action == GLFW_PRESS)
+	{
+		windowUserData->gui->deleteActiveModels();
+	}
 }
 
 Window::~Window()

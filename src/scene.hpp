@@ -3,10 +3,13 @@
 #include "cameras/orthographic_camera.hpp"
 #include "cameras/perspective_camera.hpp"
 #include "camera_type.hpp"
+#include "center_point.hpp"
+#include "cursor.hpp"
 #include "grid/grid.hpp"
 #include "models/model.hpp"
 #include "render_mode.hpp"
 #include "shader_program.hpp"
+#include "shader_programs.hpp"
 
 #include <glm/glm.hpp>
 
@@ -19,18 +22,21 @@ class Window;
 class Scene
 {
 public:
-	Scene(float aspectRatio, Window& window);
-	void render() const;
+	Scene(float aspectRatio);
+	void render();
 
 	Camera& getActiveCamera();
-	Model& getActiveModel();
+	std::vector<Model*> getModels();
+	void updateModelGUI(int i);
+	void setModelIsActive(int i, bool isActive);
+	Cursor& getCursor();
+	CenterPoint& getActiveModelsCenter();
 
-	void addPitch(float pitchRad);
-	void addYaw(float yawRad);
-	void addRadius(float radius);
-	void moveX(float x);
-	void moveY(float y);
-	void zoom(float zoom);
+	void addPitchCamera(float pitchRad);
+	void addYawCamera(float yawRad);
+	void moveXCamera(float x);
+	void moveYCamera(float y);
+	void zoomCamera(float zoom);
 
 	RenderMode getRenderMode() const;
 	CameraType getCameraType() const;
@@ -38,19 +44,25 @@ public:
 	void setRenderMode(RenderMode renderMode);
 	void setCameraType(CameraType cameraType);
 
-private:
-	ShaderProgram m_wireframeShaderProgram{"src/shaders/wireframe_vertex_shader.glsl",
-		"src/shaders/wireframe_fragment_shader.glsl"};
-	ShaderProgram m_solidShaderProgram{"src/shaders/solid_vertex_shader.glsl",
-		"src/shaders/solid_fragment_shader.glsl"};
-	ShaderProgram m_gridShaderProgram{"src/shaders/grid_vertex_shader.glsl",
-		"src/shaders/grid_fragment_shader.glsl"};
+	void addPoint();
+	void addTorus();
 
-	static constexpr float gridScale = 10.0f;
-	Grid m_grid{gridScale};
+	void clearActiveModels();
+	void deleteActiveModels();
+
+	Model* getUniqueActiveModel() const;
+
+private:
+	ShaderPrograms m_shaderPrograms{};
 
 	std::vector<std::unique_ptr<Model>> m_models{};
 	Model* m_activeModel{};
+
+	Cursor m_cursor{};
+	CenterPoint m_activeModelsCenter{};
+
+	static constexpr float gridScale = 10.0f;
+	Grid m_grid{gridScale};
 	
 	PerspectiveCamera m_perspectiveCamera;
 	OrthographicCamera m_orthographicCamera;
@@ -65,6 +77,8 @@ private:
 	float m_shininess = 20.0f;
 
 	void renderModels() const;
+	void renderCursor() const;
+	void renderActiveModelsCenter();
 	void renderGrid() const;
 	void updateShaders() const;
 };
