@@ -9,11 +9,9 @@ int main()
 {
 	constexpr int initialWindowWidth = 1200;
 	constexpr int initialWindowHeight = 700;
-	constexpr float initialAspectRatio =
-		static_cast<float>(initialWindowWidth) / initialWindowHeight;
 
 	Window window{initialWindowWidth, initialWindowHeight};
-	Scene scene{initialAspectRatio};
+	Scene scene{initialWindowWidth, initialWindowHeight};
 	GUI gui{window.getPtr(), scene, initialWindowWidth, initialWindowHeight};
 	window.setUserData(scene, gui);
 

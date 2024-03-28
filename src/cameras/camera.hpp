@@ -13,6 +13,7 @@ public:
 	void use() const;
 	virtual CameraGUI& getGUI() = 0;
 	glm::vec3 getPosition() const;
+	glm::mat4 getMatrix() const;
 	void addPitch(float pitchRad);
 	void addYaw(float yawRad);
 	void addRadius(float radius);

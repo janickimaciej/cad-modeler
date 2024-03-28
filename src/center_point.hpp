@@ -14,10 +14,18 @@ public:
 	CenterPoint();
 	void render(const ShaderProgram& shaderProgram) const;
 	CenterPointGUI& getGUI();
-	void setModels(const std::vector<Model*>& activeModels);
+	void setModels(const std::vector<Model*>& models);
 
-	glm::vec3 getPosition() const;
+	glm::vec3 getPosition();
 	void setPosition(const glm::vec3& position);
+
+	void rotateX(float angleRad);
+	void rotateY(float angleRad);
+	void rotateZ(float angleRad);
+
+	void scaleX(float scale);
+	void scaleY(float scale);
+	void scaleZ(float scale);
 
 private:
 	CenterPointGUI m_gui;
@@ -28,5 +36,7 @@ private:
 
 	unsigned int m_VAO{};
 
+	void updatePosition();
 	void updateShaders(const ShaderProgram& shaderProgram) const;
+	static glm::vec3 matrixToEuler(const glm::mat3& rotationMatrix);
 };

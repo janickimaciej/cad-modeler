@@ -20,6 +20,7 @@ Window::Window(int width, int height)
 	glfwSetFramebufferSizeCallback(m_windowPtr, resizeCallback);
 	glfwSetCursorPosCallback(m_windowPtr, cursorMovementCallback);
 	glfwSetScrollCallback(m_windowPtr, scrollCallback);
+	glfwSetMouseButtonCallback(m_windowPtr, buttonCallback);
 	glfwSetKeyCallback(m_windowPtr, keyCallback);
 	gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
 	glEnable(GL_DEPTH_TEST);
@@ -71,6 +72,7 @@ void Window::resizeCallback(GLFWwindow* window, int width, int height)
 
 	WindowUserData* userData = static_cast<WindowUserData*>(glfwGetWindowUserPointer(window));
 	userData->scene->setAspectRatio(static_cast<float>(width) / height);
+	userData->scene->setWindowSize(width, height);
 	userData->gui->setWindowSize(width, height);
 	glViewport(0, 0, width, height);
 }
@@ -118,6 +120,22 @@ void Window::cursorMovementCallback(GLFWwindow* window, double x, double y)
 	}
 }
 
+void Window::buttonCallback(GLFWwindow* window, int button, int action, int)
+{
+	if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS)
+	{
+		double xPos{};
+		double yPos{};
+		glfwGetCursorPos(window, &xPos, &yPos);
+
+		
+		WindowUserData* windowUserData =
+			static_cast<WindowUserData*>(glfwGetWindowUserPointer(window));
+		windowUserData->scene->activate(static_cast<float>(xPos), static_cast<float>(yPos),
+			glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS);
+	}
+}
+
 void Window::scrollCallback(GLFWwindow* window, double, double yOffset)
 {
 	WindowUserData* windowUserData =
@@ -127,15 +145,20 @@ void Window::scrollCallback(GLFWwindow* window, double, double yOffset)
 	windowUserData->scene->zoomCamera(std::pow(sensitivity, static_cast<float>(yOffset)));
 }
 
-void Window::keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods)
+void Window::keyCallback(GLFWwindow* window, int key, int, int action, int)
 {
 	WindowUserData* windowUserData =
 		static_cast<WindowUserData*>(glfwGetWindowUserPointer(window));
 
 	if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
 	{
+		windowUserData->gui->cancel();
 		windowUserData->scene->clearActiveModels();
-		windowUserData->gui->stopRenaming();
+	}
+
+	if (key == GLFW_KEY_ENTER && action == GLFW_PRESS)
+	{
+		windowUserData->gui->apply();
 	}
 
 	if (key == GLFW_KEY_F2 && action == GLFW_PRESS)
@@ -146,6 +169,66 @@ void Window::keyCallback(GLFWwindow* window, int key, int scancode, int action, 
 	if (key == GLFW_KEY_DELETE && action == GLFW_PRESS)
 	{
 		windowUserData->gui->deleteActiveModels();
+	}
+
+	static bool rotatingRequested = false;
+	static bool scalingRequested = false;
+
+	if (key == GLFW_KEY_X && action == GLFW_PRESS)
+	{
+		if (rotatingRequested)
+		{
+			windowUserData->gui->startRotatingX();
+		}
+
+		if (scalingRequested)
+		{
+			windowUserData->gui->startScalingX();
+		}
+	}
+
+	if (key == GLFW_KEY_Y && action == GLFW_PRESS)
+	{
+		if (rotatingRequested)
+		{
+			windowUserData->gui->startRotatingY();
+		}
+
+		if (scalingRequested)
+		{
+			windowUserData->gui->startScalingY();
+		}
+	}
+
+	if (key == GLFW_KEY_Z && action == GLFW_PRESS)
+	{
+		if (rotatingRequested)
+		{
+			windowUserData->gui->startRotatingZ();
+		}
+
+		if (scalingRequested)
+		{
+			windowUserData->gui->startScalingZ();
+		}
+	}
+
+	if (key == GLFW_KEY_R && action == GLFW_PRESS)
+	{
+		rotatingRequested = true;
+	}
+	else if (action == GLFW_PRESS)
+	{
+		rotatingRequested = false;
+	}
+
+	if (key == GLFW_KEY_S && action == GLFW_PRESS)
+	{
+		scalingRequested = true;
+	}
+	else if (action == GLFW_PRESS)
+	{
+		scalingRequested = false;
 	}
 }
 

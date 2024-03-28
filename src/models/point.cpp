@@ -37,10 +37,10 @@ void Point::updateShaders(RenderMode renderMode) const
 	switch (renderMode)
 	{
 	case RenderMode::wireframe:
-		m_wireframePointShaderProgram.use();
+		/*m_wireframePointShaderProgram.use();
 		m_wireframePointShaderProgram.setUniform3f("posWorld", m_position);
 		m_wireframePointShaderProgram.setUniform1b("isActive", isActive());
-		break;
+		break;*/
 
 	case RenderMode::solid:
 		m_solidPointShaderProgram.use();

@@ -22,9 +22,12 @@ class Window;
 class Scene
 {
 public:
-	Scene(float aspectRatio);
+	Scene(int windowWidth, int windowHeight);
 	void render();
+	glm::ivec2 getWindowSize() const;
+	void setWindowSize(int width, int height);
 
+	const Camera& getActiveCamera() const;
 	Camera& getActiveCamera();
 	std::vector<Model*> getModels();
 	void updateModelGUI(int i);
@@ -49,16 +52,20 @@ public:
 
 	void clearActiveModels();
 	void deleteActiveModels();
+	void activate(float xPos, float yPos, bool toggle);
 
 	Model* getUniqueActiveModel() const;
 
 private:
 	ShaderPrograms m_shaderPrograms{};
 
+	int m_windowWidth{};
+	int m_windowHeight{};
+
 	std::vector<std::unique_ptr<Model>> m_models{};
 	Model* m_activeModel{};
 
-	Cursor m_cursor{};
+	Cursor m_cursor;
 	CenterPoint m_activeModelsCenter{};
 
 	static constexpr float gridScale = 10.0f;
@@ -81,4 +88,5 @@ private:
 	void renderActiveModelsCenter();
 	void renderGrid() const;
 	void updateShaders() const;
+	std::optional<int> getClosestModel(float xPos, float yPos) const;
 };

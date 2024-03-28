@@ -18,8 +18,9 @@ public:
 	GLFWwindow* getPtr();
 	static void resizeCallback(GLFWwindow* window, int width, int height);
 	static void cursorMovementCallback(GLFWwindow* window, double x, double y);
+	static void buttonCallback(GLFWwindow* window, int button, int action, int);
 	static void scrollCallback(GLFWwindow* window, double, double yOffset);
-	static void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods);
+	static void keyCallback(GLFWwindow* window, int key, int, int action, int);
 	~Window();
 
 private:

@@ -21,14 +21,14 @@ public:
 	virtual ModelGUI& getGUI() override;
 
 	float getMajorRadius() const;
-	float getMinorRadius() const;
-	int getMajor() const;
-	int getMinor() const;
-
 	void setMajorRadius(float majorRadius);
+	float getMinorRadius() const;
 	void setMinorRadius(float minorRadius);
+	int getMajor() const;
 	void setMajor(int major);
+	int getMinor() const;
 	void setMinor(int minor);
+
 
 private:
 	static int m_count;

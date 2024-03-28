@@ -41,21 +41,6 @@ float Torus::getMajorRadius() const
 	return m_majorRadius;
 }
 
-float Torus::getMinorRadius() const
-{
-	return m_minorRadius;
-}
-
-int Torus::getMajor() const
-{
-	return m_major;
-}
-
-int Torus::getMinor() const
-{
-	return m_minor;
-}
-
 void Torus::setMajorRadius(float majorRadius)
 {
 	if (majorRadius != m_majorRadius)
@@ -63,6 +48,11 @@ void Torus::setMajorRadius(float majorRadius)
 		m_majorRadius = majorRadius;
 		updateMesh();
 	}
+}
+
+float Torus::getMinorRadius() const
+{
+	return m_minorRadius;
 }
 
 void Torus::setMinorRadius(float minorRadius)
@@ -74,6 +64,11 @@ void Torus::setMinorRadius(float minorRadius)
 	}
 }
 
+int Torus::getMajor() const
+{
+	return m_major;
+}
+
 void Torus::setMajor(int major)
 {
 	if (major != m_major)
@@ -81,6 +76,11 @@ void Torus::setMajor(int major)
 		m_major = major;
 		updateMesh();
 	}
+}
+
+int Torus::getMinor() const
+{
+	return m_minor;
 }
 
 void Torus::setMinor(int minor)

@@ -24,6 +24,11 @@ glm::vec3 Camera::getPosition() const
 		m_viewMatrixInverse[3][2]};
 }
 
+glm::mat4 Camera::getMatrix() const
+{
+	return m_projectionMatrix * glm::inverse(m_viewMatrixInverse);
+}
+
 void Camera::addPitch(float pitchRad)
 {
 	m_pitchRad += pitchRad;

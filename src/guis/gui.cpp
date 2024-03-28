@@ -34,7 +34,7 @@ void GUI::update()
 	ImGui_ImplGlfw_NewFrame();
 	ImGui::NewFrame();
 
-	if (m_renaming)
+	if (m_state == State::renaming)
 	{
 		constexpr int renamingWidth = 250;
 		constexpr int renamingHeight = 35;
@@ -43,13 +43,55 @@ void GUI::update()
 		ImGui::SetNextWindowSize({renamingWidth, renamingHeight}, ImGuiCond_Always);
 		ImGui::Begin("renaming", nullptr, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoTitleBar);
 		
-		ImGui::PushItemWidth(233);
-		if (m_renamingFocusFirstTime)
+		ImGui::PushItemWidth(renamingWidth - 17);
+		if (m_focusFirstTime)
 		{
 			ImGui::SetKeyboardFocusHere();
-			m_renamingFocusFirstTime = false;
+			m_focusFirstTime = false;
 		}
 		ImGui::InputText("##renaming", m_name.data(), m_name.size());
+		ImGui::PopItemWidth();
+
+		ImGui::End();
+	}
+
+	if (m_state == State::rotatingX || m_state == State::rotatingY || m_state == State::rotatingZ)
+	{
+		constexpr int rotatingWidth = 100;
+		constexpr int rotatingHeight = 35;
+		ImGui::SetNextWindowPos({(m_windowWidth - rotatingWidth + 50) / 2.0f,
+			(m_windowHeight - rotatingHeight) / 2.0f}, ImGuiCond_Always);
+		ImGui::SetNextWindowSize({rotatingWidth, rotatingHeight}, ImGuiCond_Always);
+		ImGui::Begin("rotating", nullptr, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoTitleBar);
+		
+		ImGui::PushItemWidth(rotatingWidth - 13);
+		if (m_focusFirstTime)
+		{
+			ImGui::SetKeyboardFocusHere();
+			m_focusFirstTime = false;
+		}
+		ImGui::InputFloat("##rotating", &m_rotationDeg, 1.0f, 1.0f, "%.2f");
+		ImGui::PopItemWidth();
+
+		ImGui::End();
+	}
+
+	if (m_state == State::scalingX || m_state == State::scalingY || m_state == State::scalingZ)
+	{
+		constexpr int scalingWidth = 100;
+		constexpr int scalingHeight = 35;
+		ImGui::SetNextWindowPos({(m_windowWidth - scalingWidth + 50) / 2.0f,
+			(m_windowHeight - scalingHeight) / 2.0f}, ImGuiCond_Always);
+		ImGui::SetNextWindowSize({scalingWidth, scalingHeight}, ImGuiCond_Always);
+		ImGui::Begin("rotating", nullptr, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoTitleBar);
+		
+		ImGui::PushItemWidth(scalingWidth - 13);
+		if (m_focusFirstTime)
+		{
+			ImGui::SetKeyboardFocusHere();
+			m_focusFirstTime = false;
+		}
+		ImGui::InputFloat("##scaling", &m_scale, 0.1f, 0.1f, "%.2f");
 		ImGui::PopItemWidth();
 
 		ImGui::End();
@@ -105,23 +147,139 @@ void GUI::render()
 
 void GUI::startRenaming()
 {
-	m_uniqueActiveModel = m_scene.getUniqueActiveModel();
-	if (m_uniqueActiveModel != nullptr)
+	if (m_state == State::none)
 	{
-		m_renaming = true;
-		m_renamingFocusFirstTime = true;
+		m_uniqueActiveModel = m_scene.getUniqueActiveModel();
+		if (m_uniqueActiveModel != nullptr)
+		{
+			std::string name = m_uniqueActiveModel->getName();
+			std::copy(name.begin(), name.end(), m_name.begin());
+			m_name[name.size()] = '\0';
+
+			m_state = State::renaming;
+			m_focusFirstTime = true;
+		}
 	}
 }
 
-void GUI::stopRenaming()
+void GUI::startRotatingX()
 {
-	m_uniqueActiveModel = nullptr;
-	m_renaming = false;
+	if (m_state == State::none)
+	{
+		m_rotationDeg = 0;
+		m_state = State::rotatingX;
+		m_focusFirstTime = true;
+	}
+}
+
+void GUI::startRotatingY()
+{
+	if (m_state == State::none)
+	{
+		m_rotationDeg = 0;
+		m_state = State::rotatingY;
+		m_focusFirstTime = true;
+	}
+}
+
+void GUI::startRotatingZ()
+{
+	if (m_state == State::none)
+	{
+		m_rotationDeg = 0;
+		m_state = State::rotatingZ;
+		m_focusFirstTime = true;
+	}
+}
+
+void GUI::startScalingX()
+{
+	if (m_state == State::none)
+	{
+		m_scale = 0;
+		m_state = State::scalingX;
+		m_focusFirstTime = true;
+	}
+}
+
+void GUI::startScalingY()
+{
+	if (m_state == State::none)
+	{
+		m_scale = 0;
+		m_state = State::scalingY;
+		m_focusFirstTime = true;
+	}
+}
+
+void GUI::startScalingZ()
+{
+	if (m_state == State::none)
+	{
+		m_scale = 0;
+		m_state = State::scalingZ;
+		m_focusFirstTime = true;
+	}
+}
+
+void GUI::cancel()
+{
+	switch (m_state)
+	{
+	case State::renaming:
+		m_uniqueActiveModel = nullptr;
+		break;
+
+	default:
+		break;
+	}
+
+	m_state = State::none;
+}
+
+void GUI::apply()
+{
+	switch (m_state)
+	{
+	case State::none:
+		break;
+
+	case State::renaming:
+		m_uniqueActiveModel->setName(std::string{m_name.data()});
+		m_uniqueActiveModel = nullptr;
+		break;
+
+	case State::rotatingX:
+		m_scene.getActiveModelsCenter().rotateX(glm::radians(m_rotationDeg));
+		break;
+
+	case State::rotatingY:
+		m_scene.getActiveModelsCenter().rotateY(glm::radians(m_rotationDeg));
+		break;
+
+	case State::rotatingZ:
+		m_scene.getActiveModelsCenter().rotateZ(glm::radians(m_rotationDeg));
+		break;
+
+	case State::scalingX:
+		m_scene.getActiveModelsCenter().scaleX(m_scale);
+		break;
+
+	case State::scalingY:
+		m_scene.getActiveModelsCenter().scaleY(m_scale);
+		break;
+
+	case State::scalingZ:
+		m_scene.getActiveModelsCenter().scaleZ(m_scale);
+		break;
+	}
+
+	m_state = State::none;
 }
 
 void GUI::deleteActiveModels()
 {
-	if (!m_renaming)
+	if (m_state == State::none)
 	{
 		m_scene.deleteActiveModels();
 	}
@@ -142,22 +300,12 @@ GUI::~GUI()
 
 void GUI::getValues()
 {
-	if (m_renaming)
-	{
-		std::string name = m_uniqueActiveModel->getName();
-		std::copy(name.begin(), name.end(), m_name.begin());
-		m_name[name.size()] = '\0';
-	}
 	m_renderMode = renderModeLabels[static_cast<int>(m_scene.getRenderMode())];
 	m_cameraType = cameraTypeLabels[static_cast<int>(m_scene.getCameraType())];
 }
 
 void GUI::setValues()
 {
-	if (m_renaming)
-	{
-		m_uniqueActiveModel->setName(std::string{m_name.data()});
-	}
 	int renderModeIndex =
 		static_cast<int>(std::find(renderModeLabels.begin(), renderModeLabels.end(), m_renderMode) -
 		renderModeLabels.begin());
@@ -216,7 +364,7 @@ void GUI::cursor()
 
 void GUI::activeModelsCenter()
 {
-	ImGui::Text("Active models center");
+	ImGui::Text("Active models");
 	ImGui::Spacing();
 	m_scene.getActiveModelsCenter().getGUI().update();
 }
@@ -266,7 +414,7 @@ void GUI::modelList()
 		}
 	}
 
-	if (clickedId.has_value() && !m_renaming)
+	if (clickedId.has_value() && m_state == State::none)
 	{
 		if (ImGui::GetIO().KeyCtrl)
 		{

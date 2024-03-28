@@ -19,6 +19,36 @@ void Model::setPosition(const glm::vec3& position)
 	updateMatrix();
 }
 
+float Model::getYawRad() const
+{
+	return m_yawRad;
+}
+
+void Model::setYawRad(float yawRad)
+{
+	m_yawRad = yawRad;
+}
+
+float Model::getPitchRad() const
+{
+	return m_pitchRad;
+}
+
+void Model::setPitchRad(float pitchRad)
+{
+	m_pitchRad = pitchRad;
+}
+
+float Model::getRollRad() const
+{
+	return m_rollRad;
+}
+
+void Model::setRollRad(float rollRad)
+{
+	m_rollRad = rollRad;
+}
+
 glm::vec3 Model::getScale() const
 {
 	return m_scale;
@@ -54,26 +84,48 @@ void Model::setIsActive(bool isActive)
 	m_isActive = isActive;
 }
 
+float Model::distanceSquared(float xPos, float yPos, int windowWidth, int windowHeight,
+	const glm::mat4& cameraMatrix) const
+{
+	glm::vec4 clipPosition = cameraMatrix * glm::vec4(m_position, 1);
+	clipPosition /= clipPosition.w;
+	glm::vec2 screenPosition{(clipPosition.x + 1) / 2 * windowWidth,
+		(-clipPosition.y + 1) / 2 * windowHeight};
+	return (screenPosition.x - xPos) * (screenPosition.x - xPos) +
+		(screenPosition.y - yPos) * (screenPosition.y - yPos);
+}
+
+glm::mat3 Model::getRotationMatrix() const
+{
+	glm::mat4 rotationYawMatrix
+	{
+		cos(m_yawRad), 0, -sin(m_yawRad), 0,
+		0, 1, 0, 0,
+		sin(m_yawRad), 0, cos(m_yawRad), 0,
+		0, 0, 0, 1
+	};
+
+	glm::mat4 rotationPitchMatrix
+	{
+		1, 0, 0, 0,
+		0, cos(m_pitchRad), sin(m_pitchRad), 0,
+		0, -sin(m_pitchRad), cos(m_pitchRad), 0,
+		0, 0, 0, 1
+	};
+
+	glm::mat4 rotationRollMatrix
+	{
+		cos(m_rollRad), sin(m_rollRad), 0, 0,
+		-sin(m_rollRad), cos(m_rollRad), 0, 0,
+		0, 0, 1, 0,
+		0, 0, 0, 1
+	};
+
+	return rotationRollMatrix * rotationYawMatrix * rotationPitchMatrix;
+}
+
 void Model::updateMatrix()
 {
-	float xx = m_orientation.x * m_orientation.x;
-	float xy = m_orientation.x * m_orientation.y;
-	float xz = m_orientation.x * m_orientation.z;
-	float xw = m_orientation.x * m_orientation.w;
-	float yy = m_orientation.y * m_orientation.y;
-	float yz = m_orientation.y * m_orientation.z;
-	float yw = m_orientation.y * m_orientation.w;
-	float zz = m_orientation.z * m_orientation.z;
-	float zw = m_orientation.z * m_orientation.w;
-
-	glm::mat4 positionOrientationMatrix
-		{
-			1 - 2 * (yy + zz), 2 * (xy + zw), 2 * (xz - yw), 0,
-			2 * (xy - zw), 1 - 2 * (xx + zz), 2 * (yz + xw), 0,
-			2 * (xz + yw), 2 * (yz - xw), 1 - 2 * (xx + yy), 0,
-			m_position.x, m_position.y, m_position.z, 1
-		};
-
 	glm::mat4 scaleMatrix
 		{
 			m_scale.x, 0, 0, 0,
@@ -82,5 +134,38 @@ void Model::updateMatrix()
 			0, 0, 0, 1
 		};
 
-	m_modelMatrix = positionOrientationMatrix * scaleMatrix;
+	glm::mat4 rotationYawMatrix
+	{
+		cos(m_yawRad), 0, -sin(m_yawRad), 0,
+		0, 1, 0, 0,
+		sin(m_yawRad), 0, cos(m_yawRad), 0,
+		0, 0, 0, 1
+	};
+
+	glm::mat4 rotationPitchMatrix
+	{
+		1, 0, 0, 0,
+		0, cos(m_pitchRad), sin(m_pitchRad), 0,
+		0, -sin(m_pitchRad), cos(m_pitchRad), 0,
+		0, 0, 0, 1
+	};
+
+	glm::mat4 rotationRollMatrix
+	{
+		cos(m_rollRad), sin(m_rollRad), 0, 0,
+		-sin(m_rollRad), cos(m_rollRad), 0, 0,
+		0, 0, 1, 0,
+		0, 0, 0, 1
+	};
+
+	glm::mat4 positionMatrix
+		{
+			1, 0, 0, 0,
+			0, 1, 0, 0,
+			0, 0, 1, 0,
+			m_position.x, m_position.y, m_position.z, 1
+		};
+
+	m_modelMatrix =
+		positionMatrix * rotationRollMatrix * rotationYawMatrix * rotationPitchMatrix * scaleMatrix;
 }

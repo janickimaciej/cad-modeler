@@ -17,6 +17,14 @@ public:
 
 	glm::vec3 getPosition() const;
 	void setPosition(const glm::vec3& position);
+
+	float getYawRad() const;
+	void setYawRad(float yawRad);
+	float getPitchRad() const;
+	void setPitchRad(float pitchRad);
+	float getRollRad() const;
+	void setRollRad(float rollRad);
+
 	glm::vec3 getScale() const;
 	void setScale(const glm::vec3& scale);
 
@@ -27,11 +35,18 @@ public:
 	bool isActive() const;
 	void setIsActive(bool isActive);
 
+	float distanceSquared(float xPos, float yPos, int windowWidth, int windowHeight,
+		const glm::mat4& cameraMatrix) const;
+
+	glm::mat3 getRotationMatrix() const;
+
 protected:
 	glm::mat4 m_modelMatrix{1};
 
 	glm::vec3 m_position{};
-	glm::vec4 m_orientation{0, 0, 0, 1};
+	float m_yawRad = 0;
+	float m_pitchRad = 0;
+	float m_rollRad = 0;
 	glm::vec3 m_scale = {1, 1, 1};
 
 	void updateMatrix();

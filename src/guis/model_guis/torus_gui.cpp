@@ -25,6 +25,41 @@ void TorusGUI::update()
 
 	ImGui::InputFloat(("z" + suffix).c_str(), &m_z, 0.1f, 0.1f, "%.2f");
 
+	constexpr float angleSensitivity = 1.0f;
+
+	ImGui::InputFloat(("rotation x" + suffix).c_str(), &m_pitchDeg, angleSensitivity,
+		angleSensitivity, "%.2f");
+	while (m_pitchDeg < -180.0f)
+	{
+		m_pitchDeg += 360.0f;
+	}
+	while (m_pitchDeg > 180.0f)
+	{
+		m_pitchDeg -= 360.0f;
+	}
+
+	ImGui::InputFloat(("rotation y" + suffix).c_str(), &m_yawDeg, angleSensitivity,
+		angleSensitivity, "%.2f");
+	while (m_yawDeg < -180.0f)
+	{
+		m_yawDeg += 360.0f;
+	}
+	while (m_yawDeg > 180.0f)
+	{
+		m_yawDeg -= 360.0f;
+	}
+
+	ImGui::InputFloat(("rotation z" + suffix).c_str(), &m_rollDeg, angleSensitivity,
+		angleSensitivity, "%.2f");
+	while (m_rollDeg < -180.0f)
+	{
+		m_rollDeg += 360.0f;
+	}
+	while (m_rollDeg > 180.0f)
+	{
+		m_rollDeg -= 360.0f;
+	}
+
 	ImGui::InputFloat(("scale x" + suffix).c_str(), &m_scaleX, 0.1f, 0.1f, "%.2f");
 	m_scaleX = std::max(m_scaleX, 0.1f);
 
@@ -55,6 +90,9 @@ void TorusGUI::getValues()
 	m_x = position.x;
 	m_y = position.y;
 	m_z = position.z;
+	m_yawDeg = glm::degrees(m_torus.getYawRad());
+	m_pitchDeg = glm::degrees(m_torus.getPitchRad());
+	m_rollDeg = glm::degrees(m_torus.getRollRad());
 	glm::vec3 scale = m_torus.getScale();
 	m_scaleX = scale.x;
 	m_scaleY = scale.y;
@@ -68,6 +106,9 @@ void TorusGUI::getValues()
 void TorusGUI::setValues()
 {
 	m_torus.setPosition(glm::vec3{m_x, m_y, m_z});
+	m_torus.setYawRad(glm::radians(m_yawDeg));
+	m_torus.setPitchRad(glm::radians(m_pitchDeg));
+	m_torus.setRollRad(glm::radians(m_rollDeg));
 	m_torus.setScale(glm::vec3{m_scaleX, m_scaleY, m_scaleZ});
 	m_torus.setMajorRadius(m_majorRadius);
 	m_torus.setMinorRadius(m_minorRadius);

@@ -17,6 +17,10 @@ private:
 	float m_y{};
 	float m_z{};
 
+	float m_yawDeg{};
+	float m_pitchDeg{};
+	float m_rollDeg{};
+
 	float m_scaleX{};
 	float m_scaleY{};
 	float m_scaleZ{};

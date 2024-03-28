@@ -38,5 +38,6 @@ void CenterPointGUI::getValues()
 
 void CenterPointGUI::setValues()
 {
-	m_centerPoint.setPosition(glm::vec3{m_x, m_y, m_z});
+	// TODO: fix
+	//m_centerPoint.setPosition(glm::vec3{m_x, m_y, m_z});
 }

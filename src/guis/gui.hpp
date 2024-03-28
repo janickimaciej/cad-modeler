@@ -8,12 +8,31 @@
 
 class GUI
 {
+	enum class State
+	{
+		none,
+		renaming,
+		rotatingX,
+		rotatingY,
+		rotatingZ,
+		scalingX,
+		scalingY,
+		scalingZ
+	};
+
 public:
 	GUI(GLFWwindow* window, Scene& scene, int windowWidth, int windowHeight);
 	void update();
 	void render();
 	void startRenaming();
-	void stopRenaming();
+	void startRotatingX();
+	void startRotatingY();
+	void startRotatingZ();
+	void startScalingX();
+	void startScalingY();
+	void startScalingZ();
+	void cancel();
+	void apply();
 	void deleteActiveModels();
 	void setWindowSize(int width, int height);
 	~GUI();
@@ -26,11 +45,15 @@ private:
 	int m_windowWidth{};
 	int m_windowHeight{};
 
-	bool m_renaming = false;
+	State m_state = State::none;
+
 	Model* m_uniqueActiveModel{};
 	static constexpr int maxNameLength = 32;
 	std::array<char, maxNameLength> m_name{};
-	bool m_renamingFocusFirstTime{};
+	bool m_focusFirstTime{};
+
+	float m_rotationDeg{};
+	float m_scale{};
 
 	void getValues();
 	void setValues();

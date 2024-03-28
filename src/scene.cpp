@@ -13,9 +13,14 @@ constexpr float fovYDeg = 60.0f;
 constexpr float nearPlane = 0.1f;
 constexpr float farPlane = 1000.0f;
 
-Scene::Scene(float aspectRatio) :
-	m_perspectiveCamera{fovYDeg, aspectRatio, nearPlane, farPlane, m_shaderPrograms},
-	m_orthographicCamera{viewWidth, aspectRatio, nearPlane, farPlane, m_shaderPrograms}
+Scene::Scene(int windowWidth, int windowHeight) :
+	m_windowWidth{windowWidth},
+	m_windowHeight{windowHeight},
+	m_cursor{*this},
+	m_perspectiveCamera{fovYDeg, static_cast<float>(windowWidth) / windowHeight, nearPlane,
+		farPlane, m_shaderPrograms},
+	m_orthographicCamera{viewWidth, static_cast<float>(windowWidth) / windowHeight, nearPlane,
+		farPlane, m_shaderPrograms}
 {
 	auto firstModelIter = m_models.begin();
 	m_activeModel = (firstModelIter != m_models.end() ? firstModelIter->get() : nullptr);
@@ -34,7 +39,24 @@ void Scene::render()
 	renderModels();
 	renderCursor();
 	renderActiveModelsCenter();
-	renderGrid();}
+	renderGrid();
+}
+
+glm::ivec2 Scene::getWindowSize() const
+{
+	return glm::ivec2{m_windowWidth, m_windowHeight};
+}
+
+void Scene::setWindowSize(int width, int height)
+{
+	m_windowWidth = width;
+	m_windowHeight = height;
+}
+
+const Camera& Scene::getActiveCamera() const
+{
+	return *m_activeCamera;
+}
 
 Camera& Scene::getActiveCamera()
 {
@@ -176,6 +198,27 @@ void Scene::deleteActiveModels()
 			return model->isActive();
 		}
 	);
+	m_activeModelsCenter.setModels(std::vector<Model*>{});
+}
+
+void Scene::activate(float xPos, float yPos, bool toggle)
+{
+	std::optional<int> closestModel = getClosestModel(xPos, yPos);
+	if (!closestModel.has_value())
+	{
+		return;
+	}
+
+	if (toggle)
+	{
+		bool wasActive = m_models[*closestModel]->isActive();
+		setModelIsActive(*closestModel, !wasActive);
+	}
+	else
+	{
+		clearActiveModels();
+		setModelIsActive(*closestModel, true);
+	}
 }
 
 Model* Scene::getUniqueActiveModel() const
@@ -231,4 +274,24 @@ void Scene::updateShaders() const
 	m_shaderPrograms.solid.setUniform1f("diffuse", m_diffuse);
 	m_shaderPrograms.solid.setUniform1f("specular", m_specular);
 	m_shaderPrograms.solid.setUniform1f("shininess", m_shininess);
+}
+
+std::optional<int> Scene::getClosestModel(float xPos, float yPos) const
+{
+	std::optional<int> index = std::nullopt;
+	constexpr float treshold = 30;
+	float minDistanceSquared = treshold * treshold;
+	for (int i = 0; i < m_models.size(); ++i)
+	{
+		float distanceSquared =
+			m_models[i]->distanceSquared(xPos, yPos, m_windowWidth, m_windowHeight,
+				m_activeCamera->getMatrix());
+		if (distanceSquared < minDistanceSquared)
+		{
+			index = i;
+			minDistanceSquared = distanceSquared;
+		}
+	}
+
+	return index;
 }
