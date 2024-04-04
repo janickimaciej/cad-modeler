@@ -5,6 +5,7 @@
 #include "mesh.hpp"
 #include "models/model.hpp"
 #include "render_mode.hpp"
+#include "scene.hpp"
 #include "shader_program.hpp"
 #include "vertex.hpp"
 
@@ -15,8 +16,8 @@
 class Torus : public Model
 {
 public:
-	Torus(const ShaderProgram& wireframeShaderProgram, const ShaderProgram& solidShaderProgram,
-		glm::vec3 position);
+	Torus(const Scene& scene, const ShaderProgram& wireframeShaderProgram,
+		const ShaderProgram& solidShaderProgram, glm::vec3 position);
 	virtual void render(RenderMode renderMode) const override;
 	virtual ModelGUI& getGUI() override;
 
@@ -28,7 +29,6 @@ public:
 	void setMajor(int major);
 	int getMinor() const;
 	void setMinor(int minor);
-
 
 private:
 	static int m_count;

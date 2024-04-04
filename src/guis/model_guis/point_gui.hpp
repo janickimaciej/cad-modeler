@@ -2,8 +2,6 @@
 
 #include "guis/model_guis/model_gui.hpp"
 
-#include <array>
-
 class Point;
 
 class PointGUI : public ModelGUI

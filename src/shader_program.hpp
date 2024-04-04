@@ -12,12 +12,15 @@ public:
 	ShaderProgram(const std::string& vertexShaderPath, const std::string& fragmentShaderPath);
 	ShaderProgram(const std::string& vertexShaderPath, const std::string& geometryShaderPath,
 		const std::string& fragmentShaderPath);
+	ShaderProgram(const std::string& vertexShaderPath, const std::string& tessCtrlShaderPath,
+		const std::string& tessEvalShaderPath, const std::string& fragmentShaderPath);
 	ShaderProgram(const ShaderProgram&) = delete;
 	ShaderProgram(ShaderProgram&&) = delete;
 	void use() const;
 	void setUniform1b(const std::string& name, bool value) const;
 	void setUniform1i(const std::string& name, int value) const;
 	void setUniform1f(const std::string& name, float value) const;
+	void setUniform2f(const std::string& name, const glm::vec2& value) const;
 	void setUniform3f(const std::string& name, const glm::vec3& value) const;
 	void setUniformMatrix4f(const std::string& name, const glm::mat4& value) const;
 	~ShaderProgram();
@@ -29,6 +32,8 @@ private:
 	unsigned int createShaderProgram(unsigned int vertexShader, unsigned int fragmentShader) const;
 	unsigned int createShaderProgram(unsigned int vertexShader, unsigned int geometryShader,
 		unsigned int fragmentShader) const;
+	unsigned int createShaderProgram(unsigned int vertexShader, unsigned int tessCtrlShader,
+		unsigned int tessEvalShader, unsigned int fragmentShader) const;
 	std::string readShaderFile(const std::string& shaderPath) const;
 	void printCompilationError(GLenum shaderType, unsigned int shaderId) const;
 	void printLinkingError(unsigned int programId) const;

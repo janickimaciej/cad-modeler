@@ -13,9 +13,9 @@ Camera::Camera(float aspectRatio, float nearPlane, float farPlane,
 	updateViewMatrix();
 }
 
-void Camera::use() const
+void Camera::use(const glm::vec2& windowSize) const
 {
-	updateShaders();
+	updateShaders(windowSize);
 }
 
 glm::vec3 Camera::getPosition() const
@@ -96,7 +96,7 @@ void Camera::setAspectRatio(float aspectRatio)
 	updateProjectionMatrix();
 }
 
-void Camera::updateShaders() const
+void Camera::updateShaders(const glm::vec2& windowSize) const
 {
 	glm::mat4 projectionViewMatrix = m_projectionMatrix * glm::inverse(m_viewMatrixInverse);
 	glm::mat4 projectionViewMatrixInverse = glm::inverse(projectionViewMatrix);
@@ -123,6 +123,14 @@ void Camera::updateShaders() const
 	m_shaderPrograms.grid.setUniformMatrix4f("projectionViewMatrix", projectionViewMatrix);
 	m_shaderPrograms.grid.setUniformMatrix4f("projectionViewMatrixInverse",
 		projectionViewMatrixInverse);
+
+	m_shaderPrograms.bezierCurvePolyline.use();
+	m_shaderPrograms.bezierCurvePolyline.setUniformMatrix4f("projectionViewMatrix",
+		projectionViewMatrix);
+
+	m_shaderPrograms.bezierCurve.use();
+	m_shaderPrograms.bezierCurve.setUniformMatrix4f("projectionViewMatrix", projectionViewMatrix);
+	m_shaderPrograms.bezierCurve.setUniform2f("windowSize", glm::vec2{windowSize});
 }
 
 void Camera::updateViewMatrix()

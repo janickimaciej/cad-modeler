@@ -1,8 +1,5 @@
 #include "scene.hpp"
 
-#include "models/point.hpp"
-#include "models/torus.hpp"
-
 #include <glm/glm.hpp>
 
 #include <algorithm>
@@ -23,7 +20,6 @@ Scene::Scene(int windowWidth, int windowHeight) :
 		farPlane, m_shaderPrograms}
 {
 	auto firstModelIter = m_models.begin();
-	m_activeModel = (firstModelIter != m_models.end() ? firstModelIter->get() : nullptr);
 
 	setCameraType(m_cameraType);
 	zoomCamera(0.5);
@@ -33,9 +29,35 @@ Scene::Scene(int windowWidth, int windowHeight) :
 	updateShaders();
 }
 
+void Scene::update()
+{
+	std::vector<BezierCurve*> bezierCurvesToBeDeleted{};
+	std::erase_if(m_bezierCurves,
+		[&bezierCurvesToBeDeleted] (const std::unique_ptr<BezierCurve>& curve)
+		{
+			if (curve->getPointCount() == 0)
+			{
+				bezierCurvesToBeDeleted.push_back(curve.get());
+				return true;
+			}
+			return false;
+		}
+	);
+	for (BezierCurve* curve : bezierCurvesToBeDeleted)
+	{
+		std::erase_if(m_models,
+			[&curve] (Model* model)
+			{
+				return model == curve;
+			}
+		);
+		m_activeModelsCenter.deleteModel(curve);
+	}
+}
+
 void Scene::render()
 {
-	m_activeCamera->use();
+	m_activeCamera->use(glm::vec2{m_windowWidth, m_windowHeight});
 	renderModels();
 	renderCursor();
 	renderActiveModelsCenter();
@@ -51,6 +73,8 @@ void Scene::setWindowSize(int width, int height)
 {
 	m_windowWidth = width;
 	m_windowHeight = height;
+
+	setAspectRatio(static_cast<float>(width) / height);
 }
 
 const Camera& Scene::getActiveCamera() const
@@ -65,12 +89,7 @@ Camera& Scene::getActiveCamera()
 
 std::vector<Model*> Scene::getModels()
 {
-	std::vector<Model*> models{};
-	for (const std::unique_ptr<Model>& model : m_models)
-	{
-		models.push_back(model.get());
-	}
-	return models;
+	return m_models;
 }
 
 void Scene::updateModelGUI(int i)
@@ -81,16 +100,15 @@ void Scene::updateModelGUI(int i)
 void Scene::setModelIsActive(int i, bool isActive)
 {
 	m_models[i]->setIsActive(isActive);
-
-	std::vector<Model*> activeModels{};
-	for (const std::unique_ptr<Model>& model : m_models)
+	
+	if (isActive)
 	{
-		if (model->isActive())
-		{
-			activeModels.push_back(model.get());
-		}
+		m_activeModelsCenter.addModel(m_models[i]);
 	}
-	m_activeModelsCenter.setModels(activeModels);
+	else
+	{
+		m_activeModelsCenter.deleteModel(m_models[i]);
+	}
 }
 
 Cursor& Scene::getCursor()
@@ -143,12 +161,6 @@ CameraType Scene::getCameraType() const
 	return m_cameraType;
 }
 
-void Scene::setAspectRatio(float aspectRatio)
-{
-	m_perspectiveCamera.setAspectRatio(aspectRatio);
-	m_orthographicCamera.setAspectRatio(aspectRatio);
-}
-
 void Scene::setRenderMode(RenderMode renderMode)
 {
 	m_renderMode = renderMode;
@@ -171,34 +183,125 @@ void Scene::setCameraType(CameraType cameraType)
 
 void Scene::addPoint()
 {
-	m_models.push_back(std::make_unique<Point>(m_shaderPrograms.wireframePoint,
-		m_shaderPrograms.solidPoint, m_cursor.getPosition()));
+	std::unique_ptr<Point> point = std::make_unique<Point>(*this, m_shaderPrograms.wireframePoint,
+		m_shaderPrograms.solidPoint, m_cursor.getPosition());
+	m_models.push_back(point.get());
+
+	if (m_activeModelsCenter.getModelCount() == 1)
+	{
+		auto activeBezierCurve = std::find_if(m_bezierCurves.begin(), m_bezierCurves.end(),
+			[] (const std::unique_ptr<BezierCurve>& curve)
+			{
+				return curve->isActive();
+			}
+		);
+
+		if (activeBezierCurve != m_bezierCurves.end())
+		{
+			(*activeBezierCurve)->addPoints({point.get()});
+		}
+	}
+
+	m_points.push_back(std::move(point));
 }
 
 void Scene::addTorus()
 {
-	m_models.push_back(std::make_unique<Torus>(m_shaderPrograms.wireframe,
-		m_shaderPrograms.solid, m_cursor.getPosition()));
+	std::unique_ptr<Torus> torus = std::make_unique<Torus>(*this, m_shaderPrograms.wireframe,
+		m_shaderPrograms.solid, m_cursor.getPosition());
+	m_models.push_back(torus.get());
+	m_toruses.push_back(std::move(torus));
+}
+
+void Scene::addBezierCurve()
+{
+	std::vector<Point*> activePoints = getActivePoints();
+	if (m_activeModelsCenter.getModelCount() != activePoints.size() || activePoints.size() == 0)
+	{
+		return;
+	}
+
+	std::unique_ptr<BezierCurve> bezierCurve = std::make_unique<BezierCurve>(*this,
+		m_shaderPrograms.bezierCurve, m_shaderPrograms.bezierCurvePolyline, activePoints);
+	m_models.push_back(bezierCurve.get());
+	m_bezierCurves.push_back(std::move(bezierCurve));
+}
+
+void Scene::addActivePointsToCurve()
+{
+	auto activeBezierCurve = std::find_if(m_bezierCurves.begin(), m_bezierCurves.end(),
+		[] (const std::unique_ptr<BezierCurve>& curve)
+		{
+			return curve->isActive();
+		}
+	);
+	if (activeBezierCurve == m_bezierCurves.end())
+	{
+		return;
+	}
+	
+	std::vector<Point*> activePoints = getActivePoints();
+	if (m_activeModelsCenter.getModelCount() != activePoints.size() + 1 || activePoints.size() == 0)
+	{
+		return;
+	}
+
+	(*activeBezierCurve)->addPoints(activePoints);
 }
 
 void Scene::clearActiveModels()
 {
-	for (std::unique_ptr<Model>& model : m_models)
+	for (Model* model : m_models)
 	{
 		model->setIsActive(false);
 	}
-	m_activeModelsCenter.setModels(std::vector<Model*>{});
+	m_activeModelsCenter.clearModels();
 }
 
 void Scene::deleteActiveModels()
 {
 	std::erase_if(m_models,
-		[] (const std::unique_ptr<Model>& model)
+		[] (Model* model)
 		{
 			return model->isActive();
 		}
 	);
-	m_activeModelsCenter.setModels(std::vector<Model*>{});
+	std::erase_if(m_points,
+		[] (const std::unique_ptr<Point>& point)
+		{
+			return point->isActive();
+		}
+	);
+	std::erase_if(m_toruses,
+		[] (const std::unique_ptr<Torus>& torus)
+		{
+			return torus->isActive();
+		}
+	);
+	
+	std::vector<BezierCurve*> bezierCurvesToBeDeleted{};
+	std::erase_if(m_bezierCurves,
+		[&bezierCurvesToBeDeleted] (const std::unique_ptr<BezierCurve>& curve)
+		{
+			if (curve->isActive())
+			{
+				bezierCurvesToBeDeleted.push_back(curve.get());
+				return true;
+			}
+			return false;
+		}
+	);
+	for (BezierCurve* curve : bezierCurvesToBeDeleted)
+	{
+		std::erase_if(m_models,
+			[&curve] (Model* model)
+			{
+				return model == curve;
+			}
+		);
+	}
+
+	m_activeModelsCenter.clearModels();
 }
 
 void Scene::activate(float xPos, float yPos, bool toggle)
@@ -218,32 +321,46 @@ void Scene::activate(float xPos, float yPos, bool toggle)
 	{
 		clearActiveModels();
 		setModelIsActive(*closestModel, true);
+		m_dragging = true;
+	}
+}
+
+void Scene::release()
+{
+	m_dragging = false;
+}
+
+void Scene::moveActiveModel(float xPos, float yPos) const
+{
+	if (m_dragging)
+	{
+		Model* activeModel = getUniqueActiveModel();
+		if (activeModel != nullptr)
+		{
+			activeModel->setScreenPosition(glm::ivec2{xPos, yPos});
+		}
 	}
 }
 
 Model* Scene::getUniqueActiveModel() const
 {
-	Model* uniqueActiveModel = nullptr;
-
-	for (const std::unique_ptr<Model>& model : m_models)
+	std::vector<Model*> activeModels = m_activeModelsCenter.getModels();
+	if (activeModels.size() == 1)
 	{
-		if (model->isActive())
-		{
-			if (uniqueActiveModel != nullptr)
-			{
-				return nullptr;
-			}
-
-			uniqueActiveModel = model.get();
-		}
+		return activeModels[0];
 	}
+	return nullptr;
+}
 
-	return uniqueActiveModel;
+void Scene::setAspectRatio(float aspectRatio)
+{
+	m_perspectiveCamera.setAspectRatio(aspectRatio);
+	m_orthographicCamera.setAspectRatio(aspectRatio);
 }
 
 void Scene::renderModels() const
 {
-	for (const std::unique_ptr<Model>& model : m_models)
+	for (Model* model : m_models)
 	{
 		model->render(m_renderMode);
 	}
@@ -294,4 +411,24 @@ std::optional<int> Scene::getClosestModel(float xPos, float yPos) const
 	}
 
 	return index;
+}
+
+std::vector<Point*> Scene::getActivePoints() const
+{
+	std::vector<Model*> activeModels = m_activeModelsCenter.getModels();
+	std::vector<Point*> activePoints{};
+	for (Model* model : activeModels)
+	{
+		auto activePoint = std::find_if(m_points.begin(), m_points.end(),
+			[model] (const std::unique_ptr<Point>& point)
+			{
+				return model == point.get();
+			}
+		);
+		if (activePoint != m_points.end())
+		{
+			activePoints.push_back(activePoint->get());
+		}
+	}
+	return activePoints;
 }

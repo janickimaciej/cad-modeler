@@ -27,9 +27,36 @@ CenterPointGUI& CenterPoint::getGUI()
 	return m_gui;
 }
 
-void CenterPoint::setModels(const std::vector<Model*>& models)
+std::vector<Model*> CenterPoint::getModels() const
 {
-	m_models = models;
+	return m_models;
+}
+
+int CenterPoint::getModelCount() const
+{
+	return m_models.size();
+}
+
+void CenterPoint::addModel(Model* model)
+{
+	m_models.push_back(model);
+
+	updatePosition();
+}
+
+void CenterPoint::deleteModel(Model* model)
+{
+	std::erase_if(m_models,
+		[deletedModel = model] (Model* model)
+		{
+			return model == deletedModel;
+		}
+	);
+}
+
+void CenterPoint::clearModels()
+{
+	m_models.clear();
 
 	updatePosition();
 }

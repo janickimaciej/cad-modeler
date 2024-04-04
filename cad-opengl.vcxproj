@@ -40,8 +40,10 @@
     <ClCompile Include="src\guis\center_point_gui.cpp" />
     <ClCompile Include="src\guis\cursor_gui.cpp" />
     <ClCompile Include="src\guis\gui.cpp" />
+    <ClCompile Include="src\guis\model_guis\bezier_curve_gui.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\mesh.cpp" />
+    <ClCompile Include="src\models\bezier_curve.cpp" />
     <ClCompile Include="src\models\model.cpp" />
     <ClCompile Include="src\models\torus.cpp" />
     <ClCompile Include="src\guis\model_guis\point_gui.cpp" />
@@ -65,6 +67,7 @@
     <ClInclude Include="src\cameras\camera.hpp" />
     <ClInclude Include="src\cameras\orthographic_camera.hpp" />
     <ClInclude Include="src\cameras\perspective_camera.hpp" />
+    <ClInclude Include="src\guis\model_guis\bezier_curve_gui.hpp" />
     <ClInclude Include="src\guis\center_point_gui.hpp" />
     <ClInclude Include="src\guis\camera_guis\camera_gui.hpp" />
     <ClInclude Include="src\guis\camera_guis\orthographic_camera_gui.hpp" />
@@ -76,6 +79,7 @@
     <ClInclude Include="src\grid\grid.hpp" />
     <ClInclude Include="src\guis\gui.hpp" />
     <ClInclude Include="src\mesh.hpp" />
+    <ClInclude Include="src\models\bezier_curve.hpp" />
     <ClInclude Include="src\models\model.hpp" />
     <ClInclude Include="src\models\torus.hpp" />
     <ClInclude Include="src\guis\model_guis\model_gui.hpp" />
@@ -92,21 +96,27 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="dep\imgui\misc\debuggers\imgui.natstepfilter" />
-    <None Include="src\shaders\solid_point_fragment_shader.glsl" />
-    <None Include="src\shaders\solid_point_geometry_shader.glsl" />
-    <None Include="src\shaders\solid_point_vertex_shader.glsl" />
-    <None Include="src\shaders\wireframe_point_fragment_shader.glsl" />
-    <None Include="src\shaders\wireframe_point_geometry_shader.glsl" />
-    <None Include="src\shaders\wireframe_point_vertex_shader.glsl" />
-    <None Include="src\shaders\cursor_geometry_shader.glsl" />
-    <None Include="src\shaders\cursor_fragment_shader.glsl" />
-    <None Include="src\shaders\cursor_vertex_shader.glsl" />
-    <None Include="src\shaders\grid_fragment_shader.glsl" />
-    <None Include="src\shaders\grid_vertex_shader.glsl" />
-    <None Include="src\shaders\solid_vertex_shader.glsl" />
-    <None Include="src\shaders\solid_fragment_shader.glsl" />
-    <None Include="src\shaders\wireframe_fragment_shader.glsl" />
-    <None Include="src\shaders\wireframe_vertex_shader.glsl" />
+    <None Include="src\shaders\bezier_curve_fs.glsl" />
+    <None Include="src\shaders\bezier_curve_tes.glsl" />
+    <None Include="src\shaders\bezier_curve_tcs.glsl" />
+    <None Include="src\shaders\bezier_curve_vs.glsl" />
+    <None Include="src\shaders\bezier_curve_polyline_fs.glsl" />
+    <None Include="src\shaders\bezier_curve_polyline_vs.glsl" />
+    <None Include="src\shaders\solid_point_fs.glsl" />
+    <None Include="src\shaders\solid_point_gs.glsl" />
+    <None Include="src\shaders\solid_point_vs.glsl" />
+    <None Include="src\shaders\wireframe_point_fs.glsl" />
+    <None Include="src\shaders\wireframe_point_gs.glsl" />
+    <None Include="src\shaders\wireframe_point_vs.glsl" />
+    <None Include="src\shaders\cursor_gs.glsl" />
+    <None Include="src\shaders\cursor_fs.glsl" />
+    <None Include="src\shaders\cursor_vs.glsl" />
+    <None Include="src\shaders\grid_fs.glsl" />
+    <None Include="src\shaders\grid_vs.glsl" />
+    <None Include="src\shaders\solid_vs.glsl" />
+    <None Include="src\shaders\solid_fs.glsl" />
+    <None Include="src\shaders\wireframe_fs.glsl" />
+    <None Include="src\shaders\wireframe_vs.glsl" />
   </ItemGroup>
   <ItemGroup>
     <Natvis Include="dep\imgui\misc\debuggers\imgui.natvis" />

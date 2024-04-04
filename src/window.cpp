@@ -9,19 +9,21 @@
 Window::Window(int width, int height)
 {
 	glfwInit();
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 	glfwWindowHint(GLFW_SAMPLES, 4);
 	const std::string windowTitle = "cad-opengl";
 	m_windowPtr = glfwCreateWindow(width, height, windowTitle.c_str(), nullptr, nullptr);
 	glfwSetWindowUserPointer(m_windowPtr, &m_userData);
 	glfwMakeContextCurrent(m_windowPtr);
+
 	glfwSetFramebufferSizeCallback(m_windowPtr, resizeCallback);
 	glfwSetCursorPosCallback(m_windowPtr, cursorMovementCallback);
 	glfwSetScrollCallback(m_windowPtr, scrollCallback);
 	glfwSetMouseButtonCallback(m_windowPtr, buttonCallback);
 	glfwSetKeyCallback(m_windowPtr, keyCallback);
+
 	gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_CULL_FACE);
@@ -71,7 +73,6 @@ void Window::resizeCallback(GLFWwindow* window, int width, int height)
 	}
 
 	WindowUserData* userData = static_cast<WindowUserData*>(glfwGetWindowUserPointer(window));
-	userData->scene->setAspectRatio(static_cast<float>(width) / height);
 	userData->scene->setWindowSize(width, height);
 	userData->gui->setWindowSize(width, height);
 	glViewport(0, 0, width, height);
@@ -118,21 +119,34 @@ void Window::cursorMovementCallback(GLFWwindow* window, double x, double y)
 		float sensitivity = 1.005f;
 		windowUserData->scene->zoomCamera(std::pow(sensitivity, -yOffset));
 	}
+
+	if (glfwGetKey(window, GLFW_KEY_LEFT_ALT) == GLFW_RELEASE &&
+		glfwGetKey(window, GLFW_KEY_RIGHT_ALT) == GLFW_RELEASE &&
+		glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_RELEASE &&
+		glfwGetKey(window, GLFW_KEY_RIGHT_SHIFT) == GLFW_RELEASE &&
+		glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT))
+	{
+		windowUserData->scene->moveActiveModel(static_cast<float>(x), static_cast<float>(y));
+	}
 }
 
 void Window::buttonCallback(GLFWwindow* window, int button, int action, int)
 {
+	WindowUserData* windowUserData = static_cast<WindowUserData*>(glfwGetWindowUserPointer(window));
+
 	if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS)
 	{
 		double xPos{};
 		double yPos{};
 		glfwGetCursorPos(window, &xPos, &yPos);
-
 		
-		WindowUserData* windowUserData =
-			static_cast<WindowUserData*>(glfwGetWindowUserPointer(window));
 		windowUserData->scene->activate(static_cast<float>(xPos), static_cast<float>(yPos),
 			glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS);
+	}
+
+	if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE)
+	{
+		windowUserData->scene->release();
 	}
 }
 

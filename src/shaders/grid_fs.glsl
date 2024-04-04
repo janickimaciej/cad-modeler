@@ -1,4 +1,4 @@
-#version 330 core
+#version 400 core
 
 #define ORTHOGRAPHIC_CAMERA 0
 #define PERSPECTIVE_CAMERA 1

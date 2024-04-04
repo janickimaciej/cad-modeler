@@ -382,6 +382,20 @@ void GUI::buttons()
 	{
 		m_scene.addTorus();
 	}
+
+	ImGui::Spacing();
+
+	if (ImGui::Button("Add bezier curve"))
+	{
+		m_scene.addBezierCurve();
+	}
+
+	ImGui::Spacing();
+
+	if (ImGui::Button("Add points to curve"))
+	{
+		m_scene.addActivePointsToCurve();
+	}
 }
 
 void GUI::modelList()

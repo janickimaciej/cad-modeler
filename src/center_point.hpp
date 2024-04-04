@@ -14,7 +14,11 @@ public:
 	CenterPoint();
 	void render(const ShaderProgram& shaderProgram) const;
 	CenterPointGUI& getGUI();
-	void setModels(const std::vector<Model*>& models);
+	std::vector<Model*> getModels() const;
+	int getModelCount() const;
+	void addModel(Model* model);
+	void deleteModel(Model* model);
+	void clearModels();
 
 	glm::vec3 getPosition();
 	void setPosition(const glm::vec3& position);

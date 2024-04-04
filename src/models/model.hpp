@@ -8,15 +8,20 @@
 
 #include <string>
 
+class Scene;
+
 class Model
 {
 public:
-	Model(const glm::vec3& position, const std::string& name);
+	Model(const Scene& scene, const glm::vec3& position, const std::string& name);
+	~Model() = default;
 	virtual void render(RenderMode renderMode) const = 0;
 	virtual ModelGUI& getGUI() = 0;
 
 	glm::vec3 getPosition() const;
-	void setPosition(const glm::vec3& position);
+	virtual void setPosition(const glm::vec3& position);
+	glm::vec2 getScreenPosition() const;
+	virtual void setScreenPosition(const glm::vec2& screenPosition);
 
 	float getYawRad() const;
 	void setYawRad(float yawRad);
@@ -53,6 +58,7 @@ protected:
 	virtual void updateShaders(RenderMode renderMode) const = 0;
 
 private:
+	const Scene& m_scene;
 	const std::string m_originalName{};
 	std::string m_name{};
 

@@ -10,9 +10,9 @@ constexpr float initialMinorRadius = 1.0f;
 constexpr int initialMajor = 32;
 constexpr int initialMinor = 16;
 
-Torus::Torus(const ShaderProgram& wireframeShaderProgram, const ShaderProgram& solidShaderProgram,
-	glm::vec3 position) :
-	Model{position, "Torus " + std::to_string(m_count)},
+Torus::Torus(const Scene& scene, const ShaderProgram& wireframeShaderProgram,
+	const ShaderProgram& solidShaderProgram, glm::vec3 position) :
+	Model{scene, position, "Torus " + std::to_string(m_count)},
 	m_id{m_count++},
 	m_wireframeShaderProgram{wireframeShaderProgram},
 	m_solidShaderProgram{solidShaderProgram},

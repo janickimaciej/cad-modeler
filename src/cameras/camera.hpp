@@ -10,7 +10,7 @@ class Camera
 public:
 	Camera(float aspectRatio, float nearPlane, float farPlane,
 		const ShaderPrograms& shaderPrograms);
-	void use() const;
+	void use(const glm::vec2& windowSize) const;
 	virtual CameraGUI& getGUI() = 0;
 	glm::vec3 getPosition() const;
 	glm::mat4 getMatrix() const;
@@ -33,7 +33,7 @@ protected:
 	
 	void updateViewMatrix();
 	virtual void updateProjectionMatrix() = 0;
-	void updateShaders() const;
+	void updateShaders(const glm::vec2& windowSize) const;
 
 private:
 	glm::vec3 m_targetPosition{0, 0, 0};
