@@ -31,9 +31,9 @@ void Torus::render(RenderMode renderMode) const
 	m_mesh->render(renderMode);
 }
 
-ModelGUI& Torus::getGUI()
+void Torus::updateGUI()
 {
-	return m_gui;
+	m_gui.update();
 }
 
 float Torus::getMajorRadius() const

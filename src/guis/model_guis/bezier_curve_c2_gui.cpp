@@ -1,16 +1,16 @@
-#include "guis/model_guis/bezier_curve_gui.hpp"
+#include "guis/model_guis/bezier_curve_c2_gui.hpp"
 
-#include "models/bezier_curve.hpp"
+#include "models/bezier_curve_c2.hpp"
 
 #include <imgui/imgui.h>
 #include <imgui/backends/imgui_impl_glfw.h>
 #include <imgui/backends/imgui_impl_opengl3.h>
 
-BezierCurveGUI::BezierCurveGUI(BezierCurve& curve) :
+BezierCurveC2GUI::BezierCurveC2GUI(BezierCurveC2& curve) :
 	m_curve{curve}
 { }
 
-void BezierCurveGUI::update()
+void BezierCurveC2GUI::update()
 {
 	const std::string suffix = "##" + m_curve.getOriginalName();
 
@@ -21,23 +21,23 @@ void BezierCurveGUI::update()
 	for (int i = 0; i < m_pointNames.size(); ++i)
 	{
 		ImGui::Text(m_pointNames[i].c_str());
-		ImGui::SameLine(ImGui::GetWindowWidth() - 25);
+		ImGui::SameLine(ImGui::GetWindowWidth() - 35);
 		if (ImGui::SmallButton(("X##" + suffix + std::to_string(i)).c_str()))
 		{
-			m_curve.deletePoint(i);
+			m_curve.deleteBoorPoint(i);
 		}
 	}
 
 	setValues();
 }
 
-void BezierCurveGUI::getValues()
+void BezierCurveC2GUI::getValues()
 {
 	m_renderPolyline = m_curve.getRenderPolyline();
 	m_pointNames = m_curve.getPointNames();
 }
 
-void BezierCurveGUI::setValues()
+void BezierCurveC2GUI::setValues()
 {
 	m_curve.setRenderPolyline(m_renderPolyline);
 }

@@ -19,7 +19,6 @@ int main()
 	while (!window.shouldClose())
 	{
 		gui.update();
-		scene.update();
 		window.clear();
 		scene.render();
 		gui.render();

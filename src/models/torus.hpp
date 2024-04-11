@@ -19,7 +19,7 @@ public:
 	Torus(const Scene& scene, const ShaderProgram& wireframeShaderProgram,
 		const ShaderProgram& solidShaderProgram, glm::vec3 position);
 	virtual void render(RenderMode renderMode) const override;
-	virtual ModelGUI& getGUI() override;
+	virtual void updateGUI() override;
 
 	float getMajorRadius() const;
 	void setMajorRadius(float majorRadius);

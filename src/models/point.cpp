@@ -5,12 +5,12 @@
 #include <array>
 #include <string>
 
-Point::Point(const Scene& scene, const ShaderProgram& wireframePointShaderProgram,
-	const ShaderProgram& solidPointShaderProgram, glm::vec3 position) :
-	Model{scene, position, "Point " + std::to_string(m_count)},
+Point::Point(const Scene& scene, const ShaderProgram& pointShaderProgram, glm::vec3 position,
+	bool isVirtual) :
+	Model{scene, position, (isVirtual ? "VirtualPoint " : "Point ") + std::to_string(m_count),
+		isVirtual},
 	m_id{m_count++},
-	m_wireframePointShaderProgram{wireframePointShaderProgram},
-	m_solidPointShaderProgram{solidPointShaderProgram},
+	m_pointShaderProgram{pointShaderProgram},
 	m_gui{*this}
 {
 	glGenVertexArrays(1, &m_VAO);
@@ -30,9 +30,9 @@ void Point::render(RenderMode renderMode) const
 	glBindVertexArray(0);
 }
 
-ModelGUI& Point::getGUI()
+void Point::updateGUI()
 {
-	return m_gui;
+	m_gui.update();
 }
 
 void Point::setPosition(const glm::vec3& position)
@@ -64,34 +64,24 @@ std::shared_ptr<Point::Callback> Point::registerForDestroyNotification(const Cal
 	return notification;
 }
 
+bool Point::isReferenced()
+{
+	clearExpiredNotifications();
+	return m_moveNotifications.size() != 0 || m_destroyNotifications.size() != 0;
+}
+
 int Point::m_count = 0;
 
-void Point::updateShaders(RenderMode renderMode) const
+void Point::updateShaders(RenderMode) const
 {
-	switch (renderMode)
-	{
-	case RenderMode::wireframe:
-		/*m_wireframePointShaderProgram.use();
-		m_wireframePointShaderProgram.setUniform3f("posWorld", m_position);
-		m_wireframePointShaderProgram.setUniform1b("isActive", isActive());
-		break;*/
-
-	case RenderMode::solid:
-		m_solidPointShaderProgram.use();
-		m_solidPointShaderProgram.setUniform3f("posWorld", m_position);
-		m_solidPointShaderProgram.setUniform1b("isActive", isActive());
-		break;
-	}
+	m_pointShaderProgram.use();
+	m_pointShaderProgram.setUniform3f("posWorld", m_position);
+	m_pointShaderProgram.setUniform1b("isActive", isActive());
 }
 
 void Point::notify(std::vector<std::weak_ptr<Callback>>& notifications)
 {
-	std::erase_if(notifications,
-		[] (const std::weak_ptr<std::function<void(Point*)>>& notification)
-		{
-			return notification.expired();
-		}
-	);
+	clearExpiredNotifications();
 
 	for (const std::weak_ptr<std::function<void(Point*)>>& notification : notifications)
 	{
@@ -101,4 +91,21 @@ void Point::notify(std::vector<std::weak_ptr<Callback>>& notifications)
 			(*notificationShared)(this);
 		}
 	}
+}
+
+void Point::clearExpiredNotifications()
+{
+	std::erase_if(m_moveNotifications,
+		[] (const std::weak_ptr<std::function<void(Point*)>>& notification)
+		{
+			return notification.expired();
+		}
+	);
+
+	std::erase_if(m_destroyNotifications,
+		[] (const std::weak_ptr<std::function<void(Point*)>>& notification)
+		{
+			return notification.expired();
+		}
+	);
 }

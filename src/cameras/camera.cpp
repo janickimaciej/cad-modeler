@@ -109,12 +109,8 @@ void Camera::updateShaders(const glm::vec2& windowSize) const
 	m_shaderPrograms.solid.setUniformMatrix4f("projectionViewMatrix", projectionViewMatrix);
 	m_shaderPrograms.solid.setUniform3f("cameraPos", cameraPosition);
 
-	m_shaderPrograms.wireframePoint.use();
-	m_shaderPrograms.wireframePoint.setUniformMatrix4f("projectionViewMatrix",
-		projectionViewMatrix);
-
-	m_shaderPrograms.solidPoint.use();
-	m_shaderPrograms.solidPoint.setUniformMatrix4f("projectionViewMatrix", projectionViewMatrix);
+	m_shaderPrograms.point.use();
+	m_shaderPrograms.point.setUniformMatrix4f("projectionViewMatrix", projectionViewMatrix);
 
 	m_shaderPrograms.cursor.use();
 	m_shaderPrograms.cursor.setUniformMatrix4f("projectionViewMatrix", projectionViewMatrix);

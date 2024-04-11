@@ -385,9 +385,16 @@ void GUI::buttons()
 
 	ImGui::Spacing();
 
-	if (ImGui::Button("Add bezier curve"))
+	if (ImGui::Button("Add bezier curve C0"))
 	{
-		m_scene.addBezierCurve();
+		m_scene.addBezierCurveC0();
+	}
+
+	ImGui::Spacing();
+
+	if (ImGui::Button("Add bezier curve C2"))
+	{
+		m_scene.addBezierCurveC2();
 	}
 
 	ImGui::Spacing();
@@ -402,19 +409,22 @@ void GUI::modelList()
 {
 	ImGui::Text("Model list");
 
-	const std::vector<Model*>& models = m_scene.getModels();
-
 	constexpr ImGuiTreeNodeFlags globalFlags =
 		ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick;
 
 	std::optional<int> clickedId{};
-	for (int i = 0; i < models.size(); ++i)
+	for (int i = 0; i < m_scene.getModelCount(); ++i)
 	{
+		if (m_scene.isModelVirtual(i))
+		{
+			continue;
+		}
+
 		ImGuiTreeNodeFlags flags = globalFlags;
-		if (models[i]->isActive()) flags |= ImGuiTreeNodeFlags_Selected;
+		if (m_scene.isModelActive(i)) flags |= ImGuiTreeNodeFlags_Selected;
 
 		bool isOpen = ImGui::TreeNodeEx(
-			(models[i]->getName() + "##modelList" + std::to_string(i)).c_str(), flags);
+			(m_scene.getModelName(i) + "##modelList" + std::to_string(i)).c_str(), flags);
 		if (ImGui::IsItemClicked())
 		{
 			clickedId = i;
@@ -432,11 +442,11 @@ void GUI::modelList()
 	{
 		if (ImGui::GetIO().KeyCtrl)
 		{
-			m_scene.setModelIsActive(*clickedId, !models[*clickedId]->isActive());
+			m_scene.setModelIsActive(*clickedId, !m_scene.isModelActive(*clickedId));
 		}
 		else
 		{
-			for (int i = 0; i < models.size(); ++i)
+			for (int i = 0; i < m_scene.getModelCount(); ++i)
 			{
 				m_scene.setModelIsActive(i, i == *clickedId);
 			}

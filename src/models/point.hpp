@@ -18,11 +18,11 @@ class Point : public Model
 public:
 	using Callback = std::function<void(Point*)>;
 
-	Point(const Scene& scene, const ShaderProgram& wireframePointShaderProgram,
-		const ShaderProgram& solidPointShaderProgram, glm::vec3 position);
+	Point(const Scene& scene, const ShaderProgram& pointShaderProgram, glm::vec3 position,
+		bool isVirtual = false);
 	~Point();
 	virtual void render(RenderMode renderMode) const override;
-	virtual ModelGUI& getGUI() override;
+	virtual void updateGUI() override;
 
 	virtual void setPosition(const glm::vec3& position) override;
 	virtual void setScreenPosition(const glm::vec2& screenPosition) override;
@@ -30,12 +30,13 @@ public:
 	std::shared_ptr<Callback> registerForMoveNotification(const Callback& callback);
 	std::shared_ptr<Callback> registerForDestroyNotification(const Callback& callback);
 
+	bool isReferenced();
+
 private:
 	static int m_count;
 	int m_id{};
 
-	const ShaderProgram& m_wireframePointShaderProgram;
-	const ShaderProgram& m_solidPointShaderProgram;
+	const ShaderProgram& m_pointShaderProgram;
 	PointGUI m_gui;
 
 	unsigned int m_VAO{};
@@ -43,7 +44,8 @@ private:
 	std::vector<std::weak_ptr<Callback>> m_moveNotifications{};
 	std::vector<std::weak_ptr<Callback>> m_destroyNotifications{};
 
-	virtual void updateShaders(RenderMode renderMode) const override;
+	virtual void updateShaders(RenderMode) const override;
 
 	void notify(std::vector<std::weak_ptr<Callback>>& notifications);
+	void clearExpiredNotifications();
 };

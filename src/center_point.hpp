@@ -17,7 +17,7 @@ public:
 	std::vector<Model*> getModels() const;
 	int getModelCount() const;
 	void addModel(Model* model);
-	void deleteModel(Model* model);
+	void deleteModel(const Model* model);
 	void clearModels();
 
 	glm::vec3 getPosition();

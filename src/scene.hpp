@@ -6,7 +6,8 @@
 #include "center_point.hpp"
 #include "cursor.hpp"
 #include "grid/grid.hpp"
-#include "models/bezier_curve.hpp"
+#include "models/bezier_curve_c0.hpp"
+#include "models/bezier_curve_c2.hpp"
 #include "models/model.hpp"
 #include "models/point.hpp"
 #include "models/torus.hpp"
@@ -18,6 +19,7 @@
 
 #include <memory>
 #include <optional>
+#include <string>
 #include <vector>
 
 class Window;
@@ -26,16 +28,20 @@ class Scene
 {
 public:
 	Scene(int windowWidth, int windowHeight);
-	void update();
 	void render();
 	glm::ivec2 getWindowSize() const;
 	void setWindowSize(int width, int height);
 
 	const Camera& getActiveCamera() const;
 	Camera& getActiveCamera();
-	std::vector<Model*> getModels();
+
+	int getModelCount() const;
+	bool isModelVirtual(int i) const;
+	bool isModelActive(int i) const;
+	std::string getModelName(int i) const;
 	void updateModelGUI(int i);
 	void setModelIsActive(int i, bool isActive);
+
 	Cursor& getCursor();
 	CenterPoint& getActiveModelsCenter();
 
@@ -52,11 +58,15 @@ public:
 
 	void addPoint();
 	void addTorus();
-	void addBezierCurve();
+	void addBezierCurveC0();
+	void addBezierCurveC2();
 	void addActivePointsToCurve();
 
 	void clearActiveModels();
 	void deleteActiveModels();
+	void deleteEmptyBezierCurvesC0();
+	void deleteEmptyBezierCurvesC2();
+	void deleteUnreferencedVirtualPoints();
 	void activate(float xPos, float yPos, bool toggle);
 	void release();
 	void moveActiveModel(float xPos, float yPos) const;
@@ -72,7 +82,8 @@ private:
 	std::vector<Model*> m_models{};
 	std::vector<std::unique_ptr<Point>> m_points{};
 	std::vector<std::unique_ptr<Torus>> m_toruses{};
-	std::vector<std::unique_ptr<BezierCurve>> m_bezierCurves{};
+	std::vector<std::unique_ptr<BezierCurveC0>> m_bezierCurvesC0{};
+	std::vector<std::unique_ptr<BezierCurveC2>> m_bezierCurvesC2{};
 
 	Cursor m_cursor;
 	CenterPoint m_activeModelsCenter{};
@@ -100,5 +111,6 @@ private:
 	void renderGrid() const;
 	void updateShaders() const;
 	std::optional<int> getClosestModel(float xPos, float yPos) const;
-	std::vector<Point*> getActivePoints() const;
+	std::vector<Point*> getNonVirtualActivePoints() const;
+	void addVirtualPoints(std::vector<std::unique_ptr<Point>> points);
 };

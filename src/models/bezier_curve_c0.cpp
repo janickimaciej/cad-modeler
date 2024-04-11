@@ -1,12 +1,12 @@
-#include "models/bezier_curve.hpp"
+#include "models/bezier_curve_c0.hpp"
 
 #include "models/point.hpp"
 
 #include <cstddef>
 
-BezierCurve::BezierCurve(const Scene& scene, const ShaderProgram& bezierCurveShaderProgram,
+BezierCurveC0::BezierCurveC0(const Scene& scene, const ShaderProgram& bezierCurveShaderProgram,
 	const ShaderProgram& bezierCurvePolylineShaderProgram, const std::vector<Point*>& points) :
-	Model{scene, glm::vec3{0, 0, 0}, "BezierCurve " + std::to_string(m_count)},
+	Model{scene, glm::vec3{0, 0, 0}, "BezierCurveC0 " + std::to_string(m_count)},
 	m_id{m_count++},
 	m_bezierCurveShaderProgram{bezierCurveShaderProgram},
 	m_bezierCurvePolylineShaderProgram{bezierCurvePolylineShaderProgram},
@@ -14,51 +14,38 @@ BezierCurve::BezierCurve(const Scene& scene, const ShaderProgram& bezierCurveSha
 	m_points{points}
 {
 	updatePosition();
-	createMesh();
+	createCurveMesh();
 	createPolylineMesh();
-	registerForNotifications(points);
+	registerForNotifications(m_points);
 }
 
-void BezierCurve::render(RenderMode mode) const
+void BezierCurveC0::render(RenderMode mode) const
 {
 	updateShaders(mode);
-
-	if (m_points.size() >= 4)
-	{
-		m_bezierCurveShaderProgram.use();
-		glPatchParameteri(GL_PATCH_VERTICES, 4);
-		glBindVertexArray(m_VAO);
-		int remainder = (m_points.size() - 1) % 3;
-		glDrawArrays(GL_PATCHES, 0, (m_points.size() - 1) / 3 * 4);
-		glBindVertexArray(0);
-	}
-
+	renderCurve();
 	if (m_renderPolyline)
 	{
-		m_bezierCurvePolylineShaderProgram.use();
-		glBindVertexArray(m_VAOPolyline);
-		glDrawArrays(GL_LINE_STRIP, 0, static_cast<GLsizei>(m_points.size()));
-		glBindVertexArray(0);
+		renderPolyline();
 	}
 }
 
-ModelGUI& BezierCurve::getGUI()
+void BezierCurveC0::updateGUI()
 {
-	return m_gui;
+	m_gui.update();
 }
 
-void BezierCurve::setPosition(const glm::vec3& position)
+void BezierCurveC0::setPosition(const glm::vec3&)
 { }
 
-void BezierCurve::setScreenPosition(const glm::vec2& screenPosition)
+void BezierCurveC0::setScreenPosition(const glm::vec2&)
 { }
 
-int BezierCurve::getPointCount() const
+int BezierCurveC0::getPointCount() const
 {
-	return m_points.size();
+	return static_cast<int>(m_points.size());
 }
 
-void BezierCurve::addPoints(const std::vector<Point*>& points)
+void BezierCurveC0::addPoints(const std::vector<Point*>& points)
 {
 	for (Point* point : points)
 	{
@@ -67,21 +54,22 @@ void BezierCurve::addPoints(const std::vector<Point*>& points)
 			m_points.push_back(point);
 		}
 	}
-	updatePosition();
-	updateMesh();
-	updatePolylineMesh();
+	updateGeometry();
 	registerForNotifications(points);
 }
 
-void BezierCurve::deletePoint(int index)
+void BezierCurveC0::deletePoint(int index)
 {
 	m_points.erase(m_points.begin() + index);
-	updatePosition();
-	updateMesh();
-	updatePolylineMesh();
+	m_moveNotifications.erase(m_moveNotifications.begin() + index);
+	m_destroyNotifications.erase(m_destroyNotifications.begin() + index);
+	if (m_points.size() > 0)
+	{
+		updateGeometry();
+	}
 }
 
-std::vector<std::string> BezierCurve::getPointNames() const
+std::vector<std::string> BezierCurveC0::getPointNames() const
 {
 	std::vector<std::string> pointNames{};
 	for (Point* point : m_points)
@@ -91,26 +79,26 @@ std::vector<std::string> BezierCurve::getPointNames() const
 	return pointNames;
 }
 
-bool BezierCurve::getRenderPolyline() const
+bool BezierCurveC0::getRenderPolyline() const
 {
 	return m_renderPolyline;
 }
 
-void BezierCurve::setRenderPolyline(bool renderPolyline)
+void BezierCurveC0::setRenderPolyline(bool renderPolyline)
 {
 	m_renderPolyline = renderPolyline;
 }
 
-int BezierCurve::m_count = 0;
+int BezierCurveC0::m_count = 0;
 
-void BezierCurve::createMesh()
+void BezierCurveC0::createCurveMesh()
 {
-	glGenBuffers(1, &m_VBO);
-	glGenVertexArrays(1, &m_VAO);
+	glGenBuffers(1, &m_VBOCurve);
+	glGenVertexArrays(1, &m_VAOCurve);
 
-	glBindVertexArray(m_VAO);
+	glBindVertexArray(m_VAOCurve);
 
-	updateMesh();
+	updateCurveMesh();
 
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), 0);
 	glEnableVertexAttribArray(0);
@@ -118,7 +106,7 @@ void BezierCurve::createMesh()
 	glBindVertexArray(0);
 }
 
-void BezierCurve::createPolylineMesh()
+void BezierCurveC0::createPolylineMesh()
 {
 	glGenBuffers(1, &m_VBOPolyline);
 	glGenVertexArrays(1, &m_VAOPolyline);
@@ -133,7 +121,7 @@ void BezierCurve::createPolylineMesh()
 	glBindVertexArray(0);
 }
 
-void BezierCurve::updateShaders(RenderMode renderMode) const
+void BezierCurveC0::updateShaders(RenderMode) const
 {
 	m_bezierCurveShaderProgram.use();
 	m_bezierCurveShaderProgram.setUniform1b("isActive", isActive());
@@ -145,7 +133,14 @@ void BezierCurve::updateShaders(RenderMode renderMode) const
 	}
 }
 
-void BezierCurve::updatePosition()
+void BezierCurveC0::updateGeometry()
+{
+	updatePosition();
+	updateCurveMesh();
+	updatePolylineMesh();
+}
+
+void BezierCurveC0::updatePosition()
 {
 	glm::vec3 position{};
 	for (Point* point : m_points)
@@ -155,7 +150,7 @@ void BezierCurve::updatePosition()
 	m_position = position / static_cast<float>(m_points.size());
 }
 
-void BezierCurve::updateMesh()
+void BezierCurveC0::updateCurveMesh()
 {
 	std::vector<float> vertexData{};
 
@@ -172,15 +167,15 @@ void BezierCurve::updateMesh()
 		}
 	}
 	
-	glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
+	glBindBuffer(GL_ARRAY_BUFFER, m_VBOCurve);
 	glBufferData(GL_ARRAY_BUFFER, static_cast<GLsizeiptr>(vertexData.size() * sizeof(float)),
 		vertexData.data(), GL_DYNAMIC_DRAW);
 }
 
-void BezierCurve::updatePolylineMesh()
+void BezierCurveC0::updatePolylineMesh()
 {
 	std::vector<float> vertexData{};
-	for (Point* point : m_points)
+	for (const Point* point : m_points)
 	{
 		glm::vec3 position = point->getPosition();
 		vertexData.push_back(position.x);
@@ -193,35 +188,42 @@ void BezierCurve::updatePolylineMesh()
 		vertexData.data(), GL_DYNAMIC_DRAW);
 }
 
-void BezierCurve::registerForNotifications(const std::vector<Point*>& points)
+void BezierCurveC0::registerForNotifications(const std::vector<Point*>& points)
 {
 	for (Point* point : points)
 	{
-		m_notifications.push_back(point->registerForMoveNotification(
-			[this] (Point* movedPoint)
+		m_moveNotifications.push_back(point->registerForMoveNotification(
+			[this] (Point*)
 			{
-				updatePosition();
-				updateMesh();
-				updatePolylineMesh();
+				updateGeometry();
 			}
 		));
 
-		m_notifications.push_back(point->registerForDestroyNotification(
-			[this] (Point* deletedPoint)
+		m_destroyNotifications.push_back(point->registerForDestroyNotification(
+			[this, index = static_cast<int>(m_destroyNotifications.size())] (Point*)
 			{
-				std::erase_if(m_points,
-					[deletedPoint] (Point* point)
-					{
-						return point == deletedPoint;
-					}
-				);
-				if (m_points.size() > 0)
-				{
-					updatePosition();
-					updateMesh();
-					updatePolylineMesh();
-				}
+				deletePoint(index);
 			}
 		));
 	}
+}
+
+void BezierCurveC0::renderCurve() const
+{
+	if (m_points.size() >= 4)
+	{
+		m_bezierCurveShaderProgram.use();
+		glPatchParameteri(GL_PATCH_VERTICES, 4);
+		glBindVertexArray(m_VAOCurve);
+		glDrawArrays(GL_PATCHES, 0, static_cast<GLsizei>((m_points.size() - 1) / 3 * 4));
+		glBindVertexArray(0);
+	}
+}
+
+void BezierCurveC0::renderPolyline() const
+{
+	m_bezierCurvePolylineShaderProgram.use();
+	glBindVertexArray(m_VAOPolyline);
+	glDrawArrays(GL_LINE_STRIP, 0, static_cast<GLsizei>(m_points.size()));
+	glBindVertexArray(0);
 }

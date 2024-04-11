@@ -34,7 +34,7 @@ std::vector<Model*> CenterPoint::getModels() const
 
 int CenterPoint::getModelCount() const
 {
-	return m_models.size();
+	return static_cast<int>(m_models.size());
 }
 
 void CenterPoint::addModel(Model* model)
@@ -44,7 +44,7 @@ void CenterPoint::addModel(Model* model)
 	updatePosition();
 }
 
-void CenterPoint::deleteModel(Model* model)
+void CenterPoint::deleteModel(const Model* model)
 {
 	std::erase_if(m_models,
 		[deletedModel = model] (Model* model)

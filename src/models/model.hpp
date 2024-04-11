@@ -13,10 +13,11 @@ class Scene;
 class Model
 {
 public:
-	Model(const Scene& scene, const glm::vec3& position, const std::string& name);
+	Model(const Scene& scene, const glm::vec3& position, const std::string& name,
+		bool isVirtual = false);
 	~Model() = default;
 	virtual void render(RenderMode renderMode) const = 0;
-	virtual ModelGUI& getGUI() = 0;
+	virtual void updateGUI() = 0;
 
 	glm::vec3 getPosition() const;
 	virtual void setPosition(const glm::vec3& position);
@@ -36,7 +37,8 @@ public:
 	std::string getOriginalName() const;
 	std::string getName() const;
 	void setName(const std::string& name);
-
+	
+	bool isVirtual() const;
 	bool isActive() const;
 	void setIsActive(bool isActive);
 
@@ -63,4 +65,5 @@ private:
 	std::string m_name{};
 
 	bool m_isActive = false;
+	bool m_isVirtual{};
 };

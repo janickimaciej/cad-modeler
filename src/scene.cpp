@@ -29,32 +29,6 @@ Scene::Scene(int windowWidth, int windowHeight) :
 	updateShaders();
 }
 
-void Scene::update()
-{
-	std::vector<BezierCurve*> bezierCurvesToBeDeleted{};
-	std::erase_if(m_bezierCurves,
-		[&bezierCurvesToBeDeleted] (const std::unique_ptr<BezierCurve>& curve)
-		{
-			if (curve->getPointCount() == 0)
-			{
-				bezierCurvesToBeDeleted.push_back(curve.get());
-				return true;
-			}
-			return false;
-		}
-	);
-	for (BezierCurve* curve : bezierCurvesToBeDeleted)
-	{
-		std::erase_if(m_models,
-			[&curve] (Model* model)
-			{
-				return model == curve;
-			}
-		);
-		m_activeModelsCenter.deleteModel(curve);
-	}
-}
-
 void Scene::render()
 {
 	m_activeCamera->use(glm::vec2{m_windowWidth, m_windowHeight});
@@ -87,14 +61,29 @@ Camera& Scene::getActiveCamera()
 	return *m_activeCamera;
 }
 
-std::vector<Model*> Scene::getModels()
+int Scene::getModelCount() const
 {
-	return m_models;
+	return static_cast<int>(m_models.size());
+}
+
+bool Scene::isModelVirtual(int i) const
+{
+	return m_models[i]->isVirtual();
+}
+
+bool Scene::isModelActive(int i) const
+{
+	return m_models[i]->isActive();
+}
+
+std::string Scene::getModelName(int i) const
+{
+	return m_models[i]->getName();
 }
 
 void Scene::updateModelGUI(int i)
 {
-	m_models[i]->getGUI().update();
+	m_models[i]->updateGUI();
 }
 
 void Scene::setModelIsActive(int i, bool isActive)
@@ -183,25 +172,37 @@ void Scene::setCameraType(CameraType cameraType)
 
 void Scene::addPoint()
 {
-	std::unique_ptr<Point> point = std::make_unique<Point>(*this, m_shaderPrograms.wireframePoint,
-		m_shaderPrograms.solidPoint, m_cursor.getPosition());
-	m_models.push_back(point.get());
+	std::unique_ptr<Point> point = std::make_unique<Point>(*this, m_shaderPrograms.point,
+		m_cursor.getPosition());
 
 	if (m_activeModelsCenter.getModelCount() == 1)
 	{
-		auto activeBezierCurve = std::find_if(m_bezierCurves.begin(), m_bezierCurves.end(),
-			[] (const std::unique_ptr<BezierCurve>& curve)
+		auto activeBezierCurveC0 = std::find_if(m_bezierCurvesC0.begin(), m_bezierCurvesC0.end(),
+			[] (const std::unique_ptr<BezierCurveC0>& curve)
 			{
 				return curve->isActive();
 			}
 		);
 
-		if (activeBezierCurve != m_bezierCurves.end())
+		if (activeBezierCurveC0 != m_bezierCurvesC0.end())
 		{
-			(*activeBezierCurve)->addPoints({point.get()});
+			(*activeBezierCurveC0)->addPoints({point.get()});
+		}
+
+		auto activeBezierCurveC2 = std::find_if(m_bezierCurvesC2.begin(), m_bezierCurvesC2.end(),
+			[] (const std::unique_ptr<BezierCurveC2>& curve)
+			{
+				return curve->isActive();
+			}
+		);
+
+		if (activeBezierCurveC2 != m_bezierCurvesC2.end())
+		{
+			addVirtualPoints((*activeBezierCurveC2)->addPoints({point.get()}));
 		}
 	}
-
+	
+	m_models.push_back(point.get());
 	m_points.push_back(std::move(point));
 }
 
@@ -213,40 +214,70 @@ void Scene::addTorus()
 	m_toruses.push_back(std::move(torus));
 }
 
-void Scene::addBezierCurve()
+void Scene::addBezierCurveC0()
 {
-	std::vector<Point*> activePoints = getActivePoints();
-	if (m_activeModelsCenter.getModelCount() != activePoints.size() || activePoints.size() == 0)
+	std::vector<Point*> nonVirtualActivePoints = getNonVirtualActivePoints();
+	if (m_activeModelsCenter.getModelCount() != nonVirtualActivePoints.size() ||
+		nonVirtualActivePoints.size() == 0)
 	{
 		return;
 	}
 
-	std::unique_ptr<BezierCurve> bezierCurve = std::make_unique<BezierCurve>(*this,
-		m_shaderPrograms.bezierCurve, m_shaderPrograms.bezierCurvePolyline, activePoints);
-	m_models.push_back(bezierCurve.get());
-	m_bezierCurves.push_back(std::move(bezierCurve));
+	std::unique_ptr<BezierCurveC0> curve = std::make_unique<BezierCurveC0>(*this,
+		m_shaderPrograms.bezierCurve, m_shaderPrograms.bezierCurvePolyline, nonVirtualActivePoints);
+	m_models.push_back(curve.get());
+	m_bezierCurvesC0.push_back(std::move(curve));
+}
+
+void Scene::addBezierCurveC2()
+{
+	std::vector<Point*> nonVirtualActivePoints = getNonVirtualActivePoints();
+	if (m_activeModelsCenter.getModelCount() != nonVirtualActivePoints.size() ||
+		nonVirtualActivePoints.size() == 0)
+	{
+		return;
+	}
+
+	auto [curve, virtualPoints] = BezierCurveC2::create(*this, m_shaderPrograms.bezierCurve,
+		m_shaderPrograms.bezierCurvePolyline, m_shaderPrograms.point, nonVirtualActivePoints);
+	m_models.push_back(curve.get());
+	m_bezierCurvesC2.push_back(std::move(curve));
+	addVirtualPoints(std::move(virtualPoints));
 }
 
 void Scene::addActivePointsToCurve()
 {
-	auto activeBezierCurve = std::find_if(m_bezierCurves.begin(), m_bezierCurves.end(),
-		[] (const std::unique_ptr<BezierCurve>& curve)
+	auto activeBezierCurveC0 = std::find_if(m_bezierCurvesC0.begin(), m_bezierCurvesC0.end(),
+		[] (const std::unique_ptr<BezierCurveC0>& curve)
 		{
 			return curve->isActive();
 		}
 	);
-	if (activeBezierCurve == m_bezierCurves.end())
+	if (activeBezierCurveC0 != m_bezierCurvesC0.end())
 	{
-		return;
-	}
-	
-	std::vector<Point*> activePoints = getActivePoints();
-	if (m_activeModelsCenter.getModelCount() != activePoints.size() + 1 || activePoints.size() == 0)
-	{
-		return;
+		std::vector<Point*> nonVirtualActivePoints = getNonVirtualActivePoints();
+		if (m_activeModelsCenter.getModelCount() == nonVirtualActivePoints.size() + 1 &&
+			nonVirtualActivePoints.size() != 0)
+		{
+			(*activeBezierCurveC0)->addPoints(nonVirtualActivePoints);
+		}
 	}
 
-	(*activeBezierCurve)->addPoints(activePoints);
+	auto activeBezierCurveC2 = std::find_if(m_bezierCurvesC2.begin(), m_bezierCurvesC2.end(),
+		[] (const std::unique_ptr<BezierCurveC2>& curve)
+		{
+			return curve->isActive();
+		}
+	);
+	if (activeBezierCurveC2 != m_bezierCurvesC2.end())
+	{
+		std::vector<Point*> nonVirtualActivePoints = getNonVirtualActivePoints();
+		if (m_activeModelsCenter.getModelCount() == nonVirtualActivePoints.size() + 1 &&
+			nonVirtualActivePoints.size() != 0)
+		{
+			addVirtualPoints((*activeBezierCurveC2)->addPoints(nonVirtualActivePoints));
+		}
+	}
 }
 
 void Scene::clearActiveModels()
@@ -263,35 +294,56 @@ void Scene::deleteActiveModels()
 	std::erase_if(m_models,
 		[] (Model* model)
 		{
-			return model->isActive();
+			return model->isActive() && !model->isVirtual();
 		}
 	);
 	std::erase_if(m_points,
 		[] (const std::unique_ptr<Point>& point)
 		{
-			return point->isActive();
+			return point->isActive() && !point->isVirtual();
 		}
 	);
 	std::erase_if(m_toruses,
 		[] (const std::unique_ptr<Torus>& torus)
 		{
-			return torus->isActive();
+			return torus->isActive() && !torus->isVirtual();
+		}
+	);
+	std::erase_if(m_bezierCurvesC0,
+		[] (const std::unique_ptr<BezierCurveC0>& curve)
+		{
+			return curve->isActive() && !curve->isVirtual();
+		}
+	);
+	std::erase_if(m_bezierCurvesC2,
+		[] (const std::unique_ptr<BezierCurveC2>& curve)
+		{
+			return curve->isActive() && !curve->isVirtual();
 		}
 	);
 	
-	std::vector<BezierCurve*> bezierCurvesToBeDeleted{};
-	std::erase_if(m_bezierCurves,
-		[&bezierCurvesToBeDeleted] (const std::unique_ptr<BezierCurve>& curve)
+	deleteEmptyBezierCurvesC0();
+	deleteEmptyBezierCurvesC2();
+	deleteUnreferencedVirtualPoints();
+
+	m_activeModelsCenter.clearModels();
+}
+
+void Scene::deleteEmptyBezierCurvesC0()
+{
+	std::vector<BezierCurveC0*> bezierCurvesC0ToBeDeleted{};
+	std::erase_if(m_bezierCurvesC0,
+		[&bezierCurvesC0ToBeDeleted] (const std::unique_ptr<BezierCurveC0>& curve)
 		{
-			if (curve->isActive())
+			if (curve->getPointCount() == 0)
 			{
-				bezierCurvesToBeDeleted.push_back(curve.get());
+				bezierCurvesC0ToBeDeleted.push_back(curve.get());
 				return true;
 			}
 			return false;
 		}
 	);
-	for (BezierCurve* curve : bezierCurvesToBeDeleted)
+	for (const BezierCurveC0* curve : bezierCurvesC0ToBeDeleted)
 	{
 		std::erase_if(m_models,
 			[&curve] (Model* model)
@@ -300,8 +352,56 @@ void Scene::deleteActiveModels()
 			}
 		);
 	}
+}
 
-	m_activeModelsCenter.clearModels();
+void Scene::deleteEmptyBezierCurvesC2()
+{
+	std::vector<BezierCurveC2*> bezierCurvesC2ToBeDeleted{};
+	std::erase_if(m_bezierCurvesC2,
+		[&bezierCurvesC2ToBeDeleted] (const std::unique_ptr<BezierCurveC2>& curve)
+		{
+			if (curve->getPointCount() == 0)
+			{
+				bezierCurvesC2ToBeDeleted.push_back(curve.get());
+				return true;
+			}
+			return false;
+		}
+	);
+	for (const BezierCurveC2* curve : bezierCurvesC2ToBeDeleted)
+	{
+		std::erase_if(m_models,
+			[&curve] (Model* model)
+			{
+				return model == curve;
+			}
+		);
+	}
+}
+
+void Scene::deleteUnreferencedVirtualPoints()
+{
+	std::vector<Point*> pointsToBeDeleted{};
+	std::erase_if(m_points,
+		[&pointsToBeDeleted] (const std::unique_ptr<Point>& point)
+		{
+			if (point->isVirtual() && !point->isReferenced())
+			{
+				pointsToBeDeleted.push_back(point.get());
+				return true;
+			}
+			return false;
+		}
+	);
+	for (const Point* point : pointsToBeDeleted)
+	{
+		std::erase_if(m_models,
+			[&point] (Model* model)
+			{
+				return model == point;
+			}
+		);
+	}
 }
 
 void Scene::activate(float xPos, float yPos, bool toggle)
@@ -413,22 +513,36 @@ std::optional<int> Scene::getClosestModel(float xPos, float yPos) const
 	return index;
 }
 
-std::vector<Point*> Scene::getActivePoints() const
+std::vector<Point*> Scene::getNonVirtualActivePoints() const
 {
 	std::vector<Model*> activeModels = m_activeModelsCenter.getModels();
 	std::vector<Point*> activePoints{};
 	for (Model* model : activeModels)
 	{
-		auto activePoint = std::find_if(m_points.begin(), m_points.end(),
+		if (model->isVirtual())
+		{
+			continue;
+		}
+		auto nonVirtualActivePoint = std::find_if(m_points.begin(), m_points.end(),
 			[model] (const std::unique_ptr<Point>& point)
 			{
 				return model == point.get();
 			}
 		);
-		if (activePoint != m_points.end())
+		if (nonVirtualActivePoint != m_points.end())
 		{
-			activePoints.push_back(activePoint->get());
+			activePoints.push_back(nonVirtualActivePoint->get());
 		}
 	}
 	return activePoints;
+}
+
+void Scene::addVirtualPoints(std::vector<std::unique_ptr<Point>> points)
+{
+	for (const std::unique_ptr<Point>& point : points)
+	{
+		m_models.push_back(point.get());
+	}
+	m_points.insert(m_points.end(), std::make_move_iterator(points.begin()),
+		std::make_move_iterator(points.end()));
 }

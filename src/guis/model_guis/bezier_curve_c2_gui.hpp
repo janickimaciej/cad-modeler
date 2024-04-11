@@ -1,22 +1,25 @@
 #pragma once
 
 #include "guis/model_guis/model_gui.hpp"
+#include "models/curve_base.hpp"
 
 #include <string>
 #include <vector>
 
-class BezierCurve;
+class BezierCurveC2;
 
-class BezierCurveGUI : public ModelGUI
+class BezierCurveC2GUI : public ModelGUI
 {
 public:
-	BezierCurveGUI(BezierCurve& curve);
+	BezierCurveC2GUI(BezierCurveC2& curve);
 	virtual void update() override;
 
 private:
-	BezierCurve& m_curve;
+	BezierCurveC2& m_curve;
 
+	CurveBase m_base{};
 	bool m_renderPolyline{};
+	
 	std::vector<std::string> m_pointNames{};
 	
 	void getValues();

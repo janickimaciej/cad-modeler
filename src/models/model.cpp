@@ -2,11 +2,13 @@
 
 #include "scene.hpp"
 
-Model::Model(const Scene& scene, const glm::vec3& position, const std::string& name) :
+Model::Model(const Scene& scene, const glm::vec3& position, const std::string& name,
+	bool isVirtual) :
 	m_scene{scene},
 	m_position{position},
 	m_originalName{name},
-	m_name{name}
+	m_name{name},
+	m_isVirtual{isVirtual}
 {
 	updateMatrix();
 }
@@ -107,6 +109,11 @@ std::string Model::getName() const
 void Model::setName(const std::string& name)
 {
 	m_name = name;
+}
+
+bool Model::isVirtual() const
+{
+	return m_isVirtual;
 }
 
 bool Model::isActive() const

@@ -9,12 +9,8 @@ struct ShaderPrograms
 		shadersPath + "wireframe_fs.glsl"};
 	ShaderProgram solid{shadersPath + "solid_vs.glsl",
 		shadersPath + "solid_fs.glsl"};
-	ShaderProgram wireframePoint{shadersPath + "wireframe_point_vs.glsl",
-		shadersPath + "wireframe_point_gs.glsl",
-		shadersPath + "wireframe_point_fs.glsl"};
-	ShaderProgram solidPoint{shadersPath + "solid_point_vs.glsl",
-		shadersPath + "solid_point_gs.glsl",
-		shadersPath + "solid_point_fs.glsl"};
+	ShaderProgram point{shadersPath + "point_vs.glsl", shadersPath + "point_gs.glsl",
+		shadersPath + "point_fs.glsl"};
 	ShaderProgram cursor{shadersPath + "cursor_vs.glsl",
 		shadersPath + "cursor_gs.glsl", shadersPath + "cursor_fs.glsl"};
 	ShaderProgram grid{shadersPath + "grid_vs.glsl",
