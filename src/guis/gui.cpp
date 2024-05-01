@@ -399,6 +399,13 @@ void GUI::buttons()
 
 	ImGui::Spacing();
 
+	if (ImGui::Button("Add bezier curve inter"))
+	{
+		m_scene.addBezierCurveInter();
+	}
+
+	ImGui::Spacing();
+
 	if (ImGui::Button("Add points to curve"))
 	{
 		m_scene.addActivePointsToCurve();

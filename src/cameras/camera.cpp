@@ -103,30 +103,30 @@ void Camera::updateShaders(const glm::vec2& windowSize) const
 	glm::vec3 cameraPosition = getPosition();
 
 	m_shaderPrograms.wireframe.use();
-	m_shaderPrograms.wireframe.setUniformMatrix4f("projectionViewMatrix", projectionViewMatrix);
+	m_shaderPrograms.wireframe.setUniform("projectionViewMatrix", projectionViewMatrix);
 
 	m_shaderPrograms.solid.use();
-	m_shaderPrograms.solid.setUniformMatrix4f("projectionViewMatrix", projectionViewMatrix);
-	m_shaderPrograms.solid.setUniform3f("cameraPos", cameraPosition);
+	m_shaderPrograms.solid.setUniform("projectionViewMatrix", projectionViewMatrix);
+	m_shaderPrograms.solid.setUniform("cameraPos", cameraPosition);
 
 	m_shaderPrograms.point.use();
-	m_shaderPrograms.point.setUniformMatrix4f("projectionViewMatrix", projectionViewMatrix);
+	m_shaderPrograms.point.setUniform("projectionViewMatrix", projectionViewMatrix);
 
 	m_shaderPrograms.cursor.use();
-	m_shaderPrograms.cursor.setUniformMatrix4f("projectionViewMatrix", projectionViewMatrix);
+	m_shaderPrograms.cursor.setUniform("projectionViewMatrix", projectionViewMatrix);
 
 	m_shaderPrograms.grid.use();
-	m_shaderPrograms.grid.setUniformMatrix4f("projectionViewMatrix", projectionViewMatrix);
-	m_shaderPrograms.grid.setUniformMatrix4f("projectionViewMatrixInverse",
+	m_shaderPrograms.grid.setUniform("projectionViewMatrix", projectionViewMatrix);
+	m_shaderPrograms.grid.setUniform("projectionViewMatrixInverse",
 		projectionViewMatrixInverse);
 
 	m_shaderPrograms.bezierCurvePolyline.use();
-	m_shaderPrograms.bezierCurvePolyline.setUniformMatrix4f("projectionViewMatrix",
+	m_shaderPrograms.bezierCurvePolyline.setUniform("projectionViewMatrix",
 		projectionViewMatrix);
 
 	m_shaderPrograms.bezierCurve.use();
-	m_shaderPrograms.bezierCurve.setUniformMatrix4f("projectionViewMatrix", projectionViewMatrix);
-	m_shaderPrograms.bezierCurve.setUniform2f("windowSize", glm::vec2{windowSize});
+	m_shaderPrograms.bezierCurve.setUniform("projectionViewMatrix", projectionViewMatrix);
+	m_shaderPrograms.bezierCurve.setUniform("windowSize", glm::vec2{windowSize});
 }
 
 void Camera::updateViewMatrix()

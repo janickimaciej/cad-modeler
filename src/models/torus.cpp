@@ -100,14 +100,14 @@ void Torus::updateShaders(RenderMode renderMode) const
 	{
 	case RenderMode::wireframe:
 		m_wireframeShaderProgram.use();
-		m_wireframeShaderProgram.setUniformMatrix4f("modelMatrix", m_modelMatrix);
-		m_wireframeShaderProgram.setUniform1b("isActive", isActive());
+		m_wireframeShaderProgram.setUniform("modelMatrix", m_modelMatrix);
+		m_wireframeShaderProgram.setUniform("isActive", isActive());
 		break;
 
 	case RenderMode::solid:
 		m_solidShaderProgram.use();
-		m_solidShaderProgram.setUniformMatrix4f("modelMatrix", m_modelMatrix);
-		m_solidShaderProgram.setUniform1b("isActive", isActive());
+		m_solidShaderProgram.setUniform("modelMatrix", m_modelMatrix);
+		m_solidShaderProgram.setUniform("isActive", isActive());
 		break;
 	}
 }

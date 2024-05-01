@@ -69,5 +69,5 @@ void Cursor::setScreenPosition(const glm::vec2& screenPosition)
 
 void Cursor::updateShaders(const ShaderProgram& shaderProgram) const
 {
-	shaderProgram.setUniform3f("posWorld", m_position);
+	shaderProgram.setUniform("posWorld", m_position);
 }

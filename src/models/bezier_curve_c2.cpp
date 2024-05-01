@@ -261,12 +261,12 @@ void BezierCurveC2::createBezierPolylineMesh()
 void BezierCurveC2::updateShaders(RenderMode) const
 {
 	m_bezierCurveShaderProgram.use();
-	m_bezierCurveShaderProgram.setUniform1b("isActive", isActive());
+	m_bezierCurveShaderProgram.setUniform("isActive", isActive());
 
 	if (m_renderPolyline)
 	{
 		m_bezierCurvePolylineShaderProgram.use();
-		m_bezierCurvePolylineShaderProgram.setUniform1b("isActive", isActive());
+		m_bezierCurvePolylineShaderProgram.setUniform("isActive", isActive());
 	}
 }
 

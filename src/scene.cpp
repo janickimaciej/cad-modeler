@@ -200,6 +200,19 @@ void Scene::addPoint()
 		{
 			addVirtualPoints((*activeBezierCurveC2)->addPoints({point.get()}));
 		}
+
+		auto activeBezierCurveInter = std::find_if(m_bezierCurvesInter.begin(),
+			m_bezierCurvesInter.end(),
+			[] (const std::unique_ptr<BezierCurveInter>& curve)
+			{
+				return curve->isActive();
+			}
+		);
+
+		if (activeBezierCurveInter != m_bezierCurvesInter.end())
+		{
+			(*activeBezierCurveInter)->addPoints({point.get()});
+		}
 	}
 	
 	m_models.push_back(point.get());
@@ -245,6 +258,21 @@ void Scene::addBezierCurveC2()
 	addVirtualPoints(std::move(virtualPoints));
 }
 
+void Scene::addBezierCurveInter()
+{
+	std::vector<Point*> nonVirtualActivePoints = getNonVirtualActivePoints();
+	if (m_activeModelsCenter.getModelCount() != nonVirtualActivePoints.size() ||
+		nonVirtualActivePoints.size() == 0)
+	{
+		return;
+	}
+
+	std::unique_ptr<BezierCurveInter> curve = std::make_unique<BezierCurveInter>(*this,
+		m_shaderPrograms.bezierCurve, m_shaderPrograms.bezierCurvePolyline, nonVirtualActivePoints);
+	m_models.push_back(curve.get());
+	m_bezierCurvesInter.push_back(std::move(curve));
+}
+
 void Scene::addActivePointsToCurve()
 {
 	auto activeBezierCurveC0 = std::find_if(m_bezierCurvesC0.begin(), m_bezierCurvesC0.end(),
@@ -276,6 +304,23 @@ void Scene::addActivePointsToCurve()
 			nonVirtualActivePoints.size() != 0)
 		{
 			addVirtualPoints((*activeBezierCurveC2)->addPoints(nonVirtualActivePoints));
+		}
+	}
+
+	auto activeBezierCurveInter = std::find_if(m_bezierCurvesInter.begin(),
+		m_bezierCurvesInter.end(),
+		[] (const std::unique_ptr<BezierCurveInter>& curve)
+		{
+			return curve->isActive();
+		}
+	);
+	if (activeBezierCurveInter != m_bezierCurvesInter.end())
+	{
+		std::vector<Point*> nonVirtualActivePoints = getNonVirtualActivePoints();
+		if (m_activeModelsCenter.getModelCount() == nonVirtualActivePoints.size() + 1 &&
+			nonVirtualActivePoints.size() != 0)
+		{
+			(*activeBezierCurveInter)->addPoints(nonVirtualActivePoints);
 		}
 	}
 }
@@ -321,9 +366,16 @@ void Scene::deleteActiveModels()
 			return curve->isActive() && !curve->isVirtual();
 		}
 	);
+	std::erase_if(m_bezierCurvesInter,
+		[] (const std::unique_ptr<BezierCurveInter>& curve)
+		{
+			return curve->isActive() && !curve->isVirtual();
+		}
+	);
 	
 	deleteEmptyBezierCurvesC0();
 	deleteEmptyBezierCurvesC2();
+	deleteEmptyBezierCurvesInter();
 	deleteUnreferencedVirtualPoints();
 
 	m_activeModelsCenter.clearModels();
@@ -369,6 +421,31 @@ void Scene::deleteEmptyBezierCurvesC2()
 		}
 	);
 	for (const BezierCurveC2* curve : bezierCurvesC2ToBeDeleted)
+	{
+		std::erase_if(m_models,
+			[&curve] (Model* model)
+			{
+				return model == curve;
+			}
+		);
+	}
+}
+
+void Scene::deleteEmptyBezierCurvesInter()
+{
+	std::vector<BezierCurveInter*> bezierCurvesInterToBeDeleted{};
+	std::erase_if(m_bezierCurvesInter,
+		[&bezierCurvesInterToBeDeleted] (const std::unique_ptr<BezierCurveInter>& curve)
+		{
+			if (curve->getPointCount() == 0)
+			{
+				bezierCurvesInterToBeDeleted.push_back(curve.get());
+				return true;
+			}
+			return false;
+		}
+	);
+	for (const BezierCurveInter* curve : bezierCurvesInterToBeDeleted)
 	{
 		std::erase_if(m_models,
 			[&curve] (Model* model)
@@ -487,10 +564,10 @@ void Scene::renderGrid() const
 void Scene::updateShaders() const
 {
 	m_shaderPrograms.solid.use();
-	m_shaderPrograms.solid.setUniform1f("ambient", m_ambient);
-	m_shaderPrograms.solid.setUniform1f("diffuse", m_diffuse);
-	m_shaderPrograms.solid.setUniform1f("specular", m_specular);
-	m_shaderPrograms.solid.setUniform1f("shininess", m_shininess);
+	m_shaderPrograms.solid.setUniform("ambient", m_ambient);
+	m_shaderPrograms.solid.setUniform("diffuse", m_diffuse);
+	m_shaderPrograms.solid.setUniform("specular", m_specular);
+	m_shaderPrograms.solid.setUniform("shininess", m_shininess);
 }
 
 std::optional<int> Scene::getClosestModel(float xPos, float yPos) const

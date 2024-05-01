@@ -9,46 +9,41 @@
 #include <fstream>
 #include <iostream>
 #include <sstream>
-#include <string>
-#include <string_view>
 
 constexpr std::size_t errorLogSize = 512;
 
 ShaderProgram::ShaderProgram(const std::string& vertexShaderPath,
 	const std::string& fragmentShaderPath)
 {
-	unsigned int vertexShader = createShader(GL_VERTEX_SHADER, vertexShaderPath);
-	unsigned int fragmentShader = createShader(GL_FRAGMENT_SHADER, fragmentShaderPath);
-	m_id = createShaderProgram(vertexShader, fragmentShader);
-	glDeleteShader(vertexShader);
-	glDeleteShader(fragmentShader);
+	std::vector<unsigned int> shaders{};
+	shaders.push_back(createShader(GL_VERTEX_SHADER, vertexShaderPath));
+	shaders.push_back(createShader(GL_FRAGMENT_SHADER, fragmentShaderPath));
+	m_id = createShaderProgram(shaders);
+	deleteShaders(shaders);
 }
 
 ShaderProgram::ShaderProgram(const std::string& vertexShaderPath,
 	const std::string& geometryShaderPath, const std::string& fragmentShaderPath)
 {
-	unsigned int vertexShader = createShader(GL_VERTEX_SHADER, vertexShaderPath);
-	unsigned int geometryShader = createShader(GL_GEOMETRY_SHADER, geometryShaderPath);
-	unsigned int fragmentShader = createShader(GL_FRAGMENT_SHADER, fragmentShaderPath);
-	m_id = createShaderProgram(vertexShader, geometryShader, fragmentShader);
-	glDeleteShader(vertexShader);
-	glDeleteShader(geometryShader);
-	glDeleteShader(fragmentShader);
+	std::vector<unsigned int> shaders{};
+	shaders.push_back(createShader(GL_VERTEX_SHADER, vertexShaderPath));
+	shaders.push_back(createShader(GL_GEOMETRY_SHADER, geometryShaderPath));
+	shaders.push_back(createShader(GL_FRAGMENT_SHADER, fragmentShaderPath));
+	m_id = createShaderProgram(shaders);
+	deleteShaders(shaders);
 }
 
 ShaderProgram::ShaderProgram(const std::string& vertexShaderPath,
 	const std::string& tessCtrlShaderPath, const std::string& tessEvalShaderPath,
 	const std::string& fragmentShaderPath)
 {
-	unsigned int vertexShader = createShader(GL_VERTEX_SHADER, vertexShaderPath);
-	unsigned int tessCtrlShader = createShader(GL_TESS_CONTROL_SHADER, tessCtrlShaderPath);
-	unsigned int tessEvalShader = createShader(GL_TESS_EVALUATION_SHADER, tessEvalShaderPath);
-	unsigned int fragmentShader = createShader(GL_FRAGMENT_SHADER, fragmentShaderPath);
-	m_id = createShaderProgram(vertexShader, tessCtrlShader, tessEvalShader, fragmentShader);
-	glDeleteShader(vertexShader);
-	glDeleteShader(tessCtrlShader);
-	glDeleteShader(tessEvalShader);
-	glDeleteShader(fragmentShader);
+	std::vector<unsigned int> shaders{};
+	shaders.push_back(createShader(GL_VERTEX_SHADER, vertexShaderPath));
+	shaders.push_back(createShader(GL_TESS_CONTROL_SHADER, tessCtrlShaderPath));
+	shaders.push_back(createShader(GL_TESS_EVALUATION_SHADER, tessEvalShaderPath));
+	shaders.push_back(createShader(GL_FRAGMENT_SHADER, fragmentShaderPath));
+	m_id = createShaderProgram(shaders);
+	deleteShaders(shaders);
 }
 
 void ShaderProgram::use() const
@@ -56,32 +51,32 @@ void ShaderProgram::use() const
 	glUseProgram(m_id);
 }
 
-void ShaderProgram::setUniform1b(const std::string& name, bool value) const
+void ShaderProgram::setUniform(const std::string& name, bool value) const
 {
 	glUniform1i(glGetUniformLocation(m_id, name.c_str()), static_cast<int>(value));
 }
 
-void ShaderProgram::setUniform1i(const std::string& name, int value) const
+void ShaderProgram::setUniform(const std::string& name, int value) const
 {
 	glUniform1i(glGetUniformLocation(m_id, name.c_str()), value);
 }
 
-void ShaderProgram::setUniform1f(const std::string& name, float value) const
+void ShaderProgram::setUniform(const std::string& name, float value) const
 {
 	glUniform1f(glGetUniformLocation(m_id, name.c_str()), value);
 }
 
-void ShaderProgram::setUniform2f(const std::string& name, const glm::vec2& value) const
+void ShaderProgram::setUniform(const std::string& name, const glm::vec2& value) const
 {
 	glUniform2fv(glGetUniformLocation(m_id, name.c_str()), 1, glm::value_ptr(value));
 }
 
-void ShaderProgram::setUniform3f(const std::string& name, const glm::vec3& value) const
+void ShaderProgram::setUniform(const std::string& name, const glm::vec3& value) const
 {
 	glUniform3fv(glGetUniformLocation(m_id, name.c_str()), 1, glm::value_ptr(value));
 }
 
-void ShaderProgram::setUniformMatrix4f(const std::string& name, const glm::mat4& value) const
+void ShaderProgram::setUniform(const std::string& name, const glm::mat4& value) const
 {
 	glUniformMatrix4fv(glGetUniformLocation(m_id, name.c_str()), 1, GL_FALSE,
 		glm::value_ptr(value));
@@ -109,12 +104,14 @@ unsigned int ShaderProgram::createShader(GLenum shaderType, const std::string& s
 	return shader;
 }
 
-unsigned int ShaderProgram::createShaderProgram(unsigned int vertexShader,
-	unsigned int fragmentShader) const
+
+unsigned int ShaderProgram::createShaderProgram(const std::vector<unsigned int>& shaders) const
 {
 	unsigned int shaderProgram = glCreateProgram();
-	glAttachShader(shaderProgram, vertexShader);
-	glAttachShader(shaderProgram, fragmentShader);
+	for (unsigned int shader : shaders)
+	{
+		glAttachShader(shaderProgram, shader);
+	}
 	glLinkProgram(shaderProgram);
 	int success{};
 	glGetProgramiv(shaderProgram, GL_LINK_STATUS, &success);
@@ -125,39 +122,12 @@ unsigned int ShaderProgram::createShaderProgram(unsigned int vertexShader,
 	return shaderProgram;
 }
 
-unsigned int ShaderProgram::createShaderProgram(unsigned int vertexShader,
-	unsigned int geometryShader, unsigned int fragmentShader) const
+void ShaderProgram::deleteShaders(const std::vector<unsigned int>& shaders) const
 {
-	unsigned int shaderProgram = glCreateProgram();
-	glAttachShader(shaderProgram, vertexShader);
-	glAttachShader(shaderProgram, geometryShader);
-	glAttachShader(shaderProgram, fragmentShader);
-	glLinkProgram(shaderProgram);
-	int success{};
-	glGetProgramiv(shaderProgram, GL_LINK_STATUS, &success);
-	if (!success)
+	for (unsigned int shader : shaders)
 	{
-		printLinkingError(shaderProgram);
+		glDeleteShader(shader);
 	}
-	return shaderProgram;
-}
-
-unsigned int ShaderProgram::createShaderProgram(unsigned int vertexShader,
-	unsigned int tessCtrlShader, unsigned int tessEvalShader, unsigned int fragmentShader) const
-{
-	unsigned int shaderProgram = glCreateProgram();
-	glAttachShader(shaderProgram, vertexShader);
-	glAttachShader(shaderProgram, tessCtrlShader);
-	glAttachShader(shaderProgram, tessEvalShader);
-	glAttachShader(shaderProgram, fragmentShader);
-	glLinkProgram(shaderProgram);
-	int success{};
-	glGetProgramiv(shaderProgram, GL_LINK_STATUS, &success);
-	if (!success)
-	{
-		printLinkingError(shaderProgram);
-	}
-	return shaderProgram;
 }
 
 std::string ShaderProgram::readShaderFile(const std::string& shaderPath) const

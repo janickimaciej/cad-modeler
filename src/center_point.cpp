@@ -208,7 +208,7 @@ void CenterPoint::updatePosition()
 
 void CenterPoint::updateShaders(const ShaderProgram& shaderProgram) const
 {
-	shaderProgram.setUniform3f("posWorld", m_position);
+	shaderProgram.setUniform("posWorld", m_position);
 }
 
 glm::vec3 CenterPoint::matrixToEuler(const glm::mat3& rotationMatrix)

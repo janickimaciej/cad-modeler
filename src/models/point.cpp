@@ -75,8 +75,9 @@ int Point::m_count = 0;
 void Point::updateShaders(RenderMode) const
 {
 	m_pointShaderProgram.use();
-	m_pointShaderProgram.setUniform3f("posWorld", m_position);
-	m_pointShaderProgram.setUniform1b("isActive", isActive());
+	m_pointShaderProgram.setUniform("posWorld", m_position);
+	m_pointShaderProgram.setUniform("isVirtual", isVirtual());
+	m_pointShaderProgram.setUniform("isActive", isActive());
 }
 
 void Point::notify(std::vector<std::weak_ptr<Callback>>& notifications)

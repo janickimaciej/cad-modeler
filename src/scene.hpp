@@ -8,6 +8,7 @@
 #include "grid/grid.hpp"
 #include "models/bezier_curve_c0.hpp"
 #include "models/bezier_curve_c2.hpp"
+#include "models/bezier_curve_inter.hpp"
 #include "models/model.hpp"
 #include "models/point.hpp"
 #include "models/torus.hpp"
@@ -60,12 +61,14 @@ public:
 	void addTorus();
 	void addBezierCurveC0();
 	void addBezierCurveC2();
+	void addBezierCurveInter();
 	void addActivePointsToCurve();
 
 	void clearActiveModels();
 	void deleteActiveModels();
 	void deleteEmptyBezierCurvesC0();
 	void deleteEmptyBezierCurvesC2();
+	void deleteEmptyBezierCurvesInter();
 	void deleteUnreferencedVirtualPoints();
 	void activate(float xPos, float yPos, bool toggle);
 	void release();
@@ -84,6 +87,7 @@ private:
 	std::vector<std::unique_ptr<Torus>> m_toruses{};
 	std::vector<std::unique_ptr<BezierCurveC0>> m_bezierCurvesC0{};
 	std::vector<std::unique_ptr<BezierCurveC2>> m_bezierCurvesC2{};
+	std::vector<std::unique_ptr<BezierCurveInter>> m_bezierCurvesInter{};
 
 	Cursor m_cursor;
 	CenterPoint m_activeModelsCenter{};

@@ -12,6 +12,6 @@ void Grid::render(const ShaderProgram& shaderProgram, CameraType cameraType) con
 
 void Grid::updateShaders(const ShaderProgram& shaderProgram, CameraType cameraType) const
 {
-	shaderProgram.setUniform1f("scale", m_scale);
-	shaderProgram.setUniform1i("cameraType", static_cast<int>(cameraType));
+	shaderProgram.setUniform("scale", m_scale);
+	shaderProgram.setUniform("cameraType", static_cast<int>(cameraType));
 }
