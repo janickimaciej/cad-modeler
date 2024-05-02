@@ -24,8 +24,8 @@ private:
 	unsigned int m_VAOWireframe{};
 	unsigned int m_VAOSolid{};
 
-	void createBuffersWireframe(const std::vector<Vertex>& vertices,
-		const std::vector<unsigned int>& indices);
-	void createBuffersSolid(const std::vector<Vertex>& vertices,
-		const std::vector<unsigned int>& indices);
+	void createVBO(const std::vector<Vertex>& vertices);
+	void createEBO(unsigned int& EBO, const std::vector<unsigned int>& indices);
+	void createVAOWireframe();
+	void createVAOSolid();
 };
