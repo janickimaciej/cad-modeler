@@ -30,7 +30,6 @@ class Scene
 public:
 	Scene(int windowWidth, int windowHeight);
 	void render();
-	glm::ivec2 getWindowSize() const;
 	void setWindowSize(int width, int height);
 
 	const Camera& getActiveCamera() const;

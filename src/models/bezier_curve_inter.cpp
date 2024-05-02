@@ -4,10 +4,9 @@
 
 #include <cstddef>
 
-BezierCurveInter::BezierCurveInter(const Scene& scene,
-	const ShaderProgram& bezierCurveShaderProgram,
+BezierCurveInter::BezierCurveInter(const ShaderProgram& bezierCurveShaderProgram,
 	const ShaderProgram& bezierCurvePolylineShaderProgram, const std::vector<Point*>& points) :
-	Model{scene, glm::vec3{0, 0, 0}, "BezierCurveInter " + std::to_string(m_count)},
+	Model{glm::vec3{0, 0, 0}, "BezierCurveInter " + std::to_string(m_count)},
 	m_id{m_count++},
 	m_bezierCurveShaderProgram{bezierCurveShaderProgram},
 	m_bezierCurvePolylineShaderProgram{bezierCurvePolylineShaderProgram},
@@ -38,7 +37,7 @@ void BezierCurveInter::updateGUI()
 void BezierCurveInter::setPosition(const glm::vec3&)
 { }
 
-void BezierCurveInter::setScreenPosition(const glm::vec2&)
+void BezierCurveInter::setScreenPosition(const glm::vec2&, const glm::mat4&, const glm::ivec2&)
 { }
 
 int BezierCurveInter::getPointCount() const

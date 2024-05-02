@@ -359,7 +359,8 @@ void GUI::cursor()
 {
 	ImGui::Text("Cursor");
 	ImGui::Spacing();
-	m_scene.getCursor().getGUI().update();
+	m_scene.getCursor().getGUI().update(m_scene.getActiveCamera().getMatrix(),
+		{m_windowWidth, m_windowHeight});
 }
 
 void GUI::activeModelsCenter()

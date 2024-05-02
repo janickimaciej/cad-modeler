@@ -1,12 +1,14 @@
 #pragma once
 
+#include <glm/glm.hpp>
+
 class Cursor;
 
 class CursorGUI
 {
 public:
 	CursorGUI(Cursor& cursor);
-	void update();
+	void update(const glm::mat4& cameraMatrix, const glm::ivec2& windowSize);
 
 private:
 	Cursor& m_cursor;
@@ -22,6 +24,6 @@ private:
 	float m_screenY{};
 	float m_prevScreenY{};
 
-	void getValues();
-	void setValues();
+	void getValues(const glm::mat4& cameraMatrix, const glm::ivec2& windowSize);
+	void setValues(const glm::mat4& cameraMatrix, const glm::ivec2& windowSize);
 };

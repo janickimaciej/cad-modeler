@@ -6,11 +6,11 @@
 #include <iostream>
 
 std::pair<std::unique_ptr<BezierCurveC2>, std::vector<std::unique_ptr<Point>>>
-	BezierCurveC2::create(const Scene& scene, const ShaderProgram& bezierCurveShaderProgram,
+	BezierCurveC2::create(const ShaderProgram& bezierCurveShaderProgram,
 	const ShaderProgram& bezierCurvePolylineShaderProgram, const ShaderProgram& pointShaderProgram,
 	const std::vector<Point*>& boorPoints)
 {
-	std::vector<std::unique_ptr<Point>> bezierPoints = createBezierPoints(scene, pointShaderProgram,
+	std::vector<std::unique_ptr<Point>> bezierPoints = createBezierPoints(pointShaderProgram,
 		boorPoints);
 
 	std::vector<Point*> bezierPointPtrs{};
@@ -21,23 +21,23 @@ std::pair<std::unique_ptr<BezierCurveC2>, std::vector<std::unique_ptr<Point>>>
 
 	return
 	{
-		std::unique_ptr<BezierCurveC2>(new BezierCurveC2(scene, bezierCurveShaderProgram,
+		std::unique_ptr<BezierCurveC2>(new BezierCurveC2(bezierCurveShaderProgram,
 			bezierCurvePolylineShaderProgram, pointShaderProgram, boorPoints, bezierPointPtrs)),
 		std::move(bezierPoints)
 	};
 }
 
-std::vector<std::unique_ptr<Point>> BezierCurveC2::createBezierPoints(const Scene& scene,
+std::vector<std::unique_ptr<Point>> BezierCurveC2::createBezierPoints(
 	const ShaderProgram& pointShaderProgram, const std::vector<Point*> boorPoints)
 {
 	std::vector<std::unique_ptr<Point>> points{};
-	int bezierSegments = boorPoints.size() - 3;
+	int bezierSegments = static_cast<int>(boorPoints.size()) - 3;
 	if (bezierSegments > 0)
 	{
 		std::vector<Point*> pointPtrs{};
 		for (int i = 0; i < 3 * bezierSegments + 1; ++i)
 		{
-			points.push_back(std::make_unique<Point>(scene, pointShaderProgram, glm::vec3{}, true));
+			points.push_back(std::make_unique<Point>(pointShaderProgram, glm::vec3{}, true));
 			pointPtrs.push_back(points.back().get());
 		}
 		updateBezierPoints(pointPtrs, boorPoints);
@@ -98,7 +98,7 @@ void BezierCurveC2::updateGUI()
 void BezierCurveC2::setPosition(const glm::vec3&)
 { }
 
-void BezierCurveC2::setScreenPosition(const glm::vec2&)
+void BezierCurveC2::setScreenPosition(const glm::vec2&, const glm::mat4&, const glm::ivec2&)
 { }
 
 int BezierCurveC2::getPointCount() const
@@ -133,7 +133,7 @@ std::vector<std::unique_ptr<Point>> BezierCurveC2::addPoints(const std::vector<P
 	std::vector<Point*> newBezierPointPtrs{};
 	for (int i = 0; i < newBezierPointCount; ++i)
 	{
-		newBezierPoints.push_back(std::make_unique<Point>(m_scene, m_pointShaderProgram,
+		newBezierPoints.push_back(std::make_unique<Point>(m_pointShaderProgram,
 			glm::vec3{}, true));
 		m_bezierPoints.push_back(newBezierPoints.back().get());
 		newBezierPointPtrs.push_back(newBezierPoints.back().get());
@@ -192,12 +192,11 @@ void BezierCurveC2::setRenderPolyline(bool renderPolyline)
 
 int BezierCurveC2::m_count = 0;
 
-BezierCurveC2::BezierCurveC2(const Scene& scene, const ShaderProgram& bezierCurveShaderProgram,
+BezierCurveC2::BezierCurveC2(const ShaderProgram& bezierCurveShaderProgram,
 	const ShaderProgram& bezierCurvePolylineShaderProgram, const ShaderProgram& pointShaderProgram,
 	const std::vector<Point*>& boorPoints, const std::vector<Point*>& bezierPoints) :
-	Model{scene, glm::vec3{0, 0, 0}, "BezierCurveC2 " + std::to_string(m_count)},
+	Model{glm::vec3{0, 0, 0}, "BezierCurveC2 " + std::to_string(m_count)},
 	m_id{m_count++},
-	m_scene{scene},
 	m_bezierCurveShaderProgram{bezierCurveShaderProgram},
 	m_bezierCurvePolylineShaderProgram{bezierCurvePolylineShaderProgram},
 	m_pointShaderProgram{pointShaderProgram},

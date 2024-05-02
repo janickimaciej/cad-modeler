@@ -2,7 +2,6 @@
 
 #include "cursor.hpp"
 
-#include <glm/glm.hpp>
 #include <imgui/imgui.h>
 #include <imgui/backends/imgui_impl_glfw.h>
 #include <imgui/backends/imgui_impl_opengl3.h>
@@ -13,11 +12,11 @@ CursorGUI::CursorGUI(Cursor& cursor) :
 	m_cursor{cursor}
 { }
 
-void CursorGUI::update()
+void CursorGUI::update(const glm::mat4& cameraMatrix, const glm::ivec2& windowSize)
 {
 	const std::string suffix = "##cursor";
 
-	getValues();
+	getValues(cameraMatrix, windowSize);
 
 	ImGui::InputFloat(("x" + suffix).c_str(), &m_x, 0.1f, 0.1f, "%.2f");
 
@@ -29,10 +28,10 @@ void CursorGUI::update()
 
 	ImGui::InputFloat(("screen y" + suffix).c_str(), &m_screenY, 5.0f, 5.0f, "%.0f");
 
-	setValues();
+	setValues(cameraMatrix, windowSize);
 }
 
-void CursorGUI::getValues()
+void CursorGUI::getValues(const glm::mat4& cameraMatrix, const glm::ivec2& windowSize)
 {
 	glm::vec3 position = m_cursor.getPosition();
 	m_x = position.x;
@@ -41,21 +40,21 @@ void CursorGUI::getValues()
 	m_prevY = m_y;
 	m_z = position.z;
 	m_prevZ = m_z;
-	glm::vec2 screenPosition = m_cursor.getScreenPosition();
+	glm::vec2 screenPosition = m_cursor.getScreenPosition(cameraMatrix, windowSize);
 	m_screenX = screenPosition.x;
 	m_prevScreenX = m_screenX;
 	m_screenY = screenPosition.y;
 	m_prevScreenY = m_screenY;
 }
 
-void CursorGUI::setValues()
+void CursorGUI::setValues(const glm::mat4& cameraMatrix, const glm::ivec2& windowSize)
 {
 	if (m_x != m_prevX || m_y != m_prevY || m_z != m_prevZ)
 	{
-		m_cursor.setPosition(glm::vec3{m_x, m_y, m_z});
+		m_cursor.setPosition({m_x, m_y, m_z});
 	}
 	if (m_screenX != m_prevScreenX || m_screenY != m_prevScreenY)
 	{
-		m_cursor.setScreenPosition(glm::vec2{m_screenX, m_screenY});
+		m_cursor.setScreenPosition({m_screenX, m_screenY}, cameraMatrix, windowSize);
 	}
 }

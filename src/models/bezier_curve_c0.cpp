@@ -4,9 +4,9 @@
 
 #include <cstddef>
 
-BezierCurveC0::BezierCurveC0(const Scene& scene, const ShaderProgram& bezierCurveShaderProgram,
+BezierCurveC0::BezierCurveC0(const ShaderProgram& bezierCurveShaderProgram,
 	const ShaderProgram& bezierCurvePolylineShaderProgram, const std::vector<Point*>& points) :
-	Model{scene, glm::vec3{0, 0, 0}, "BezierCurveC0 " + std::to_string(m_count)},
+	Model{glm::vec3{0, 0, 0}, "BezierCurveC0 " + std::to_string(m_count)},
 	m_id{m_count++},
 	m_bezierCurveShaderProgram{bezierCurveShaderProgram},
 	m_bezierCurvePolylineShaderProgram{bezierCurvePolylineShaderProgram},
@@ -37,7 +37,7 @@ void BezierCurveC0::updateGUI()
 void BezierCurveC0::setPosition(const glm::vec3&)
 { }
 
-void BezierCurveC0::setScreenPosition(const glm::vec2&)
+void BezierCurveC0::setScreenPosition(const glm::vec2&, const glm::mat4&, const glm::ivec2&)
 { }
 
 int BezierCurveC0::getPointCount() const

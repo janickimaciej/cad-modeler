@@ -31,16 +31,11 @@ Scene::Scene(int windowWidth, int windowHeight) :
 
 void Scene::render()
 {
-	m_activeCamera->use(glm::vec2{m_windowWidth, m_windowHeight});
+	m_activeCamera->use({m_windowWidth, m_windowHeight});
 	renderModels();
 	renderCursor();
 	renderActiveModelsCenter();
 	renderGrid();
-}
-
-glm::ivec2 Scene::getWindowSize() const
-{
-	return glm::ivec2{m_windowWidth, m_windowHeight};
 }
 
 void Scene::setWindowSize(int width, int height)
@@ -172,7 +167,7 @@ void Scene::setCameraType(CameraType cameraType)
 
 void Scene::addPoint()
 {
-	std::unique_ptr<Point> point = std::make_unique<Point>(*this, m_shaderPrograms.point,
+	std::unique_ptr<Point> point = std::make_unique<Point>(m_shaderPrograms.point,
 		m_cursor.getPosition());
 
 	if (m_activeModelsCenter.getModelCount() == 1)
@@ -221,7 +216,7 @@ void Scene::addPoint()
 
 void Scene::addTorus()
 {
-	std::unique_ptr<Torus> torus = std::make_unique<Torus>(*this, m_shaderPrograms.wireframe,
+	std::unique_ptr<Torus> torus = std::make_unique<Torus>(m_shaderPrograms.wireframe,
 		m_shaderPrograms.solid, m_cursor.getPosition());
 	m_models.push_back(torus.get());
 	m_toruses.push_back(std::move(torus));
@@ -236,7 +231,7 @@ void Scene::addBezierCurveC0()
 		return;
 	}
 
-	std::unique_ptr<BezierCurveC0> curve = std::make_unique<BezierCurveC0>(*this,
+	std::unique_ptr<BezierCurveC0> curve = std::make_unique<BezierCurveC0>(
 		m_shaderPrograms.bezierCurve, m_shaderPrograms.bezierCurvePolyline, nonVirtualActivePoints);
 	m_models.push_back(curve.get());
 	m_bezierCurvesC0.push_back(std::move(curve));
@@ -251,7 +246,7 @@ void Scene::addBezierCurveC2()
 		return;
 	}
 
-	auto [curve, virtualPoints] = BezierCurveC2::create(*this, m_shaderPrograms.bezierCurve,
+	auto [curve, virtualPoints] = BezierCurveC2::create(m_shaderPrograms.bezierCurve,
 		m_shaderPrograms.bezierCurvePolyline, m_shaderPrograms.point, nonVirtualActivePoints);
 	m_models.push_back(curve.get());
 	m_bezierCurvesC2.push_back(std::move(curve));
@@ -267,7 +262,7 @@ void Scene::addBezierCurveInter()
 		return;
 	}
 
-	std::unique_ptr<BezierCurveInter> curve = std::make_unique<BezierCurveInter>(*this,
+	std::unique_ptr<BezierCurveInter> curve = std::make_unique<BezierCurveInter>(
 		m_shaderPrograms.bezierCurve, m_shaderPrograms.bezierCurvePolyline, nonVirtualActivePoints);
 	m_models.push_back(curve.get());
 	m_bezierCurvesInter.push_back(std::move(curve));
@@ -514,7 +509,8 @@ void Scene::moveActiveModel(float xPos, float yPos) const
 		Model* activeModel = getUniqueActiveModel();
 		if (activeModel != nullptr)
 		{
-			activeModel->setScreenPosition(glm::ivec2{xPos, yPos});
+			activeModel->setScreenPosition({xPos, yPos}, m_activeCamera->getMatrix(),
+				{m_windowWidth, m_windowHeight});
 		}
 	}
 }
@@ -574,16 +570,15 @@ std::optional<int> Scene::getClosestModel(float xPos, float yPos) const
 {
 	std::optional<int> index = std::nullopt;
 	constexpr float treshold = 30;
-	float minDistanceSquared = treshold * treshold;
+	float minScreenDistanceSquared = treshold * treshold;
 	for (int i = 0; i < m_models.size(); ++i)
 	{
-		float distanceSquared =
-			m_models[i]->distanceSquared(xPos, yPos, m_windowWidth, m_windowHeight,
-				m_activeCamera->getMatrix());
-		if (distanceSquared < minDistanceSquared)
+		float screenDistanceSquared = m_models[i]->screenDistanceSquared(xPos, yPos,
+			m_activeCamera->getMatrix(), {m_windowWidth, m_windowHeight});
+		if (screenDistanceSquared < minScreenDistanceSquared)
 		{
 			index = i;
-			minDistanceSquared = distanceSquared;
+			minScreenDistanceSquared = screenDistanceSquared;
 		}
 	}
 

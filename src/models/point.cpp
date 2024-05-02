@@ -5,10 +5,8 @@
 #include <array>
 #include <string>
 
-Point::Point(const Scene& scene, const ShaderProgram& pointShaderProgram, glm::vec3 position,
-	bool isVirtual) :
-	Model{scene, position, (isVirtual ? "VirtualPoint " : "Point ") + std::to_string(m_count),
-		isVirtual},
+Point::Point(const ShaderProgram& pointShaderProgram, glm::vec3 position, bool isVirtual) :
+	Model{position, (isVirtual ? "VirtualPoint " : "Point ") + std::to_string(m_count), isVirtual},
 	m_id{m_count++},
 	m_pointShaderProgram{pointShaderProgram},
 	m_gui{*this}
@@ -44,9 +42,10 @@ void Point::setPosition(const glm::vec3& position)
 	}
 }
 
-void Point::setScreenPosition(const glm::vec2& screenPosition)
+void Point::setScreenPosition(const glm::vec2& screenPosition, const glm::mat4& cameraMatrix,
+	const glm::ivec2& windowSize)
 {
-	Model::setScreenPosition(screenPosition);
+	Model::setScreenPosition(screenPosition, cameraMatrix, windowSize);
 	notify(m_moveNotifications);
 }
 

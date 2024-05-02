@@ -5,7 +5,6 @@
 #include "models/model.hpp"
 #include "models/point.hpp"
 #include "render_mode.hpp"
-#include "scene.hpp"
 #include "shader_program.hpp"
 
 #include <glm/glm.hpp>
@@ -20,13 +19,13 @@ class Point;
 class BezierCurveInter : public Model
 {
 public:
-	BezierCurveInter(const Scene& scene, const ShaderProgram& bezierCurveShaderProgram,
+	BezierCurveInter(const ShaderProgram& bezierCurveShaderProgram,
 		const ShaderProgram& bezierCurvePolylineShaderProgram, const std::vector<Point*>& points);
 	virtual void render(RenderMode renderMode) const override;
 	virtual void updateGUI() override;
 
 	virtual void setPosition(const glm::vec3&) override;
-	virtual void setScreenPosition(const glm::vec2&) override;
+	virtual void setScreenPosition(const glm::vec2&, const glm::mat4&, const glm::ivec2&) override;
 
 	int getPointCount() const;
 	void addPoints(const std::vector<Point*>& points);

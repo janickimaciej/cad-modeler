@@ -36,10 +36,9 @@ void Cursor::setPosition(const glm::vec3& position)
 	m_position = position;
 }
 
-glm::vec2 Cursor::getScreenPosition() const
+glm::vec2 Cursor::getScreenPosition(const glm::mat4& cameraMatrix,
+	const glm::ivec2& windowSize) const
 {
-	glm::mat4 cameraMatrix = m_scene.getActiveCamera().getMatrix();
-	glm::ivec2 windowSize = m_scene.getWindowSize();
 	glm::vec4 clipPosition = cameraMatrix * glm::vec4{m_position, 1};
 	clipPosition /= clipPosition.w;
 	return glm::vec2
@@ -49,10 +48,9 @@ glm::vec2 Cursor::getScreenPosition() const
 	};
 }
 
-void Cursor::setScreenPosition(const glm::vec2& screenPosition)
+void Cursor::setScreenPosition(const glm::vec2& screenPosition, const glm::mat4& cameraMatrix,
+	const glm::ivec2& windowSize)
 {
-	glm::mat4 cameraMatrix = m_scene.getActiveCamera().getMatrix();
-	glm::ivec2 windowSize = m_scene.getWindowSize();
 	glm::vec4 prevClipPosition = cameraMatrix * glm::vec4{m_position, 1};
 	prevClipPosition /= prevClipPosition.w;
 	glm::vec4 clipPosition

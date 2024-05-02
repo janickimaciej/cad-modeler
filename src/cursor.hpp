@@ -16,8 +16,9 @@ public:
 
 	glm::vec3 getPosition() const;
 	void setPosition(const glm::vec3& position);
-	glm::vec2 getScreenPosition() const;
-	void setScreenPosition(const glm::vec2& screenPosition);
+	glm::vec2 getScreenPosition(const glm::mat4& cameraMatrix, const glm::ivec2& windowSize) const;
+	void setScreenPosition(const glm::vec2& screenPosition, const glm::mat4& cameraMatrix,
+		const glm::ivec2& windowSize);
 
 private:
 	const Scene& m_scene;

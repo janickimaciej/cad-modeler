@@ -8,21 +8,19 @@
 
 #include <string>
 
-class Scene;
-
 class Model
 {
 public:
-	Model(const Scene& scene, const glm::vec3& position, const std::string& name,
-		bool isVirtual = false);
+	Model(const glm::vec3& position, const std::string& name, bool isVirtual = false);
 	~Model() = default;
 	virtual void render(RenderMode renderMode) const = 0;
 	virtual void updateGUI() = 0;
 
 	glm::vec3 getPosition() const;
 	virtual void setPosition(const glm::vec3& position);
-	glm::vec2 getScreenPosition() const;
-	virtual void setScreenPosition(const glm::vec2& screenPosition);
+	glm::vec2 getScreenPosition(const glm::mat4& cameraMatrix, const glm::ivec2& windowSize) const;
+	virtual void setScreenPosition(const glm::vec2& screenPosition, const glm::mat4& cameraMatrix,
+		const glm::ivec2& windowSize);
 
 	float getYawRad() const;
 	void setYawRad(float yawRad);
@@ -42,8 +40,8 @@ public:
 	bool isActive() const;
 	void setIsActive(bool isActive);
 
-	float distanceSquared(float xPos, float yPos, int windowWidth, int windowHeight,
-		const glm::mat4& cameraMatrix) const;
+	float screenDistanceSquared(float xPos, float yPos, const glm::mat4& cameraMatrix,
+		const glm::ivec2& windowSize) const;
 
 	glm::mat3 getRotationMatrix() const;
 
@@ -60,7 +58,6 @@ protected:
 	virtual void updateShaders(RenderMode renderMode) const = 0;
 
 private:
-	const Scene& m_scene;
 	const std::string m_originalName{};
 	std::string m_name{};
 

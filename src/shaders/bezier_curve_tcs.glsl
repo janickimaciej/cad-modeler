@@ -5,7 +5,7 @@
 in vec3 inTessPos[];
 
 uniform mat4 projectionViewMatrix;
-uniform vec2 windowSize;
+uniform ivec2 windowSize;
 
 layout (vertices = controlVerticesCount) out;
 out vec3 tessPos[];

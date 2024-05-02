@@ -6,7 +6,6 @@
 #include "models/model.hpp"
 #include "models/point.hpp"
 #include "render_mode.hpp"
-#include "scene.hpp"
 #include "shader_program.hpp"
 
 #include <glm/glm.hpp>
@@ -23,10 +22,10 @@ class BezierCurveC2 : public Model
 {
 public:
 	static std::pair<std::unique_ptr<BezierCurveC2>, std::vector<std::unique_ptr<Point>>>
-		create(const Scene& scene, const ShaderProgram& bezierCurveShaderProgram,
+		create(const ShaderProgram& bezierCurveShaderProgram,
 		const ShaderProgram& bezierCurvePolylineShaderProgram,
 		const ShaderProgram& pointShaderProgram, const std::vector<Point*>& boorPoints);
-	static std::vector<std::unique_ptr<Point>> createBezierPoints(const Scene& scene,
+	static std::vector<std::unique_ptr<Point>> createBezierPoints(
 		const ShaderProgram& pointShaderProgram, const std::vector<Point*> boorPoints);
 	static void updateBezierPoints(const std::vector<Point*>& bezierPoints,
 		const std::vector<Point*> boorPoints);
@@ -35,7 +34,7 @@ public:
 	virtual void updateGUI() override;
 
 	virtual void setPosition(const glm::vec3&) override;
-	virtual void setScreenPosition(const glm::vec2&) override;
+	virtual void setScreenPosition(const glm::vec2&, const glm::mat4&, const glm::ivec2&) override;
 
 	int getPointCount() const;
 	std::vector<std::unique_ptr<Point>> addPoints(const std::vector<Point*>& points);
@@ -50,7 +49,6 @@ private:
 	static int m_count;
 	int m_id{};
 	
-	const Scene& m_scene;
 	const ShaderProgram& m_bezierCurveShaderProgram;
 	const ShaderProgram& m_bezierCurvePolylineShaderProgram;
 	const ShaderProgram& m_pointShaderProgram;
@@ -73,7 +71,7 @@ private:
 	CurveBase m_base = CurveBase::boor;
 	bool m_renderPolyline = true;
 
-	BezierCurveC2(const Scene& scene, const ShaderProgram& bezierCurveShaderProgram,
+	BezierCurveC2(const ShaderProgram& bezierCurveShaderProgram,
 		const ShaderProgram& bezierCurvePolylineShaderProgram,
 		const ShaderProgram& pointShaderProgram, const std::vector<Point*>& boorPoints,
 		const std::vector<Point*>& bezierPoints);

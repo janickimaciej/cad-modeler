@@ -1,10 +1,6 @@
 #include "models/model.hpp"
 
-#include "scene.hpp"
-
-Model::Model(const Scene& scene, const glm::vec3& position, const std::string& name,
-	bool isVirtual) :
-	m_scene{scene},
+Model::Model(const glm::vec3& position, const std::string& name, bool isVirtual) :
 	m_position{position},
 	m_originalName{name},
 	m_name{name},
@@ -24,10 +20,9 @@ void Model::setPosition(const glm::vec3& position)
 	updateMatrix();
 }
 
-glm::vec2 Model::getScreenPosition() const
+glm::vec2 Model::getScreenPosition(const glm::mat4& cameraMatrix,
+	const glm::ivec2& windowSize) const
 {
-	glm::mat4 cameraMatrix = m_scene.getActiveCamera().getMatrix();
-	glm::ivec2 windowSize = m_scene.getWindowSize();
 	glm::vec4 clipPosition = cameraMatrix * glm::vec4{m_position, 1};
 	clipPosition /= clipPosition.w;
 	return glm::vec2
@@ -37,10 +32,9 @@ glm::vec2 Model::getScreenPosition() const
 	};
 }
 
-void Model::setScreenPosition(const glm::vec2& screenPosition)
+void Model::setScreenPosition(const glm::vec2& screenPosition, const glm::mat4& cameraMatrix,
+	const glm::ivec2& windowSize)
 {
-	glm::mat4 cameraMatrix = m_scene.getActiveCamera().getMatrix();
-	glm::ivec2 windowSize = m_scene.getWindowSize();
 	glm::vec4 prevClipPosition = cameraMatrix * glm::vec4{m_position, 1};
 	prevClipPosition /= prevClipPosition.w;
 	glm::vec4 clipPosition
@@ -126,13 +120,13 @@ void Model::setIsActive(bool isActive)
 	m_isActive = isActive;
 }
 
-float Model::distanceSquared(float xPos, float yPos, int windowWidth, int windowHeight,
-	const glm::mat4& cameraMatrix) const
+float Model::screenDistanceSquared(float xPos, float yPos, const glm::mat4& cameraMatrix,
+	const glm::ivec2& windowSize) const
 {
 	glm::vec4 clipPosition = cameraMatrix * glm::vec4(m_position, 1);
 	clipPosition /= clipPosition.w;
-	glm::vec2 screenPosition{(clipPosition.x + 1) / 2 * windowWidth,
-		(-clipPosition.y + 1) / 2 * windowHeight};
+	glm::vec2 screenPosition{(clipPosition.x + 1) / 2 * windowSize.x,
+		(-clipPosition.y + 1) / 2 * windowSize.y};
 	return (screenPosition.x - xPos) * (screenPosition.x - xPos) +
 		(screenPosition.y - yPos) * (screenPosition.y - yPos);
 }
