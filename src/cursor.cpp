@@ -1,12 +1,10 @@
 #include "cursor.hpp"
-#include "scene.hpp"
 
 #include <glad/glad.h>
 
 #include <array>
 
-Cursor::Cursor(const Scene& scene) :
-	m_scene{scene},
+Cursor::Cursor() :
 	m_gui{*this}
 {
 	glGenVertexArrays(1, &m_VAO);

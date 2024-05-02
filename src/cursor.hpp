@@ -5,12 +5,10 @@
 
 #include <glm/glm.hpp>
 
-class Scene;
-
 class Cursor
 {
 public:
-	Cursor(const Scene& scene);
+	Cursor();
 	void render(const ShaderProgram& shaderProgram) const;
 	CursorGUI& getGUI();
 
@@ -21,7 +19,6 @@ public:
 		const glm::ivec2& windowSize);
 
 private:
-	const Scene& m_scene;
 	CursorGUI m_gui;
 
 	glm::vec3 m_position{0, 0, 0};

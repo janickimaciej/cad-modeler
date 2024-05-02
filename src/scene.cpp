@@ -13,7 +13,7 @@ constexpr float farPlane = 1000.0f;
 Scene::Scene(int windowWidth, int windowHeight) :
 	m_windowWidth{windowWidth},
 	m_windowHeight{windowHeight},
-	m_cursor{*this},
+	m_cursor{},
 	m_perspectiveCamera{fovYDeg, static_cast<float>(windowWidth) / windowHeight, nearPlane,
 		farPlane, m_shaderPrograms},
 	m_orthographicCamera{viewWidth, static_cast<float>(windowWidth) / windowHeight, nearPlane,
