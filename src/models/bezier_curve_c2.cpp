@@ -114,7 +114,7 @@ std::vector<std::unique_ptr<Point>> BezierCurveC2::addPoints(const std::vector<P
 		if (std::find(m_boorPoints.begin(), m_boorPoints.end(), point) == m_boorPoints.end())
 		{
 			m_boorPoints.push_back(point);
-			registerForNotificationsBoor({point});
+			registerForNotificationsBoor(point);
 			++newBoorPointCount;
 		}
 	}
@@ -399,70 +399,80 @@ void BezierCurveC2::deleteBezierPoint(int index)
 	m_moveNotificationsBezier.erase(m_moveNotificationsBezier.begin() + index);
 }
 
+void BezierCurveC2::registerForNotificationsBoor(Point* point)
+{
+	m_moveNotificationsBoor.push_back(point->registerForMoveNotification(
+		[this] (Point*)
+		{
+			if (firstCall)
+			{
+				firstCall = false;
+				updateBezierPoints();
+				updateMeshes();
+				firstCall = true;
+			}
+		}
+	));
+
+	m_destroyNotificationsBoor.push_back(point->registerForDestroyNotification(
+		[this] (Point* point)
+		{
+			if (firstCall)
+			{
+				firstCall = false;
+				int index{};
+				for (int i = 0; i < m_boorPoints.size(); ++i)
+				{
+					if (m_boorPoints[i] == point)
+					{
+						index = i;
+						break;
+					}
+				}
+				deleteBoorPoint(index);
+				firstCall = true;
+			}
+		}
+	));
+}
+
 void BezierCurveC2::registerForNotificationsBoor(const std::vector<Point*>& points)
 {
 	for (Point* point : points)
 	{
-		m_moveNotificationsBoor.push_back(point->registerForMoveNotification(
-			[this] (Point*)
-			{
-				if (firstCall)
-				{
-					firstCall = false;
-					updateBezierPoints();
-					updateMeshes();
-					firstCall = true;
-				}
-			}
-		));
-
-		m_destroyNotificationsBoor.push_back(point->registerForDestroyNotification(
-			[this] (Point* point)
-			{
-				if (firstCall)
-				{
-					firstCall = false;
-					int index{};
-					for (int i = 0; i < m_boorPoints.size(); ++i)
-					{
-						if (m_boorPoints[i] == point)
-						{
-							index = i;
-							break;
-						}
-					}
-					deleteBoorPoint(index);
-					firstCall = true;
-				}
-			}
-		));
+		registerForNotificationsBoor(point);
 	}
+}
+
+void BezierCurveC2::registerForNotificationsBezier(Point* point)
+{
+	m_moveNotificationsBezier.push_back(point->registerForMoveNotification(
+		[this] (Point* point)
+		{
+			if (firstCall)
+			{
+				firstCall = false;
+				int index{};
+				for (int i = 0; i < m_bezierPoints.size(); ++i)
+				{
+					if (m_bezierPoints[i] == point)
+					{
+						index = i;
+						break;
+					}
+				}
+				updateWithBezierPoint(index);
+				firstCall = true;
+			}
+		}
+	));
 }
 
 void BezierCurveC2::registerForNotificationsBezier(const std::vector<Point*>& points)
 {
 	for (Point* point : points)
 	{
-		m_moveNotificationsBezier.push_back(point->registerForMoveNotification(
-			[this] (Point* point)
-			{
-				if (firstCall)
-				{
-					firstCall = false;
-					int index{};
-					for (int i = 0; i < m_bezierPoints.size(); ++i)
-					{
-						if (m_bezierPoints[i] == point)
-						{
-							index = i;
-							break;
-						}
-					}
-					updateWithBezierPoint(index);
-					firstCall = true;
-				}
-			}
-		));
+		registerForNotificationsBezier(point);
 	}
 }
 

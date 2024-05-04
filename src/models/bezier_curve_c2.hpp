@@ -16,8 +16,6 @@
 #include <utility>
 #include <vector>
 
-class Point;
-
 class BezierCurveC2 : public Model
 {
 public:
@@ -92,7 +90,9 @@ private:
 
 	void deleteBezierPoint(int index);
 
+	void registerForNotificationsBoor(Point* point);
 	void registerForNotificationsBoor(const std::vector<Point*>& points);
+	void registerForNotificationsBezier(Point* point);
 	void registerForNotificationsBezier(const std::vector<Point*>& points);
 
 	void renderCurve() const;

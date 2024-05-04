@@ -22,7 +22,7 @@ void BezierCurveInterGUI::update()
 	{
 		ImGui::Text(m_pointNames[i].c_str());
 		ImGui::SameLine(ImGui::GetWindowWidth() - 35);
-		if (ImGui::SmallButton(("X##" + suffix + std::to_string(i)).c_str()))
+		if (ImGui::SmallButton(("X" + suffix + std::to_string(i)).c_str()))
 		{
 			m_curve.deletePoint(i);
 		}

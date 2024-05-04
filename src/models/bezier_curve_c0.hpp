@@ -14,8 +14,6 @@
 #include <string>
 #include <vector>
 
-class Point;
-
 class BezierCurveC0 : public Model
 {
 public:
@@ -65,6 +63,7 @@ private:
 	void updateCurveMesh();
 	void updatePolylineMesh();
 
+	void registerForNotifications(Point* point);
 	void registerForNotifications(const std::vector<Point*>& points);
 
 	void renderCurve() const;

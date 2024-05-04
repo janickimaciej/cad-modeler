@@ -52,10 +52,10 @@ void BezierCurveC0::addPoints(const std::vector<Point*>& points)
 		if (std::find(m_points.begin(), m_points.end(), point) == m_points.end())
 		{
 			m_points.push_back(point);
+			registerForNotifications(point);
 		}
 	}
 	updateGeometry();
-	registerForNotifications(points);
 }
 
 void BezierCurveC0::deletePoint(int index)
@@ -155,12 +155,12 @@ void BezierCurveC0::updateCurveMesh()
 	std::vector<float> vertexData{};
 
 	int remainder = (m_points.size() - 1) % 3;
-	for (std::size_t i = 0; static_cast<int>(i) < static_cast<int>(m_points.size()) - remainder - 3;
-		i += 3)
+	int patchCount = (m_points.size() - 1) / 3;
+	for (std::size_t i = 0; static_cast<int>(i) < patchCount; ++i)
 	{
 		for (std::size_t j = 0; j < 4; ++j)
 		{
-			glm::vec3 position = m_points[i + j]->getPosition();
+			glm::vec3 position = m_points[3 * i + j]->getPosition();
 			vertexData.push_back(position.x);
 			vertexData.push_back(position.y);
 			vertexData.push_back(position.z);
@@ -188,23 +188,28 @@ void BezierCurveC0::updatePolylineMesh()
 		vertexData.data(), GL_DYNAMIC_DRAW);
 }
 
+void BezierCurveC0::registerForNotifications(Point* point)
+{
+	m_moveNotifications.push_back(point->registerForMoveNotification(
+		[this] (Point*)
+		{
+			updateGeometry();
+		}
+	));
+
+	m_destroyNotifications.push_back(point->registerForDestroyNotification(
+		[this, index = static_cast<int>(m_destroyNotifications.size())] (Point*)
+		{
+			deletePoint(index);
+		}
+	));
+}
+
 void BezierCurveC0::registerForNotifications(const std::vector<Point*>& points)
 {
 	for (Point* point : points)
 	{
-		m_moveNotifications.push_back(point->registerForMoveNotification(
-			[this] (Point*)
-			{
-				updateGeometry();
-			}
-		));
-
-		m_destroyNotifications.push_back(point->registerForDestroyNotification(
-			[this, index = static_cast<int>(m_destroyNotifications.size())] (Point*)
-			{
-				deletePoint(index);
-			}
-		));
+		registerForNotifications(point);
 	}
 }
 

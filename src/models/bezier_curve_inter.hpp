@@ -14,8 +14,6 @@
 #include <string>
 #include <vector>
 
-class Point;
-
 class BezierCurveInter : public Model
 {
 public:
@@ -64,7 +62,8 @@ private:
 	void updatePosition();
 	void updateCurveMesh();
 	void updatePolylineMesh();
-
+	
+	void registerForNotifications(Point* point);
 	void registerForNotifications(const std::vector<Point*>& points);
 
 	void renderCurve() const;
