@@ -13,6 +13,8 @@ struct ShaderPrograms
 		path("bezier_curve_polyline_fs")};
 	ShaderProgram bezierCurve{path("bezier_curve_vs"), path("bezier_curve_tcs"),
 		path("bezier_curve_tes"), path("bezier_curve_fs")};
+	ShaderProgram bezierCurveInter{path("bezier_curve_inter_vs"), path("bezier_curve_inter_tcs"),
+		path("bezier_curve_inter_tes"), path("bezier_curve_inter_fs")};
 
 private:
 	static std::string path(const std::string& shaderName);

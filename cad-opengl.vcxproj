@@ -89,6 +89,7 @@
     <ClInclude Include="src\models\bezier_curve_c0.hpp" />
     <ClInclude Include="src\models\bezier_curve_c2.hpp" />
     <ClInclude Include="src\models\bezier_curve_inter.hpp" />
+    <ClInclude Include="src\models\bezier_curve_inter_segment_data.hpp" />
     <ClInclude Include="src\models\curve_base.hpp" />
     <ClInclude Include="src\models\model.hpp" />
     <ClInclude Include="src\models\torus.hpp" />
@@ -106,6 +107,10 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="dep\imgui\misc\debuggers\imgui.natstepfilter" />
+    <None Include="src\shaders\bezier_curve_inter_tes.glsl" />
+    <None Include="src\shaders\bezier_curve_inter_vs.glsl" />
+    <None Include="src\shaders\bezier_curve_inter_fs.glsl" />
+    <None Include="src\shaders\bezier_curve_inter_tcs.glsl" />
     <None Include="src\shaders\bezier_curve_fs.glsl" />
     <None Include="src\shaders\bezier_curve_tes.glsl" />
     <None Include="src\shaders\bezier_curve_tcs.glsl" />

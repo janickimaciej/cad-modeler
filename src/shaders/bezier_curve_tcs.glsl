@@ -14,6 +14,7 @@ out float divisionY[];
 void main()
 {
 	tessPos[gl_InvocationID] = inTessPos[gl_InvocationID];
+
 	if (gl_InvocationID % 4 == 0)
 	{
 		vec2 tessPosScreen[controlVerticesCount];

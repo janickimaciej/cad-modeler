@@ -1,5 +1,6 @@
 #include "models/bezier_curve_inter.hpp"
 
+#include "models/bezier_curve_inter_segment_data.hpp"
 #include "models/point.hpp"
 
 #include <cstddef>
@@ -100,8 +101,24 @@ void BezierCurveInter::createCurveMesh()
 
 	updateCurveMesh();
 
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), 0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(BezierCurveInterSegmentData),
+		reinterpret_cast<void*>(offsetof(BezierCurveInterSegmentData, a)));
 	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(BezierCurveInterSegmentData),
+		reinterpret_cast<void*>(offsetof(BezierCurveInterSegmentData, b)));
+	glEnableVertexAttribArray(1);
+	glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(BezierCurveInterSegmentData),
+		reinterpret_cast<void*>(offsetof(BezierCurveInterSegmentData, c)));
+	glEnableVertexAttribArray(2);
+	glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, sizeof(BezierCurveInterSegmentData),
+		reinterpret_cast<void*>(offsetof(BezierCurveInterSegmentData, d)));
+	glEnableVertexAttribArray(3);
+	glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, sizeof(BezierCurveInterSegmentData),
+		reinterpret_cast<void*>(offsetof(BezierCurveInterSegmentData, nextPoint)));
+	glEnableVertexAttribArray(4);
+	glVertexAttribPointer(5, 1, GL_FLOAT, GL_FALSE, sizeof(BezierCurveInterSegmentData),
+		reinterpret_cast<void*>(offsetof(BezierCurveInterSegmentData, dt)));
+	glEnableVertexAttribArray(5);
 
 	glBindVertexArray(0);
 }
@@ -152,85 +169,96 @@ void BezierCurveInter::updatePosition()
 
 void BezierCurveInter::updateCurveMesh()
 {
-	int n = m_points.size() - 1;
-	std::vector<float> dt(n);
-	std::vector<glm::vec3> a(n);
-	std::vector<glm::vec3> b(n);
-	std::vector<glm::vec3> c(n);
-	std::vector<glm::vec3> d(n);
-	std::vector<float> alpha(n);
-	std::vector<float> beta(n);
-	std::vector<float> betap(n);
-	std::vector<glm::vec3> R(n);
-	std::vector<glm::vec3> Rp(n);
+	std::vector<BezierCurveInterSegmentData> segmentsData{};
 
-	for (int i = 0; i < n; ++i)
+	if (m_points.size() >= 3)
 	{
-		dt[i] = glm::length(m_points[i + 1]->getPosition() - m_points[i]->getPosition());
-		a[i] = m_points[i]->getPosition();
-	}
+		int n = static_cast<int>(m_points.size()) - 1;
+		std::vector<float> dt(n);
+		std::vector<glm::vec3> a(n);
+		std::vector<glm::vec3> b(n);
+		std::vector<glm::vec3> c(n);
+		std::vector<glm::vec3> d(n);
+		std::vector<float> alpha(n);
+		std::vector<float> beta(n);
+		std::vector<float> betap(n);
+		std::vector<glm::vec3> R(n);
+		std::vector<glm::vec3> Rp(n);
 
-	for (int i = 2; i < n; ++i)
-	{
-		alpha[i] = dt[i - 1] / (dt[i - 1] + dt[i]);
-	}
+		for (int i = 0; i < n; ++i)
+		{
+			dt[i] = glm::length(m_points[i + 1]->getPosition() - m_points[i]->getPosition());
+			a[i] = m_points[i]->getPosition();
+		}
 
-	for (std::size_t i = 1; i < n - 1; ++i)
-	{
-		beta[i] = dt[i] / (dt[i - 1] + dt[i]);
-	}
+		for (int i = 2; i < n; ++i)
+		{
+			alpha[i] = dt[i - 1] / (dt[i - 1] + dt[i]);
+		}
 
-	for (int i = 1; i < n; ++i)
-	{
-		R[i] = ((m_points[i + 1]->getPosition() - m_points[i]->getPosition()) / dt[i] -
-			(m_points[i]->getPosition() - m_points[i - 1]->getPosition()) / dt[i - 1]) /
-			(dt[i - 1] + dt[i]);
-	}
+		for (std::size_t i = 1; i < n - 1; ++i)
+		{
+			beta[i] = dt[i] / (dt[i - 1] + dt[i]);
+		}
 
-	betap[1] = beta[1] / 2;
-	for (int i = 2; i < n - 1; ++i)
-	{
-		betap[i] = beta[i] / (2 - alpha[i] * betap[i - 1]);
-	}
+		for (int i = 1; i < n; ++i)
+		{
+			R[i] = 3.0f * ((m_points[i + 1]->getPosition() - m_points[i]->getPosition()) / dt[i] -
+				(m_points[i]->getPosition() - m_points[i - 1]->getPosition()) / dt[i - 1]) /
+				(dt[i - 1] + dt[i]);
+		}
 
-	Rp[1] = R[1] / 2.0f;
-	for (int i = 2; i < n; ++i)
-	{
-		Rp[i] = (R[i] - alpha[i] * Rp[i - 1]) / (2 - alpha[i] * betap[i - 1]);
-	}
+		betap[1] = beta[1] / 2;
+		for (int i = 2; i < n - 1; ++i)
+		{
+			betap[i] = beta[i] / (2 - alpha[i] * betap[i - 1]);
+		}
 
-	c[n - 1] = Rp[n - 1];
-	for (int i = n - 2; i >= 1; --i)
-	{
-		c[i] = Rp[i] - betap[i] * c[i + 1];
-	}
-	c[0] = {0, 0, 0};
+		Rp[1] = R[1] / 2.0f;
+		for (int i = 2; i < n; ++i)
+		{
+			Rp[i] = (R[i] - alpha[i] * Rp[i - 1]) / (2 - alpha[i] * betap[i - 1]);
+		}
 
-	for (int i = 0; i < n - 1; ++i)
-	{
-		d[i] = 2.0f * (c[i + 1] - c[i]) / (6 * dt[i]);
-	}
-	d[n - 1] = -2.0f * c[n - 1] / (6 * dt[n - 1]);
+		c[n - 1] = Rp[n - 1];
+		for (int i = n - 2; i >= 1; --i)
+		{
+			c[i] = Rp[i] - betap[i] * c[i + 1];
+		}
+		c[0] = {0, 0, 0};
 
-	for (int i = 0; i < n - 1; ++i)
-	{
-		b[i] = (a[i + 1] - a[i]) / dt[i] - (c[i] + d[i] * dt[i]) * dt[i];
-	}
-	b[n - 1] = (m_points[n]->getPosition() - a[n - 1]) / dt[n - 1] - (c[n - 1] + d[n - 1] * dt[n - 1]) * dt[n - 1];
+		for (int i = 0; i < n - 1; ++i)
+		{
+			d[i] = 2.0f * (c[i + 1] - c[i]) / (6 * dt[i]);
+		}
+		d[n - 1] = -2.0f * c[n - 1] / (6 * dt[n - 1]);
 
-	std::vector<float> vertexData{};
+		for (int i = 0; i < n - 1; ++i)
+		{
+			b[i] = (a[i + 1] - a[i]) / dt[i] - (c[i] + d[i] * dt[i]) * dt[i];
+		}
+		b[n - 1] = (m_points[n]->getPosition() - a[n - 1]) / dt[n - 1] -
+			(c[n - 1] + d[n - 1] * dt[n - 1]) * dt[n - 1];
 
-	for (const Point* point : m_points)
-	{
-		glm::vec3 position = point->getPosition();
-		vertexData.push_back(position.x);
-		vertexData.push_back(position.y);
-		vertexData.push_back(position.z);
+		for (int i = 0; i < n; ++i)
+		{
+			segmentsData.push_back(
+				{
+					a[i],
+					b[i],
+					c[i],
+					d[i],
+					m_points[i + 1]->getPosition(),
+					dt[i]
+				}
+			);
+		}
 	}
 	
 	glBindBuffer(GL_ARRAY_BUFFER, m_VBOCurve);
-	glBufferData(GL_ARRAY_BUFFER, static_cast<GLsizeiptr>(vertexData.size() * sizeof(float)),
-		vertexData.data(), GL_DYNAMIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER,
+		static_cast<GLsizeiptr>(segmentsData.size() * sizeof(BezierCurveInterSegmentData)),
+		segmentsData.data(), GL_DYNAMIC_DRAW);
 }
 
 void BezierCurveInter::updatePolylineMesh()
@@ -276,12 +304,12 @@ void BezierCurveInter::registerForNotifications(const std::vector<Point*>& point
 
 void BezierCurveInter::renderCurve() const
 {
-	if (m_points.size() >= 2)
+	if (m_points.size() >= 3)
 	{
 		m_bezierCurveShaderProgram.use();
-		glPatchParameteri(GL_PATCH_VERTICES, 4);
+		glPatchParameteri(GL_PATCH_VERTICES, 1);
 		glBindVertexArray(m_VAOCurve);
-		glDrawArrays(GL_PATCHES, 0, static_cast<GLsizei>((m_points.size() - 1) / 3 * 4));
+		glDrawArrays(GL_PATCHES, 0, static_cast<GLsizei>(m_points.size() - 1));
 		glBindVertexArray(0);
 	}
 }

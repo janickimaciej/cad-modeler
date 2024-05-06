@@ -263,7 +263,8 @@ void Scene::addBezierCurveInter()
 	}
 
 	std::unique_ptr<BezierCurveInter> curve = std::make_unique<BezierCurveInter>(
-		m_shaderPrograms.bezierCurve, m_shaderPrograms.bezierCurvePolyline, nonVirtualActivePoints);
+		m_shaderPrograms.bezierCurveInter, m_shaderPrograms.bezierCurvePolyline,
+		nonVirtualActivePoints);
 	m_models.push_back(curve.get());
 	m_bezierCurvesInter.push_back(std::move(curve));
 }
