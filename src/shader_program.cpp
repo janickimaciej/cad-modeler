@@ -44,6 +44,11 @@ ShaderProgram::ShaderProgram(const std::string& vertexShaderPath,
 	deleteShaders(shaders);
 }
 
+ShaderProgram::~ShaderProgram()
+{
+	glDeleteProgram(m_id);
+}
+
 void ShaderProgram::use() const
 {
 	glUseProgram(m_id);
@@ -78,11 +83,6 @@ void ShaderProgram::setUniform(const std::string& name, const glm::mat4& value) 
 {
 	glUniformMatrix4fv(glGetUniformLocation(m_id, name.c_str()), 1, GL_FALSE,
 		glm::value_ptr(value));
-}
-
-ShaderProgram::~ShaderProgram()
-{
-	glDeleteProgram(m_id);
 }
 
 unsigned int ShaderProgram::createShader(GLenum shaderType, const std::string& shaderPath) const

@@ -32,6 +32,11 @@ Window::Window(int width, int height)
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 }
 
+Window::~Window()
+{
+	glfwTerminate();
+}
+
 void Window::setUserData(Scene& scene, GUI& gui)
 {
 	m_userData.scene = &scene;
@@ -244,9 +249,4 @@ void Window::keyCallback(GLFWwindow* window, int key, int, int action, int)
 	{
 		scalingRequested = false;
 	}
-}
-
-Window::~Window()
-{
-	glfwTerminate();
 }

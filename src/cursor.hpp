@@ -9,6 +9,8 @@ class Cursor
 {
 public:
 	Cursor();
+	~Cursor();
+
 	void render(const ShaderProgram& shaderProgram) const;
 	CursorGUI& getGUI();
 

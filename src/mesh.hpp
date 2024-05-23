@@ -12,8 +12,9 @@ class Mesh
 public:
 	Mesh(const std::vector<Vertex>& vertices, const std::vector<unsigned int>& indicesWireframe,
 		const std::vector<unsigned int>& indicesSolid);
-	void render(RenderMode renderMode) const;
 	~Mesh();
+
+	void render(RenderMode renderMode) const;
 	
 private:
 	std::size_t m_indexCountWireframe{};

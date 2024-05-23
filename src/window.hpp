@@ -10,6 +10,8 @@ class Window
 {
 public:
 	Window(int width, int height);
+	~Window();
+
 	void setUserData(Scene& scene, GUI& gui);
 	bool shouldClose();
 	void clear() const;
@@ -21,7 +23,6 @@ public:
 	static void buttonCallback(GLFWwindow* window, int button, int action, int);
 	static void scrollCallback(GLFWwindow* window, double, double yOffset);
 	static void keyCallback(GLFWwindow* window, int key, int, int action, int);
-	~Window();
 
 private:
 	GLFWwindow* m_windowPtr{};

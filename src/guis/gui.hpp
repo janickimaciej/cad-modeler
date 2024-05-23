@@ -22,6 +22,8 @@ class GUI
 
 public:
 	GUI(GLFWwindow* window, Scene& scene, int windowWidth, int windowHeight);
+	~GUI();
+
 	void update();
 	void render();
 	void startRenaming();
@@ -35,7 +37,6 @@ public:
 	void apply();
 	void deleteActiveModels();
 	void setWindowSize(int width, int height);
-	~GUI();
 
 private:
 	Scene& m_scene;

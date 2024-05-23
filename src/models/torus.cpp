@@ -114,7 +114,6 @@ void Torus::updateShaders(RenderMode renderMode) const
 
 void Torus::updateMesh()
 {
-	m_mesh.reset();
 	m_mesh = std::make_unique<Mesh>(createVertices(), createIndicesWireframe(),
 		createIndicesSolid());
 }

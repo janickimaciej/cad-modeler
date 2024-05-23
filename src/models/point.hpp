@@ -19,6 +19,7 @@ public:
 
 	Point(const ShaderProgram& pointShaderProgram, glm::vec3 position, bool isVirtual = false);
 	~Point();
+
 	virtual void render(RenderMode renderMode) const override;
 	virtual void updateGUI() override;
 

@@ -10,6 +10,11 @@ Cursor::Cursor() :
 	glGenVertexArrays(1, &m_VAO);
 }
 
+Cursor::~Cursor()
+{
+	glDeleteVertexArrays(1, &m_VAO);
+}
+
 void Cursor::render(const ShaderProgram& shaderProgram) const
 {
 	updateShaders(shaderProgram);

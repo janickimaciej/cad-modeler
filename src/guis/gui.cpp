@@ -26,6 +26,13 @@ GUI::GUI(GLFWwindow* window, Scene& scene, int windowWidth, int windowHeight) :
 	ImGui_ImplOpenGL3_Init();
 }
 
+GUI::~GUI()
+{
+	ImGui_ImplOpenGL3_Shutdown();
+	ImGui_ImplGlfw_Shutdown();
+	ImGui::DestroyContext();
+}
+
 void GUI::update()
 {
 	getValues();
@@ -289,13 +296,6 @@ void GUI::setWindowSize(int width, int height)
 {
 	m_windowWidth = width;
 	m_windowHeight = height;
-}
-
-GUI::~GUI()
-{
-	ImGui_ImplOpenGL3_Shutdown();
-	ImGui_ImplGlfw_Shutdown();
-	ImGui::DestroyContext();
 }
 
 void GUI::getValues()

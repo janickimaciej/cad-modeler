@@ -16,6 +16,15 @@ Mesh::Mesh(const std::vector<Vertex>& vertices, const std::vector<unsigned int>&
 	createVAOSolid();
 }
 
+Mesh::~Mesh()
+{
+	glDeleteVertexArrays(1, &m_VAOSolid);
+	glDeleteVertexArrays(1, &m_VAOWireframe);
+	glDeleteBuffers(1, &m_EBOSolid);
+	glDeleteBuffers(1, &m_EBOWireframe);
+	glDeleteBuffers(1, &m_VBO);
+}
+
 void Mesh::render(RenderMode renderMode) const
 {
 	switch (renderMode)
@@ -33,15 +42,6 @@ void Mesh::render(RenderMode renderMode) const
 		break;
 	}
 	glBindVertexArray(0);
-}
-
-Mesh::~Mesh()
-{
-	glDeleteVertexArrays(1, &m_VAOSolid);
-	glDeleteVertexArrays(1, &m_VAOWireframe);
-	glDeleteBuffers(1, &m_EBOSolid);
-	glDeleteBuffers(1, &m_EBOWireframe);
-	glDeleteBuffers(1, &m_VBO);
 }
 
 void Mesh::createVBO(const std::vector<Vertex>& vertices)

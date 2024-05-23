@@ -17,6 +17,7 @@ public:
 		const std::string& tessEvalShaderPath, const std::string& fragmentShaderPath);
 	ShaderProgram(const ShaderProgram&) = delete;
 	ShaderProgram(ShaderProgram&&) = delete;
+	~ShaderProgram();
 
 	void use() const;
 	
@@ -26,8 +27,6 @@ public:
 	void setUniform(const std::string& name, const glm::ivec2& value) const;
 	void setUniform(const std::string& name, const glm::vec3& value) const;
 	void setUniform(const std::string& name, const glm::mat4& value) const;
-	
-	~ShaderProgram();
 
 private:
 	unsigned int m_id{};

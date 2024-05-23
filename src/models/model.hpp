@@ -13,6 +13,7 @@ class Model
 public:
 	Model(const glm::vec3& position, const std::string& name, bool isVirtual = false);
 	~Model() = default;
+
 	virtual void render(RenderMode renderMode) const = 0;
 	virtual void updateGUI() = 0;
 
