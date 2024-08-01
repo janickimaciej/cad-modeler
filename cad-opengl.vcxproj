@@ -72,6 +72,7 @@
     <ClInclude Include="src\cameras\camera.hpp" />
     <ClInclude Include="src\cameras\orthographic_camera.hpp" />
     <ClInclude Include="src\cameras\perspective_camera.hpp" />
+    <ClInclude Include="src\guis\gui_state.hpp" />
     <ClInclude Include="src\guis\model_guis\bezier_curve_c0_gui.hpp" />
     <ClInclude Include="src\guis\center_point_gui.hpp" />
     <ClInclude Include="src\guis\camera_guis\camera_gui.hpp" />

@@ -14,7 +14,7 @@ CursorGUI::CursorGUI(Cursor& cursor) :
 
 void CursorGUI::update(const glm::mat4& cameraMatrix, const glm::ivec2& windowSize)
 {
-	const std::string suffix = "##cursor";
+	static const std::string suffix = "##cursor";
 
 	getValues(cameraMatrix, windowSize);
 

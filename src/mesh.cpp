@@ -29,17 +29,17 @@ void Mesh::render(RenderMode renderMode) const
 {
 	switch (renderMode)
 	{
-	case RenderMode::wireframe:
-		glBindVertexArray(m_VAOWireframe);
-		glDrawElements(GL_LINES, static_cast<GLsizei>(m_indexCountWireframe), GL_UNSIGNED_INT,
-			nullptr);
-		break;
+		case RenderMode::wireframe:
+			glBindVertexArray(m_VAOWireframe);
+			glDrawElements(GL_LINES, static_cast<GLsizei>(m_indexCountWireframe), GL_UNSIGNED_INT,
+				nullptr);
+			break;
 
-	case RenderMode::solid:
-		glBindVertexArray(m_VAOSolid);
-		glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(m_indexCountSolid), GL_UNSIGNED_INT,
-			nullptr);
-		break;
+		case RenderMode::solid:
+			glBindVertexArray(m_VAOSolid);
+			glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(m_indexCountSolid), GL_UNSIGNED_INT,
+				nullptr);
+			break;
 	}
 	glBindVertexArray(0);
 }

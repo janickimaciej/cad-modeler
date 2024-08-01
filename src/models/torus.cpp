@@ -5,10 +5,10 @@
 #include <cmath>
 #include <vector>
 
-constexpr float initialMajorRadius = 3.0f;
-constexpr float initialMinorRadius = 1.0f;
-constexpr int initialMajor = 32;
-constexpr int initialMinor = 16;
+static constexpr float initialMajorRadius = 3.0f;
+static constexpr float initialMinorRadius = 1.0f;
+static constexpr int initialMajor = 32;
+static constexpr int initialMinor = 16;
 
 Torus::Torus(const ShaderProgram& wireframeShaderProgram, const ShaderProgram& solidShaderProgram,
 	glm::vec3 position) :
@@ -98,17 +98,17 @@ void Torus::updateShaders(RenderMode renderMode) const
 {
 	switch (renderMode)
 	{
-	case RenderMode::wireframe:
-		m_wireframeShaderProgram.use();
-		m_wireframeShaderProgram.setUniform("modelMatrix", m_modelMatrix);
-		m_wireframeShaderProgram.setUniform("isActive", isActive());
-		break;
+		case RenderMode::wireframe:
+			m_wireframeShaderProgram.use();
+			m_wireframeShaderProgram.setUniform("modelMatrix", m_modelMatrix);
+			m_wireframeShaderProgram.setUniform("isActive", isActive());
+			break;
 
-	case RenderMode::solid:
-		m_solidShaderProgram.use();
-		m_solidShaderProgram.setUniform("modelMatrix", m_modelMatrix);
-		m_solidShaderProgram.setUniform("isActive", isActive());
-		break;
+		case RenderMode::solid:
+			m_solidShaderProgram.use();
+			m_solidShaderProgram.setUniform("modelMatrix", m_modelMatrix);
+			m_solidShaderProgram.setUniform("isActive", isActive());
+			break;
 	}
 }
 

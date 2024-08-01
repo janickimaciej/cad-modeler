@@ -3,7 +3,7 @@
 #include <array>
 #include <string>
 
-constexpr int cameraTypeCount = 2;
+inline constexpr int cameraTypeCount = 2;
 
 enum class CameraType
 {

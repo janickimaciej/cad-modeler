@@ -16,7 +16,7 @@ PerspectiveCameraGUI::PerspectiveCameraGUI(PerspectiveCamera& camera) :
 
 void PerspectiveCameraGUI::update()
 {
-	const std::string suffix = "##orthographicCamera";
+	static const std::string suffix = "##orthographicCamera";
 
 	getValues();
 

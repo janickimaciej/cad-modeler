@@ -4,12 +4,12 @@
 
 #include <array>
 
-constexpr int vertexCount = 6;
-constexpr int vertexCoordinates = 3;
+static constexpr int vertexCount = 6;
+static constexpr int vertexCoordinates = 3;
 
 Canvas::Canvas()
 {
-	std::array<float, vertexCount * vertexCoordinates> vertices =
+	static const std::array<float, vertexCount * vertexCoordinates> vertices =
 	{
 		-1.0f, -1.0f, 0.0f,
 		1.0f, 1.0f, 0.0f,

@@ -33,7 +33,7 @@ void Camera::addPitch(float pitchRad)
 {
 	m_pitchRad += pitchRad;
 
-	constexpr float bound = glm::radians(89.0f);
+	static constexpr float bound = glm::radians(89.0f);
 	if (m_pitchRad < -bound)
 	{
 		m_pitchRad = -bound;
@@ -50,7 +50,7 @@ void Camera::addYaw(float yawRad)
 {
 	m_yawRad += yawRad;
 	
-	constexpr float pi = glm::pi<float>();
+	static constexpr float pi = glm::pi<float>();
 	while (m_yawRad < -pi)
 	{
 		m_yawRad += 2 * pi;

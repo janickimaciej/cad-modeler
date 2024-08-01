@@ -15,7 +15,7 @@ CenterPointGUI::CenterPointGUI(CenterPoint& centerPoint) :
 
 void CenterPointGUI::update()
 {
-	const std::string suffix = "##centerPoint";
+	static const std::string suffix = "##centerPoint";
 
 	getValues();
 

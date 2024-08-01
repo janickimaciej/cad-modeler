@@ -8,7 +8,7 @@
 #include <iostream>
 #include <sstream>
 
-constexpr std::size_t errorLogSize = 512;
+static constexpr std::size_t errorLogSize = 512;
 
 ShaderProgram::ShaderProgram(const std::string& vertexShaderPath,
 	const std::string& fragmentShaderPath)
@@ -102,7 +102,6 @@ unsigned int ShaderProgram::createShader(GLenum shaderType, const std::string& s
 	return shader;
 }
 
-
 unsigned int ShaderProgram::createShaderProgram(const std::vector<unsigned int>& shaders) const
 {
 	unsigned int shaderProgram = glCreateProgram();
@@ -157,28 +156,27 @@ void ShaderProgram::printCompilationError(GLenum shaderType, unsigned int shader
 	std::string shaderTypeName{};
 	switch (shaderType)
 	{
-	case GL_VERTEX_SHADER:
-		shaderTypeName = "vertex";
-		break;
+		case GL_VERTEX_SHADER:
+			shaderTypeName = "vertex";
+			break;
 		
-	case GL_FRAGMENT_SHADER:
-		shaderTypeName = "fragment";
-		break;
+		case GL_FRAGMENT_SHADER:
+			shaderTypeName = "fragment";
+			break;
 		
-	case GL_GEOMETRY_SHADER:
-		shaderTypeName = "geometry";
-		break;
+		case GL_GEOMETRY_SHADER:
+			shaderTypeName = "geometry";
+			break;
 		
-	case GL_TESS_CONTROL_SHADER:
-		shaderTypeName = "tessellation control";
-		break;
+		case GL_TESS_CONTROL_SHADER:
+			shaderTypeName = "tessellation control";
+			break;
 		
-	case GL_TESS_EVALUATION_SHADER:
-		shaderTypeName = "tessellation evaluation";
-		break;
+		case GL_TESS_EVALUATION_SHADER:
+			shaderTypeName = "tessellation evaluation";
+			break;
 	}
-	std::cerr << "Error compiling " + std::string(shaderTypeName) + " shader:\n" <<
-		errorLog.data() << '\n';
+	std::cerr << "Error compiling " + shaderTypeName + " shader:\n" << errorLog.data() << '\n';
 }
 
 void ShaderProgram::printLinkingError(unsigned int programId) const

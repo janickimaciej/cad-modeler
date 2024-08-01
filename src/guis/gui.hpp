@@ -1,5 +1,6 @@
 #pragma once
 
+#include "guis/gui_state.hpp"
 #include "models/model.hpp"
 #include "scene.hpp"
 
@@ -8,18 +9,6 @@
 
 class GUI
 {
-	enum class State
-	{
-		none,
-		renaming,
-		rotatingX,
-		rotatingY,
-		rotatingZ,
-		scalingX,
-		scalingY,
-		scalingZ
-	};
-
 public:
 	GUI(GLFWwindow* window, Scene& scene, int windowWidth, int windowHeight);
 	~GUI();
@@ -46,7 +35,7 @@ private:
 	int m_windowWidth{};
 	int m_windowHeight{};
 
-	State m_state = State::none;
+	GUIState m_state = GUIState::none;
 
 	Model* m_uniqueActiveModel{};
 	static constexpr int maxNameLength = 32;

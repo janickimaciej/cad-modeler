@@ -15,7 +15,7 @@ OrthographicCameraGUI::OrthographicCameraGUI(OrthographicCamera& camera) :
 
 void OrthographicCameraGUI::update()
 {
-	const std::string suffix = "##orthographicCamera";
+	static const std::string suffix = "##orthographicCamera";
 
 	getValues();
 

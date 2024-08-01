@@ -71,7 +71,7 @@ public:
 	void deleteUnreferencedVirtualPoints();
 	void activate(float xPos, float yPos, bool toggle);
 	void release();
-	void moveActiveModel(float xPos, float yPos) const;
+	void moveUniqueActiveModel(float xPos, float yPos) const;
 
 	Model* getUniqueActiveModel() const;
 

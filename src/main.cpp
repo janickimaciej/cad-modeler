@@ -1,15 +1,11 @@
 #include "guis/gui.hpp"
 #include "scene.hpp"
-#include "shader_program.hpp"
 #include "window.hpp"
-
-#include <iostream>
-#include <string>
 
 int main()
 {
-	constexpr int initialWindowWidth = 1200;
-	constexpr int initialWindowHeight = 700;
+	static constexpr int initialWindowWidth = 1200;
+	static constexpr int initialWindowHeight = 700;
 
 	Window window{initialWindowWidth, initialWindowHeight};
 	Scene scene{initialWindowWidth, initialWindowHeight};

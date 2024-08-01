@@ -25,7 +25,7 @@ void TorusGUI::update()
 
 	ImGui::InputFloat(("z" + suffix).c_str(), &m_z, 0.1f, 0.1f, "%.2f");
 
-	constexpr float angleSensitivity = 1.0f;
+	static constexpr float angleSensitivity = 1.0f;
 
 	ImGui::InputFloat(("rotation x" + suffix).c_str(), &m_pitchDeg, angleSensitivity,
 		angleSensitivity, "%.2f");

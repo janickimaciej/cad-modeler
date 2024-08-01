@@ -41,10 +41,10 @@ void GUI::update()
 	ImGui_ImplGlfw_NewFrame();
 	ImGui::NewFrame();
 
-	if (m_state == State::renaming)
+	if (m_state == GUIState::renaming)
 	{
-		constexpr int renamingWidth = 250;
-		constexpr int renamingHeight = 35;
+		static constexpr int renamingWidth = 250;
+		static constexpr int renamingHeight = 35;
 		ImGui::SetNextWindowPos({(m_windowWidth - renamingWidth + 50) / 2.0f,
 			(m_windowHeight - renamingHeight) / 2.0f}, ImGuiCond_Always);
 		ImGui::SetNextWindowSize({renamingWidth, renamingHeight}, ImGuiCond_Always);
@@ -62,10 +62,11 @@ void GUI::update()
 		ImGui::End();
 	}
 
-	if (m_state == State::rotatingX || m_state == State::rotatingY || m_state == State::rotatingZ)
+	if (m_state == GUIState::rotatingX || m_state == GUIState::rotatingY ||
+		m_state == GUIState::rotatingZ)
 	{
-		constexpr int rotatingWidth = 100;
-		constexpr int rotatingHeight = 35;
+		static constexpr int rotatingWidth = 100;
+		static constexpr int rotatingHeight = 35;
 		ImGui::SetNextWindowPos({(m_windowWidth - rotatingWidth + 50) / 2.0f,
 			(m_windowHeight - rotatingHeight) / 2.0f}, ImGuiCond_Always);
 		ImGui::SetNextWindowSize({rotatingWidth, rotatingHeight}, ImGuiCond_Always);
@@ -83,10 +84,11 @@ void GUI::update()
 		ImGui::End();
 	}
 
-	if (m_state == State::scalingX || m_state == State::scalingY || m_state == State::scalingZ)
+	if (m_state == GUIState::scalingX || m_state == GUIState::scalingY ||
+		m_state == GUIState::scalingZ)
 	{
-		constexpr int scalingWidth = 100;
-		constexpr int scalingHeight = 35;
+		static constexpr int scalingWidth = 100;
+		static constexpr int scalingHeight = 35;
 		ImGui::SetNextWindowPos({(m_windowWidth - scalingWidth + 50) / 2.0f,
 			(m_windowHeight - scalingHeight) / 2.0f}, ImGuiCond_Always);
 		ImGui::SetNextWindowSize({scalingWidth, scalingHeight}, ImGuiCond_Always);
@@ -105,8 +107,8 @@ void GUI::update()
 	}
 
 	ImGui::SetNextWindowPos({0, 0}, ImGuiCond_Always);
-	constexpr int mainGUIWidth = 250;
-	constexpr int mainGUIHeight = 1000;
+	static constexpr int mainGUIWidth = 250;
+	static constexpr int mainGUIHeight = 1000;
 	ImGui::SetNextWindowSize({mainGUIWidth, mainGUIHeight}, ImGuiCond_Always);
 	ImGui::Begin("mainGUI", nullptr, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoTitleBar |
 		ImGuiWindowFlags_NoBackground);
@@ -154,7 +156,7 @@ void GUI::render()
 
 void GUI::startRenaming()
 {
-	if (m_state == State::none)
+	if (m_state == GUIState::none)
 	{
 		m_uniqueActiveModel = m_scene.getUniqueActiveModel();
 		if (m_uniqueActiveModel != nullptr)
@@ -163,7 +165,7 @@ void GUI::startRenaming()
 			std::copy(name.begin(), name.end(), m_name.begin());
 			m_name[name.size()] = '\0';
 
-			m_state = State::renaming;
+			m_state = GUIState::renaming;
 			m_focusFirstTime = true;
 		}
 	}
@@ -171,60 +173,60 @@ void GUI::startRenaming()
 
 void GUI::startRotatingX()
 {
-	if (m_state == State::none)
+	if (m_state == GUIState::none)
 	{
 		m_rotationDeg = 0;
-		m_state = State::rotatingX;
+		m_state = GUIState::rotatingX;
 		m_focusFirstTime = true;
 	}
 }
 
 void GUI::startRotatingY()
 {
-	if (m_state == State::none)
+	if (m_state == GUIState::none)
 	{
 		m_rotationDeg = 0;
-		m_state = State::rotatingY;
+		m_state = GUIState::rotatingY;
 		m_focusFirstTime = true;
 	}
 }
 
 void GUI::startRotatingZ()
 {
-	if (m_state == State::none)
+	if (m_state == GUIState::none)
 	{
 		m_rotationDeg = 0;
-		m_state = State::rotatingZ;
+		m_state = GUIState::rotatingZ;
 		m_focusFirstTime = true;
 	}
 }
 
 void GUI::startScalingX()
 {
-	if (m_state == State::none)
+	if (m_state == GUIState::none)
 	{
 		m_scale = 0;
-		m_state = State::scalingX;
+		m_state = GUIState::scalingX;
 		m_focusFirstTime = true;
 	}
 }
 
 void GUI::startScalingY()
 {
-	if (m_state == State::none)
+	if (m_state == GUIState::none)
 	{
 		m_scale = 0;
-		m_state = State::scalingY;
+		m_state = GUIState::scalingY;
 		m_focusFirstTime = true;
 	}
 }
 
 void GUI::startScalingZ()
 {
-	if (m_state == State::none)
+	if (m_state == GUIState::none)
 	{
 		m_scale = 0;
-		m_state = State::scalingZ;
+		m_state = GUIState::scalingZ;
 		m_focusFirstTime = true;
 	}
 }
@@ -233,60 +235,60 @@ void GUI::cancel()
 {
 	switch (m_state)
 	{
-	case State::renaming:
-		m_uniqueActiveModel = nullptr;
-		break;
+		case GUIState::renaming:
+			m_uniqueActiveModel = nullptr;
+			break;
 
-	default:
-		break;
+		default:
+			break;
 	}
 
-	m_state = State::none;
+	m_state = GUIState::none;
 }
 
 void GUI::apply()
 {
 	switch (m_state)
 	{
-	case State::none:
-		break;
+		case GUIState::none:
+			break;
 
-	case State::renaming:
-		m_uniqueActiveModel->setName(std::string{m_name.data()});
-		m_uniqueActiveModel = nullptr;
-		break;
+		case GUIState::renaming:
+			m_uniqueActiveModel->setName(std::string{m_name.data()});
+			m_uniqueActiveModel = nullptr;
+			break;
 
-	case State::rotatingX:
-		m_scene.getActiveModelsCenter().rotateX(glm::radians(m_rotationDeg));
-		break;
+		case GUIState::rotatingX:
+			m_scene.getActiveModelsCenter().rotateX(glm::radians(m_rotationDeg));
+			break;
 
-	case State::rotatingY:
-		m_scene.getActiveModelsCenter().rotateY(glm::radians(m_rotationDeg));
-		break;
+		case GUIState::rotatingY:
+			m_scene.getActiveModelsCenter().rotateY(glm::radians(m_rotationDeg));
+			break;
 
-	case State::rotatingZ:
-		m_scene.getActiveModelsCenter().rotateZ(glm::radians(m_rotationDeg));
-		break;
+		case GUIState::rotatingZ:
+			m_scene.getActiveModelsCenter().rotateZ(glm::radians(m_rotationDeg));
+			break;
 
-	case State::scalingX:
-		m_scene.getActiveModelsCenter().scaleX(m_scale);
-		break;
+		case GUIState::scalingX:
+			m_scene.getActiveModelsCenter().scaleX(m_scale);
+			break;
 
-	case State::scalingY:
-		m_scene.getActiveModelsCenter().scaleY(m_scale);
-		break;
+		case GUIState::scalingY:
+			m_scene.getActiveModelsCenter().scaleY(m_scale);
+			break;
 
-	case State::scalingZ:
-		m_scene.getActiveModelsCenter().scaleZ(m_scale);
-		break;
+		case GUIState::scalingZ:
+			m_scene.getActiveModelsCenter().scaleZ(m_scale);
+			break;
 	}
 
-	m_state = State::none;
+	m_state = GUIState::none;
 }
 
 void GUI::deleteActiveModels()
 {
-	if (m_state == State::none)
+	if (m_state == GUIState::none)
 	{
 		m_scene.deleteActiveModels();
 	}
@@ -417,7 +419,7 @@ void GUI::modelList()
 {
 	ImGui::Text("Model list");
 
-	constexpr ImGuiTreeNodeFlags globalFlags =
+	static constexpr ImGuiTreeNodeFlags globalFlags =
 		ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick;
 
 	std::optional<int> clickedId{};
@@ -446,7 +448,7 @@ void GUI::modelList()
 		}
 	}
 
-	if (clickedId.has_value() && m_state == State::none)
+	if (clickedId.has_value() && m_state == GUIState::none)
 	{
 		if (ImGui::GetIO().KeyCtrl)
 		{

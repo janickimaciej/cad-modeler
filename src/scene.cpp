@@ -5,10 +5,10 @@
 #include <algorithm>
 #include <cmath>
 
-constexpr float viewWidth = 20.0f;
-constexpr float fovYDeg = 60.0f;
-constexpr float nearPlane = 0.1f;
-constexpr float farPlane = 1000.0f;
+static constexpr float viewWidth = 20.0f;
+static constexpr float fovYDeg = 60.0f;
+static constexpr float nearPlane = 0.1f;
+static constexpr float farPlane = 1000.0f;
 
 Scene::Scene(int windowWidth, int windowHeight) :
 	m_windowWidth{windowWidth},
@@ -155,13 +155,13 @@ void Scene::setCameraType(CameraType cameraType)
 	m_cameraType = cameraType;
 	switch (cameraType)
 	{
-	case CameraType::perspective:
-		m_activeCamera = &m_perspectiveCamera;
-		break;
+		case CameraType::perspective:
+			m_activeCamera = &m_perspectiveCamera;
+			break;
 
-	case CameraType::orthographic:
-		m_activeCamera = &m_orthographicCamera;
-		break;
+		case CameraType::orthographic:
+			m_activeCamera = &m_orthographicCamera;
+			break;
 	}
 }
 
@@ -503,7 +503,7 @@ void Scene::release()
 	m_dragging = false;
 }
 
-void Scene::moveActiveModel(float xPos, float yPos) const
+void Scene::moveUniqueActiveModel(float xPos, float yPos) const
 {
 	if (m_dragging)
 	{
@@ -534,7 +534,7 @@ void Scene::setAspectRatio(float aspectRatio)
 
 void Scene::renderModels() const
 {
-	for (Model* model : m_models)
+	for (const Model* model : m_models)
 	{
 		model->render(m_renderMode);
 	}
@@ -590,7 +590,7 @@ std::vector<Point*> Scene::getNonVirtualActivePoints() const
 {
 	std::vector<Model*> activeModels = m_activeModelsCenter.getModels();
 	std::vector<Point*> activePoints{};
-	for (Model* model : activeModels)
+	for (const Model* model : activeModels)
 	{
 		if (model->isVirtual())
 		{

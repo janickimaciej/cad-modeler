@@ -1,9 +1,5 @@
 #include "window.hpp"
 
-#include "guis/gui.hpp"
-#include "scene.hpp"
-#include "window_user_data.hpp"
-
 #include <string>
 
 Window::Window(int width, int height)
@@ -13,10 +9,11 @@ Window::Window(int width, int height)
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 	glfwWindowHint(GLFW_SAMPLES, 4);
-	const std::string windowTitle = "cad-opengl";
+	static const std::string windowTitle = "cad-opengl";
 	m_windowPtr = glfwCreateWindow(width, height, windowTitle.c_str(), nullptr, nullptr);
 	glfwSetWindowUserPointer(m_windowPtr, &m_userData);
 	glfwMakeContextCurrent(m_windowPtr);
+	glfwSwapInterval(1);
 
 	glfwSetFramebufferSizeCallback(m_windowPtr, resizeCallback);
 	glfwSetCursorPosCallback(m_windowPtr, cursorMovementCallback);
@@ -24,7 +21,7 @@ Window::Window(int width, int height)
 	glfwSetMouseButtonCallback(m_windowPtr, buttonCallback);
 	glfwSetKeyCallback(m_windowPtr, keyCallback);
 
-	gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
+	gladLoadGLLoader(reinterpret_cast<GLADloadproc>(glfwGetProcAddress));
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_CULL_FACE);
 	glEnable(GL_BLEND);
@@ -43,14 +40,14 @@ void Window::setUserData(Scene& scene, GUI& gui)
 	m_userData.gui = &gui;
 }
 
-bool Window::shouldClose()
+bool Window::shouldClose() const
 {
 	return glfwWindowShouldClose(m_windowPtr);
 }
 
 void Window::clear() const
 {
-	constexpr glm::vec3 backgroundColor{0.1f, 0.1f, 0.1f};
+	static constexpr glm::vec3 backgroundColor{0.1f, 0.1f, 0.1f};
 	glClearColor(backgroundColor.r, backgroundColor.g, backgroundColor.b, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
@@ -104,7 +101,7 @@ void Window::cursorMovementCallback(GLFWwindow* window, double x, double y)
 		glfwGetKey(window, GLFW_KEY_RIGHT_SHIFT) == GLFW_RELEASE &&
 		glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_MIDDLE) == GLFW_PRESS))
 	{
-		float sensitivity = 0.002f;
+		static constexpr float sensitivity = 0.002f;
 		windowUserData->scene->addPitchCamera(-sensitivity * yOffset);
 		windowUserData->scene->addYawCamera(sensitivity * xOffset);
 	}
@@ -113,7 +110,7 @@ void Window::cursorMovementCallback(GLFWwindow* window, double x, double y)
 		glfwGetKey(window, GLFW_KEY_RIGHT_SHIFT) == GLFW_PRESS) &&
 		glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_MIDDLE) == GLFW_PRESS)
 	{
-		float sensitivity = 0.001f;
+		static constexpr float sensitivity = 0.001f;
 		windowUserData->scene->moveXCamera(-sensitivity * xOffset);
 		windowUserData->scene->moveYCamera(sensitivity * yOffset);
 	}
@@ -121,7 +118,7 @@ void Window::cursorMovementCallback(GLFWwindow* window, double x, double y)
 	if (glfwGetKey(window, GLFW_KEY_RIGHT_ALT) == GLFW_PRESS &&
 		glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)
 	{
-		float sensitivity = 1.005f;
+		static constexpr float sensitivity = 1.005f;
 		windowUserData->scene->zoomCamera(std::pow(sensitivity, -yOffset));
 	}
 
@@ -129,9 +126,9 @@ void Window::cursorMovementCallback(GLFWwindow* window, double x, double y)
 		glfwGetKey(window, GLFW_KEY_RIGHT_ALT) == GLFW_RELEASE &&
 		glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_RELEASE &&
 		glfwGetKey(window, GLFW_KEY_RIGHT_SHIFT) == GLFW_RELEASE &&
-		glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT))
+		glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)
 	{
-		windowUserData->scene->moveActiveModel(static_cast<float>(x), static_cast<float>(y));
+		windowUserData->scene->moveUniqueActiveModel(static_cast<float>(x), static_cast<float>(y));
 	}
 }
 
@@ -141,11 +138,11 @@ void Window::buttonCallback(GLFWwindow* window, int button, int action, int)
 
 	if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS)
 	{
-		double xPos{};
-		double yPos{};
-		glfwGetCursorPos(window, &xPos, &yPos);
+		double x{};
+		double y{};
+		glfwGetCursorPos(window, &x, &y);
 		
-		windowUserData->scene->activate(static_cast<float>(xPos), static_cast<float>(yPos),
+		windowUserData->scene->activate(static_cast<float>(x), static_cast<float>(y),
 			glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS);
 	}
 
@@ -160,7 +157,7 @@ void Window::scrollCallback(GLFWwindow* window, double, double yOffset)
 	WindowUserData* windowUserData =
 		static_cast<WindowUserData*>(glfwGetWindowUserPointer(window));
 
-	float sensitivity = 1.1f;
+	static constexpr float sensitivity = 1.1f;
 	windowUserData->scene->zoomCamera(std::pow(sensitivity, static_cast<float>(yOffset)));
 }
 
