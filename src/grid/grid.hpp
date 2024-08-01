@@ -1,8 +1,8 @@
 #pragma once
 
-#include "camera_type.hpp"
+#include "cameraType.hpp"
 #include "grid/canvas.hpp"
-#include "shader_program.hpp"
+#include "shaderProgram.hpp"
 
 class Grid
 {

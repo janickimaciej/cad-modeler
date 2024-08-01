@@ -1,11 +1,11 @@
 #pragma once
 
-#include "guis/model_guis/model_gui.hpp"
-#include "guis/model_guis/torus_gui.hpp"
+#include "guis/modelGUIs/modelGUI.hpp"
+#include "guis/modelGUIs/torusGUI.hpp"
 #include "mesh.hpp"
 #include "models/model.hpp"
-#include "render_mode.hpp"
-#include "shader_program.hpp"
+#include "renderMode.hpp"
+#include "shaderProgram.hpp"
 #include "vertex.hpp"
 
 #include <glm/glm.hpp>

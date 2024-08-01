@@ -1,8 +1,8 @@
 #pragma once
 
-#include "guis/model_guis/model_gui.hpp"
-#include "render_mode.hpp"
-#include "shader_program.hpp"
+#include "guis/modelGUIs/modelGUI.hpp"
+#include "renderMode.hpp"
+#include "shaderProgram.hpp"
 
 #include <glm/glm.hpp>
 

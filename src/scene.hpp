@@ -1,20 +1,20 @@
 #pragma once
 
-#include "cameras/orthographic_camera.hpp"
-#include "cameras/perspective_camera.hpp"
-#include "camera_type.hpp"
-#include "center_point.hpp"
+#include "cameras/orthographicCamera.hpp"
+#include "cameras/perspectiveCamera.hpp"
+#include "cameraType.hpp"
+#include "centerPoint.hpp"
 #include "cursor.hpp"
 #include "grid/grid.hpp"
-#include "models/bezier_curve_c0.hpp"
-#include "models/bezier_curve_c2.hpp"
-#include "models/bezier_curve_inter.hpp"
+#include "models/bezierCurveC0.hpp"
+#include "models/bezierCurveC2.hpp"
+#include "models/bezierCurveInter.hpp"
 #include "models/model.hpp"
 #include "models/point.hpp"
 #include "models/torus.hpp"
-#include "render_mode.hpp"
-#include "shader_program.hpp"
-#include "shader_programs.hpp"
+#include "renderMode.hpp"
+#include "shaderProgram.hpp"
+#include "shaderPrograms.hpp"
 
 #include <glm/glm.hpp>
 

@@ -1,7 +1,7 @@
 #include "guis/gui.hpp"
 
-#include "camera_type.hpp"
-#include "render_mode.hpp"
+#include "cameraType.hpp"
+#include "renderMode.hpp"
 
 #include <glad/glad.h>
 #include <glfw/glfw3.h>

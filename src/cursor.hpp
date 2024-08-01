@@ -1,7 +1,7 @@
 #pragma once
 
-#include "guis/cursor_gui.hpp"
-#include "shader_program.hpp"
+#include "guis/cursorGUI.hpp"
+#include "shaderProgram.hpp"
 
 #include <glm/glm.hpp>
 

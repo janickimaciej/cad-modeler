@@ -2,7 +2,7 @@
 
 #include "guis/gui.hpp"
 #include "scene.hpp"
-#include "window_user_data.hpp"
+#include "windowUserData.hpp"
 
 #include <glad/glad.h>
 #include <glfw/glfw3.h>

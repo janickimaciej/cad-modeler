@@ -1,6 +1,6 @@
 #pragma once
 
-#include "render_mode.hpp"
+#include "renderMode.hpp"
 #include "vertex.hpp"
 
 #include <cstddef>

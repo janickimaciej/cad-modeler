@@ -1,10 +1,10 @@
 #pragma once
 
-#include "guis/model_guis/model_gui.hpp"
-#include "guis/model_guis/point_gui.hpp"
+#include "guis/modelGUIs/modelGUI.hpp"
+#include "guis/modelGUIs/pointGUI.hpp"
 #include "models/model.hpp"
-#include "render_mode.hpp"
-#include "shader_program.hpp"
+#include "renderMode.hpp"
+#include "shaderProgram.hpp"
 
 #include <glm/glm.hpp>
 

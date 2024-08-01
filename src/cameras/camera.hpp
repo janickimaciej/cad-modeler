@@ -2,8 +2,8 @@
 
 #include <glm/glm.hpp>
 
-#include "guis/camera_guis/camera_gui.hpp"
-#include "shader_programs.hpp"
+#include "guis/cameraGUIs/cameraGUI.hpp"
+#include "shaderPrograms.hpp"
 
 class Camera
 {

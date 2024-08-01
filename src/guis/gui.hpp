@@ -1,6 +1,6 @@
 #pragma once
 
-#include "guis/gui_state.hpp"
+#include "guis/guiState.hpp"
 #include "models/model.hpp"
 #include "scene.hpp"
 
