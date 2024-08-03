@@ -1,4 +1,4 @@
-#version 400 core
+#version 420 core
 
 uniform bool isVirtual;
 uniform bool isActive;

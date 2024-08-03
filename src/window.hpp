@@ -2,7 +2,7 @@
 
 #include "guis/gui.hpp"
 #include "scene.hpp"
-#include "windowUserData.hpp"
+#include "windowData.hpp"
 
 #include <glad/glad.h>
 #include <glfw/glfw3.h>
@@ -13,7 +13,7 @@ public:
 	Window(int width, int height);
 	~Window();
 
-	void setUserData(Scene& scene, GUI& gui);
+	void setWindowData(Scene& scene, GUI& gui);
 	bool shouldClose() const;
 	void clear() const;
 	void swapBuffers() const;
@@ -22,7 +22,7 @@ public:
 
 private:
 	GLFWwindow* m_windowPtr{};
-	WindowUserData m_userData{};
+	WindowData m_windowData{};
 
 	static void resizeCallback(GLFWwindow* window, int width, int height);
 	static void cursorMovementCallback(GLFWwindow* window, double x, double y);

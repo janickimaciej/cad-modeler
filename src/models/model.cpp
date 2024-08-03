@@ -32,21 +32,21 @@ glm::vec2 Model::getScreenPosition(const glm::mat4& cameraMatrix,
 	};
 }
 
-void Model::setScreenPosition(const glm::vec2& screenPosition, const glm::mat4& cameraMatrix,
+void Model::setScreenPosition(const glm::vec2& screenPos, const glm::mat4& cameraMatrix,
 	const glm::ivec2& windowSize)
 {
-	glm::vec4 prevClipPosition = cameraMatrix * glm::vec4{m_position, 1};
-	prevClipPosition /= prevClipPosition.w;
-	glm::vec4 clipPosition
+	glm::vec4 prevClipPos = cameraMatrix * glm::vec4{m_position, 1};
+	prevClipPos /= prevClipPos.w;
+	glm::vec4 clipPos
 	{
-		screenPosition.x / windowSize.x * 2 - 1,
-		1 - screenPosition.y / windowSize.y * 2,
-		prevClipPosition.z,
+		screenPos.x / windowSize.x * 2 - 1,
+		1 - screenPos.y / windowSize.y * 2,
+		prevClipPos.z,
 		1
 	};
-	glm::vec4 worldPosition = glm::inverse(cameraMatrix) * clipPosition;
-	worldPosition /= worldPosition.w;
-	m_position = glm::vec3{worldPosition};
+	glm::vec4 worldPos = glm::inverse(cameraMatrix) * clipPos;
+	worldPos /= worldPos.w;
+	m_position = glm::vec3{worldPos};
 	updateMatrix();
 }
 
@@ -120,15 +120,15 @@ void Model::setIsActive(bool isActive)
 	m_isActive = isActive;
 }
 
-float Model::screenDistanceSquared(float xPos, float yPos, const glm::mat4& cameraMatrix,
+float Model::screenDistanceSquared(const glm::vec2& screenRefPos, const glm::mat4& cameraMatrix,
 	const glm::ivec2& windowSize) const
 {
-	glm::vec4 clipPosition = cameraMatrix * glm::vec4(m_position, 1);
-	clipPosition /= clipPosition.w;
-	glm::vec2 screenPosition{(clipPosition.x + 1) / 2 * windowSize.x,
-		(-clipPosition.y + 1) / 2 * windowSize.y};
-	return (screenPosition.x - xPos) * (screenPosition.x - xPos) +
-		(screenPosition.y - yPos) * (screenPosition.y - yPos);
+	glm::vec4 clipPos = cameraMatrix * glm::vec4(m_position, 1);
+	clipPos /= clipPos.w;
+	glm::vec2 screenPos{(clipPos.x + 1) / 2 * windowSize.x,
+		(-clipPos.y + 1) / 2 * windowSize.y};
+	return (screenPos.x - screenRefPos.x) * (screenPos.x - screenRefPos.x) +
+		(screenPos.y - screenRefPos.y) * (screenPos.y - screenRefPos.y);
 }
 
 glm::mat3 Model::getRotationMatrix() const

@@ -1,17 +1,19 @@
 #include "window.hpp"
 
+#include <glm/glm.hpp>
+
 #include <string>
 
 Window::Window(int width, int height)
 {
 	glfwInit();
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 2);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 	glfwWindowHint(GLFW_SAMPLES, 4);
 	static const std::string windowTitle = "cad-opengl";
 	m_windowPtr = glfwCreateWindow(width, height, windowTitle.c_str(), nullptr, nullptr);
-	glfwSetWindowUserPointer(m_windowPtr, &m_userData);
+	glfwSetWindowUserPointer(m_windowPtr, &m_windowData);
 	glfwMakeContextCurrent(m_windowPtr);
 	glfwSwapInterval(1);
 
@@ -25,8 +27,8 @@ Window::Window(int width, int height)
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_CULL_FACE);
 	glEnable(GL_BLEND);
-	glEnable(GL_MULTISAMPLE);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	glEnable(GL_MULTISAMPLE);
 }
 
 Window::~Window()
@@ -34,10 +36,10 @@ Window::~Window()
 	glfwTerminate();
 }
 
-void Window::setUserData(Scene& scene, GUI& gui)
+void Window::setWindowData(Scene& scene, GUI& gui)
 {
-	m_userData.scene = &scene;
-	m_userData.gui = &gui;
+	m_windowData.scene = &scene;
+	m_windowData.gui = &gui;
 }
 
 bool Window::shouldClose() const
@@ -74,24 +76,19 @@ void Window::resizeCallback(GLFWwindow* window, int width, int height)
 		return;
 	}
 
-	WindowUserData* userData = static_cast<WindowUserData*>(glfwGetWindowUserPointer(window));
-	userData->scene->setWindowSize(width, height);
-	userData->gui->setWindowSize(width, height);
+	WindowData* windowData = static_cast<WindowData*>(glfwGetWindowUserPointer(window));
+	windowData->scene->setWindowSize(width, height);
+	windowData->gui->setWindowSize(width, height);
 	glViewport(0, 0, width, height);
 }
 
 void Window::cursorMovementCallback(GLFWwindow* window, double x, double y)
 {
-	static float previousX{};
-	static float previousY{};
+	WindowData* windowData = static_cast<WindowData*>(glfwGetWindowUserPointer(window));
 
-	float xOffset = static_cast<float>(x) - previousX;
-	float yOffset = static_cast<float>(y) - previousY;
-	previousX = static_cast<float>(x);
-	previousY = static_cast<float>(y);
-	
-	WindowUserData* windowUserData =
-		static_cast<WindowUserData*>(glfwGetWindowUserPointer(window));
+	glm::vec2 currentPos{static_cast<float>(x), static_cast<float>(y)};
+	glm::vec2 offset{currentPos - windowData->lastCursorPos};
+	windowData->lastCursorPos = currentPos;
 
 	if ((glfwGetKey(window, GLFW_KEY_LEFT_ALT) == GLFW_PRESS &&
 		glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS) ||
@@ -102,8 +99,8 @@ void Window::cursorMovementCallback(GLFWwindow* window, double x, double y)
 		glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_MIDDLE) == GLFW_PRESS))
 	{
 		static constexpr float sensitivity = 0.002f;
-		windowUserData->scene->addPitchCamera(-sensitivity * yOffset);
-		windowUserData->scene->addYawCamera(sensitivity * xOffset);
+		windowData->scene->addPitchCamera(-sensitivity * offset.y);
+		windowData->scene->addYawCamera(sensitivity * offset.x);
 	}
 
 	if ((glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS ||
@@ -111,139 +108,140 @@ void Window::cursorMovementCallback(GLFWwindow* window, double x, double y)
 		glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_MIDDLE) == GLFW_PRESS)
 	{
 		static constexpr float sensitivity = 0.001f;
-		windowUserData->scene->moveXCamera(-sensitivity * xOffset);
-		windowUserData->scene->moveYCamera(sensitivity * yOffset);
+		windowData->scene->moveXCamera(-sensitivity * offset.x);
+		windowData->scene->moveYCamera(sensitivity * offset.y);
 	}
 
 	if (glfwGetKey(window, GLFW_KEY_RIGHT_ALT) == GLFW_PRESS &&
 		glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)
 	{
 		static constexpr float sensitivity = 1.005f;
-		windowUserData->scene->zoomCamera(std::pow(sensitivity, -yOffset));
+		windowData->scene->zoomCamera(std::pow(sensitivity, -offset.y));
 	}
 
 	if (glfwGetKey(window, GLFW_KEY_LEFT_ALT) == GLFW_RELEASE &&
 		glfwGetKey(window, GLFW_KEY_RIGHT_ALT) == GLFW_RELEASE &&
 		glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_RELEASE &&
 		glfwGetKey(window, GLFW_KEY_RIGHT_SHIFT) == GLFW_RELEASE &&
-		glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)
+		glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS &&
+		windowData->dragging)
 	{
-		windowUserData->scene->moveUniqueActiveModel(static_cast<float>(x), static_cast<float>(y));
+		windowData->scene->moveUniqueActiveModel(currentPos);
 	}
 }
 
 void Window::buttonCallback(GLFWwindow* window, int button, int action, int)
 {
-	WindowUserData* windowUserData = static_cast<WindowUserData*>(glfwGetWindowUserPointer(window));
+	WindowData* windowData = static_cast<WindowData*>(glfwGetWindowUserPointer(window));
 
 	if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS)
 	{
 		double x{};
 		double y{};
 		glfwGetCursorPos(window, &x, &y);
+		glm::vec2 cursorPos{static_cast<float>(x), static_cast<float>(y)};
 		
-		windowUserData->scene->activate(static_cast<float>(x), static_cast<float>(y),
-			glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS);
+		bool toggle = glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS;
+
+		if (windowData->scene->select(cursorPos, toggle) && !toggle)
+		{
+			windowData->dragging = true;
+		}
 	}
 
 	if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE)
 	{
-		windowUserData->scene->release();
+		windowData->dragging = false;
 	}
 }
 
 void Window::scrollCallback(GLFWwindow* window, double, double yOffset)
 {
-	WindowUserData* windowUserData =
-		static_cast<WindowUserData*>(glfwGetWindowUserPointer(window));
+	WindowData* windowData = static_cast<WindowData*>(glfwGetWindowUserPointer(window));
 
 	static constexpr float sensitivity = 1.1f;
-	windowUserData->scene->zoomCamera(std::pow(sensitivity, static_cast<float>(yOffset)));
+	windowData->scene->zoomCamera(std::pow(sensitivity, static_cast<float>(yOffset)));
 }
 
 void Window::keyCallback(GLFWwindow* window, int key, int, int action, int)
 {
-	WindowUserData* windowUserData =
-		static_cast<WindowUserData*>(glfwGetWindowUserPointer(window));
+	WindowData* windowData = static_cast<WindowData*>(glfwGetWindowUserPointer(window));
 
 	if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
 	{
-		windowUserData->gui->cancel();
-		windowUserData->scene->clearActiveModels();
+		windowData->gui->cancel();
+		windowData->scene->clearActiveModels();
 	}
 
 	if (key == GLFW_KEY_ENTER && action == GLFW_PRESS)
 	{
-		windowUserData->gui->apply();
+		windowData->gui->apply();
 	}
 
 	if (key == GLFW_KEY_F2 && action == GLFW_PRESS)
 	{
-		windowUserData->gui->startRenaming();
+		windowData->gui->startRenaming();
 	}
 
 	if (key == GLFW_KEY_DELETE && action == GLFW_PRESS)
 	{
-		windowUserData->gui->deleteActiveModels();
+		windowData->gui->deleteActiveModels();
 	}
-
-	static bool rotatingRequested = false;
-	static bool scalingRequested = false;
 
 	if (key == GLFW_KEY_X && action == GLFW_PRESS)
 	{
-		if (rotatingRequested)
+		if (windowData->rotatingRequested)
 		{
-			windowUserData->gui->startRotatingX();
+			windowData->gui->startRotatingX();
 		}
 
-		if (scalingRequested)
+		if (windowData->scalingRequested)
 		{
-			windowUserData->gui->startScalingX();
+			windowData->gui->startScalingX();
 		}
 	}
 
 	if (key == GLFW_KEY_Y && action == GLFW_PRESS)
 	{
-		if (rotatingRequested)
+		if (windowData->rotatingRequested)
 		{
-			windowUserData->gui->startRotatingY();
+			windowData->gui->startRotatingY();
 		}
 
-		if (scalingRequested)
+		if (windowData->scalingRequested)
 		{
-			windowUserData->gui->startScalingY();
+			windowData->gui->startScalingY();
 		}
 	}
 
 	if (key == GLFW_KEY_Z && action == GLFW_PRESS)
 	{
-		if (rotatingRequested)
+		if (windowData->rotatingRequested)
 		{
-			windowUserData->gui->startRotatingZ();
+			windowData->gui->startRotatingZ();
 		}
 
-		if (scalingRequested)
+		if (windowData->scalingRequested)
 		{
-			windowUserData->gui->startScalingZ();
+			windowData->gui->startScalingZ();
 		}
 	}
 
 	if (key == GLFW_KEY_R && action == GLFW_PRESS)
 	{
-		rotatingRequested = true;
+		windowData->rotatingRequested = true;
 	}
 	else if (action == GLFW_PRESS)
 	{
-		rotatingRequested = false;
+		windowData->rotatingRequested = false;
 	}
 
 	if (key == GLFW_KEY_S && action == GLFW_PRESS)
 	{
-		scalingRequested = true;
+		windowData->scalingRequested = true;
 	}
 	else if (action == GLFW_PRESS)
 	{
-		scalingRequested = false;
+		windowData->scalingRequested = false;
 	}
 }

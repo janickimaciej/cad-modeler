@@ -4,13 +4,13 @@
 
 int main()
 {
-	static constexpr int initialWindowWidth = 1200;
-	static constexpr int initialWindowHeight = 700;
+	static constexpr int initialWindowWidth = 1900;
+	static constexpr int initialWindowHeight = 1000;
 
 	Window window{initialWindowWidth, initialWindowHeight};
 	Scene scene{initialWindowWidth, initialWindowHeight};
 	GUI gui{window.getPtr(), scene, initialWindowWidth, initialWindowHeight};
-	window.setUserData(scene, gui);
+	window.setWindowData(scene, gui);
 
 	while (!window.shouldClose())
 	{

@@ -20,7 +20,7 @@ public:
 	glm::vec3 getPosition() const;
 	virtual void setPosition(const glm::vec3& position);
 	glm::vec2 getScreenPosition(const glm::mat4& cameraMatrix, const glm::ivec2& windowSize) const;
-	virtual void setScreenPosition(const glm::vec2& screenPosition, const glm::mat4& cameraMatrix,
+	virtual void setScreenPosition(const glm::vec2& screenPos, const glm::mat4& cameraMatrix,
 		const glm::ivec2& windowSize);
 
 	float getYawRad() const;
@@ -41,7 +41,7 @@ public:
 	bool isActive() const;
 	void setIsActive(bool isActive);
 
-	float screenDistanceSquared(float xPos, float yPos, const glm::mat4& cameraMatrix,
+	float screenDistanceSquared(const glm::vec2& screenRefPos, const glm::mat4& cameraMatrix,
 		const glm::ivec2& windowSize) const;
 
 	glm::mat3 getRotationMatrix() const;

@@ -69,9 +69,8 @@ public:
 	void deleteEmptyBezierCurvesC2();
 	void deleteEmptyBezierCurvesInter();
 	void deleteUnreferencedVirtualPoints();
-	void activate(float xPos, float yPos, bool toggle);
-	void release();
-	void moveUniqueActiveModel(float xPos, float yPos) const;
+	bool select(const glm::vec2& screenPos, bool toggle);
+	void moveUniqueActiveModel(const glm::vec2& screenPos) const;
 
 	Model* getUniqueActiveModel() const;
 
@@ -90,7 +89,6 @@ private:
 
 	Cursor m_cursor;
 	CenterPoint m_activeModelsCenter{};
-	bool m_dragging = false;
 
 	static constexpr float gridScale = 10.0f;
 	Grid m_grid{gridScale};
@@ -113,7 +111,7 @@ private:
 	void renderActiveModelsCenter();
 	void renderGrid() const;
 	void updateShaders() const;
-	std::optional<int> getClosestModel(float xPos, float yPos) const;
+	std::optional<int> getClosestModel(const glm::vec2& screenPos) const;
 	std::vector<Point*> getNonVirtualActivePoints() const;
 	void addVirtualPoints(std::vector<std::unique_ptr<Point>> points);
 };

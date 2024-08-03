@@ -104,7 +104,7 @@
     <ClInclude Include="src\shaderPrograms.hpp" />
     <ClInclude Include="src\vertex.hpp" />
     <ClInclude Include="src\window.hpp" />
-    <ClInclude Include="src\windowUserData.hpp" />
+    <ClInclude Include="src\windowData.hpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="dep\imgui\misc\debuggers\imgui.natstepfilter" />

@@ -477,12 +477,12 @@ void Scene::deleteUnreferencedVirtualPoints()
 	}
 }
 
-void Scene::activate(float xPos, float yPos, bool toggle)
+bool Scene::select(const glm::vec2& screenPos, bool toggle)
 {
-	std::optional<int> closestModel = getClosestModel(xPos, yPos);
+	std::optional<int> closestModel = getClosestModel(screenPos);
 	if (!closestModel.has_value())
 	{
-		return;
+		return false;
 	}
 
 	if (toggle)
@@ -494,25 +494,17 @@ void Scene::activate(float xPos, float yPos, bool toggle)
 	{
 		clearActiveModels();
 		setModelIsActive(*closestModel, true);
-		m_dragging = true;
 	}
+	return true;
 }
 
-void Scene::release()
+void Scene::moveUniqueActiveModel(const glm::vec2& screenPos) const
 {
-	m_dragging = false;
-}
-
-void Scene::moveUniqueActiveModel(float xPos, float yPos) const
-{
-	if (m_dragging)
+	Model* activeModel = getUniqueActiveModel();
+	if (activeModel != nullptr)
 	{
-		Model* activeModel = getUniqueActiveModel();
-		if (activeModel != nullptr)
-		{
-			activeModel->setScreenPosition({xPos, yPos}, m_activeCamera->getMatrix(),
-				{m_windowWidth, m_windowHeight});
-		}
+		activeModel->setScreenPosition(screenPos, m_activeCamera->getMatrix(),
+			{m_windowWidth, m_windowHeight});
 	}
 }
 
@@ -567,14 +559,14 @@ void Scene::updateShaders() const
 	m_shaderPrograms.solid.setUniform("shininess", m_shininess);
 }
 
-std::optional<int> Scene::getClosestModel(float xPos, float yPos) const
+std::optional<int> Scene::getClosestModel(const glm::vec2& screenPos) const
 {
 	std::optional<int> index = std::nullopt;
 	constexpr float treshold = 30;
 	float minScreenDistanceSquared = treshold * treshold;
 	for (int i = 0; i < m_models.size(); ++i)
 	{
-		float screenDistanceSquared = m_models[i]->screenDistanceSquared(xPos, yPos,
+		float screenDistanceSquared = m_models[i]->screenDistanceSquared(screenPos,
 			m_activeCamera->getMatrix(), {m_windowWidth, m_windowHeight});
 		if (screenDistanceSquared < minScreenDistanceSquared)
 		{

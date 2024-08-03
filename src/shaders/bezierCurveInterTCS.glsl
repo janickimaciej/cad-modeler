@@ -1,4 +1,4 @@
-#version 400 core
+#version 420 core
 
 in vec3 inTessA[];
 in vec3 inTessB[];
@@ -34,7 +34,7 @@ void main()
 	int approximationLevel = 1;
 	int division = max(polylineLengthScreen / approximationLevel, 1);
 
-	divisionY[0] = min(division / 64 + 1, 64);
+	divisionY[gl_InvocationID] = min(division / 64 + 1, 64);
 	gl_TessLevelOuter[0] = divisionY[0];
 	gl_TessLevelOuter[1] = divisionY[0] == 1 ? division : 64;
 }
