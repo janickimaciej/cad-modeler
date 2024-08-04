@@ -1,6 +1,6 @@
 #pragma once
 
-#include "vertex.hpp"
+#include <glm/glm.hpp>
 
 #include <cstddef>
 #include <string>
@@ -9,7 +9,7 @@
 class Mesh
 {
 public:
-	Mesh(const std::vector<Vertex>& vertices, const std::vector<unsigned int>& indices);
+	Mesh(const std::vector<glm::vec3>& vertices, const std::vector<unsigned int>& indices);
 	~Mesh();
 
 	void render() const;
@@ -20,7 +20,7 @@ private:
 	unsigned int m_EBO{};
 	unsigned int m_VAO{};
 
-	void createVBO(const std::vector<Vertex>& vertices);
+	void createVBO(const std::vector<glm::vec3>& vertices);
 	void createEBO(unsigned int& EBO, const std::vector<unsigned int>& indices);
 	void createVAO();
 };

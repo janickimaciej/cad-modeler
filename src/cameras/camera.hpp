@@ -13,13 +13,13 @@ public:
 	void use(const glm::ivec2& windowSize) const;
 	virtual CameraGUI& getGUI() = 0;
 	glm::mat4 getMatrix() const;
+	void setAspectRatio(float aspectRatio);
+
 	void addPitch(float pitchRad);
 	void addYaw(float yawRad);
-	void addRadius(float radius);
 	void moveX(float x);
 	void moveY(float y);
 	virtual void zoom(float zoom) = 0;
-	void setAspectRatio(float aspectRatio);
 
 protected:
 	float m_aspectRatio{};

@@ -104,9 +104,9 @@ void Torus::updateMesh()
 	m_mesh = std::make_unique<Mesh>(createVertices(), createIndices());
 }
 
-std::vector<Vertex> Torus::createVertices() const
+std::vector<glm::vec3> Torus::createVertices() const
 {
-	std::vector<Vertex> vertices{};
+	std::vector<glm::vec3> vertices{};
 	
 	float ds = 2 * glm::pi<float>() / m_majorGrid;
 	float dt = 2 * glm::pi<float>() / m_minorGrid;
@@ -117,14 +117,7 @@ std::vector<Vertex> Torus::createVertices() const
 			float s = is * ds;
 			float t = it * dt;
 
-			vertices.push_back
-			(
-				Vertex
-				{
-					getSurfacePos(s, t),
-					getSurfaceNormalVector(s, t)
-				}
-			);
+			vertices.push_back(getSurfacePos(s, t));
 		}
 	}
 
@@ -165,21 +158,4 @@ glm::vec3 Torus::getSurfacePos(float s, float t) const
 			m_minorRadius * std::sin(t),
 			std::cos(s) * common
 		};
-}
-
-glm::vec3 Torus::getSurfaceNormalVector(float s, float t) const
-{
-	float sins = std::sin(s);
-	float coss = std::cos(s);
-	float sint = std::sin(t);
-	float cost = std::cos(t);
-
-	return glm::normalize(
-		glm::vec3
-		{
-			sins * cost,
-			(sins * sins + coss * coss) * sint,
-			coss * cost
-		}
-	);
 }

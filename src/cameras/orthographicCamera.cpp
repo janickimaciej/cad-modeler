@@ -1,10 +1,10 @@
 #include "cameras/orthographicCamera.hpp"
 
-OrthographicCamera::OrthographicCamera(float viewWidth, float aspectRatio, float nearPlane,
+OrthographicCamera::OrthographicCamera(float viewHeight, float aspectRatio, float nearPlane,
 	float farPlane, const ShaderPrograms& shaderPrograms) :
 	Camera{aspectRatio, nearPlane, farPlane, shaderPrograms},
 	m_gui{*this},
-	m_viewWidth{viewWidth}
+	m_viewHeight{viewHeight}
 {
 	updateProjectionMatrix();
 }
@@ -14,22 +14,22 @@ CameraGUI& OrthographicCamera::getGUI()
 	return m_gui;
 }
 
-float OrthographicCamera::getViewWidth() const
+float OrthographicCamera::getViewHeight() const
 {
-	return m_viewWidth;
+	return m_viewHeight;
 }
 
-void OrthographicCamera::setViewWidth(float viewWidth)
+void OrthographicCamera::setViewHeight(float viewHeight)
 {
-	m_viewWidth = viewWidth;
+	m_viewHeight = viewHeight;
 
 	updateProjectionMatrix();
 }
 
 void OrthographicCamera::zoom(float zoom)
 {
-	m_viewWidth /= zoom;
 	m_radius /= zoom;
+	m_viewHeight /= zoom;
 
 	updateViewMatrix();
 	updateProjectionMatrix();
@@ -37,13 +37,12 @@ void OrthographicCamera::zoom(float zoom)
 
 void OrthographicCamera::updateProjectionMatrix()
 {
-	float viewHeight = m_viewWidth / m_aspectRatio;
+	float viewWidth = m_viewHeight * m_aspectRatio;
 	m_projectionMatrix =
-		glm::mat4
-		{
-			2 / m_viewWidth, 0, 0, 0,
-			0, 2 / viewHeight, 0, 0,
-			0, 0, -2 / (m_farPlane - m_nearPlane), 0,
-			0, 0, -(m_farPlane + m_nearPlane) / (m_farPlane - m_nearPlane), 1
-		};
+	{
+		2 / viewWidth, 0, 0, 0,
+		0, 2 / m_viewHeight, 0, 0,
+		0, 0, -2 / (m_farPlane - m_nearPlane), 0,
+		0, 0, -(m_farPlane + m_nearPlane) / (m_farPlane - m_nearPlane), 1
+	};
 }

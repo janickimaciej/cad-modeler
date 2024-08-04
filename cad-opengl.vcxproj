@@ -112,7 +112,6 @@
     <ClInclude Include="src\scene.hpp" />
     <ClInclude Include="src\shaderProgram.hpp" />
     <ClInclude Include="src\shaderPrograms.hpp" />
-    <ClInclude Include="src\vertex.hpp" />
     <ClInclude Include="src\window.hpp" />
   </ItemGroup>
   <ItemGroup>

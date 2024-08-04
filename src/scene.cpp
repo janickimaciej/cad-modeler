@@ -5,7 +5,7 @@
 #include <algorithm>
 #include <cmath>
 
-static constexpr float viewWidth = 20.0f;
+static constexpr float viewHeight = 10.0f;
 static constexpr float fovYDeg = 60.0f;
 static constexpr float nearPlane = 0.1f;
 static constexpr float farPlane = 1000.0f;
@@ -15,7 +15,7 @@ Scene::Scene(const glm::ivec2& windowSize) :
 	m_cursor{},
 	m_perspectiveCamera{fovYDeg, static_cast<float>(windowSize.x) / windowSize.y, nearPlane,
 		farPlane, m_shaderPrograms},
-	m_orthographicCamera{viewWidth, static_cast<float>(windowSize.x) / windowSize.y, nearPlane,
+	m_orthographicCamera{viewHeight, static_cast<float>(windowSize.x) / windowSize.y, nearPlane,
 		farPlane, m_shaderPrograms}
 {
 	auto firstModelIter = m_models.begin();

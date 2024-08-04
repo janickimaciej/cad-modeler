@@ -8,11 +8,11 @@
 class OrthographicCamera : public Camera
 {
 public:
-	OrthographicCamera(float viewWidth, float aspectRatio, float nearPlane, float farPlane,
+	OrthographicCamera(float viewHeight, float aspectRatio, float nearPlane, float farPlane,
 		const ShaderPrograms& shaderPrograms);
 	virtual CameraGUI& getGUI() override;
-	float getViewWidth() const;
-	void setViewWidth(float viewWidth);
+	float getViewHeight() const;
+	void setViewHeight(float viewHeight);
 	virtual void zoom(float zoom) override;
 
 protected:
@@ -21,5 +21,5 @@ protected:
 private:
 	OrthographicCameraGUI m_gui;
 
-	float m_viewWidth{};
+	float m_viewHeight{};
 };

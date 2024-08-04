@@ -14,8 +14,8 @@ ShaderProgram::ShaderProgram(const std::string& vertexShaderPath,
 	const std::string& fragmentShaderPath)
 {
 	std::vector<unsigned int> shaders{};
-	shaders.push_back(createShader(GL_VERTEX_SHADER, vertexShaderPath));
-	shaders.push_back(createShader(GL_FRAGMENT_SHADER, fragmentShaderPath));
+	shaders.push_back(createShader(vertexShaderPath, GL_VERTEX_SHADER));
+	shaders.push_back(createShader(fragmentShaderPath, GL_FRAGMENT_SHADER));
 	m_id = createShaderProgram(shaders);
 	deleteShaders(shaders);
 }
@@ -24,9 +24,9 @@ ShaderProgram::ShaderProgram(const std::string& vertexShaderPath,
 	const std::string& geometryShaderPath, const std::string& fragmentShaderPath)
 {
 	std::vector<unsigned int> shaders{};
-	shaders.push_back(createShader(GL_VERTEX_SHADER, vertexShaderPath));
-	shaders.push_back(createShader(GL_GEOMETRY_SHADER, geometryShaderPath));
-	shaders.push_back(createShader(GL_FRAGMENT_SHADER, fragmentShaderPath));
+	shaders.push_back(createShader(vertexShaderPath, GL_VERTEX_SHADER));
+	shaders.push_back(createShader(geometryShaderPath, GL_GEOMETRY_SHADER));
+	shaders.push_back(createShader(fragmentShaderPath, GL_FRAGMENT_SHADER));
 	m_id = createShaderProgram(shaders);
 	deleteShaders(shaders);
 }
@@ -36,10 +36,10 @@ ShaderProgram::ShaderProgram(const std::string& vertexShaderPath,
 	const std::string& fragmentShaderPath)
 {
 	std::vector<unsigned int> shaders{};
-	shaders.push_back(createShader(GL_VERTEX_SHADER, vertexShaderPath));
-	shaders.push_back(createShader(GL_TESS_CONTROL_SHADER, tessCtrlShaderPath));
-	shaders.push_back(createShader(GL_TESS_EVALUATION_SHADER, tessEvalShaderPath));
-	shaders.push_back(createShader(GL_FRAGMENT_SHADER, fragmentShaderPath));
+	shaders.push_back(createShader(vertexShaderPath, GL_VERTEX_SHADER));
+	shaders.push_back(createShader(tessCtrlShaderPath, GL_TESS_CONTROL_SHADER));
+	shaders.push_back(createShader(tessEvalShaderPath, GL_TESS_EVALUATION_SHADER));
+	shaders.push_back(createShader(fragmentShaderPath, GL_FRAGMENT_SHADER));
 	m_id = createShaderProgram(shaders);
 	deleteShaders(shaders);
 }
@@ -85,7 +85,7 @@ void ShaderProgram::setUniform(const std::string& name, const glm::mat4& value) 
 		glm::value_ptr(value));
 }
 
-unsigned int ShaderProgram::createShader(GLenum shaderType, const std::string& shaderPath) const
+unsigned int ShaderProgram::createShader(const std::string& shaderPath, GLenum shaderType)
 {
 	std::string shaderCode = readShaderFile(shaderPath);
 
@@ -102,7 +102,7 @@ unsigned int ShaderProgram::createShader(GLenum shaderType, const std::string& s
 	return shader;
 }
 
-unsigned int ShaderProgram::createShaderProgram(const std::vector<unsigned int>& shaders) const
+unsigned int ShaderProgram::createShaderProgram(const std::vector<unsigned int>& shaders)
 {
 	unsigned int shaderProgram = glCreateProgram();
 	for (unsigned int shader : shaders)
@@ -119,7 +119,7 @@ unsigned int ShaderProgram::createShaderProgram(const std::vector<unsigned int>&
 	return shaderProgram;
 }
 
-void ShaderProgram::deleteShaders(const std::vector<unsigned int>& shaders) const
+void ShaderProgram::deleteShaders(const std::vector<unsigned int>& shaders)
 {
 	for (unsigned int shader : shaders)
 	{
@@ -127,7 +127,7 @@ void ShaderProgram::deleteShaders(const std::vector<unsigned int>& shaders) cons
 	}
 }
 
-std::string ShaderProgram::readShaderFile(const std::string& shaderPath) const
+std::string ShaderProgram::readShaderFile(const std::string& shaderPath)
 {
 	std::ifstream file{};
 	file.exceptions(std::ifstream::failbit | std::ifstream::badbit);
@@ -149,10 +149,10 @@ std::string ShaderProgram::readShaderFile(const std::string& shaderPath) const
 	return shaderCode;
 }
 
-void ShaderProgram::printCompilationError(GLenum shaderType, unsigned int shaderId) const
+void ShaderProgram::printCompilationError(unsigned int shader, GLenum shaderType)
 {
 	std::array<char, errorLogSize> errorLog{};
-	glGetShaderInfoLog(shaderId, errorLogSize, nullptr, errorLog.data());
+	glGetShaderInfoLog(shader, errorLogSize, nullptr, errorLog.data());
 	std::string shaderTypeName{};
 	switch (shaderType)
 	{
@@ -179,9 +179,9 @@ void ShaderProgram::printCompilationError(GLenum shaderType, unsigned int shader
 	std::cerr << "Error compiling " + shaderTypeName + " shader:\n" << errorLog.data() << '\n';
 }
 
-void ShaderProgram::printLinkingError(unsigned int programId) const
+void ShaderProgram::printLinkingError(unsigned int shaderProgram)
 {
 	std::array<char, errorLogSize> errorLog{};
-	glGetProgramInfoLog(programId, errorLogSize, nullptr, errorLog.data());
+	glGetProgramInfoLog(shaderProgram, errorLogSize, nullptr, errorLog.data());
 	std::cerr << "Error linking shader program:\n" << errorLog.data() << '\n';
 }

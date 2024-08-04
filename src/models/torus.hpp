@@ -5,7 +5,6 @@
 #include "mesh.hpp"
 #include "models/model.hpp"
 #include "shaderProgram.hpp"
-#include "vertex.hpp"
 
 #include <glm/glm.hpp>
 
@@ -45,9 +44,8 @@ private:
 	virtual void updateShaders() const override;
 
 	void updateMesh();
-	std::vector<Vertex> createVertices() const;
+	std::vector<glm::vec3> createVertices() const;
 	std::vector<unsigned int> createIndices() const;
 
 	glm::vec3 getSurfacePos(float s, float t) const;
-	glm::vec3 getSurfaceNormalVector(float s, float t) const;
 };

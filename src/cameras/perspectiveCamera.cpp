@@ -40,11 +40,10 @@ void PerspectiveCamera::updateProjectionMatrix()
 	float fovYRad = glm::radians(m_fovYDeg);
 	float cot = std::cos(fovYRad / 2) / std::sin(fovYRad / 2);
 	m_projectionMatrix =
-		glm::mat4
-		{
-			cot / m_aspectRatio, 0, 0, 0,
-			0, cot, 0, 0,
-			0, 0, -(m_farPlane + m_nearPlane) / (m_farPlane - m_nearPlane), -1,
-			0, 0, -2 * m_farPlane * m_nearPlane / (m_farPlane - m_nearPlane), 0
-		};
+	{
+		cot / m_aspectRatio, 0, 0, 0,
+		0, cot, 0, 0,
+		0, 0, -(m_farPlane + m_nearPlane) / (m_farPlane - m_nearPlane), -1,
+		0, 0, -2 * m_farPlane * m_nearPlane / (m_farPlane - m_nearPlane), 0
+	};
 }

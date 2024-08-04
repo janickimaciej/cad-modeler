@@ -2,7 +2,7 @@
 
 #include <glad/glad.h>
 
-Mesh::Mesh(const std::vector<Vertex>& vertices, const std::vector<unsigned int>& indices)
+Mesh::Mesh(const std::vector<glm::vec3>& vertices, const std::vector<unsigned int>& indices)
 {
 	createVBO(vertices);
 
@@ -25,11 +25,11 @@ void Mesh::render() const
 	glBindVertexArray(0);
 }
 
-void Mesh::createVBO(const std::vector<Vertex>& vertices)
+void Mesh::createVBO(const std::vector<glm::vec3>& vertices)
 {
 	glGenBuffers(1, &m_VBO);
 	glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
-	glBufferData(GL_ARRAY_BUFFER, static_cast<GLsizeiptr>(vertices.size() * sizeof(Vertex)),
+	glBufferData(GL_ARRAY_BUFFER, static_cast<GLsizeiptr>(vertices.size() * sizeof(glm::vec3)),
 		vertices.data(), GL_STATIC_DRAW);
 }
 
@@ -49,8 +49,7 @@ void Mesh::createVAO()
 	glBindVertexArray(m_VAO);
 
 	glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex),
-		reinterpret_cast<void*>(offsetof(Vertex, pos)));
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), 0);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_EBO);
 
 	glEnableVertexAttribArray(0);

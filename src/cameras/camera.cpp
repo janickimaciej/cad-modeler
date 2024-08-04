@@ -1,6 +1,5 @@
 #include "cameras/camera.hpp"
 
-#include <glm/glm.hpp>
 #include <glm/gtc/constants.hpp>
 
 Camera::Camera(float aspectRatio, float nearPlane, float farPlane,
@@ -21,6 +20,13 @@ void Camera::use(const glm::ivec2& windowSize) const
 glm::mat4 Camera::getMatrix() const
 {
 	return m_projectionMatrix * glm::inverse(m_viewMatrixInverse);
+}
+
+void Camera::setAspectRatio(float aspectRatio)
+{
+	m_aspectRatio = aspectRatio;
+
+	updateProjectionMatrix();
 }
 
 void Camera::addPitch(float pitchRad)
@@ -57,18 +63,6 @@ void Camera::addYaw(float yawRad)
 	updateViewMatrix();
 }
 
-void Camera::addRadius(float radius)
-{
-	m_radius += radius;
-
-	if (m_radius < 0.1f)
-	{
-		m_radius = 0.1f;
-	}
-	
-	updateViewMatrix();
-}
-
 void Camera::moveX(float x)
 {
 	m_targetPos += m_radius * glm::mat3{m_viewMatrixInverse} * glm::vec3{x, 0, 0};
@@ -81,13 +75,6 @@ void Camera::moveY(float y)
 	m_targetPos += m_radius * glm::mat3{m_viewMatrixInverse} * glm::vec3{0, y, 0};
 
 	updateViewMatrix();
-}
-
-void Camera::setAspectRatio(float aspectRatio)
-{
-	m_aspectRatio = aspectRatio;
-
-	updateProjectionMatrix();
 }
 
 void Camera::updateShaders(const glm::ivec2& windowSize) const
