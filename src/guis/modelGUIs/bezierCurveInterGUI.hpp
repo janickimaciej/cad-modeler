@@ -1,10 +1,6 @@
 #pragma once
 
 #include "guis/modelGUIs/modelGUI.hpp"
-#include "models/curveBase.hpp"
-
-#include <string>
-#include <vector>
 
 class BezierCurveInter;
 
@@ -16,12 +12,4 @@ public:
 
 private:
 	BezierCurveInter& m_curve;
-
-	CurveBase m_base{};
-	bool m_renderPolyline{};
-	
-	std::vector<std::string> m_pointNames{};
-	
-	void getValues();
-	void setValues();
 };

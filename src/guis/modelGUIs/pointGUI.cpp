@@ -4,40 +4,25 @@
 
 #include <glm/glm.hpp>
 #include <imgui/imgui.h>
-#include <imgui/backends/imgui_impl_glfw.h>
-#include <imgui/backends/imgui_impl_opengl3.h>
 
-#include <algorithm>
 #include <string>
 
 PointGUI::PointGUI(Point& point) :
+	ModelGUI{point},
 	m_point{point}
 { }
 
 void PointGUI::update()
 {
-	const std::string suffix = "##" + m_point.getOriginalName();
+	static constexpr float stepPrecision = 0.1f;
+	static const std::string format = "%.2f";
 
-	getValues();
-
-	ImGui::InputFloat(("x" + suffix).c_str(), &m_x, 0.1f, 0.1f, "%.2f");
-
-	ImGui::InputFloat(("y" + suffix).c_str(), &m_y, 0.1f, 0.1f, "%.2f");
-
-	ImGui::InputFloat(("z" + suffix).c_str(), &m_z, 0.1f, 0.1f, "%.2f");
-
-	setValues();
-}
-
-void PointGUI::getValues()
-{
-	glm::vec3 position = m_point.getPosition();
-	m_x = position.x;
-	m_y = position.y;
-	m_z = position.z;
-}
-
-void PointGUI::setValues()
-{
-	m_point.setPosition(glm::vec3{m_x, m_y, m_z});
+	glm::vec3 pos = m_point.getPos();
+	ImGui::InputFloat(("x" + suffix()).c_str(), &pos.x, stepPrecision, stepPrecision,
+		format.c_str());
+	ImGui::InputFloat(("y" + suffix()).c_str(), &pos.y, stepPrecision, stepPrecision,
+		format.c_str());
+	ImGui::InputFloat(("z" + suffix()).c_str(), &pos.z, stepPrecision, stepPrecision,
+		format.c_str());
+	m_point.setPos(pos);
 }

@@ -5,8 +5,8 @@
 #include <array>
 #include <string>
 
-Point::Point(const ShaderProgram& shaderProgram, glm::vec3 position, bool isVirtual) :
-	Model{position, (isVirtual ? "VirtualPoint " : "Point ") + std::to_string(m_count), isVirtual},
+Point::Point(const ShaderProgram& shaderProgram, glm::vec3 pos, bool isVirtual) :
+	Model{pos, (isVirtual ? "VirtualPoint " : "Point ") + std::to_string(m_count), isVirtual},
 	m_id{m_count++},
 	m_shaderProgram{shaderProgram},
 	m_gui{*this}
@@ -33,19 +33,19 @@ void Point::updateGUI()
 	m_gui.update();
 }
 
-void Point::setPosition(const glm::vec3& position)
+void Point::setPos(const glm::vec3& pos)
 {
-	if (position != m_position)
+	if (pos != m_pos)
 	{
-		Model::setPosition(position);
+		Model::setPos(pos);
 		notify(m_moveNotifications);
 	}
 }
 
-void Point::setScreenPosition(const glm::vec2& screenPosition, const glm::mat4& cameraMatrix,
+void Point::setScreenPos(const glm::vec2& screenPos, const glm::mat4& cameraMatrix,
 	const glm::ivec2& windowSize)
 {
-	Model::setScreenPosition(screenPosition, cameraMatrix, windowSize);
+	Model::setScreenPos(screenPos, cameraMatrix, windowSize);
 	notify(m_moveNotifications);
 }
 
@@ -74,7 +74,7 @@ int Point::m_count = 0;
 void Point::updateShaders() const
 {
 	m_shaderProgram.use();
-	m_shaderProgram.setUniform("posWorld", m_position);
+	m_shaderProgram.setUniform("posWorld", m_pos);
 	m_shaderProgram.setUniform("isVirtual", isVirtual());
 	m_shaderProgram.setUniform("isActive", isActive());
 }

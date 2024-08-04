@@ -16,14 +16,14 @@ class Point : public Model
 public:
 	using Callback = std::function<void(Point*)>;
 
-	Point(const ShaderProgram& shaderProgram, glm::vec3 position, bool isVirtual = false);
+	Point(const ShaderProgram& shaderProgram, glm::vec3 pos, bool isVirtual = false);
 	~Point();
 
 	virtual void render() const override;
 	virtual void updateGUI() override;
 
-	virtual void setPosition(const glm::vec3& position) override;
-	virtual void setScreenPosition(const glm::vec2& screenPosition, const glm::mat4& cameraMatrix,
+	virtual void setPos(const glm::vec3& pos) override;
+	virtual void setScreenPos(const glm::vec2& screenPos, const glm::mat4& cameraMatrix,
 		const glm::ivec2& windowSize) override;
 
 	std::shared_ptr<Callback> registerForMoveNotification(const Callback& callback);

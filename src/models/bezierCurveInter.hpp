@@ -21,8 +21,8 @@ public:
 	virtual void render() const override;
 	virtual void updateGUI() override;
 
-	virtual void setPosition(const glm::vec3&) override;
-	virtual void setScreenPosition(const glm::vec2&, const glm::mat4&, const glm::ivec2&) override;
+	virtual void setPos(const glm::vec3&) override;
+	virtual void setScreenPos(const glm::vec2&, const glm::mat4&, const glm::ivec2&) override;
 
 	int getPointCount() const;
 	void addPoints(const std::vector<Point*>& points);
@@ -58,7 +58,7 @@ private:
 	virtual void updateShaders() const override;
 	void updateGeometry();
 
-	void updatePosition();
+	void updatePos();
 	void updateCurveMesh();
 	void updatePolylineMesh();
 	

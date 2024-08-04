@@ -2,116 +2,137 @@
 
 #include "models/torus.hpp"
 
+#include <glm/glm.hpp>
 #include <imgui/imgui.h>
-#include <imgui/backends/imgui_impl_glfw.h>
-#include <imgui/backends/imgui_impl_opengl3.h>
 
 #include <algorithm>
 #include <string>
 
 TorusGUI::TorusGUI(Torus& torus) :
+	ModelGUI{torus},
 	m_torus{torus}
 { }
 
 void TorusGUI::update()
 {
-	const std::string suffix = "##" + m_torus.getOriginalName();
-
-	getValues();
-
-	ImGui::InputFloat(("x" + suffix).c_str(), &m_x, 0.1f, 0.1f, "%.2f");
-
-	ImGui::InputFloat(("y" + suffix).c_str(), &m_y, 0.1f, 0.1f, "%.2f");
-
-	ImGui::InputFloat(("z" + suffix).c_str(), &m_z, 0.1f, 0.1f, "%.2f");
-
-	static constexpr float angleSensitivity = 1.0f;
-
-	ImGui::InputFloat(("rotation x" + suffix).c_str(), &m_pitchDeg, angleSensitivity,
-		angleSensitivity, "%.2f");
-	while (m_pitchDeg < -180.0f)
-	{
-		m_pitchDeg += 360.0f;
-	}
-	while (m_pitchDeg > 180.0f)
-	{
-		m_pitchDeg -= 360.0f;
-	}
-
-	ImGui::InputFloat(("rotation y" + suffix).c_str(), &m_yawDeg, angleSensitivity,
-		angleSensitivity, "%.2f");
-	while (m_yawDeg < -180.0f)
-	{
-		m_yawDeg += 360.0f;
-	}
-	while (m_yawDeg > 180.0f)
-	{
-		m_yawDeg -= 360.0f;
-	}
-
-	ImGui::InputFloat(("rotation z" + suffix).c_str(), &m_rollDeg, angleSensitivity,
-		angleSensitivity, "%.2f");
-	while (m_rollDeg < -180.0f)
-	{
-		m_rollDeg += 360.0f;
-	}
-	while (m_rollDeg > 180.0f)
-	{
-		m_rollDeg -= 360.0f;
-	}
-
-	ImGui::InputFloat(("scale x" + suffix).c_str(), &m_scaleX, 0.1f, 0.1f, "%.2f");
-	m_scaleX = std::max(m_scaleX, 0.1f);
-
-	ImGui::InputFloat(("scale y" + suffix).c_str(), &m_scaleY, 0.1f, 0.1f, "%.2f");
-	m_scaleY = std::max(m_scaleY, 0.1f);
-
-	ImGui::InputFloat(("scale z" + suffix).c_str(), &m_scaleZ, 0.1f, 0.1f, "%.2f");
-	m_scaleZ = std::max(m_scaleZ, 0.1f);
-
-	ImGui::InputFloat(("major radius" + suffix).c_str(), &m_majorRadius, 0.1f, 0.1f, "%.2f");
-	m_majorRadius = std::max(m_majorRadius, 0.1f);
-
-	ImGui::InputFloat(("minor radius" + suffix).c_str(), &m_minorRadius, 0.1f, 0.1f, "%.2f");
-	m_minorRadius = std::max(m_minorRadius, 0.1f);
-
-	ImGui::InputInt(("major" + suffix).c_str(), &m_major, 1, 1);
-	m_major = std::max(m_major, 3);
-
-	ImGui::InputInt(("minor" + suffix).c_str(), &m_minor, 1, 1);
-	m_minor = std::max(m_minor, 3);
-
-	setValues();
+	updatePos();
+	updateOrientation();
+	updateScale();
+	updateRadii();
+	updateGrid();
 }
 
-void TorusGUI::getValues()
+void TorusGUI::updatePos()
 {
-	glm::vec3 position = m_torus.getPosition();
-	m_x = position.x;
-	m_y = position.y;
-	m_z = position.z;
-	m_yawDeg = glm::degrees(m_torus.getYawRad());
-	m_pitchDeg = glm::degrees(m_torus.getPitchRad());
-	m_rollDeg = glm::degrees(m_torus.getRollRad());
+	static constexpr float stepPrecision = 0.1f;
+	static const std::string format = "%.2f";
+
+	glm::vec3 pos = m_torus.getPos();
+	ImGui::InputFloat(("x" + suffix()).c_str(), &pos.x, stepPrecision, stepPrecision,
+		format.c_str());
+	ImGui::InputFloat(("y" + suffix()).c_str(), &pos.y, stepPrecision, stepPrecision,
+		format.c_str());
+	ImGui::InputFloat(("z" + suffix()).c_str(), &pos.z, stepPrecision, stepPrecision,
+		format.c_str());
+	m_torus.setPos(pos);
+}
+
+void TorusGUI::updateOrientation()
+{
+	static constexpr float stepPrecision = 1;
+	static const std::string format = "%.1f";
+
+	float pitchDeg = glm::degrees(m_torus.getPitchRad());
+	ImGui::InputFloat(("pitch" + suffix()).c_str(), &pitchDeg, stepPrecision, stepPrecision,
+		format.c_str());
+	if (pitchDeg < -90)
+	{
+		pitchDeg = -90;
+	}
+	if (pitchDeg > 90)
+	{
+		pitchDeg = 90;
+	}
+	m_torus.setPitchRad(glm::radians(pitchDeg));
+
+	float yawDeg = glm::degrees(m_torus.getYawRad());
+	ImGui::InputFloat(("yaw" + suffix()).c_str(), &yawDeg, stepPrecision, stepPrecision,
+		format.c_str());
+	while (yawDeg < -180)
+	{
+		yawDeg += 360;
+	}
+	while (yawDeg > 180)
+	{
+		yawDeg -= 360;
+	}
+	m_torus.setYawRad(glm::radians(yawDeg));
+	
+	float rollDeg = glm::degrees(m_torus.getRollRad());
+	ImGui::InputFloat(("roll" + suffix()).c_str(), &rollDeg, stepPrecision, stepPrecision,
+		format.c_str());
+	while (rollDeg < -180)
+	{
+		rollDeg += 360;
+	}
+	while (rollDeg > 180)
+	{
+		rollDeg -= 360;
+	}
+	m_torus.setRollRad(glm::radians(rollDeg));
+}
+
+void TorusGUI::updateScale()
+{
+	static constexpr float stepPrecision = 0.1f;
+	static const std::string format = "%.2f";
+
 	glm::vec3 scale = m_torus.getScale();
-	m_scaleX = scale.x;
-	m_scaleY = scale.y;
-	m_scaleZ = scale.z;
-	m_majorRadius = m_torus.getMajorRadius();
-	m_minorRadius = m_torus.getMinorRadius();
-	m_major = m_torus.getMajor();
-	m_minor = m_torus.getMinor();
+
+	ImGui::InputFloat(("scale x" + suffix()).c_str(), &scale.x, stepPrecision, stepPrecision,
+		format.c_str());
+	scale.x = std::max(scale.x, 0.1f);
+
+	ImGui::InputFloat(("scale y" + suffix()).c_str(), &scale.y, stepPrecision, stepPrecision,
+		format.c_str());
+	scale.y = std::max(scale.y, 0.1f);
+
+	ImGui::InputFloat(("scale z" + suffix()).c_str(), &scale.z, stepPrecision, stepPrecision,
+		format.c_str());
+	scale.z = std::max(scale.z, 0.1f);
+
+	m_torus.setScale(scale);
 }
 
-void TorusGUI::setValues()
+void TorusGUI::updateRadii()
 {
-	m_torus.setPosition(glm::vec3{m_x, m_y, m_z});
-	m_torus.setYawRad(glm::radians(m_yawDeg));
-	m_torus.setPitchRad(glm::radians(m_pitchDeg));
-	m_torus.setRollRad(glm::radians(m_rollDeg));
-	m_torus.setScale(glm::vec3{m_scaleX, m_scaleY, m_scaleZ});
-	m_torus.setMajorRadius(m_majorRadius);
-	m_torus.setMinorRadius(m_minorRadius);
-	m_torus.setMajor(m_major);
-	m_torus.setMinor(m_minor);
+	static constexpr float stepPrecision = 0.1f;
+	static const std::string format = "%.2f";
+	
+	float majorRadius = m_torus.getMajorRadius();
+	ImGui::InputFloat(("major radius" + suffix()).c_str(), &majorRadius, stepPrecision,
+		stepPrecision, format.c_str());
+	majorRadius = std::max(majorRadius, 0.1f);
+	m_torus.setMajorRadius(majorRadius);
+	
+	float minorRadius = m_torus.getMinorRadius();
+	ImGui::InputFloat(("minor radius" + suffix()).c_str(), &minorRadius, stepPrecision,
+		stepPrecision, format.c_str());
+	minorRadius = std::max(minorRadius, 0.1f);
+	m_torus.setMinorRadius(minorRadius);
+}
+
+void TorusGUI::updateGrid()
+{
+	static constexpr int stepPrecision = 1;
+
+	int majorGrid = m_torus.getMajorGrid();
+	ImGui::InputInt(("major grid" + suffix()).c_str(), &majorGrid, stepPrecision, stepPrecision);
+	majorGrid = std::max(majorGrid, 3);
+	m_torus.setMajorGrid(majorGrid);
+
+	int minorGrid = m_torus.getMinorGrid();
+	ImGui::InputInt(("minor grid" + suffix()).c_str(), &minorGrid, stepPrecision, stepPrecision);
+	minorGrid = std::max(minorGrid, 3);
+	m_torus.setMinorGrid(minorGrid);
 }

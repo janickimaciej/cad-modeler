@@ -44,6 +44,7 @@
     <ClCompile Include="src\guis\modelGUIs\bezierCurveC0GUI.cpp" />
     <ClCompile Include="src\guis\modelGUIs\bezierCurveC2GUI.cpp" />
     <ClCompile Include="src\guis\modelGUIs\bezierCurveInterGUI.cpp" />
+    <ClCompile Include="src\guis\modelGUIs\modelGUI.cpp" />
     <ClCompile Include="src\guis\valueWindows\renamingWindow.cpp" />
     <ClCompile Include="src\guis\valueWindows\rotatingWindow.cpp" />
     <ClCompile Include="src\guis\valueWindows\scalingWindow.cpp" />

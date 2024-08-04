@@ -71,14 +71,14 @@ void Camera::addRadius(float radius)
 
 void Camera::moveX(float x)
 {
-	m_targetPosition += m_radius * glm::mat3{m_viewMatrixInverse} * glm::vec3{x, 0, 0};
+	m_targetPos += m_radius * glm::mat3{m_viewMatrixInverse} * glm::vec3{x, 0, 0};
 
 	updateViewMatrix();
 }
 
 void Camera::moveY(float y)
 {
-	m_targetPosition += m_radius * glm::mat3{m_viewMatrixInverse} * glm::vec3{0, y, 0};
+	m_targetPos += m_radius * glm::mat3{m_viewMatrixInverse} * glm::vec3{0, y, 0};
 
 	updateViewMatrix();
 }
@@ -124,7 +124,7 @@ void Camera::updateShaders(const glm::ivec2& windowSize) const
 
 void Camera::updateViewMatrix()
 {
-	glm::vec3 position = m_targetPosition + m_radius *
+	glm::vec3 pos = m_targetPos + m_radius *
 		glm::vec3
 		{
 			-std::cos(m_pitchRad) * std::sin(m_yawRad),
@@ -132,7 +132,7 @@ void Camera::updateViewMatrix()
 			std::cos(m_pitchRad) * std::cos(m_yawRad)
 		};
 
-	glm::vec3 direction = glm::normalize(position - m_targetPosition);
+	glm::vec3 direction = glm::normalize(pos - m_targetPos);
 	glm::vec3 right = glm::normalize(glm::cross(glm::vec3{0, 1, 0}, direction));
 	glm::vec3 up = glm::cross(direction, right);
 
@@ -142,6 +142,6 @@ void Camera::updateViewMatrix()
 		right.x, right.y, right.z, 0,
 		up.x, up.y, up.z, 0,
 		direction.x, direction.y, direction.z, 0,
-		position.x, position.y, position.z, 1
+		pos.x, pos.y, pos.z, 1
 	};
 }

@@ -1,7 +1,7 @@
 #include "models/model.hpp"
 
-Model::Model(const glm::vec3& position, const std::string& name, bool isVirtual) :
-	m_position{position},
+Model::Model(const glm::vec3& pos, const std::string& name, bool isVirtual) :
+	m_pos{pos},
 	m_originalName{name},
 	m_name{name},
 	m_isVirtual{isVirtual}
@@ -9,33 +9,32 @@ Model::Model(const glm::vec3& position, const std::string& name, bool isVirtual)
 	updateMatrix();
 }
 
-glm::vec3 Model::getPosition() const
+glm::vec3 Model::getPos() const
 {
-	return m_position;
+	return m_pos;
 }
 
-void Model::setPosition(const glm::vec3& position)
+void Model::setPos(const glm::vec3& pos)
 {
-	m_position = position;
+	m_pos = pos;
 	updateMatrix();
 }
 
-glm::vec2 Model::getScreenPosition(const glm::mat4& cameraMatrix,
-	const glm::ivec2& windowSize) const
+glm::vec2 Model::getScreenPos(const glm::mat4& cameraMatrix, const glm::ivec2& windowSize) const
 {
-	glm::vec4 clipPosition = cameraMatrix * glm::vec4{m_position, 1};
-	clipPosition /= clipPosition.w;
+	glm::vec4 clipPos = cameraMatrix * glm::vec4{m_pos, 1};
+	clipPos /= clipPos.w;
 	return glm::vec2
 	{
-		(clipPosition.x + 1) / 2 * windowSize.x,
-		(clipPosition.y + 1) / 2 * windowSize.y
+		(clipPos.x + 1) / 2 * windowSize.x,
+		(clipPos.y + 1) / 2 * windowSize.y
 	};
 }
 
-void Model::setScreenPosition(const glm::vec2& screenPos, const glm::mat4& cameraMatrix,
+void Model::setScreenPos(const glm::vec2& screenPos, const glm::mat4& cameraMatrix,
 	const glm::ivec2& windowSize)
 {
-	glm::vec4 prevClipPos = cameraMatrix * glm::vec4{m_position, 1};
+	glm::vec4 prevClipPos = cameraMatrix * glm::vec4{m_pos, 1};
 	prevClipPos /= prevClipPos.w;
 	glm::vec4 clipPos
 	{
@@ -46,7 +45,7 @@ void Model::setScreenPosition(const glm::vec2& screenPos, const glm::mat4& camer
 	};
 	glm::vec4 worldPos = glm::inverse(cameraMatrix) * clipPos;
 	worldPos /= worldPos.w;
-	m_position = glm::vec3{worldPos};
+	m_pos = glm::vec3{worldPos};
 	updateMatrix();
 }
 
@@ -123,7 +122,7 @@ void Model::setIsActive(bool isActive)
 float Model::screenDistanceSquared(const glm::vec2& screenRefPos, const glm::mat4& cameraMatrix,
 	const glm::ivec2& windowSize) const
 {
-	glm::vec4 clipPos = cameraMatrix * glm::vec4(m_position, 1);
+	glm::vec4 clipPos = cameraMatrix * glm::vec4(m_pos, 1);
 	clipPos /= clipPos.w;
 	glm::vec2 screenPos{(clipPos.x + 1) / 2 * windowSize.x,
 		(-clipPos.y + 1) / 2 * windowSize.y};
@@ -194,14 +193,14 @@ void Model::updateMatrix()
 		0, 0, 0, 1
 	};
 
-	glm::mat4 positionMatrix
+	glm::mat4 posMatrix
 		{
 			1, 0, 0, 0,
 			0, 1, 0, 0,
 			0, 0, 1, 0,
-			m_position.x, m_position.y, m_position.z, 1
+			m_pos.x, m_pos.y, m_pos.z, 1
 		};
 
 	m_modelMatrix =
-		positionMatrix * rotationRollMatrix * rotationYawMatrix * rotationPitchMatrix * scaleMatrix;
+		posMatrix * rotationRollMatrix * rotationYawMatrix * rotationPitchMatrix * scaleMatrix;
 }

@@ -4,8 +4,6 @@
 
 #include <glm/glm.hpp>
 #include <imgui/imgui.h>
-#include <imgui/backends/imgui_impl_glfw.h>
-#include <imgui/backends/imgui_impl_opengl3.h>
 
 #include <string>
 
@@ -16,28 +14,16 @@ CenterPointGUI::CenterPointGUI(CenterPoint& centerPoint) :
 void CenterPointGUI::update()
 {
 	static const std::string suffix = "##centerPoint";
-
-	getValues();
-
-	ImGui::InputFloat(("x" + suffix).c_str(), &m_x, 0.1f, 0.1f, "%.2f");
-
-	ImGui::InputFloat(("y" + suffix).c_str(), &m_y, 0.1f, 0.1f, "%.2f");
-
-	ImGui::InputFloat(("z" + suffix).c_str(), &m_z, 0.1f, 0.1f, "%.2f");
-
-	setValues();
-}
-
-void CenterPointGUI::getValues()
-{
-	glm::vec3 position = m_centerPoint.getPosition();
-	m_x = position.x;
-	m_y = position.y;
-	m_z = position.z;
-}
-
-void CenterPointGUI::setValues()
-{
-	// TODO: fix
-	//m_centerPoint.setPosition(glm::vec3{m_x, m_y, m_z});
+	
+	static constexpr float stepPrecision = 0.1f;
+	static const std::string format = "%.2f";
+	
+	glm::vec3 pos = m_centerPoint.getPos();
+	ImGui::InputFloat(("x" + suffix).c_str(), &pos.x, stepPrecision, stepPrecision,
+		format.c_str());
+	ImGui::InputFloat(("y" + suffix).c_str(), &pos.y, stepPrecision, stepPrecision,
+		format.c_str());
+	ImGui::InputFloat(("z" + suffix).c_str(), &pos.z, stepPrecision, stepPrecision,
+		format.c_str());
+	//m_centerPoint.setPos(pos); //TODO: fix
 }

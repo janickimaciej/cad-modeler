@@ -10,15 +10,15 @@ static constexpr float initialMinorRadius = 1.0f;
 static constexpr int initialMajor = 32;
 static constexpr int initialMinor = 16;
 
-Torus::Torus(const ShaderProgram& shaderProgram, const glm::vec3& position) :
-	Model{position, "Torus " + std::to_string(m_count)},
+Torus::Torus(const ShaderProgram& shaderProgram, const glm::vec3& pos) :
+	Model{pos, "Torus " + std::to_string(m_count)},
 	m_id{m_count++},
 	m_shaderProgram{shaderProgram},
 	m_gui{*this},
 	m_majorRadius{initialMajorRadius},
 	m_minorRadius{initialMinorRadius},
-	m_major{initialMajor},
-	m_minor{initialMinor}
+	m_majorGrid{initialMajor},
+	m_minorGrid{initialMinor}
 {
 	updateMesh();
 }
@@ -62,30 +62,30 @@ void Torus::setMinorRadius(float minorRadius)
 	}
 }
 
-int Torus::getMajor() const
+int Torus::getMajorGrid() const
 {
-	return m_major;
+	return m_majorGrid;
 }
 
-void Torus::setMajor(int major)
+void Torus::setMajorGrid(int majorGrid)
 {
-	if (major != m_major)
+	if (majorGrid != m_majorGrid)
 	{
-		m_major = major;
+		m_majorGrid = majorGrid;
 		updateMesh();
 	}
 }
 
-int Torus::getMinor() const
+int Torus::getMinorGrid() const
 {
-	return m_minor;
+	return m_minorGrid;
 }
 
-void Torus::setMinor(int minor)
+void Torus::setMinorGrid(int minorGrid)
 {
-	if (minor != m_minor)
+	if (minorGrid != m_minorGrid)
 	{
-		m_minor = minor;
+		m_minorGrid = minorGrid;
 		updateMesh();
 	}
 }
@@ -108,19 +108,20 @@ std::vector<Vertex> Torus::createVertices() const
 {
 	std::vector<Vertex> vertices{};
 	
-	float ds = 2 * glm::pi<float>() / m_major;
-	float dt = 2 * glm::pi<float>() / m_minor;
-	for (int is = 0; is < m_major; ++is)
+	float ds = 2 * glm::pi<float>() / m_majorGrid;
+	float dt = 2 * glm::pi<float>() / m_minorGrid;
+	for (int is = 0; is < m_majorGrid; ++is)
 	{
-		for (int it = 0; it < m_minor; ++it)
+		for (int it = 0; it < m_minorGrid; ++it)
 		{
 			float s = is * ds;
 			float t = it * dt;
 
-			vertices.push_back(
+			vertices.push_back
+			(
 				Vertex
 				{
-					getSurfacePosition(s, t),
+					getSurfacePos(s, t),
 					getSurfaceNormalVector(s, t)
 				}
 			);
@@ -134,13 +135,13 @@ std::vector<unsigned int> Torus::createIndices() const
 {
 	std::vector<unsigned int> indices{};
 
-	for (int i = 0; i < m_major; ++i)
+	for (int i = 0; i < m_majorGrid; ++i)
 	{
-		for (int j = 0; j < m_minor; ++j)
+		for (int j = 0; j < m_minorGrid; ++j)
 		{
-			int ind0 = i * m_minor + j;
-			int ind1 = i * m_minor + (j + 1) % m_minor;
-			int ind2 = ((i + 1) % m_major) * m_minor + j;
+			int ind0 = i * m_minorGrid + j;
+			int ind1 = i * m_minorGrid + (j + 1) % m_minorGrid;
+			int ind2 = ((i + 1) % m_majorGrid) * m_minorGrid + j;
 
 			indices.push_back(ind0);
 			indices.push_back(ind1);
@@ -153,7 +154,7 @@ std::vector<unsigned int> Torus::createIndices() const
 	return indices;
 }
 
-glm::vec3 Torus::getSurfacePosition(float s, float t) const
+glm::vec3 Torus::getSurfacePos(float s, float t) const
 {
 	float common = m_minorRadius * std::cos(t) + m_majorRadius;
 

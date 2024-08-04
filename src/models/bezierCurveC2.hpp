@@ -29,8 +29,8 @@ public:
 	virtual void render() const override;
 	virtual void updateGUI() override;
 
-	virtual void setPosition(const glm::vec3&) override;
-	virtual void setScreenPosition(const glm::vec2&, const glm::mat4&, const glm::ivec2&) override;
+	virtual void setPos(const glm::vec3&) override;
+	virtual void setScreenPos(const glm::vec2&, const glm::mat4&, const glm::ivec2&) override;
 
 	int getPointCount() const;
 	std::vector<std::unique_ptr<Point>> addPoints(const std::vector<Point*>& points);
@@ -80,7 +80,7 @@ private:
 	void updateBezierPoints() const;
 	void updateMeshes();
 
-	void updatePosition();
+	void updatePos();
 	void updateCurveMesh();
 	void updateBoorPolylineMesh();
 	void updateBezierPolylineMesh();

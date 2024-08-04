@@ -52,16 +52,16 @@ void BezierCurveC2::updateBezierPoints(const std::vector<Point*>& bezierPoints,
 	std::vector<glm::vec3> e(bezierSegments + 1);
 	std::vector<glm::vec3> f(bezierSegments);
 	std::vector<glm::vec3> g(bezierSegments);
-	glm::vec3 fLast = (boorPoints[boorPoints.size() - 2]->getPosition() +
-		boorPoints[boorPoints.size() - 1]->getPosition()) / 2.0f;
-	glm::vec3 gFirst = (boorPoints[0]->getPosition() + boorPoints[1]->getPosition()) / 2.0f;
+	glm::vec3 fLast = (boorPoints[boorPoints.size() - 2]->getPos() +
+		boorPoints[boorPoints.size() - 1]->getPos()) / 2.0f;
+	glm::vec3 gFirst = (boorPoints[0]->getPos() + boorPoints[1]->getPos()) / 2.0f;
 
 	for (std::size_t i = 0; i < bezierSegments; ++i)
 	{
-		f[i] = 2.0f / 3.0f * boorPoints[i + 1]->getPosition() +
-			1.0f / 3.0f * boorPoints[i + 2]->getPosition();
-		g[i] = 1.0f / 3.0f * boorPoints[i + 1]->getPosition() +
-			2.0f / 3.0f * boorPoints[i + 2]->getPosition();
+		f[i] = 2.0f / 3.0f * boorPoints[i + 1]->getPos() +
+			1.0f / 3.0f * boorPoints[i + 2]->getPos();
+		g[i] = 1.0f / 3.0f * boorPoints[i + 1]->getPos() +
+			2.0f / 3.0f * boorPoints[i + 2]->getPos();
 	}
 	e[0] = (gFirst + f[0]) / 2.0f;
 	e[bezierSegments] = (g[bezierSegments - 1] + fLast) / 2.0f;
@@ -72,11 +72,11 @@ void BezierCurveC2::updateBezierPoints(const std::vector<Point*>& bezierPoints,
 
 	for (std::size_t i = 0; i < bezierSegments; ++i)
 	{
-		bezierPoints[3 * i]->setPosition(e[i]);
-		bezierPoints[3 * i + 1]->setPosition(f[i]);
-		bezierPoints[3 * i + 2]->setPosition(g[i]);
+		bezierPoints[3 * i]->setPos(e[i]);
+		bezierPoints[3 * i + 1]->setPos(f[i]);
+		bezierPoints[3 * i + 2]->setPos(g[i]);
 	}
-	bezierPoints[3 * bezierSegments]->setPosition(e[bezierSegments]);
+	bezierPoints[3 * bezierSegments]->setPos(e[bezierSegments]);
 }
 
 void BezierCurveC2::render() const
@@ -95,10 +95,10 @@ void BezierCurveC2::updateGUI()
 	m_gui.update();
 }
 
-void BezierCurveC2::setPosition(const glm::vec3&)
+void BezierCurveC2::setPos(const glm::vec3&)
 { }
 
-void BezierCurveC2::setScreenPosition(const glm::vec2&, const glm::mat4&, const glm::ivec2&)
+void BezierCurveC2::setScreenPos(const glm::vec2&, const glm::mat4&, const glm::ivec2&)
 { }
 
 int BezierCurveC2::getPointCount() const
@@ -204,7 +204,7 @@ BezierCurveC2::BezierCurveC2(const ShaderProgram& curveShaderProgram,
 	m_boorPoints{boorPoints},
 	m_bezierPoints{bezierPoints}
 {
-	updatePosition();
+	updatePos();
 	createCurveMesh();
 	createBoorPolylineMesh();
 	createBezierPolylineMesh();
@@ -273,17 +273,17 @@ void BezierCurveC2::updateWithBezierPoint(int index)
 {
 	if (index == 0)
 	{
-		m_boorPoints[0]->setPosition(4.0f * m_bezierPoints[0]->getPosition() -
-			m_boorPoints[1]->getPosition() - 2.0f * m_bezierPoints[1]->getPosition());
+		m_boorPoints[0]->setPos(4.0f * m_bezierPoints[0]->getPos() -
+			m_boorPoints[1]->getPos() - 2.0f * m_bezierPoints[1]->getPos());
 	}
 	else if (index == m_bezierPoints.size() - 1)
 	{
 		std::size_t boorCount = m_boorPoints.size();
 		std::size_t bezierCount = m_bezierPoints.size();
-		m_boorPoints[boorCount - 1]->setPosition(
-			4.0f * m_bezierPoints[bezierCount - 1]->getPosition() -
-			m_boorPoints[boorCount - 2]->getPosition() -
-			2.0f * m_bezierPoints[bezierCount - 2]->getPosition());
+		m_boorPoints[boorCount - 1]->setPos(
+			4.0f * m_bezierPoints[bezierCount - 1]->getPos() -
+			m_boorPoints[boorCount - 2]->getPos() -
+			2.0f * m_bezierPoints[bezierCount - 2]->getPos());
 	}
 	else
 	{
@@ -291,22 +291,22 @@ void BezierCurveC2::updateWithBezierPoint(int index)
 		int remainder = index % 3;
 		if (remainder == 0)
 		{
-			m_boorPoints[bezierSegment + 1]->setPosition(
-				3.0f / 2.0f * m_bezierPoints[index]->getPosition() -
-				1.0f / 4.0f * (m_boorPoints[bezierSegment]->getPosition() +
-				m_boorPoints[bezierSegment + 2]->getPosition()));
+			m_boorPoints[bezierSegment + 1]->setPos(
+				3.0f / 2.0f * m_bezierPoints[index]->getPos() -
+				1.0f / 4.0f * (m_boorPoints[bezierSegment]->getPos() +
+				m_boorPoints[bezierSegment + 2]->getPos()));
 		}
 		else if (remainder == 1)
 		{
-			m_boorPoints[bezierSegment + 1]->setPosition(
-				3.0f / 2.0f * m_bezierPoints[index]->getPosition() -
-				1.0f / 2.0f * m_boorPoints[bezierSegment + 2]->getPosition());
+			m_boorPoints[bezierSegment + 1]->setPos(
+				3.0f / 2.0f * m_bezierPoints[index]->getPos() -
+				1.0f / 2.0f * m_boorPoints[bezierSegment + 2]->getPos());
 		}
 		else
 		{
-			m_boorPoints[bezierSegment + 2]->setPosition(
-				3.0f / 2.0f * m_bezierPoints[index]->getPosition() -
-				1.0f / 2.0f * m_boorPoints[bezierSegment + 1]->getPosition());
+			m_boorPoints[bezierSegment + 2]->setPos(
+				3.0f / 2.0f * m_bezierPoints[index]->getPos() -
+				1.0f / 2.0f * m_boorPoints[bezierSegment + 1]->getPos());
 		}
 	}
 	updateBezierPoints();
@@ -323,20 +323,20 @@ void BezierCurveC2::updateBezierPoints() const
 
 void BezierCurveC2::updateMeshes()
 {
-	updatePosition();
+	updatePos();
 	updateCurveMesh();
 	updateBoorPolylineMesh();
 	updateBezierPolylineMesh();
 }
 
-void BezierCurveC2::updatePosition()
+void BezierCurveC2::updatePos()
 {
-	glm::vec3 position{};
+	glm::vec3 pos{};
 	for (Point* point : m_boorPoints)
 	{
-		position += point->getPosition();
+		pos += point->getPos();
 	}
-	m_position = position / static_cast<float>(m_boorPoints.size());
+	m_pos = pos / static_cast<float>(m_boorPoints.size());
 }
 
 void BezierCurveC2::updateCurveMesh()
@@ -349,10 +349,10 @@ void BezierCurveC2::updateCurveMesh()
 	{
 		for (std::size_t j = 0; j < 4; ++j)
 		{
-			glm::vec3 position = m_bezierPoints[i + j]->getPosition();
-			vertexData.push_back(position.x);
-			vertexData.push_back(position.y);
-			vertexData.push_back(position.z);
+			glm::vec3 pos = m_bezierPoints[i + j]->getPos();
+			vertexData.push_back(pos.x);
+			vertexData.push_back(pos.y);
+			vertexData.push_back(pos.z);
 		}
 	}
 	
@@ -366,10 +366,10 @@ void BezierCurveC2::updateBoorPolylineMesh()
 	std::vector<float> vertexData{};
 	for (const Point* point : m_boorPoints)
 	{
-		glm::vec3 position = point->getPosition();
-		vertexData.push_back(position.x);
-		vertexData.push_back(position.y);
-		vertexData.push_back(position.z);
+		glm::vec3 pos = point->getPos();
+		vertexData.push_back(pos.x);
+		vertexData.push_back(pos.y);
+		vertexData.push_back(pos.z);
 	}
 	
 	glBindBuffer(GL_ARRAY_BUFFER, m_VBOBoorPolyline);
@@ -382,10 +382,10 @@ void BezierCurveC2::updateBezierPolylineMesh()
 	std::vector<float> vertexData{};
 	for (const Point* point : m_bezierPoints)
 	{
-		glm::vec3 position = point->getPosition();
-		vertexData.push_back(position.x);
-		vertexData.push_back(position.y);
-		vertexData.push_back(position.z);
+		glm::vec3 pos = point->getPos();
+		vertexData.push_back(pos.x);
+		vertexData.push_back(pos.y);
+		vertexData.push_back(pos.z);
 	}
 	
 	glBindBuffer(GL_ARRAY_BUFFER, m_VBOBezierPolyline);

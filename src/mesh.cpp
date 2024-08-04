@@ -50,7 +50,7 @@ void Mesh::createVAO()
 
 	glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex),
-		reinterpret_cast<void*>(offsetof(Vertex, position)));
+		reinterpret_cast<void*>(offsetof(Vertex, pos)));
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_EBO);
 
 	glEnableVertexAttribArray(0);

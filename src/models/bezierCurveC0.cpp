@@ -13,7 +13,7 @@ BezierCurveC0::BezierCurveC0(const ShaderProgram& curveShaderProgram,
 	m_gui{*this},
 	m_points{points}
 {
-	updatePosition();
+	updatePos();
 	createCurveMesh();
 	createPolylineMesh();
 	registerForNotifications(m_points);
@@ -34,10 +34,10 @@ void BezierCurveC0::updateGUI()
 	m_gui.update();
 }
 
-void BezierCurveC0::setPosition(const glm::vec3&)
+void BezierCurveC0::setPos(const glm::vec3&)
 { }
 
-void BezierCurveC0::setScreenPosition(const glm::vec2&, const glm::mat4&, const glm::ivec2&)
+void BezierCurveC0::setScreenPos(const glm::vec2&, const glm::mat4&, const glm::ivec2&)
 { }
 
 int BezierCurveC0::getPointCount() const
@@ -135,19 +135,19 @@ void BezierCurveC0::updateShaders() const
 
 void BezierCurveC0::updateGeometry()
 {
-	updatePosition();
+	updatePos();
 	updateCurveMesh();
 	updatePolylineMesh();
 }
 
-void BezierCurveC0::updatePosition()
+void BezierCurveC0::updatePos()
 {
-	glm::vec3 position{};
+	glm::vec3 pos{};
 	for (Point* point : m_points)
 	{
-		position += point->getPosition();
+		pos += point->getPos();
 	}
-	m_position = position / static_cast<float>(m_points.size());
+	m_pos = pos / static_cast<float>(m_points.size());
 }
 
 void BezierCurveC0::updateCurveMesh()
@@ -160,10 +160,10 @@ void BezierCurveC0::updateCurveMesh()
 	{
 		for (std::size_t j = 0; j < 4; ++j)
 		{
-			glm::vec3 position = m_points[3 * i + j]->getPosition();
-			vertexData.push_back(position.x);
-			vertexData.push_back(position.y);
-			vertexData.push_back(position.z);
+			glm::vec3 pos = m_points[3 * i + j]->getPos();
+			vertexData.push_back(pos.x);
+			vertexData.push_back(pos.y);
+			vertexData.push_back(pos.z);
 		}
 	}
 	
@@ -177,10 +177,10 @@ void BezierCurveC0::updatePolylineMesh()
 	std::vector<float> vertexData{};
 	for (const Point* point : m_points)
 	{
-		glm::vec3 position = point->getPosition();
-		vertexData.push_back(position.x);
-		vertexData.push_back(position.y);
-		vertexData.push_back(position.z);
+		glm::vec3 pos = point->getPos();
+		vertexData.push_back(pos.x);
+		vertexData.push_back(pos.y);
+		vertexData.push_back(pos.z);
 	}
 	
 	glBindBuffer(GL_ARRAY_BUFFER, m_VBOPolyline);

@@ -14,7 +14,7 @@
 class Torus : public Model
 {
 public:
-	Torus(const ShaderProgram& shaderProgram, const glm::vec3& position);
+	Torus(const ShaderProgram& shaderProgram, const glm::vec3& pos);
 	virtual void render() const override;
 	virtual void updateGUI() override;
 
@@ -22,10 +22,10 @@ public:
 	void setMajorRadius(float majorRadius);
 	float getMinorRadius() const;
 	void setMinorRadius(float minorRadius);
-	int getMajor() const;
-	void setMajor(int major);
-	int getMinor() const;
-	void setMinor(int minor);
+	int getMajorGrid() const;
+	void setMajorGrid(int majorGrid);
+	int getMinorGrid() const;
+	void setMinorGrid(int minorGrid);
 
 private:
 	static int m_count;
@@ -39,8 +39,8 @@ private:
 	float m_majorRadius{};
 	float m_minorRadius{};
 
-	int m_major{};
-	int m_minor{};
+	int m_majorGrid{};
+	int m_minorGrid{};
 
 	virtual void updateShaders() const override;
 
@@ -48,6 +48,6 @@ private:
 	std::vector<Vertex> createVertices() const;
 	std::vector<unsigned int> createIndices() const;
 
-	glm::vec3 getSurfacePosition(float s, float t) const;
+	glm::vec3 getSurfacePos(float s, float t) const;
 	glm::vec3 getSurfaceNormalVector(float s, float t) const;
 };

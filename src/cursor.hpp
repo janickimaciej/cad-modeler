@@ -14,16 +14,16 @@ public:
 	void render(const ShaderProgram& shaderProgram) const;
 	CursorGUI& getGUI();
 
-	glm::vec3 getPosition() const;
-	void setPosition(const glm::vec3& position);
-	glm::vec2 getScreenPosition(const glm::mat4& cameraMatrix, const glm::ivec2& windowSize) const;
-	void setScreenPosition(const glm::vec2& screenPosition, const glm::mat4& cameraMatrix,
+	glm::vec3 getPos() const;
+	void setPos(const glm::vec3& pos);
+	glm::vec2 getScreenPos(const glm::mat4& cameraMatrix, const glm::ivec2& windowSize) const;
+	void setScreenPos(const glm::vec2& screenPos, const glm::mat4& cameraMatrix,
 		const glm::ivec2& windowSize);
 
 private:
 	CursorGUI m_gui;
 
-	glm::vec3 m_position{0, 0, 0};
+	glm::vec3 m_pos{0, 0, 0};
 
 	unsigned int m_VAO{};
 

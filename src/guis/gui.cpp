@@ -68,56 +68,32 @@ void GUI::render()
 
 void GUI::startRotatingX()
 {
-	if (m_mode == GUIMode::none)
-	{
-		m_mode = GUIMode::rotatingX;
-		m_rotatingWindow.startRotating();
-	}
+	startRotating(GUIMode::rotatingX);
 }
 
 void GUI::startRotatingY()
 {
-	if (m_mode == GUIMode::none)
-	{
-		m_mode = GUIMode::rotatingY;
-		m_rotatingWindow.startRotating();
-	}
+	startRotating(GUIMode::rotatingY);
 }
 
 void GUI::startRotatingZ()
 {
-	if (m_mode == GUIMode::none)
-	{
-		m_mode = GUIMode::rotatingZ;
-		m_rotatingWindow.startRotating();
-	}
+	startRotating(GUIMode::rotatingZ);
 }
 
 void GUI::startScalingX()
 {
-	if (m_mode == GUIMode::none)
-	{
-		m_mode = GUIMode::scalingX;
-		m_scalingWindow.startScaling();
-	}
+	startScaling(GUIMode::scalingX);
 }
 
 void GUI::startScalingY()
 {
-	if (m_mode == GUIMode::none)
-	{
-		m_mode = GUIMode::scalingY;
-		m_scalingWindow.startScaling();
-	}
+	startScaling(GUIMode::scalingY);
 }
 
 void GUI::startScalingZ()
 {
-	if (m_mode == GUIMode::none)
-	{
-		m_mode = GUIMode::scalingZ;
-		m_scalingWindow.startScaling();
-	}
+	startScaling(GUIMode::scalingZ);
 }
 
 void GUI::startRenaming()
@@ -169,5 +145,23 @@ void GUI::deleteActiveModels()
 	if (m_mode == GUIMode::none)
 	{
 		m_scene.deleteActiveModels();
+	}
+}
+
+void GUI::startRotating(GUIMode mode)
+{
+	if (m_mode == GUIMode::none)
+	{
+		m_mode = mode;
+		m_rotatingWindow.startRotating();
+	}
+}
+
+void GUI::startScaling(GUIMode mode)
+{
+	if (m_mode == GUIMode::none)
+	{
+		m_mode = mode;
+		m_scalingWindow.startScaling();
 	}
 }

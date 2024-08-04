@@ -152,7 +152,7 @@ void Scene::setCameraType(CameraType cameraType)
 void Scene::addPoint()
 {
 	std::unique_ptr<Point> point = std::make_unique<Point>(m_shaderPrograms.point,
-		m_cursor.getPosition());
+		m_cursor.getPos());
 
 	if (m_activeModelsCenter.getModelCount() == 1)
 	{
@@ -201,7 +201,7 @@ void Scene::addPoint()
 void Scene::addTorus()
 {
 	std::unique_ptr<Torus> torus = std::make_unique<Torus>(m_shaderPrograms.torus,
-		m_cursor.getPosition());
+		m_cursor.getPos());
 	m_models.push_back(torus.get());
 	m_toruses.push_back(std::move(torus));
 }
@@ -487,7 +487,7 @@ void Scene::moveUniqueActiveModel(const glm::vec2& screenPos) const
 	Model* activeModel = getUniqueActiveModel();
 	if (activeModel != nullptr)
 	{
-		activeModel->setScreenPosition(screenPos, m_activeCamera->getMatrix(), m_windowSize);
+		activeModel->setScreenPos(screenPos, m_activeCamera->getMatrix(), m_windowSize);
 	}
 }
 

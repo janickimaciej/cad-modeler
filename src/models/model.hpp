@@ -10,16 +10,16 @@
 class Model
 {
 public:
-	Model(const glm::vec3& position, const std::string& name, bool isVirtual = false);
+	Model(const glm::vec3& pos, const std::string& name, bool isVirtual = false);
 	~Model() = default;
 
 	virtual void render() const = 0;
 	virtual void updateGUI() = 0;
 
-	glm::vec3 getPosition() const;
-	virtual void setPosition(const glm::vec3& position);
-	glm::vec2 getScreenPosition(const glm::mat4& cameraMatrix, const glm::ivec2& windowSize) const;
-	virtual void setScreenPosition(const glm::vec2& screenPos, const glm::mat4& cameraMatrix,
+	glm::vec3 getPos() const;
+	virtual void setPos(const glm::vec3& pos);
+	glm::vec2 getScreenPos(const glm::mat4& cameraMatrix, const glm::ivec2& windowSize) const;
+	virtual void setScreenPos(const glm::vec2& screenPos, const glm::mat4& cameraMatrix,
 		const glm::ivec2& windowSize);
 
 	float getYawRad() const;
@@ -48,7 +48,7 @@ public:
 protected:
 	glm::mat4 m_modelMatrix{1};
 
-	glm::vec3 m_position{};
+	glm::vec3 m_pos{};
 	float m_yawRad = 0;
 	float m_pitchRad = 0;
 	float m_rollRad = 0;

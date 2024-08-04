@@ -1,10 +1,6 @@
 #pragma once
 
 #include "guis/modelGUIs/modelGUI.hpp"
-#include "models/curveBase.hpp"
-
-#include <string>
-#include <vector>
 
 class BezierCurveC2;
 
@@ -16,12 +12,4 @@ public:
 
 private:
 	BezierCurveC2& m_curve;
-
-	CurveBase m_base{};
-	bool m_renderPolyline{};
-	
-	std::vector<std::string> m_pointNames{};
-	
-	void getValues();
-	void setValues();
 };

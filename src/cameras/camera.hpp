@@ -35,7 +35,7 @@ protected:
 	void updateShaders(const glm::ivec2& windowSize) const;
 
 private:
-	glm::vec3 m_targetPosition{0, 0, 0};
+	glm::vec3 m_targetPos{0, 0, 0};
 	float m_pitchRad = 0;
 	float m_yawRad = 0;
 	

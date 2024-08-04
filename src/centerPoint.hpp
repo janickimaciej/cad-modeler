@@ -20,8 +20,8 @@ public:
 	void deleteModel(const Model* model);
 	void clearModels();
 
-	glm::vec3 getPosition();
-	void setPosition(const glm::vec3& position);
+	glm::vec3 getPos();
+	void setPos(const glm::vec3& pos);
 
 	void rotateX(float angleRad);
 	void rotateY(float angleRad);
@@ -36,11 +36,11 @@ private:
 
 	std::vector<Model*> m_models{};
 
-	glm::vec3 m_position{0, 0, 0};
+	glm::vec3 m_pos{0, 0, 0};
 
 	unsigned int m_VAO{};
 
-	void updatePosition();
+	void updatePos();
 	void updateShaders(const ShaderProgram& shaderProgram) const;
 	static glm::vec3 matrixToEuler(const glm::mat3& rotationMatrix);
 };

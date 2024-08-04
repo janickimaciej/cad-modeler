@@ -12,9 +12,4 @@ public:
 
 private:
 	OrthographicCamera& m_camera;
-
-	float m_viewWidth{};
-
-	void getValues();
-	void setValues();
 };
