@@ -1,6 +1,5 @@
 #pragma once
 
-#include "renderMode.hpp"
 #include "vertex.hpp"
 
 #include <cstddef>
@@ -10,23 +9,18 @@
 class Mesh
 {
 public:
-	Mesh(const std::vector<Vertex>& vertices, const std::vector<unsigned int>& indicesWireframe,
-		const std::vector<unsigned int>& indicesSolid);
+	Mesh(const std::vector<Vertex>& vertices, const std::vector<unsigned int>& indices);
 	~Mesh();
 
-	void render(RenderMode renderMode) const;
+	void render() const;
 	
 private:
-	std::size_t m_indexCountWireframe{};
-	std::size_t m_indexCountSolid{};
+	std::size_t m_indexCount{};
 	unsigned int m_VBO{};
-	unsigned int m_EBOWireframe{};
-	unsigned int m_EBOSolid{};
-	unsigned int m_VAOWireframe{};
-	unsigned int m_VAOSolid{};
+	unsigned int m_EBO{};
+	unsigned int m_VAO{};
 
 	void createVBO(const std::vector<Vertex>& vertices);
 	void createEBO(unsigned int& EBO, const std::vector<unsigned int>& indices);
-	void createVAOWireframe();
-	void createVAOSolid();
+	void createVAO();
 };

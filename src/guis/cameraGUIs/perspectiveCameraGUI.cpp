@@ -21,7 +21,7 @@ void PerspectiveCameraGUI::update()
 	getValues();
 
 	ImGui::InputInt(("FOV Y" + suffix).c_str(), &m_fovYDeg, 1, 1);
-	m_fovYDeg = std::clamp(m_fovYDeg, 1, 160);
+	m_fovYDeg = std::clamp(m_fovYDeg, 20, 160);
 
 	setValues();
 }

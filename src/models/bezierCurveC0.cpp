@@ -4,12 +4,12 @@
 
 #include <cstddef>
 
-BezierCurveC0::BezierCurveC0(const ShaderProgram& bezierCurveShaderProgram,
-	const ShaderProgram& bezierCurvePolylineShaderProgram, const std::vector<Point*>& points) :
+BezierCurveC0::BezierCurveC0(const ShaderProgram& curveShaderProgram,
+	const ShaderProgram& polylineShaderProgram, const std::vector<Point*>& points) :
 	Model{glm::vec3{0, 0, 0}, "BezierCurveC0 " + std::to_string(m_count)},
 	m_id{m_count++},
-	m_bezierCurveShaderProgram{bezierCurveShaderProgram},
-	m_bezierCurvePolylineShaderProgram{bezierCurvePolylineShaderProgram},
+	m_curveShaderProgram{curveShaderProgram},
+	m_polylineShaderProgram{polylineShaderProgram},
 	m_gui{*this},
 	m_points{points}
 {
@@ -19,9 +19,9 @@ BezierCurveC0::BezierCurveC0(const ShaderProgram& bezierCurveShaderProgram,
 	registerForNotifications(m_points);
 }
 
-void BezierCurveC0::render(RenderMode mode) const
+void BezierCurveC0::render() const
 {
-	updateShaders(mode);
+	updateShaders();
 	renderCurve();
 	if (m_renderPolyline)
 	{
@@ -121,15 +121,15 @@ void BezierCurveC0::createPolylineMesh()
 	glBindVertexArray(0);
 }
 
-void BezierCurveC0::updateShaders(RenderMode) const
+void BezierCurveC0::updateShaders() const
 {
-	m_bezierCurveShaderProgram.use();
-	m_bezierCurveShaderProgram.setUniform("isActive", isActive());
+	m_curveShaderProgram.use();
+	m_curveShaderProgram.setUniform("isActive", isActive());
 
 	if (m_renderPolyline)
 	{
-		m_bezierCurvePolylineShaderProgram.use();
-		m_bezierCurvePolylineShaderProgram.setUniform("isActive", isActive());
+		m_polylineShaderProgram.use();
+		m_polylineShaderProgram.setUniform("isActive", isActive());
 	}
 }
 
@@ -217,7 +217,7 @@ void BezierCurveC0::renderCurve() const
 {
 	if (m_points.size() >= 4)
 	{
-		m_bezierCurveShaderProgram.use();
+		m_curveShaderProgram.use();
 		glPatchParameteri(GL_PATCH_VERTICES, 4);
 		glBindVertexArray(m_VAOCurve);
 		glDrawArrays(GL_PATCHES, 0, static_cast<GLsizei>((m_points.size() - 1) / 3 * 4));
@@ -227,7 +227,7 @@ void BezierCurveC0::renderCurve() const
 
 void BezierCurveC0::renderPolyline() const
 {
-	m_bezierCurvePolylineShaderProgram.use();
+	m_polylineShaderProgram.use();
 	glBindVertexArray(m_VAOPolyline);
 	glDrawArrays(GL_LINE_STRIP, 0, static_cast<GLsizei>(m_points.size()));
 	glBindVertexArray(0);

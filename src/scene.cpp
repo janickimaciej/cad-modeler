@@ -10,13 +10,12 @@ static constexpr float fovYDeg = 60.0f;
 static constexpr float nearPlane = 0.1f;
 static constexpr float farPlane = 1000.0f;
 
-Scene::Scene(int windowWidth, int windowHeight) :
-	m_windowWidth{windowWidth},
-	m_windowHeight{windowHeight},
+Scene::Scene(const glm::ivec2& windowSize) :
+	m_windowSize{windowSize},
 	m_cursor{},
-	m_perspectiveCamera{fovYDeg, static_cast<float>(windowWidth) / windowHeight, nearPlane,
+	m_perspectiveCamera{fovYDeg, static_cast<float>(windowSize.x) / windowSize.y, nearPlane,
 		farPlane, m_shaderPrograms},
-	m_orthographicCamera{viewWidth, static_cast<float>(windowWidth) / windowHeight, nearPlane,
+	m_orthographicCamera{viewWidth, static_cast<float>(windowSize.x) / windowSize.y, nearPlane,
 		farPlane, m_shaderPrograms}
 {
 	auto firstModelIter = m_models.begin();
@@ -25,25 +24,20 @@ Scene::Scene(int windowWidth, int windowHeight) :
 	zoomCamera(0.5);
 	addPitchCamera(glm::radians(-30.0f));
 	addYawCamera(glm::radians(15.0f));
-
-	updateShaders();
 }
 
 void Scene::render()
 {
-	m_activeCamera->use({m_windowWidth, m_windowHeight});
+	m_activeCamera->use(m_windowSize);
 	renderModels();
 	renderCursor();
 	renderActiveModelsCenter();
 	renderGrid();
 }
 
-void Scene::setWindowSize(int width, int height)
+void Scene::updateWindowSize()
 {
-	m_windowWidth = width;
-	m_windowHeight = height;
-
-	setAspectRatio(static_cast<float>(width) / height);
+	setAspectRatio(static_cast<float>(m_windowSize.x) / m_windowSize.y);
 }
 
 const Camera& Scene::getActiveCamera() const
@@ -135,19 +129,9 @@ void Scene::zoomCamera(float zoom)
 	m_orthographicCamera.zoom(zoom);
 }
 
-RenderMode Scene::getRenderMode() const
-{
-	return m_renderMode;
-}
-
 CameraType Scene::getCameraType() const
 {
 	return m_cameraType;
-}
-
-void Scene::setRenderMode(RenderMode renderMode)
-{
-	m_renderMode = renderMode;
 }
 
 void Scene::setCameraType(CameraType cameraType)
@@ -216,8 +200,8 @@ void Scene::addPoint()
 
 void Scene::addTorus()
 {
-	std::unique_ptr<Torus> torus = std::make_unique<Torus>(m_shaderPrograms.wireframe,
-		m_shaderPrograms.solid, m_cursor.getPosition());
+	std::unique_ptr<Torus> torus = std::make_unique<Torus>(m_shaderPrograms.torus,
+		m_cursor.getPosition());
 	m_models.push_back(torus.get());
 	m_toruses.push_back(std::move(torus));
 }
@@ -503,8 +487,7 @@ void Scene::moveUniqueActiveModel(const glm::vec2& screenPos) const
 	Model* activeModel = getUniqueActiveModel();
 	if (activeModel != nullptr)
 	{
-		activeModel->setScreenPosition(screenPos, m_activeCamera->getMatrix(),
-			{m_windowWidth, m_windowHeight});
+		activeModel->setScreenPosition(screenPos, m_activeCamera->getMatrix(), m_windowSize);
 	}
 }
 
@@ -528,7 +511,7 @@ void Scene::renderModels() const
 {
 	for (const Model* model : m_models)
 	{
-		model->render(m_renderMode);
+		model->render();
 	}
 }
 
@@ -550,15 +533,6 @@ void Scene::renderGrid() const
 	m_grid.render(m_shaderPrograms.grid, m_cameraType);
 }
 
-void Scene::updateShaders() const
-{
-	m_shaderPrograms.solid.use();
-	m_shaderPrograms.solid.setUniform("ambient", m_ambient);
-	m_shaderPrograms.solid.setUniform("diffuse", m_diffuse);
-	m_shaderPrograms.solid.setUniform("specular", m_specular);
-	m_shaderPrograms.solid.setUniform("shininess", m_shininess);
-}
-
 std::optional<int> Scene::getClosestModel(const glm::vec2& screenPos) const
 {
 	std::optional<int> index = std::nullopt;
@@ -567,7 +541,7 @@ std::optional<int> Scene::getClosestModel(const glm::vec2& screenPos) const
 	for (int i = 0; i < m_models.size(); ++i)
 	{
 		float screenDistanceSquared = m_models[i]->screenDistanceSquared(screenPos,
-			m_activeCamera->getMatrix(), {m_windowWidth, m_windowHeight});
+			m_activeCamera->getMatrix(), m_windowSize);
 		if (screenDistanceSquared < minScreenDistanceSquared)
 		{
 			index = i;

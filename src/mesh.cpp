@@ -2,45 +2,26 @@
 
 #include <glad/glad.h>
 
-Mesh::Mesh(const std::vector<Vertex>& vertices, const std::vector<unsigned int>& indicesWireframe,
-	const std::vector<unsigned int>& indicesSolid)
+Mesh::Mesh(const std::vector<Vertex>& vertices, const std::vector<unsigned int>& indices)
 {
 	createVBO(vertices);
 
-	m_indexCountWireframe = indicesWireframe.size();
-	createEBO(m_EBOWireframe, indicesWireframe);
-	createVAOWireframe();
-
-	m_indexCountSolid = indicesSolid.size();
-	createEBO(m_EBOSolid, indicesSolid);
-	createVAOSolid();
+	m_indexCount = indices.size();
+	createEBO(m_EBO, indices);
+	createVAO();
 }
 
 Mesh::~Mesh()
 {
-	glDeleteVertexArrays(1, &m_VAOSolid);
-	glDeleteVertexArrays(1, &m_VAOWireframe);
-	glDeleteBuffers(1, &m_EBOSolid);
-	glDeleteBuffers(1, &m_EBOWireframe);
+	glDeleteVertexArrays(1, &m_VAO);
+	glDeleteBuffers(1, &m_EBO);
 	glDeleteBuffers(1, &m_VBO);
 }
 
-void Mesh::render(RenderMode renderMode) const
+void Mesh::render() const
 {
-	switch (renderMode)
-	{
-		case RenderMode::wireframe:
-			glBindVertexArray(m_VAOWireframe);
-			glDrawElements(GL_LINES, static_cast<GLsizei>(m_indexCountWireframe), GL_UNSIGNED_INT,
-				nullptr);
-			break;
-
-		case RenderMode::solid:
-			glBindVertexArray(m_VAOSolid);
-			glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(m_indexCountSolid), GL_UNSIGNED_INT,
-				nullptr);
-			break;
-	}
+	glBindVertexArray(m_VAO);
+	glDrawElements(GL_LINES, static_cast<GLsizei>(m_indexCount), GL_UNSIGNED_INT, nullptr);
 	glBindVertexArray(0);
 }
 
@@ -61,36 +42,18 @@ void Mesh::createEBO(unsigned int& EBO, const std::vector<unsigned int>& indices
 		GL_STATIC_DRAW);
 }
 
-void Mesh::createVAOWireframe()
+void Mesh::createVAO()
 {
-	glGenVertexArrays(1, &m_VAOWireframe);
+	glGenVertexArrays(1, &m_VAO);
 
-	glBindVertexArray(m_VAOWireframe);
+	glBindVertexArray(m_VAO);
 
 	glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex),
 		reinterpret_cast<void*>(offsetof(Vertex, position)));
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_EBOWireframe);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_EBO);
 
 	glEnableVertexAttribArray(0);
-
-	glBindVertexArray(0);
-}
-
-void Mesh::createVAOSolid()
-{
-	glGenVertexArrays(1, &m_VAOSolid);
-
-	glBindVertexArray(m_VAOSolid);
-	
-	glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex),
-		reinterpret_cast<void*>(offsetof(Vertex, position)));
-	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex),
-		reinterpret_cast<void*>(offsetof(Vertex, normalVector)));
-	glEnableVertexAttribArray(1);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_EBOSolid);
 
 	glBindVertexArray(0);
 }

@@ -1,6 +1,6 @@
 #pragma once
 
-enum class GUIState
+enum class GUIMode
 {
 	none,
 	renaming,

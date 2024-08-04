@@ -12,7 +12,6 @@
 #include "models/model.hpp"
 #include "models/point.hpp"
 #include "models/torus.hpp"
-#include "renderMode.hpp"
 #include "shaderProgram.hpp"
 #include "shaderPrograms.hpp"
 
@@ -28,9 +27,9 @@ class Window;
 class Scene
 {
 public:
-	Scene(int windowWidth, int windowHeight);
+	Scene(const glm::ivec2& windowSize);
 	void render();
-	void setWindowSize(int width, int height);
+	void updateWindowSize();
 
 	const Camera& getActiveCamera() const;
 	Camera& getActiveCamera();
@@ -51,9 +50,7 @@ public:
 	void moveYCamera(float y);
 	void zoomCamera(float zoom);
 
-	RenderMode getRenderMode() const;
 	CameraType getCameraType() const;
-	void setRenderMode(RenderMode renderMode);
 	void setCameraType(CameraType cameraType);
 
 	void addPoint();
@@ -77,8 +74,7 @@ public:
 private:
 	ShaderPrograms m_shaderPrograms{};
 
-	int m_windowWidth{};
-	int m_windowHeight{};
+	const glm::ivec2& m_windowSize{};
 
 	std::vector<Model*> m_models{};
 	std::vector<std::unique_ptr<Point>> m_points{};
@@ -97,20 +93,13 @@ private:
 	OrthographicCamera m_orthographicCamera;
 	Camera* m_activeCamera{};
 
-	RenderMode m_renderMode = RenderMode::wireframe;
 	CameraType m_cameraType = CameraType::perspective;
-
-	float m_ambient = 0.1f;
-	float m_diffuse = 0.5f;
-	float m_specular = 0.5f;
-	float m_shininess = 20.0f;
 	
 	void setAspectRatio(float aspectRatio);
 	void renderModels() const;
 	void renderCursor() const;
 	void renderActiveModelsCenter();
 	void renderGrid() const;
-	void updateShaders() const;
 	std::optional<int> getClosestModel(const glm::vec2& screenPos) const;
 	std::vector<Point*> getNonVirtualActivePoints() const;
 	void addVirtualPoints(std::vector<std::unique_ptr<Point>> points);

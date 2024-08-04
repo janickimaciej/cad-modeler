@@ -18,12 +18,6 @@ void Camera::use(const glm::ivec2& windowSize) const
 	updateShaders(windowSize);
 }
 
-glm::vec3 Camera::getPosition() const
-{
-	return glm::vec3{m_viewMatrixInverse[3][0], m_viewMatrixInverse[3][1],
-		m_viewMatrixInverse[3][2]};
-}
-
 glm::mat4 Camera::getMatrix() const
 {
 	return m_projectionMatrix * glm::inverse(m_viewMatrixInverse);
@@ -100,14 +94,9 @@ void Camera::updateShaders(const glm::ivec2& windowSize) const
 {
 	glm::mat4 projectionViewMatrix = m_projectionMatrix * glm::inverse(m_viewMatrixInverse);
 	glm::mat4 projectionViewMatrixInverse = glm::inverse(projectionViewMatrix);
-	glm::vec3 cameraPosition = getPosition();
 
-	m_shaderPrograms.wireframe.use();
-	m_shaderPrograms.wireframe.setUniform("projectionViewMatrix", projectionViewMatrix);
-
-	m_shaderPrograms.solid.use();
-	m_shaderPrograms.solid.setUniform("projectionViewMatrix", projectionViewMatrix);
-	m_shaderPrograms.solid.setUniform("cameraPos", cameraPosition);
+	m_shaderPrograms.torus.use();
+	m_shaderPrograms.torus.setUniform("projectionViewMatrix", projectionViewMatrix);
 
 	m_shaderPrograms.point.use();
 	m_shaderPrograms.point.setUniform("projectionViewMatrix", projectionViewMatrix);

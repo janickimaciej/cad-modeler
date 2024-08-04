@@ -5,7 +5,6 @@
 #include "models/curveBase.hpp"
 #include "models/model.hpp"
 #include "models/point.hpp"
-#include "renderMode.hpp"
 #include "shaderProgram.hpp"
 
 #include <glm/glm.hpp>
@@ -20,15 +19,14 @@ class BezierCurveC2 : public Model
 {
 public:
 	static std::pair<std::unique_ptr<BezierCurveC2>, std::vector<std::unique_ptr<Point>>>
-		create(const ShaderProgram& bezierCurveShaderProgram,
-		const ShaderProgram& bezierCurvePolylineShaderProgram,
+		create(const ShaderProgram& curveShaderProgram, const ShaderProgram& polylineShaderProgram,
 		const ShaderProgram& pointShaderProgram, const std::vector<Point*>& boorPoints);
 	static std::vector<std::unique_ptr<Point>> createBezierPoints(
 		const ShaderProgram& pointShaderProgram, const std::vector<Point*> boorPoints);
 	static void updateBezierPoints(const std::vector<Point*>& bezierPoints,
 		const std::vector<Point*> boorPoints);
 
-	virtual void render(RenderMode renderMode) const override;
+	virtual void render() const override;
 	virtual void updateGUI() override;
 
 	virtual void setPosition(const glm::vec3&) override;
@@ -47,8 +45,8 @@ private:
 	static int m_count;
 	int m_id{};
 	
-	const ShaderProgram& m_bezierCurveShaderProgram;
-	const ShaderProgram& m_bezierCurvePolylineShaderProgram;
+	const ShaderProgram& m_curveShaderProgram;
+	const ShaderProgram& m_polylineShaderProgram;
 	const ShaderProgram& m_pointShaderProgram;
 	BezierCurveC2GUI m_gui;
 
@@ -69,16 +67,15 @@ private:
 	CurveBase m_base = CurveBase::boor;
 	bool m_renderPolyline = true;
 
-	BezierCurveC2(const ShaderProgram& bezierCurveShaderProgram,
-		const ShaderProgram& bezierCurvePolylineShaderProgram,
-		const ShaderProgram& pointShaderProgram, const std::vector<Point*>& boorPoints,
-		const std::vector<Point*>& bezierPoints);
+	BezierCurveC2(const ShaderProgram& curveShaderProgram,
+		const ShaderProgram& polylineShaderProgram, const ShaderProgram& pointShaderProgram,
+		const std::vector<Point*>& boorPoints, const std::vector<Point*>& bezierPoints);
 
 	void createCurveMesh();
 	void createBoorPolylineMesh();
 	void createBezierPolylineMesh();
 
-	virtual void updateShaders(RenderMode) const override;
+	virtual void updateShaders() const override;
 	void updateWithBezierPoint(int index);
 	void updateBezierPoints() const;
 	void updateMeshes();

@@ -12,7 +12,6 @@ public:
 		const ShaderPrograms& shaderPrograms);
 	void use(const glm::ivec2& windowSize) const;
 	virtual CameraGUI& getGUI() = 0;
-	glm::vec3 getPosition() const;
 	glm::mat4 getMatrix() const;
 	void addPitch(float pitchRad);
 	void addYaw(float yawRad);

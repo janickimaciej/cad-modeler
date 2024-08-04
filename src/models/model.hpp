@@ -1,7 +1,6 @@
 #pragma once
 
 #include "guis/modelGUIs/modelGUI.hpp"
-#include "renderMode.hpp"
 #include "shaderProgram.hpp"
 
 #include <glm/glm.hpp>
@@ -14,7 +13,7 @@ public:
 	Model(const glm::vec3& position, const std::string& name, bool isVirtual = false);
 	~Model() = default;
 
-	virtual void render(RenderMode renderMode) const = 0;
+	virtual void render() const = 0;
 	virtual void updateGUI() = 0;
 
 	glm::vec3 getPosition() const;
@@ -56,7 +55,7 @@ protected:
 	glm::vec3 m_scale = {1, 1, 1};
 
 	void updateMatrix();
-	virtual void updateShaders(RenderMode renderMode) const = 0;
+	virtual void updateShaders() const = 0;
 
 private:
 	const std::string m_originalName{};

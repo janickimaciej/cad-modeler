@@ -2,17 +2,18 @@
 
 #include "guis/gui.hpp"
 #include "scene.hpp"
-#include "windowData.hpp"
 
 #include <glad/glad.h>
 #include <glfw/glfw3.h>
+#include <glm/glm.hpp>
 
 class Window
 {
 public:
-	Window(int width, int height);
+	Window(const glm::ivec2& initialSize);
 	~Window();
 
+	const glm::ivec2& size() const;
 	void setWindowData(Scene& scene, GUI& gui);
 	bool shouldClose() const;
 	void clear() const;
@@ -22,11 +23,18 @@ public:
 
 private:
 	GLFWwindow* m_windowPtr{};
-	WindowData m_windowData{};
+	glm::ivec2 m_size{};
+	Scene* m_scene{};
+	GUI* m_gui{};
+	
+	glm::vec2 m_lastCursorPos{};
+	bool m_dragging = false;
+	bool m_rotatingRequested = false;
+	bool m_scalingRequested = false;
 
-	static void resizeCallback(GLFWwindow* window, int width, int height);
-	static void cursorMovementCallback(GLFWwindow* window, double x, double y);
-	static void buttonCallback(GLFWwindow* window, int button, int action, int);
-	static void scrollCallback(GLFWwindow* window, double, double yOffset);
-	static void keyCallback(GLFWwindow* window, int key, int, int action, int);
+	static void resizeCallback(GLFWwindow* windowPtr, int width, int height);
+	static void cursorMovementCallback(GLFWwindow* windowPtr, double x, double y);
+	static void scrollCallback(GLFWwindow* windowPtr, double, double yOffset);
+	static void buttonCallback(GLFWwindow* windowPtr, int button, int action, int);
+	static void keyCallback(GLFWwindow* windowPtr, int key, int, int action, int);
 };

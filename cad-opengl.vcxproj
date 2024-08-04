@@ -40,9 +40,14 @@
     <ClCompile Include="src\guis\centerPointGUI.cpp" />
     <ClCompile Include="src\guis\cursorGUI.cpp" />
     <ClCompile Include="src\guis\gui.cpp" />
+    <ClCompile Include="src\guis\leftPanel.cpp" />
     <ClCompile Include="src\guis\modelGUIs\bezierCurveC0GUI.cpp" />
     <ClCompile Include="src\guis\modelGUIs\bezierCurveC2GUI.cpp" />
     <ClCompile Include="src\guis\modelGUIs\bezierCurveInterGUI.cpp" />
+    <ClCompile Include="src\guis\valueWindows\renamingWindow.cpp" />
+    <ClCompile Include="src\guis\valueWindows\rotatingWindow.cpp" />
+    <ClCompile Include="src\guis\valueWindows\scalingWindow.cpp" />
+    <ClCompile Include="src\guis\valueWindows\valueWindow.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\mesh.cpp" />
     <ClCompile Include="src\models\bezierCurveC0.cpp" />
@@ -72,7 +77,8 @@
     <ClInclude Include="src\cameras\camera.hpp" />
     <ClInclude Include="src\cameras\orthographicCamera.hpp" />
     <ClInclude Include="src\cameras\perspectiveCamera.hpp" />
-    <ClInclude Include="src\guis\guiState.hpp" />
+    <ClInclude Include="src\guis\guiMode.hpp" />
+    <ClInclude Include="src\guis\leftPanel.hpp" />
     <ClInclude Include="src\guis\modelGUIs\bezierCurveC0GUI.hpp" />
     <ClInclude Include="src\guis\centerPointGUI.hpp" />
     <ClInclude Include="src\guis\cameraGUIs\cameraGUI.hpp" />
@@ -86,6 +92,10 @@
     <ClInclude Include="src\guis\gui.hpp" />
     <ClInclude Include="src\guis\modelGUIs\bezierCurveC2GUI.hpp" />
     <ClInclude Include="src\guis\modelGUIs\bezierCurveInterGUI.hpp" />
+    <ClInclude Include="src\guis\valueWindows\renamingWindow.hpp" />
+    <ClInclude Include="src\guis\valueWindows\rotatingWindow.hpp" />
+    <ClInclude Include="src\guis\valueWindows\scalingWindow.hpp" />
+    <ClInclude Include="src\guis\valueWindows\valueWindow.hpp" />
     <ClInclude Include="src\mesh.hpp" />
     <ClInclude Include="src\models\bezierCurveC0.hpp" />
     <ClInclude Include="src\models\bezierCurveC2.hpp" />
@@ -98,13 +108,11 @@
     <ClInclude Include="src\guis\modelGUIs\pointGUI.hpp" />
     <ClInclude Include="src\guis\modelGUIs\torusGUI.hpp" />
     <ClInclude Include="src\models\point.hpp" />
-    <ClInclude Include="src\renderMode.hpp" />
     <ClInclude Include="src\scene.hpp" />
     <ClInclude Include="src\shaderProgram.hpp" />
     <ClInclude Include="src\shaderPrograms.hpp" />
     <ClInclude Include="src\vertex.hpp" />
     <ClInclude Include="src\window.hpp" />
-    <ClInclude Include="src\windowData.hpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="dep\imgui\misc\debuggers\imgui.natstepfilter" />
@@ -126,10 +134,8 @@
     <None Include="src\shaders\cursorVS.glsl" />
     <None Include="src\shaders\gridFS.glsl" />
     <None Include="src\shaders\gridVS.glsl" />
-    <None Include="src\shaders\solidVS.glsl" />
-    <None Include="src\shaders\solidFS.glsl" />
-    <None Include="src\shaders\wireframeFS.glsl" />
-    <None Include="src\shaders\wireframeVS.glsl" />
+    <None Include="src\shaders\torusFS.glsl" />
+    <None Include="src\shaders\torusVS.glsl" />
   </ItemGroup>
   <ItemGroup>
     <Natvis Include="dep\imgui\misc\debuggers\imgui.natvis" />

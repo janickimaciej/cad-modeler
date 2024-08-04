@@ -2,14 +2,15 @@
 #include "scene.hpp"
 #include "window.hpp"
 
+#include <glm/glm.hpp>
+
 int main()
 {
-	static constexpr int initialWindowWidth = 1900;
-	static constexpr int initialWindowHeight = 1000;
+	static constexpr glm::ivec2 initialWindowSize{1900, 1000};
 
-	Window window{initialWindowWidth, initialWindowHeight};
-	Scene scene{initialWindowWidth, initialWindowHeight};
-	GUI gui{window.getPtr(), scene, initialWindowWidth, initialWindowHeight};
+	Window window{initialWindowSize};
+	Scene scene{window.size()};
+	GUI gui{window.getPtr(), scene, window.size()};
 	window.setWindowData(scene, gui);
 
 	while (!window.shouldClose())

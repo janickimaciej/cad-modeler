@@ -6,8 +6,8 @@
 #include <iostream>
 
 std::pair<std::unique_ptr<BezierCurveC2>, std::vector<std::unique_ptr<Point>>>
-	BezierCurveC2::create(const ShaderProgram& bezierCurveShaderProgram,
-	const ShaderProgram& bezierCurvePolylineShaderProgram, const ShaderProgram& pointShaderProgram,
+	BezierCurveC2::create(const ShaderProgram& curveShaderProgram,
+	const ShaderProgram& polylineShaderProgram, const ShaderProgram& pointShaderProgram,
 	const std::vector<Point*>& boorPoints)
 {
 	std::vector<std::unique_ptr<Point>> bezierPoints = createBezierPoints(pointShaderProgram,
@@ -21,8 +21,8 @@ std::pair<std::unique_ptr<BezierCurveC2>, std::vector<std::unique_ptr<Point>>>
 
 	return
 	{
-		std::unique_ptr<BezierCurveC2>(new BezierCurveC2(bezierCurveShaderProgram,
-			bezierCurvePolylineShaderProgram, pointShaderProgram, boorPoints, bezierPointPtrs)),
+		std::unique_ptr<BezierCurveC2>(new BezierCurveC2(curveShaderProgram,
+			polylineShaderProgram, pointShaderProgram, boorPoints, bezierPointPtrs)),
 		std::move(bezierPoints)
 	};
 }
@@ -79,9 +79,9 @@ void BezierCurveC2::updateBezierPoints(const std::vector<Point*>& bezierPoints,
 	bezierPoints[3 * bezierSegments]->setPosition(e[bezierSegments]);
 }
 
-void BezierCurveC2::render(RenderMode mode) const
+void BezierCurveC2::render() const
 {
-	updateShaders(mode);
+	updateShaders();
 	renderCurve();
 	if (m_renderPolyline)
 	{
@@ -192,13 +192,13 @@ void BezierCurveC2::setRenderPolyline(bool renderPolyline)
 
 int BezierCurveC2::m_count = 0;
 
-BezierCurveC2::BezierCurveC2(const ShaderProgram& bezierCurveShaderProgram,
-	const ShaderProgram& bezierCurvePolylineShaderProgram, const ShaderProgram& pointShaderProgram,
+BezierCurveC2::BezierCurveC2(const ShaderProgram& curveShaderProgram,
+	const ShaderProgram& polylineShaderProgram, const ShaderProgram& pointShaderProgram,
 	const std::vector<Point*>& boorPoints, const std::vector<Point*>& bezierPoints) :
 	Model{glm::vec3{0, 0, 0}, "BezierCurveC2 " + std::to_string(m_count)},
 	m_id{m_count++},
-	m_bezierCurveShaderProgram{bezierCurveShaderProgram},
-	m_bezierCurvePolylineShaderProgram{bezierCurvePolylineShaderProgram},
+	m_curveShaderProgram{curveShaderProgram},
+	m_polylineShaderProgram{polylineShaderProgram},
 	m_pointShaderProgram{pointShaderProgram},
 	m_gui{*this},
 	m_boorPoints{boorPoints},
@@ -257,15 +257,15 @@ void BezierCurveC2::createBezierPolylineMesh()
 	glBindVertexArray(0);
 }
 
-void BezierCurveC2::updateShaders(RenderMode) const
+void BezierCurveC2::updateShaders() const
 {
-	m_bezierCurveShaderProgram.use();
-	m_bezierCurveShaderProgram.setUniform("isActive", isActive());
+	m_curveShaderProgram.use();
+	m_curveShaderProgram.setUniform("isActive", isActive());
 
 	if (m_renderPolyline)
 	{
-		m_bezierCurvePolylineShaderProgram.use();
-		m_bezierCurvePolylineShaderProgram.setUniform("isActive", isActive());
+		m_polylineShaderProgram.use();
+		m_polylineShaderProgram.setUniform("isActive", isActive());
 	}
 }
 
@@ -480,7 +480,7 @@ void BezierCurveC2::renderCurve() const
 {
 	if (m_bezierPoints.size() >= 4)
 	{
-		m_bezierCurveShaderProgram.use();
+		m_curveShaderProgram.use();
 		glPatchParameteri(GL_PATCH_VERTICES, 4);
 		glBindVertexArray(m_VAOCurve);
 		glDrawArrays(GL_PATCHES, 0, static_cast<GLsizei>((m_bezierPoints.size() - 1) / 3 * 4));
@@ -490,7 +490,7 @@ void BezierCurveC2::renderCurve() const
 
 void BezierCurveC2::renderBoorPolyline() const
 {
-	m_bezierCurvePolylineShaderProgram.use();
+	m_polylineShaderProgram.use();
 	glBindVertexArray(m_VAOBoorPolyline);
 	glDrawArrays(GL_LINE_STRIP, 0, static_cast<GLsizei>(m_boorPoints.size()));
 	glBindVertexArray(0);
@@ -498,7 +498,7 @@ void BezierCurveC2::renderBoorPolyline() const
 
 void BezierCurveC2::renderBezierPolyline() const
 {
-	m_bezierCurvePolylineShaderProgram.use();
+	m_polylineShaderProgram.use();
 	glBindVertexArray(m_VAOBezierPolyline);
 	glDrawArrays(GL_LINE_STRIP, 0, static_cast<GLsizei>(m_bezierPoints.size()));
 	glBindVertexArray(0);

@@ -4,7 +4,6 @@
 #include "guis/modelGUIs/bezierCurveC0GUI.hpp"
 #include "models/model.hpp"
 #include "models/point.hpp"
-#include "renderMode.hpp"
 #include "shaderProgram.hpp"
 
 #include <glm/glm.hpp>
@@ -19,7 +18,7 @@ class BezierCurveC0 : public Model
 public:
 	BezierCurveC0(const ShaderProgram& bezierCurveShaderProgram,
 		const ShaderProgram& bezierCurvePolylineShaderProgram, const std::vector<Point*>& points);
-	virtual void render(RenderMode renderMode) const override;
+	virtual void render() const override;
 	virtual void updateGUI() override;
 
 	virtual void setPosition(const glm::vec3&) override;
@@ -38,8 +37,8 @@ private:
 	static int m_count;
 	int m_id{};
 	
-	const ShaderProgram& m_bezierCurveShaderProgram;
-	const ShaderProgram& m_bezierCurvePolylineShaderProgram;
+	const ShaderProgram& m_curveShaderProgram;
+	const ShaderProgram& m_polylineShaderProgram;
 	BezierCurveC0GUI m_gui;
 
 	unsigned int m_VBOCurve{};
@@ -56,7 +55,7 @@ private:
 	void createCurveMesh();
 	void createPolylineMesh();
 
-	virtual void updateShaders(RenderMode) const override;
+	virtual void updateShaders() const override;
 	void updateGeometry();
 
 	void updatePosition();

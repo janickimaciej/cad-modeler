@@ -4,8 +4,7 @@
 
 struct ShaderPrograms
 {
-	ShaderProgram wireframe{path("wireframeVS"), path("wireframeFS")};
-	ShaderProgram solid{path("solidVS"), path("solidFS")};
+	ShaderProgram torus{path("torusVS"), path("torusFS")};
 	ShaderProgram point{path("pointVS"), path("pointGS"), path("pointFS")};
 	ShaderProgram cursor{path("cursorVS"), path("cursorGS"), path("cursorFS")};
 	ShaderProgram grid{path("gridVS"), path("gridFS")};

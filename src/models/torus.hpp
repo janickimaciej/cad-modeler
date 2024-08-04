@@ -4,7 +4,6 @@
 #include "guis/modelGUIs/torusGUI.hpp"
 #include "mesh.hpp"
 #include "models/model.hpp"
-#include "renderMode.hpp"
 #include "shaderProgram.hpp"
 #include "vertex.hpp"
 
@@ -15,9 +14,8 @@
 class Torus : public Model
 {
 public:
-	Torus(const ShaderProgram& wireframeShaderProgram, const ShaderProgram& solidShaderProgram,
-		glm::vec3 position);
-	virtual void render(RenderMode renderMode) const override;
+	Torus(const ShaderProgram& shaderProgram, const glm::vec3& position);
+	virtual void render() const override;
 	virtual void updateGUI() override;
 
 	float getMajorRadius() const;
@@ -33,8 +31,7 @@ private:
 	static int m_count;
 	int m_id{};
 
-	const ShaderProgram& m_wireframeShaderProgram;
-	const ShaderProgram& m_solidShaderProgram;
+	const ShaderProgram& m_shaderProgram;
 
 	std::unique_ptr<Mesh> m_mesh{};
 	TorusGUI m_gui;
@@ -45,12 +42,11 @@ private:
 	int m_major{};
 	int m_minor{};
 
-	virtual void updateShaders(RenderMode renderMode) const override;
+	virtual void updateShaders() const override;
 
 	void updateMesh();
 	std::vector<Vertex> createVertices() const;
-	std::vector<unsigned int> createIndicesWireframe() const;
-	std::vector<unsigned int> createIndicesSolid() const;
+	std::vector<unsigned int> createIndices() const;
 
 	glm::vec3 getSurfacePosition(float s, float t) const;
 	glm::vec3 getSurfaceNormalVector(float s, float t) const;

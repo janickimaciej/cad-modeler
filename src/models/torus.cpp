@@ -10,12 +10,10 @@ static constexpr float initialMinorRadius = 1.0f;
 static constexpr int initialMajor = 32;
 static constexpr int initialMinor = 16;
 
-Torus::Torus(const ShaderProgram& wireframeShaderProgram, const ShaderProgram& solidShaderProgram,
-	glm::vec3 position) :
+Torus::Torus(const ShaderProgram& shaderProgram, const glm::vec3& position) :
 	Model{position, "Torus " + std::to_string(m_count)},
 	m_id{m_count++},
-	m_wireframeShaderProgram{wireframeShaderProgram},
-	m_solidShaderProgram{solidShaderProgram},
+	m_shaderProgram{shaderProgram},
 	m_gui{*this},
 	m_majorRadius{initialMajorRadius},
 	m_minorRadius{initialMinorRadius},
@@ -25,10 +23,10 @@ Torus::Torus(const ShaderProgram& wireframeShaderProgram, const ShaderProgram& s
 	updateMesh();
 }
 
-void Torus::render(RenderMode renderMode) const
+void Torus::render() const
 {
-	updateShaders(renderMode);
-	m_mesh->render(renderMode);
+	updateShaders();
+	m_mesh->render();
 }
 
 void Torus::updateGUI()
@@ -94,28 +92,16 @@ void Torus::setMinor(int minor)
 
 int Torus::m_count = 0;
 
-void Torus::updateShaders(RenderMode renderMode) const
+void Torus::updateShaders() const
 {
-	switch (renderMode)
-	{
-		case RenderMode::wireframe:
-			m_wireframeShaderProgram.use();
-			m_wireframeShaderProgram.setUniform("modelMatrix", m_modelMatrix);
-			m_wireframeShaderProgram.setUniform("isActive", isActive());
-			break;
-
-		case RenderMode::solid:
-			m_solidShaderProgram.use();
-			m_solidShaderProgram.setUniform("modelMatrix", m_modelMatrix);
-			m_solidShaderProgram.setUniform("isActive", isActive());
-			break;
-	}
+	m_shaderProgram.use();
+	m_shaderProgram.setUniform("modelMatrix", m_modelMatrix);
+	m_shaderProgram.setUniform("isActive", isActive());
 }
 
 void Torus::updateMesh()
 {
-	m_mesh = std::make_unique<Mesh>(createVertices(), createIndicesWireframe(),
-		createIndicesSolid());
+	m_mesh = std::make_unique<Mesh>(createVertices(), createIndices());
 }
 
 std::vector<Vertex> Torus::createVertices() const
@@ -144,7 +130,7 @@ std::vector<Vertex> Torus::createVertices() const
 	return vertices;
 }
 
-std::vector<unsigned int> Torus::createIndicesWireframe() const
+std::vector<unsigned int> Torus::createIndices() const
 {
 	std::vector<unsigned int> indices{};
 
@@ -161,32 +147,6 @@ std::vector<unsigned int> Torus::createIndicesWireframe() const
 
 			indices.push_back(ind0);
 			indices.push_back(ind2);
-		}
-	}
-
-	return indices;
-}
-
-std::vector<unsigned int> Torus::createIndicesSolid() const
-{
-	std::vector<unsigned int> indices{};
-	
-	for (int i = 0; i < m_major; ++i)
-	{
-		for (int j = 0; j < m_minor; ++j)
-		{
-			int ind0 = i * m_minor + j;
-			int ind1 = i * m_minor + (j + 1) % m_minor;
-			int ind2 = ((i + 1) % m_major) * m_minor + j;
-			int ind3 = ((i + 1) % m_major) * m_minor + (j + 1) % m_minor;
-
-			indices.push_back(ind1);
-			indices.push_back(ind0);
-			indices.push_back(ind2);
-
-			indices.push_back(ind1);
-			indices.push_back(ind2);
-			indices.push_back(ind3);
 		}
 	}
 
