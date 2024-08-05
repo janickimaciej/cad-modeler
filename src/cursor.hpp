@@ -12,7 +12,7 @@ public:
 	~Cursor();
 
 	void render(const ShaderProgram& shaderProgram) const;
-	CursorGUI& getGUI();
+	void updateGUI(const glm::mat4& cameraMatrix, const glm::ivec2& windowSize);
 
 	glm::vec3 getPos() const;
 	void setPos(const glm::vec3& pos);

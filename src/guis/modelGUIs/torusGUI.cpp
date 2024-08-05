@@ -28,13 +28,17 @@ void TorusGUI::updatePos()
 	static const std::string format = "%.2f";
 
 	glm::vec3 pos = m_torus.getPos();
+	glm::vec3 prevPos = pos;
 	ImGui::InputFloat(("x" + suffix()).c_str(), &pos.x, stepPrecision, stepPrecision,
 		format.c_str());
 	ImGui::InputFloat(("y" + suffix()).c_str(), &pos.y, stepPrecision, stepPrecision,
 		format.c_str());
 	ImGui::InputFloat(("z" + suffix()).c_str(), &pos.z, stepPrecision, stepPrecision,
 		format.c_str());
-	m_torus.setPos(pos);
+	if (pos != prevPos)
+	{
+		m_torus.setPos(pos);
+	}
 }
 
 void TorusGUI::updateOrientation()
@@ -43,6 +47,7 @@ void TorusGUI::updateOrientation()
 	static const std::string format = "%.1f";
 
 	float pitchDeg = glm::degrees(m_torus.getPitchRad());
+	float prevPitchDeg = pitchDeg;
 	ImGui::InputFloat(("pitch" + suffix()).c_str(), &pitchDeg, stepPrecision, stepPrecision,
 		format.c_str());
 	if (pitchDeg < -90)
@@ -53,9 +58,13 @@ void TorusGUI::updateOrientation()
 	{
 		pitchDeg = 90;
 	}
-	m_torus.setPitchRad(glm::radians(pitchDeg));
+	if (pitchDeg != prevPitchDeg)
+	{
+		m_torus.setPitchRad(glm::radians(pitchDeg));
+	}
 
 	float yawDeg = glm::degrees(m_torus.getYawRad());
+	float prevYawDeg = yawDeg;
 	ImGui::InputFloat(("yaw" + suffix()).c_str(), &yawDeg, stepPrecision, stepPrecision,
 		format.c_str());
 	while (yawDeg < -180)
@@ -66,9 +75,13 @@ void TorusGUI::updateOrientation()
 	{
 		yawDeg -= 360;
 	}
-	m_torus.setYawRad(glm::radians(yawDeg));
+	if (yawDeg != prevYawDeg)
+	{
+		m_torus.setYawRad(glm::radians(yawDeg));
+	}
 	
 	float rollDeg = glm::degrees(m_torus.getRollRad());
+	float prevRollDeg = rollDeg;
 	ImGui::InputFloat(("roll" + suffix()).c_str(), &rollDeg, stepPrecision, stepPrecision,
 		format.c_str());
 	while (rollDeg < -180)
@@ -79,7 +92,10 @@ void TorusGUI::updateOrientation()
 	{
 		rollDeg -= 360;
 	}
-	m_torus.setRollRad(glm::radians(rollDeg));
+	if (rollDeg != prevRollDeg)
+	{
+		m_torus.setRollRad(glm::radians(rollDeg));
+	}
 }
 
 void TorusGUI::updateScale()
@@ -88,6 +104,7 @@ void TorusGUI::updateScale()
 	static const std::string format = "%.2f";
 
 	glm::vec3 scale = m_torus.getScale();
+	glm::vec3 prevScale = scale;
 
 	ImGui::InputFloat(("scale x" + suffix()).c_str(), &scale.x, stepPrecision, stepPrecision,
 		format.c_str());
@@ -101,7 +118,10 @@ void TorusGUI::updateScale()
 		format.c_str());
 	scale.z = std::max(scale.z, 0.1f);
 
-	m_torus.setScale(scale);
+	if (scale != prevScale)
+	{
+		m_torus.setScale(scale);
+	}
 }
 
 void TorusGUI::updateRadii()
@@ -110,16 +130,24 @@ void TorusGUI::updateRadii()
 	static const std::string format = "%.2f";
 	
 	float majorRadius = m_torus.getMajorRadius();
+	float prevMajorRadius = majorRadius;
 	ImGui::InputFloat(("major radius" + suffix()).c_str(), &majorRadius, stepPrecision,
 		stepPrecision, format.c_str());
 	majorRadius = std::max(majorRadius, 0.1f);
-	m_torus.setMajorRadius(majorRadius);
+	if (majorRadius != prevMajorRadius)
+	{
+		m_torus.setMajorRadius(majorRadius);
+	}
 	
 	float minorRadius = m_torus.getMinorRadius();
+	float prevMinorRadius = minorRadius;
 	ImGui::InputFloat(("minor radius" + suffix()).c_str(), &minorRadius, stepPrecision,
 		stepPrecision, format.c_str());
 	minorRadius = std::max(minorRadius, 0.1f);
-	m_torus.setMinorRadius(minorRadius);
+	if (minorRadius != prevMinorRadius)
+	{
+		m_torus.setMinorRadius(minorRadius);
+	}
 }
 
 void TorusGUI::updateGrid()
@@ -127,12 +155,20 @@ void TorusGUI::updateGrid()
 	static constexpr int stepPrecision = 1;
 
 	int majorGrid = m_torus.getMajorGrid();
+	int prevMajorGrid = majorGrid;
 	ImGui::InputInt(("major grid" + suffix()).c_str(), &majorGrid, stepPrecision, stepPrecision);
 	majorGrid = std::max(majorGrid, 3);
-	m_torus.setMajorGrid(majorGrid);
+	if (majorGrid != prevMajorGrid)
+	{
+		m_torus.setMajorGrid(majorGrid);
+	}
 
 	int minorGrid = m_torus.getMinorGrid();
+	int prevMinorGrid = minorGrid;
 	ImGui::InputInt(("minor grid" + suffix()).c_str(), &minorGrid, stepPrecision, stepPrecision);
 	minorGrid = std::max(minorGrid, 3);
-	m_torus.setMinorGrid(minorGrid);
+	if (minorGrid != prevMinorGrid)
+	{
+		m_torus.setMinorGrid(minorGrid);
+	}
 }

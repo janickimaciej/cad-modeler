@@ -85,7 +85,7 @@
     <ClInclude Include="src\guis\cameraGUIs\cameraGUI.hpp" />
     <ClInclude Include="src\guis\cameraGUIs\orthographicCameraGUI.hpp" />
     <ClInclude Include="src\guis\cameraGUIs\perspectiveCameraGUI.hpp" />
-    <ClInclude Include="src\cameraType.hpp" />
+    <ClInclude Include="src\cameras\cameraType.hpp" />
     <ClInclude Include="src\cursor.hpp" />
     <ClInclude Include="src\guis\cursorGUI.hpp" />
     <ClInclude Include="src\grid\canvas.hpp" />

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "cameraType.hpp"
+#include "cameras/cameraType.hpp"
 #include "grid/canvas.hpp"
 #include "shaderProgram.hpp"
 

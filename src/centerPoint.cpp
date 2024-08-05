@@ -94,7 +94,7 @@ void CenterPoint::rotateX(float angleRad)
 
 		for (Model* model : m_models)
 		{
-			glm::vec3 euler = matrixToEuler(rotationMatrix * model->getRotationMatrix());
+			glm::vec3 euler = matrixToEuler(rotationMatrix * glm::mat3{model->getRotationMatrix()});
 			model->setPitchRad(euler.x);
 			model->setYawRad(euler.y);
 			model->setRollRad(euler.z);
@@ -117,7 +117,7 @@ void CenterPoint::rotateY(float angleRad)
 
 		for (Model* model : m_models)
 		{
-			glm::vec3 euler = matrixToEuler(rotationMatrix * model->getRotationMatrix());
+			glm::vec3 euler = matrixToEuler(rotationMatrix * glm::mat3{model->getRotationMatrix()});
 			model->setPitchRad(euler.x);
 			model->setYawRad(euler.y);
 			model->setRollRad(euler.z);
@@ -140,7 +140,7 @@ void CenterPoint::rotateZ(float angleRad)
 
 		for (Model* model : m_models)
 		{
-			glm::vec3 euler = matrixToEuler(rotationMatrix * model->getRotationMatrix());
+			glm::vec3 euler = matrixToEuler(rotationMatrix * glm::mat3{model->getRotationMatrix()});
 			model->setPitchRad(euler.x);
 			model->setYawRad(euler.y);
 			model->setRollRad(euler.z);

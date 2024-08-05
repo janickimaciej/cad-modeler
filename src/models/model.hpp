@@ -1,6 +1,5 @@
 #pragma once
 
-#include "guis/modelGUIs/modelGUI.hpp"
 #include "shaderProgram.hpp"
 
 #include <glm/glm.hpp>
@@ -43,10 +42,10 @@ public:
 	float screenDistanceSquared(const glm::vec2& screenRefPos, const glm::mat4& cameraMatrix,
 		const glm::ivec2& windowSize) const;
 
-	glm::mat3 getRotationMatrix() const;
+	glm::mat4 getRotationMatrix() const;
 
 protected:
-	glm::mat4 m_modelMatrix{1};
+	glm::mat4 m_modelMatrix{};
 
 	glm::vec3 m_pos{};
 	float m_yawRad = 0;

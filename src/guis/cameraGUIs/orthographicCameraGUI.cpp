@@ -19,8 +19,12 @@ void OrthographicCameraGUI::update()
 	static const std::string format = "%.1f";
 
 	float viewHeight = m_camera.getViewHeight();
+	float prevViewHeight = viewHeight;
 	ImGui::InputFloat(("view height" + suffix).c_str(), &viewHeight, stepPrecision, stepPrecision,
 		format.c_str());
 	viewHeight = std::max(viewHeight, 0.1f);
-	m_camera.setViewHeight(viewHeight);
+	if (viewHeight != prevViewHeight)
+	{
+		m_camera.setViewHeight(viewHeight);
+	}
 }

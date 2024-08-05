@@ -24,14 +24,12 @@ float PerspectiveCamera::getFOVYDeg() const
 void PerspectiveCamera::setFOVYDeg(float fovYDeg)
 {
 	m_fovYDeg = fovYDeg;
-
 	updateProjectionMatrix();
 }
 
 void PerspectiveCamera::zoom(float zoom)
 {
 	m_radius /= zoom;
-
 	updateViewMatrix();
 }
 

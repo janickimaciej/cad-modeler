@@ -22,16 +22,15 @@ float OrthographicCamera::getViewHeight() const
 void OrthographicCamera::setViewHeight(float viewHeight)
 {
 	m_viewHeight = viewHeight;
-
 	updateProjectionMatrix();
 }
 
 void OrthographicCamera::zoom(float zoom)
 {
 	m_radius /= zoom;
-	m_viewHeight /= zoom;
-
 	updateViewMatrix();
+
+	m_viewHeight /= zoom;
 	updateProjectionMatrix();
 }
 

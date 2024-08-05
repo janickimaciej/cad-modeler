@@ -27,7 +27,7 @@ glm::vec2 Model::getScreenPos(const glm::mat4& cameraMatrix, const glm::ivec2& w
 	return glm::vec2
 	{
 		(clipPos.x + 1) / 2 * windowSize.x,
-		(clipPos.y + 1) / 2 * windowSize.y
+		(-clipPos.y + 1) / 2 * windowSize.y
 	};
 }
 
@@ -39,7 +39,7 @@ void Model::setScreenPos(const glm::vec2& screenPos, const glm::mat4& cameraMatr
 	glm::vec4 clipPos
 	{
 		screenPos.x / windowSize.x * 2 - 1,
-		1 - screenPos.y / windowSize.y * 2,
+		-screenPos.y / windowSize.y * 2 + 1,
 		prevClipPos.z,
 		1
 	};
@@ -57,6 +57,7 @@ float Model::getYawRad() const
 void Model::setYawRad(float yawRad)
 {
 	m_yawRad = yawRad;
+	updateMatrix();
 }
 
 float Model::getPitchRad() const
@@ -67,6 +68,7 @@ float Model::getPitchRad() const
 void Model::setPitchRad(float pitchRad)
 {
 	m_pitchRad = pitchRad;
+	updateMatrix();
 }
 
 float Model::getRollRad() const
@@ -77,6 +79,7 @@ float Model::getRollRad() const
 void Model::setRollRad(float rollRad)
 {
 	m_rollRad = rollRad;
+	updateMatrix();
 }
 
 glm::vec3 Model::getScale() const
@@ -87,6 +90,7 @@ glm::vec3 Model::getScale() const
 void Model::setScale(const glm::vec3& scale)
 {
 	m_scale = scale;
+	updateMatrix();
 }
 
 std::string Model::getOriginalName() const
@@ -122,15 +126,12 @@ void Model::setIsActive(bool isActive)
 float Model::screenDistanceSquared(const glm::vec2& screenRefPos, const glm::mat4& cameraMatrix,
 	const glm::ivec2& windowSize) const
 {
-	glm::vec4 clipPos = cameraMatrix * glm::vec4(m_pos, 1);
-	clipPos /= clipPos.w;
-	glm::vec2 screenPos{(clipPos.x + 1) / 2 * windowSize.x,
-		(-clipPos.y + 1) / 2 * windowSize.y};
+	glm::vec2 screenPos = getScreenPos(cameraMatrix, windowSize);
 	return (screenPos.x - screenRefPos.x) * (screenPos.x - screenRefPos.x) +
 		(screenPos.y - screenRefPos.y) * (screenPos.y - screenRefPos.y);
 }
 
-glm::mat3 Model::getRotationMatrix() const
+glm::mat4 Model::getRotationMatrix() const
 {
 	glm::mat4 rotationYawMatrix
 	{
@@ -162,34 +163,10 @@ glm::mat3 Model::getRotationMatrix() const
 void Model::updateMatrix()
 {
 	glm::mat4 scaleMatrix
-		{
-			m_scale.x, 0, 0, 0,
-			0, m_scale.y, 0, 0,
-			0, 0, m_scale.z, 0,
-			0, 0, 0, 1
-		};
-
-	glm::mat4 rotationYawMatrix
 	{
-		cos(m_yawRad), 0, -sin(m_yawRad), 0,
-		0, 1, 0, 0,
-		sin(m_yawRad), 0, cos(m_yawRad), 0,
-		0, 0, 0, 1
-	};
-
-	glm::mat4 rotationPitchMatrix
-	{
-		1, 0, 0, 0,
-		0, cos(m_pitchRad), sin(m_pitchRad), 0,
-		0, -sin(m_pitchRad), cos(m_pitchRad), 0,
-		0, 0, 0, 1
-	};
-
-	glm::mat4 rotationRollMatrix
-	{
-		cos(m_rollRad), sin(m_rollRad), 0, 0,
-		-sin(m_rollRad), cos(m_rollRad), 0, 0,
-		0, 0, 1, 0,
+		m_scale.x, 0, 0, 0,
+		0, m_scale.y, 0, 0,
+		0, 0, m_scale.z, 0,
 		0, 0, 0, 1
 	};
 
@@ -202,5 +179,5 @@ void Model::updateMatrix()
 		};
 
 	m_modelMatrix =
-		posMatrix * rotationRollMatrix * rotationYawMatrix * rotationPitchMatrix * scaleMatrix;
+		posMatrix * getRotationMatrix() * scaleMatrix;
 }

@@ -18,7 +18,11 @@ void PerspectiveCameraGUI::update()
 	static constexpr int stepPrecision = 1;
 
 	int fovYDeg = static_cast<int>(m_camera.getFOVYDeg());
+	int prevFOVDeg = fovYDeg;
 	ImGui::InputInt(("FOV Y" + suffix).c_str(), &fovYDeg, stepPrecision, stepPrecision);
 	fovYDeg = std::clamp(fovYDeg, 20, 160);
-	m_camera.setFOVYDeg(static_cast<float>(fovYDeg));
+	if (fovYDeg != prevFOVDeg)
+	{
+		m_camera.setFOVYDeg(static_cast<float>(fovYDeg));
+	}
 }

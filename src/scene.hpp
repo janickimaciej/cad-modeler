@@ -1,8 +1,8 @@
 #pragma once
 
+#include "cameras/cameraType.hpp"
 #include "cameras/orthographicCamera.hpp"
 #include "cameras/perspectiveCamera.hpp"
-#include "cameraType.hpp"
 #include "centerPoint.hpp"
 #include "cursor.hpp"
 #include "grid/grid.hpp"

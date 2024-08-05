@@ -1,6 +1,6 @@
 #include "guis/gui.hpp"
 
-#include "cameraType.hpp"
+#include "cameras/cameraType.hpp"
 
 #include <imgui/imgui.h>
 #include <imgui/backends/imgui_impl_glfw.h>

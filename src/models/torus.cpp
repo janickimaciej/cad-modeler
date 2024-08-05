@@ -3,7 +3,6 @@
 #include <glm/gtc/constants.hpp>
 
 #include <cmath>
-#include <vector>
 
 static constexpr float initialMajorRadius = 3.0f;
 static constexpr float initialMinorRadius = 1.0f;
@@ -41,11 +40,8 @@ float Torus::getMajorRadius() const
 
 void Torus::setMajorRadius(float majorRadius)
 {
-	if (majorRadius != m_majorRadius)
-	{
-		m_majorRadius = majorRadius;
-		updateMesh();
-	}
+	m_majorRadius = majorRadius;
+	updateMesh();
 }
 
 float Torus::getMinorRadius() const
@@ -55,11 +51,8 @@ float Torus::getMinorRadius() const
 
 void Torus::setMinorRadius(float minorRadius)
 {
-	if (minorRadius != m_minorRadius)
-	{
-		m_minorRadius = minorRadius;
-		updateMesh();
-	}
+	m_minorRadius = minorRadius;
+	updateMesh();
 }
 
 int Torus::getMajorGrid() const
@@ -69,11 +62,8 @@ int Torus::getMajorGrid() const
 
 void Torus::setMajorGrid(int majorGrid)
 {
-	if (majorGrid != m_majorGrid)
-	{
-		m_majorGrid = majorGrid;
-		updateMesh();
-	}
+	m_majorGrid = majorGrid;
+	updateMesh();
 }
 
 int Torus::getMinorGrid() const
@@ -83,11 +73,8 @@ int Torus::getMinorGrid() const
 
 void Torus::setMinorGrid(int minorGrid)
 {
-	if (minorGrid != m_minorGrid)
-	{
-		m_minorGrid = minorGrid;
-		updateMesh();
-	}
+	m_minorGrid = minorGrid;
+	updateMesh();
 }
 
 int Torus::m_count = 0;

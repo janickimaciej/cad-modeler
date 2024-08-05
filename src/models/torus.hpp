@@ -1,6 +1,5 @@
 #pragma once
 
-#include "guis/modelGUIs/modelGUI.hpp"
 #include "guis/modelGUIs/torusGUI.hpp"
 #include "mesh.hpp"
 #include "models/model.hpp"
@@ -9,6 +8,7 @@
 #include <glm/glm.hpp>
 
 #include <memory>
+#include <vector>
 
 class Torus : public Model
 {

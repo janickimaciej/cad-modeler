@@ -2,8 +2,6 @@
 
 #include <glad/glad.h>
 
-#include <array>
-
 Cursor::Cursor() :
 	m_gui{*this}
 {
@@ -24,9 +22,9 @@ void Cursor::render(const ShaderProgram& shaderProgram) const
 	glBindVertexArray(0);
 }
 
-CursorGUI& Cursor::getGUI()
+void Cursor::updateGUI(const glm::mat4& cameraMatrix, const glm::ivec2& windowSize)
 {
-	return m_gui;
+	m_gui.update(cameraMatrix, windowSize);
 }
 
 glm::vec3 Cursor::getPos() const
@@ -46,7 +44,7 @@ glm::vec2 Cursor::getScreenPos(const glm::mat4& cameraMatrix, const glm::ivec2& 
 	return glm::vec2
 	{
 		(clipPos.x + 1) / 2 * windowSize.x,
-		(clipPos.y + 1) / 2 * windowSize.y
+		(-clipPos.y + 1) / 2 * windowSize.y
 	};
 }
 
@@ -58,7 +56,7 @@ void Cursor::setScreenPos(const glm::vec2& screenPos, const glm::mat4& cameraMat
 	glm::vec4 clipPos
 	{
 		screenPos.x / windowSize.x * 2 - 1,
-		screenPos.y / windowSize.y * 2 - 1,
+		-screenPos.y / windowSize.y * 2 + 1,
 		prevClipPos.z,
 		1
 	};

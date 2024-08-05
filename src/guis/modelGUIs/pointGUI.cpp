@@ -18,11 +18,15 @@ void PointGUI::update()
 	static const std::string format = "%.2f";
 
 	glm::vec3 pos = m_point.getPos();
+	glm::vec3 prevPos = pos;
 	ImGui::InputFloat(("x" + suffix()).c_str(), &pos.x, stepPrecision, stepPrecision,
 		format.c_str());
 	ImGui::InputFloat(("y" + suffix()).c_str(), &pos.y, stepPrecision, stepPrecision,
 		format.c_str());
 	ImGui::InputFloat(("z" + suffix()).c_str(), &pos.z, stepPrecision, stepPrecision,
 		format.c_str());
-	m_point.setPos(pos);
+	if (pos != prevPos)
+	{
+		m_point.setPos(pos);
+	}
 }

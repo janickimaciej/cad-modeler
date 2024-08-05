@@ -15,8 +15,12 @@ BezierCurveC0GUI::BezierCurveC0GUI(BezierCurveC0& curve) :
 void BezierCurveC0GUI::update()
 {
 	bool renderPolyline = m_curve.getRenderPolyline();
+	bool prevRenderPolyline = renderPolyline;
 	ImGui::Checkbox(("render polyline" + suffix()).c_str(), &renderPolyline);
-	m_curve.setRenderPolyline(renderPolyline);
+	if (renderPolyline != prevRenderPolyline)
+	{
+		m_curve.setRenderPolyline(renderPolyline);
+	}
 
 	std::vector<std::string> pointNames = m_curve.getPointNames();
 	for (int i = 0; i < pointNames.size(); ++i)

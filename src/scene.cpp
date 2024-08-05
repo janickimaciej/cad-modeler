@@ -538,10 +538,11 @@ std::optional<int> Scene::getClosestModel(const glm::vec2& screenPos) const
 	std::optional<int> index = std::nullopt;
 	constexpr float treshold = 30;
 	float minScreenDistanceSquared = treshold * treshold;
+	glm::mat4 cameraMatrix = m_activeCamera->getMatrix();
 	for (int i = 0; i < m_models.size(); ++i)
 	{
-		float screenDistanceSquared = m_models[i]->screenDistanceSquared(screenPos,
-			m_activeCamera->getMatrix(), m_windowSize);
+		float screenDistanceSquared = m_models[i]->screenDistanceSquared(screenPos, cameraMatrix,
+			m_windowSize);
 		if (screenDistanceSquared < minScreenDistanceSquared)
 		{
 			index = i;

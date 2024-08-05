@@ -67,7 +67,7 @@ void LeftPanel::updateCursor()
 {
 	ImGui::Text("Cursor");
 	ImGui::Spacing();
-	m_scene.getCursor().getGUI().update(m_scene.getActiveCamera().getMatrix(), m_windowSize);
+	m_scene.getCursor().updateGUI(m_scene.getActiveCamera().getMatrix(), m_windowSize);
 }
 
 void LeftPanel::updateActiveModelsCenter()
