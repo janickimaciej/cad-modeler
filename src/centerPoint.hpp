@@ -12,15 +12,16 @@ class CenterPoint
 {
 public:
 	CenterPoint();
-	void render(const ShaderProgram& shaderProgram) const;
+	void render(const ShaderProgram& shaderProgram);
 	void updateGUI();
+
 	std::vector<Model*> getModels() const;
 	int getModelCount() const;
 	void addModel(Model* model);
 	void deleteModel(const Model* model);
 	void deleteAllModels();
 
-	glm::vec3 getPos();
+	glm::vec3 getPos() const;
 	void setPos(const glm::vec3& pos);
 
 	void rotateX(float angleRad);
@@ -39,6 +40,6 @@ private:
 
 	void rotate(const glm::mat3& rotationMatrix);
 	void updatePos();
-	void updateShaders(const ShaderProgram& shaderProgram) const;
+	void updateShaders(const ShaderProgram& shaderProgram);
 	static glm::vec3 matrixToEuler(const glm::mat3& rotationMatrix);
 };

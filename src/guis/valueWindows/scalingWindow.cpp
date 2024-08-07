@@ -9,7 +9,7 @@ ScalingWindow::ScalingWindow(Scene& scene, const glm::ivec2& windowSize) :
 
 void ScalingWindow::startScaling()
 {
-	m_rotationDeg = 0;
+	m_scale = 0;
 }
 
 void ScalingWindow::apply(GUIMode mode)
@@ -17,15 +17,15 @@ void ScalingWindow::apply(GUIMode mode)
 	switch (mode)
 	{
 		case GUIMode::scalingX:
-			m_scene.scaleXSelectedModels(glm::radians(m_rotationDeg));
+			m_scene.scaleXSelectedModels(m_scale);
 			break;
 
 		case GUIMode::scalingY:
-			m_scene.scaleYSelectedModels(glm::radians(m_rotationDeg));
+			m_scene.scaleYSelectedModels(m_scale);
 			break;
 
 		case GUIMode::scalingZ:
-			m_scene.scaleZSelectedModels(glm::radians(m_rotationDeg));
+			m_scene.scaleZSelectedModels(m_scale);
 			break;
 	}
 }
@@ -42,5 +42,5 @@ int ScalingWindow::width()
 
 void ScalingWindow::input()
 {
-	ImGui::InputFloat("##scaling", &m_rotationDeg, 1.0f, 1.0f, "%.2f");
+	ImGui::InputFloat("##scaling", &m_scale, 1.0f, 1.0f, "%.2f");
 }

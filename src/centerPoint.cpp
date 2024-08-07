@@ -10,7 +10,7 @@ CenterPoint::CenterPoint() :
 	glGenVertexArrays(1, &m_VAO);
 }
 
-void CenterPoint::render(const ShaderProgram& shaderProgram) const
+void CenterPoint::render(const ShaderProgram& shaderProgram)
 {
 	if (m_models.size() == 0)
 	{
@@ -42,8 +42,6 @@ int CenterPoint::getModelCount() const
 void CenterPoint::addModel(Model* model)
 {
 	m_models.push_back(model);
-
-	updatePos();
 }
 
 void CenterPoint::deleteModel(const Model* model)
@@ -59,27 +57,23 @@ void CenterPoint::deleteModel(const Model* model)
 void CenterPoint::deleteAllModels()
 {
 	m_models.clear();
-
-	updatePos();
 }
 
-glm::vec3 CenterPoint::getPos()
+glm::vec3 CenterPoint::getPos() const
 {
-	updatePos();
-
 	return m_pos;
 }
 
 void CenterPoint::setPos(const glm::vec3& pos)
 {
+	updatePos();
 	if (m_models.size() > 0)
 	{
 		glm::vec3 posChange = pos - m_pos;
 		for (Model* model : m_models)
 		{
-			model->setPos(m_pos + posChange);
+			model->setPos(model->getPos() + posChange);
 		}
-		m_pos = pos;
 	}
 }
 
@@ -130,6 +124,7 @@ void CenterPoint::rotateZ(float angleRad)
 
 void CenterPoint::scaleX(float scale)
 {
+	updatePos();
 	if (m_models.size() > 0)
 	{
 		for (Model* model : m_models)
@@ -142,6 +137,7 @@ void CenterPoint::scaleX(float scale)
 
 void CenterPoint::scaleY(float scale)
 {
+	updatePos();
 	if (m_models.size() > 0)
 	{
 		for (Model* model : m_models)
@@ -154,6 +150,7 @@ void CenterPoint::scaleY(float scale)
 
 void CenterPoint::scaleZ(float scale)
 {
+	updatePos();
 	if (m_models.size() > 0)
 	{
 		for (Model* model : m_models)
@@ -194,8 +191,9 @@ void CenterPoint::updatePos()
 	}
 }
 
-void CenterPoint::updateShaders(const ShaderProgram& shaderProgram) const
+void CenterPoint::updateShaders(const ShaderProgram& shaderProgram)
 {
+	updatePos();
 	shaderProgram.setUniform("posWorld", m_pos);
 }
 

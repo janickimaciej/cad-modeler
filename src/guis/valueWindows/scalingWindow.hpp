@@ -19,7 +19,7 @@ public:
 private:
 	Scene& m_scene;
 
-	float m_rotationDeg{};
+	float m_scale{};
 
 	virtual std::string name() override;
 	virtual int width() override;

@@ -19,11 +19,15 @@ void CenterPointGUI::update()
 	static const std::string format = "%.2f";
 	
 	glm::vec3 pos = m_centerPoint.getPos();
+	glm::vec3 prevPos = pos;
 	ImGui::InputFloat(("x" + suffix).c_str(), &pos.x, stepPrecision, stepPrecision,
 		format.c_str());
 	ImGui::InputFloat(("y" + suffix).c_str(), &pos.y, stepPrecision, stepPrecision,
 		format.c_str());
 	ImGui::InputFloat(("z" + suffix).c_str(), &pos.z, stepPrecision, stepPrecision,
 		format.c_str());
-	//m_centerPoint.setPos(pos); //TODO: fix
+	if (pos != prevPos)
+	{
+		m_centerPoint.setPos(pos);
+	}
 }
