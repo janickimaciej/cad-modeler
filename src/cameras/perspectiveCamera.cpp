@@ -11,9 +11,9 @@ PerspectiveCamera::PerspectiveCamera(float fovYDeg, float aspectRatio, float nea
 	updateProjectionMatrix();
 }
 
-CameraGUI& PerspectiveCamera::getGUI()
+void PerspectiveCamera::updateGUI()
 {
-	return m_gui;
+	m_gui.update();
 }
 
 float PerspectiveCamera::getFOVYDeg() const

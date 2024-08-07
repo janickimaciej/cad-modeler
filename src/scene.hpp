@@ -1,5 +1,6 @@
 #pragma once
 
+#include "cameras/camera.hpp"
 #include "cameras/cameraType.hpp"
 #include "cameras/orthographicCamera.hpp"
 #include "cameras/perspectiveCamera.hpp"
@@ -12,7 +13,6 @@
 #include "models/model.hpp"
 #include "models/point.hpp"
 #include "models/torus.hpp"
-#include "shaderProgram.hpp"
 #include "shaderPrograms.hpp"
 
 #include <glm/glm.hpp>
@@ -29,18 +29,8 @@ public:
 	void render();
 	void updateWindowSize();
 
-	const Camera& getActiveCamera() const;
-	Camera& getActiveCamera();
-
-	int getModelCount() const;
-	bool isModelVirtual(int i) const;
-	bool isModelActive(int i) const;
-	std::string getModelName(int i) const;
-	void updateModelGUI(int i);
-	void setModelIsActive(int i, bool isActive);
-
-	Cursor& getCursor();
-	CenterPoint& getActiveModelsCenter();
+	CameraType getCameraType() const;
+	void setCameraType(CameraType cameraType);
 
 	void addPitchCamera(float pitchRad);
 	void addYawCamera(float yawRad);
@@ -48,26 +38,42 @@ public:
 	void moveYCamera(float y);
 	void zoomCamera(float zoom);
 
-	CameraType getCameraType() const;
-	void setCameraType(CameraType cameraType);
+	int getModelCount() const;
+	bool isAnyModelSelected() const;
+	bool isOneModelSelected() const;
+	bool isModelVirtual(int i) const;
+	bool isModelSelected(int i) const;
+	void selectModel(int i);
+	void deselectModel(int i);
+	void toggleModel(int i);
+	void deselectAllModels();
+	void deleteSelectedModels();
+	bool selectUniqueModel(const glm::vec2& screenPos);
+	void toggleModel(const glm::vec2& screenPos);
+	void moveUniqueSelectedModel(const glm::vec2& screenPos) const;
+
+	void rotateXSelectedModels(float angleRad);
+	void rotateYSelectedModels(float angleRad);
+	void rotateZSelectedModels(float angleRad);
+	void scaleXSelectedModels(float scale);
+	void scaleYSelectedModels(float scale);
+	void scaleZSelectedModels(float scale);
+
+	std::string getUniqueSelectedModelName() const;
+	void setUniqueSelectedModelName(const std::string& name) const;
+	std::string getModelName(int i) const;
 
 	void addPoint();
 	void addTorus();
 	void addBezierCurveC0();
 	void addBezierCurveC2();
 	void addBezierCurveInter();
-	void addActivePointsToCurve();
+	void addSelectedPointsToCurve();
 
-	void clearActiveModels();
-	void deleteActiveModels();
-	void deleteEmptyBezierCurvesC0();
-	void deleteEmptyBezierCurvesC2();
-	void deleteEmptyBezierCurvesInter();
-	void deleteUnreferencedVirtualPoints();
-	bool select(const glm::vec2& screenPos, bool toggle);
-	void moveUniqueActiveModel(const glm::vec2& screenPos) const;
-
-	Model* getUniqueActiveModel() const;
+	void updateActiveCameraGUI();
+	void updateCursorGUI();
+	void updateSelectedModelsCenterGUI();
+	void updateModelGUI(int i);
 
 private:
 	ShaderPrograms m_shaderPrograms{};
@@ -82,7 +88,7 @@ private:
 	std::vector<std::unique_ptr<BezierCurveInter>> m_bezierCurvesInter{};
 
 	Cursor m_cursor;
-	CenterPoint m_activeModelsCenter{};
+	CenterPoint m_selectedModelsCenter{};
 
 	static constexpr float gridScale = 10.0f;
 	Grid m_grid{gridScale};
@@ -96,9 +102,16 @@ private:
 	void setAspectRatio(float aspectRatio);
 	void renderModels() const;
 	void renderCursor() const;
-	void renderActiveModelsCenter();
+	void renderSelectedModelsCenter();
 	void renderGrid() const;
+
+	Model* getUniqueSelectedModel() const;
 	std::optional<int> getClosestModel(const glm::vec2& screenPos) const;
-	std::vector<Point*> getNonVirtualActivePoints() const;
+	std::vector<Point*> getNonVirtualSelectedPoints() const;
 	void addVirtualPoints(std::vector<std::unique_ptr<Point>> points);
+
+	void deleteEmptyBezierCurvesC0();
+	void deleteEmptyBezierCurvesC2();
+	void deleteEmptyBezierCurvesInter();
+	void deleteUnreferencedVirtualPoints();
 };

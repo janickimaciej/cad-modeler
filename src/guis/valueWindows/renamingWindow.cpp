@@ -7,29 +7,16 @@ RenamingWindow::RenamingWindow(Scene& scene, const glm::ivec2& windowSize) :
 	m_scene{scene}
 { }
 
-bool RenamingWindow::startRenaming()
+void RenamingWindow::startRenaming()
 {
-	m_uniqueActiveModel = m_scene.getUniqueActiveModel();
-	if (m_uniqueActiveModel != nullptr)
-	{
-		std::string name = m_uniqueActiveModel->getName();
-		std::copy(name.begin(), name.end(), m_name.begin());
-		m_name[name.size()] = '\0';
-
-		return true;
-	}
-	return false;
-}
-
-void RenamingWindow::cancel()
-{
-	m_uniqueActiveModel = nullptr;
+	std::string name = m_scene.getUniqueSelectedModelName();
+	std::copy(name.begin(), name.end(), m_name.begin());
+	m_name[name.size()] = '\0';
 }
 
 void RenamingWindow::apply()
 {
-	m_uniqueActiveModel->setName(std::string{m_name.data()});
-	m_uniqueActiveModel = nullptr;
+	m_scene.setUniqueSelectedModelName(std::string{m_name.data()});
 }
 
 std::string RenamingWindow::name()

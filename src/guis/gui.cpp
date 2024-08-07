@@ -98,21 +98,15 @@ void GUI::startScalingZ()
 
 void GUI::startRenaming()
 {
-	if (m_mode == GUIMode::none && m_renamingWindow.startRenaming())
+	if (m_mode == GUIMode::none && m_scene.isOneModelSelected())
 	{
+		m_renamingWindow.startRenaming();
 		m_mode = GUIMode::renaming;
 	}
 }
 
 void GUI::cancel()
 {
-	switch (m_mode)
-	{
-		case GUIMode::renaming:
-			m_renamingWindow.cancel();
-			break;
-	}
-
 	m_mode = GUIMode::none;
 }
 
@@ -140,17 +134,17 @@ void GUI::apply()
 	m_mode = GUIMode::none;
 }
 
-void GUI::deleteActiveModels()
+void GUI::deleteSelectedModels()
 {
 	if (m_mode == GUIMode::none)
 	{
-		m_scene.deleteActiveModels();
+		m_scene.deleteSelectedModels();
 	}
 }
 
 void GUI::startRotating(GUIMode mode)
 {
-	if (m_mode == GUIMode::none)
+	if (m_mode == GUIMode::none && m_scene.isAnyModelSelected())
 	{
 		m_mode = mode;
 		m_rotatingWindow.startRotating();
@@ -159,7 +153,7 @@ void GUI::startRotating(GUIMode mode)
 
 void GUI::startScaling(GUIMode mode)
 {
-	if (m_mode == GUIMode::none)
+	if (m_mode == GUIMode::none && m_scene.isAnyModelSelected())
 	{
 		m_mode = mode;
 		m_scalingWindow.startScaling();

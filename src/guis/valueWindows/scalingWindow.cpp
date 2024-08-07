@@ -17,15 +17,15 @@ void ScalingWindow::apply(GUIMode mode)
 	switch (mode)
 	{
 		case GUIMode::scalingX:
-			m_scene.getActiveModelsCenter().scaleX(glm::radians(m_rotationDeg));
+			m_scene.scaleXSelectedModels(glm::radians(m_rotationDeg));
 			break;
 
 		case GUIMode::scalingY:
-			m_scene.getActiveModelsCenter().scaleY(glm::radians(m_rotationDeg));
+			m_scene.scaleYSelectedModels(glm::radians(m_rotationDeg));
 			break;
 
 		case GUIMode::scalingZ:
-			m_scene.getActiveModelsCenter().scaleZ(glm::radians(m_rotationDeg));
+			m_scene.scaleZSelectedModels(glm::radians(m_rotationDeg));
 			break;
 	}
 }

@@ -83,7 +83,7 @@ void Torus::updateShaders() const
 {
 	m_shaderProgram.use();
 	m_shaderProgram.setUniform("modelMatrix", m_modelMatrix);
-	m_shaderProgram.setUniform("isActive", isActive());
+	m_shaderProgram.setUniform("isSelected", isSelected());
 }
 
 void Torus::updateMesh()
@@ -95,8 +95,9 @@ std::vector<glm::vec3> Torus::createVertices() const
 {
 	std::vector<glm::vec3> vertices{};
 	
-	float ds = 2 * glm::pi<float>() / m_majorGrid;
-	float dt = 2 * glm::pi<float>() / m_minorGrid;
+	static constexpr float pi = glm::pi<float>();
+	float ds = 2 * pi / m_majorGrid;
+	float dt = 2 * pi / m_minorGrid;
 	for (int is = 0; is < m_majorGrid; ++is)
 	{
 		for (int it = 0; it < m_minorGrid; ++it)

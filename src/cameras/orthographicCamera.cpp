@@ -9,9 +9,9 @@ OrthographicCamera::OrthographicCamera(float viewHeight, float aspectRatio, floa
 	updateProjectionMatrix();
 }
 
-CameraGUI& OrthographicCamera::getGUI()
+void OrthographicCamera::updateGUI()
 {
-	return m_gui;
+	m_gui.update();
 }
 
 float OrthographicCamera::getViewHeight() const

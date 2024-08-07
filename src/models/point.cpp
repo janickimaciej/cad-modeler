@@ -76,7 +76,7 @@ void Point::updateShaders() const
 	m_shaderProgram.use();
 	m_shaderProgram.setUniform("posWorld", m_pos);
 	m_shaderProgram.setUniform("isVirtual", isVirtual());
-	m_shaderProgram.setUniform("isActive", isActive());
+	m_shaderProgram.setUniform("isSelected", isSelected());
 }
 
 void Point::notify(std::vector<std::weak_ptr<Callback>>& notifications)

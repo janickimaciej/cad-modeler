@@ -20,11 +20,11 @@ public:
 	glm::vec2 getScreenPos(const glm::mat4& cameraMatrix, const glm::ivec2& windowSize) const;
 	virtual void setScreenPos(const glm::vec2& screenPos, const glm::mat4& cameraMatrix,
 		const glm::ivec2& windowSize);
-
-	float getYawRad() const;
-	void setYawRad(float yawRad);
+	
 	float getPitchRad() const;
 	void setPitchRad(float pitchRad);
+	float getYawRad() const;
+	void setYawRad(float yawRad);
 	float getRollRad() const;
 	void setRollRad(float rollRad);
 
@@ -36,8 +36,9 @@ public:
 	void setName(const std::string& name);
 	
 	bool isVirtual() const;
-	bool isActive() const;
-	void setIsActive(bool isActive);
+	bool isSelected() const;
+	void select();
+	void deselect();
 
 	float screenDistanceSquared(const glm::vec2& screenRefPos, const glm::mat4& cameraMatrix,
 		const glm::ivec2& windowSize) const;
@@ -48,8 +49,8 @@ protected:
 	glm::mat4 m_modelMatrix{};
 
 	glm::vec3 m_pos{};
-	float m_yawRad = 0;
 	float m_pitchRad = 0;
+	float m_yawRad = 0;
 	float m_rollRad = 0;
 	glm::vec3 m_scale = {1, 1, 1};
 
@@ -60,6 +61,6 @@ private:
 	const std::string m_originalName{};
 	std::string m_name{};
 
-	bool m_isActive = false;
+	bool m_isSelected = false;
 	bool m_isVirtual{};
 };

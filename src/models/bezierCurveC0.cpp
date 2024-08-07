@@ -124,12 +124,12 @@ void BezierCurveC0::createPolylineMesh()
 void BezierCurveC0::updateShaders() const
 {
 	m_curveShaderProgram.use();
-	m_curveShaderProgram.setUniform("isActive", isActive());
+	m_curveShaderProgram.setUniform("isSelected", isSelected());
 
 	if (m_renderPolyline)
 	{
 		m_polylineShaderProgram.use();
-		m_polylineShaderProgram.setUniform("isActive", isActive());
+		m_polylineShaderProgram.setUniform("isSelected", isSelected());
 	}
 }
 

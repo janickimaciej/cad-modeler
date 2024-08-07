@@ -10,7 +10,7 @@ class PerspectiveCamera : public Camera
 public:
 	PerspectiveCamera(float fovYDeg, float aspectRatio, float nearPlane, float farPlane,
 		const ShaderPrograms& shaderPrograms);
-	virtual CameraGUI& getGUI() override;
+	virtual void updateGUI() override;
 	float getFOVYDeg() const;
 	void setFOVYDeg(float fovYDeg);
 	virtual void zoom(float zoom) override;

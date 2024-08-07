@@ -1,7 +1,6 @@
 #pragma once
 
 #include "guis/valueWindows/valueWindow.hpp"
-#include "models/Model.hpp"
 #include "scene.hpp"
 
 #include <array>
@@ -13,14 +12,12 @@ class RenamingWindow : public ValueWindow
 {
 public:
 	RenamingWindow(Scene& scene, const glm::ivec2& windowSize);
-	bool startRenaming();
-	void cancel();
+	void startRenaming();
 	void apply();
 
 private:
 	Scene& m_scene;
 
-	Model* m_uniqueActiveModel = nullptr;
 	static constexpr int maxNameLength = 32;
 	std::array<char, maxNameLength> m_name{};
 

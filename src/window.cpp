@@ -132,7 +132,7 @@ void Window::cursorMovementCallback(GLFWwindow* windowPtr, double x, double y)
 		glfwGetMouseButton(windowPtr, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS &&
 		window->m_dragging)
 	{
-		window->m_scene->moveUniqueActiveModel(currentPos);
+		window->m_scene->moveUniqueSelectedModel(currentPos);
 	}
 }
 
@@ -156,10 +156,16 @@ void Window::buttonCallback(GLFWwindow* windowPtr, int button, int action, int)
 		glm::vec2 cursorPos{static_cast<float>(x), static_cast<float>(y)};
 		
 		bool toggle = glfwGetKey(windowPtr, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS;
-
-		if (window->m_scene->select(cursorPos, toggle) && !toggle)
+		if (toggle)
 		{
-			window->m_dragging = true;
+			window->m_scene->toggleModel(cursorPos);
+		}
+		else
+		{
+			if (window->m_scene->selectUniqueModel(cursorPos))
+			{
+				window->m_dragging = true;
+			}
 		}
 	}
 
@@ -176,7 +182,7 @@ void Window::keyCallback(GLFWwindow* windowPtr, int key, int, int action, int)
 	if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
 	{
 		window->m_gui->cancel();
-		window->m_scene->clearActiveModels();
+		window->m_scene->deselectAllModels();
 	}
 
 	if (key == GLFW_KEY_ENTER && action == GLFW_PRESS)
@@ -191,7 +197,7 @@ void Window::keyCallback(GLFWwindow* windowPtr, int key, int, int action, int)
 
 	if (key == GLFW_KEY_DELETE && action == GLFW_PRESS)
 	{
-		window->m_gui->deleteActiveModels();
+		window->m_gui->deleteSelectedModels();
 	}
 
 	if (key == GLFW_KEY_X && action == GLFW_PRESS)

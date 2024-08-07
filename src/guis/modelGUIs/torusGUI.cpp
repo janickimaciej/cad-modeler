@@ -71,7 +71,7 @@ void TorusGUI::updateOrientation()
 	{
 		yawDeg += 360;
 	}
-	while (yawDeg > 180)
+	while (yawDeg >= 180)
 	{
 		yawDeg -= 360;
 	}
@@ -88,7 +88,7 @@ void TorusGUI::updateOrientation()
 	{
 		rollDeg += 360;
 	}
-	while (rollDeg > 180)
+	while (rollDeg >= 180)
 	{
 		rollDeg -= 360;
 	}

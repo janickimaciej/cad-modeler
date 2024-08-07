@@ -13,12 +13,12 @@ class CenterPoint
 public:
 	CenterPoint();
 	void render(const ShaderProgram& shaderProgram) const;
-	CenterPointGUI& getGUI();
+	void updateGUI();
 	std::vector<Model*> getModels() const;
 	int getModelCount() const;
 	void addModel(Model* model);
 	void deleteModel(const Model* model);
-	void clearModels();
+	void deleteAllModels();
 
 	glm::vec3 getPos();
 	void setPos(const glm::vec3& pos);
@@ -33,13 +33,11 @@ public:
 
 private:
 	CenterPointGUI m_gui;
-
 	std::vector<Model*> m_models{};
-
 	glm::vec3 m_pos{0, 0, 0};
-
 	unsigned int m_VAO{};
 
+	void rotate(const glm::mat3& rotationMatrix);
 	void updatePos();
 	void updateShaders(const ShaderProgram& shaderProgram) const;
 	static glm::vec3 matrixToEuler(const glm::mat3& rotationMatrix);

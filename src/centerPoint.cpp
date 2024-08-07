@@ -2,6 +2,8 @@
 
 #include <glm/gtc/constants.hpp>
 
+#include <cmath>
+
 CenterPoint::CenterPoint() :
 	m_gui{*this}
 {
@@ -22,9 +24,9 @@ void CenterPoint::render(const ShaderProgram& shaderProgram) const
 	glBindVertexArray(0);
 }
 
-CenterPointGUI& CenterPoint::getGUI()
+void CenterPoint::updateGUI()
 {
-	return m_gui;
+	m_gui.update();
 }
 
 std::vector<Model*> CenterPoint::getModels() const
@@ -54,7 +56,7 @@ void CenterPoint::deleteModel(const Model* model)
 	);
 }
 
-void CenterPoint::clearModels()
+void CenterPoint::deleteAllModels()
 {
 	m_models.clear();
 
@@ -88,19 +90,11 @@ void CenterPoint::rotateX(float angleRad)
 		glm::mat3 rotationMatrix
 		{
 			1, 0, 0,
-			0, cos(angleRad), sin(angleRad),
-			0, -sin(angleRad), cos(angleRad)
+			0, std::cos(angleRad), std::sin(angleRad),
+			0, -std::sin(angleRad), std::cos(angleRad)
 		};
 
-		for (Model* model : m_models)
-		{
-			glm::vec3 euler = matrixToEuler(rotationMatrix * glm::mat3{model->getRotationMatrix()});
-			model->setPitchRad(euler.x);
-			model->setYawRad(euler.y);
-			model->setRollRad(euler.z);
-			glm::vec3 relativePos = model->getPos() - m_pos;
-			model->setPos(m_pos + rotationMatrix * relativePos);
-		}
+		rotate(rotationMatrix);
 	}
 }
 
@@ -110,20 +104,12 @@ void CenterPoint::rotateY(float angleRad)
 	{
 		glm::mat3 rotationMatrix
 		{
-			cos(angleRad), 0, -sin(angleRad),
+			std::cos(angleRad), 0, -std::sin(angleRad),
 			0, 1, 0,
-			sin(angleRad), 0, cos(angleRad)
+			std::sin(angleRad), 0, std::cos(angleRad)
 		};
 
-		for (Model* model : m_models)
-		{
-			glm::vec3 euler = matrixToEuler(rotationMatrix * glm::mat3{model->getRotationMatrix()});
-			model->setPitchRad(euler.x);
-			model->setYawRad(euler.y);
-			model->setRollRad(euler.z);
-			glm::vec3 relativePos = model->getPos() - m_pos;
-			model->setPos(m_pos + rotationMatrix * relativePos);
-		}
+		rotate(rotationMatrix);
 	}
 }
 
@@ -133,20 +119,12 @@ void CenterPoint::rotateZ(float angleRad)
 	{
 		glm::mat3 rotationMatrix
 		{
-			cos(angleRad), sin(angleRad), 0,
-			-sin(angleRad), cos(angleRad), 0,
+			std::cos(angleRad), std::sin(angleRad), 0,
+			-std::sin(angleRad), std::cos(angleRad), 0,
 			0, 0, 1
 		};
 
-		for (Model* model : m_models)
-		{
-			glm::vec3 euler = matrixToEuler(rotationMatrix * glm::mat3{model->getRotationMatrix()});
-			model->setPitchRad(euler.x);
-			model->setYawRad(euler.y);
-			model->setRollRad(euler.z);
-			glm::vec3 relativePos = model->getPos() - m_pos;
-			model->setPos(m_pos + rotationMatrix * relativePos);
-		}
+		rotate(rotationMatrix);
 	}
 }
 
@@ -157,8 +135,7 @@ void CenterPoint::scaleX(float scale)
 		for (Model* model : m_models)
 		{
 			glm::vec3 relativePos = model->getPos() - m_pos;
-			model->setPos(m_pos +
-				glm::vec3{scale * relativePos.x, relativePos.y, relativePos.z});
+			model->setPos(m_pos + glm::vec3{scale * relativePos.x, relativePos.y, relativePos.z});
 		}
 	}
 }
@@ -170,8 +147,7 @@ void CenterPoint::scaleY(float scale)
 		for (Model* model : m_models)
 		{
 			glm::vec3 relativePos = model->getPos() - m_pos;
-			model->setPos(m_pos +
-				glm::vec3{relativePos.x, scale * relativePos.y, relativePos.z});
+			model->setPos(m_pos + glm::vec3{relativePos.x, scale * relativePos.y, relativePos.z});
 		}
 	}
 }
@@ -183,9 +159,21 @@ void CenterPoint::scaleZ(float scale)
 		for (Model* model : m_models)
 		{
 			glm::vec3 relativePos = model->getPos() - m_pos;
-			model->setPos(m_pos +
-				glm::vec3{relativePos.x, relativePos.y, scale * relativePos.z});
+			model->setPos(m_pos + glm::vec3{relativePos.x, relativePos.y, scale * relativePos.z});
 		}
+	}
+}
+
+void CenterPoint::rotate(const glm::mat3& rotationMatrix)
+{
+	for (Model* model : m_models)
+	{
+		glm::vec3 euler = matrixToEuler(rotationMatrix * glm::mat3{model->getRotationMatrix()});
+		model->setPitchRad(euler.x);
+		model->setYawRad(euler.y);
+		model->setRollRad(euler.z);
+		glm::vec3 relativePos = model->getPos() - m_pos;
+		model->setPos(m_pos + rotationMatrix * relativePos);
 	}
 }
 
@@ -216,22 +204,25 @@ glm::vec3 CenterPoint::matrixToEuler(const glm::mat3& rotationMatrix)
 	glm::vec3 euler{};
 	if (rotationMatrix[0][2] != -1 && rotationMatrix[0][2] != 1)
 	{
-		euler.y = -asin(rotationMatrix[0][2]);
-		euler.x = atan2(rotationMatrix[1][2] / cos(euler.y), rotationMatrix[2][2] / cos(euler.y));
-		euler.z = atan2(rotationMatrix[0][1] / cos(euler.y), rotationMatrix[0][0] / cos(euler.y));
+		euler.y = -std::asin(rotationMatrix[0][2]);
+		euler.x = std::atan2(rotationMatrix[1][2] / std::cos(euler.y),
+			rotationMatrix[2][2] / std::cos(euler.y));
+		euler.z = std::atan2(rotationMatrix[0][1] / std::cos(euler.y),
+			rotationMatrix[0][0] / std::cos(euler.y));
 	}
 	else
 	{
+		static constexpr float pi = glm::pi<float>();
 		euler.z = 0;
 		if (rotationMatrix[0][2] == -1)
 		{
-			euler.y = glm::pi<float>() / 2;
-			euler.x = euler.z + atan2(rotationMatrix[1][0], rotationMatrix[2][0]);
+			euler.y = pi / 2;
+			euler.x = euler.z + std::atan2(rotationMatrix[1][0], rotationMatrix[2][0]);
 		}
 		else
 		{
-			euler.y = -glm::pi<float>() / 2;
-			euler.x = -euler.z + atan2(-rotationMatrix[1][0], -rotationMatrix[2][0]);
+			euler.y = -pi / 2;
+			euler.x = -euler.z + std::atan2(-rotationMatrix[1][0], -rotationMatrix[2][0]);
 		}
 	}
 	return euler;

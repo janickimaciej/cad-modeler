@@ -1,5 +1,7 @@
 #include "models/model.hpp"
 
+#include <cmath>
+
 Model::Model(const glm::vec3& pos, const std::string& name, bool isVirtual) :
 	m_pos{pos},
 	m_originalName{name},
@@ -113,14 +115,19 @@ bool Model::isVirtual() const
 	return m_isVirtual;
 }
 
-bool Model::isActive() const
+bool Model::isSelected() const
 {
-	return m_isActive;
+	return m_isSelected;
 }
 
-void Model::setIsActive(bool isActive)
+void Model::select()
 {
-	m_isActive = isActive;
+	m_isSelected = true;
+}
+
+void Model::deselect()
+{
+	m_isSelected = false;
 }
 
 float Model::screenDistanceSquared(const glm::vec2& screenRefPos, const glm::mat4& cameraMatrix,
@@ -133,31 +140,31 @@ float Model::screenDistanceSquared(const glm::vec2& screenRefPos, const glm::mat
 
 glm::mat4 Model::getRotationMatrix() const
 {
-	glm::mat4 rotationYawMatrix
-	{
-		cos(m_yawRad), 0, -sin(m_yawRad), 0,
-		0, 1, 0, 0,
-		sin(m_yawRad), 0, cos(m_yawRad), 0,
-		0, 0, 0, 1
-	};
-
 	glm::mat4 rotationPitchMatrix
 	{
 		1, 0, 0, 0,
-		0, cos(m_pitchRad), sin(m_pitchRad), 0,
-		0, -sin(m_pitchRad), cos(m_pitchRad), 0,
+		0, std::cos(m_pitchRad), std::sin(m_pitchRad), 0,
+		0, -std::sin(m_pitchRad), std::cos(m_pitchRad), 0,
+		0, 0, 0, 1
+	};
+
+	glm::mat4 rotationYawMatrix
+	{
+		std::cos(m_yawRad), 0, -std::sin(m_yawRad), 0,
+		0, 1, 0, 0,
+		std::sin(m_yawRad), 0, std::cos(m_yawRad), 0,
 		0, 0, 0, 1
 	};
 
 	glm::mat4 rotationRollMatrix
 	{
-		cos(m_rollRad), sin(m_rollRad), 0, 0,
-		-sin(m_rollRad), cos(m_rollRad), 0, 0,
+		std::cos(m_rollRad), std::sin(m_rollRad), 0, 0,
+		-std::sin(m_rollRad), std::cos(m_rollRad), 0, 0,
 		0, 0, 1, 0,
 		0, 0, 0, 1
 	};
 
-	return rotationRollMatrix * rotationYawMatrix * rotationPitchMatrix;
+	return rotationYawMatrix * rotationPitchMatrix * rotationRollMatrix;
 }
 
 void Model::updateMatrix()
@@ -178,6 +185,5 @@ void Model::updateMatrix()
 			m_pos.x, m_pos.y, m_pos.z, 1
 		};
 
-	m_modelMatrix =
-		posMatrix * getRotationMatrix() * scaleMatrix;
+	m_modelMatrix = posMatrix * getRotationMatrix() * scaleMatrix;
 }

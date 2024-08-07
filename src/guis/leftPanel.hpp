@@ -21,7 +21,7 @@ private:
 
 	void updateCamera();
 	void updateCursor();
-	void updateActiveModelsCenter();
+	void updateSelectedModelsCenter();
 	void updateButtons();
 	void updateModelList(GUIMode mode);
 

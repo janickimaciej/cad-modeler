@@ -23,7 +23,7 @@ void LeftPanel::update(GUIMode mode)
 	separator();
 	updateCursor();
 	separator();
-	updateActiveModelsCenter();
+	updateSelectedModelsCenter();
 	separator();
 	updateButtons();
 	separator();
@@ -60,21 +60,21 @@ void LeftPanel::updateCamera()
 	
 	ImGui::PopItemWidth();
 
-	m_scene.getActiveCamera().getGUI().update();
+	m_scene.updateActiveCameraGUI();
 }
 
 void LeftPanel::updateCursor()
 {
 	ImGui::Text("Cursor");
 	ImGui::Spacing();
-	m_scene.getCursor().updateGUI(m_scene.getActiveCamera().getMatrix(), m_windowSize);
+	m_scene.updateCursorGUI();
 }
 
-void LeftPanel::updateActiveModelsCenter()
+void LeftPanel::updateSelectedModelsCenter()
 {
-	ImGui::Text("Active models");
+	ImGui::Text("Selected models");
 	ImGui::Spacing();
-	m_scene.getActiveModelsCenter().getGUI().update();
+	m_scene.updateSelectedModelsCenterGUI();
 }
 
 void LeftPanel::updateButtons()
@@ -116,7 +116,7 @@ void LeftPanel::updateButtons()
 
 	if (ImGui::Button("Add points to curve"))
 	{
-		m_scene.addActivePointsToCurve();
+		m_scene.addSelectedPointsToCurve();
 	}
 }
 
@@ -127,7 +127,7 @@ void LeftPanel::updateModelList(GUIMode mode)
 	static constexpr ImGuiTreeNodeFlags globalFlags =
 		ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick;
 
-	std::optional<int> clickedId{};
+	std::optional<int> clickedModel = std::nullopt;
 	for (int i = 0; i < m_scene.getModelCount(); ++i)
 	{
 		if (m_scene.isModelVirtual(i))
@@ -136,13 +136,16 @@ void LeftPanel::updateModelList(GUIMode mode)
 		}
 
 		ImGuiTreeNodeFlags flags = globalFlags;
-		if (m_scene.isModelActive(i)) flags |= ImGuiTreeNodeFlags_Selected;
+		if (m_scene.isModelSelected(i))
+		{
+			flags |= ImGuiTreeNodeFlags_Selected;
+		}
 
 		bool isOpen = ImGui::TreeNodeEx(
 			(m_scene.getModelName(i) + "##modelList" + std::to_string(i)).c_str(), flags);
 		if (ImGui::IsItemClicked())
 		{
-			clickedId = i;
+			clickedModel = i;
 		}
 		if (isOpen)
 		{
@@ -153,18 +156,16 @@ void LeftPanel::updateModelList(GUIMode mode)
 		}
 	}
 
-	if (clickedId.has_value() && mode == GUIMode::none)
+	if (clickedModel.has_value() && mode == GUIMode::none)
 	{
 		if (ImGui::GetIO().KeyCtrl)
 		{
-			m_scene.setModelIsActive(*clickedId, !m_scene.isModelActive(*clickedId));
+			m_scene.toggleModel(*clickedModel);
 		}
 		else
 		{
-			for (int i = 0; i < m_scene.getModelCount(); ++i)
-			{
-				m_scene.setModelIsActive(i, i == *clickedId);
-			}
+			m_scene.deselectAllModels();
+			m_scene.selectModel(*clickedModel);
 		}
 	}
 }

@@ -10,7 +10,7 @@ class OrthographicCamera : public Camera
 public:
 	OrthographicCamera(float viewHeight, float aspectRatio, float nearPlane, float farPlane,
 		const ShaderPrograms& shaderPrograms);
-	virtual CameraGUI& getGUI() override;
+	virtual void updateGUI() override;
 	float getViewHeight() const;
 	void setViewHeight(float viewHeight);
 	virtual void zoom(float zoom) override;

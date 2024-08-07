@@ -17,15 +17,15 @@ void RotatingWindow::apply(GUIMode mode)
 	switch (mode)
 	{
 		case GUIMode::rotatingX:
-			m_scene.getActiveModelsCenter().rotateX(glm::radians(m_rotationDeg));
+			m_scene.rotateXSelectedModels(glm::radians(m_rotationDeg));
 			break;
 
 		case GUIMode::rotatingY:
-			m_scene.getActiveModelsCenter().rotateY(glm::radians(m_rotationDeg));
+			m_scene.rotateYSelectedModels(glm::radians(m_rotationDeg));
 			break;
 
 		case GUIMode::rotatingZ:
-			m_scene.getActiveModelsCenter().rotateZ(glm::radians(m_rotationDeg));
+			m_scene.rotateZSelectedModels(glm::radians(m_rotationDeg));
 			break;
 	}
 }

@@ -29,7 +29,7 @@ public:
 	void startRenaming();
 	void cancel();
 	void apply();
-	void deleteActiveModels();
+	void deleteSelectedModels();
 	void setWindowSize(const glm::ivec2& windowSize);
 
 private:

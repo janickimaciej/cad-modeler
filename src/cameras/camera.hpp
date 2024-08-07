@@ -11,7 +11,7 @@ public:
 	Camera(float aspectRatio, float nearPlane, float farPlane,
 		const ShaderPrograms& shaderPrograms);
 	void use(const glm::ivec2& windowSize) const;
-	virtual CameraGUI& getGUI() = 0;
+	virtual void updateGUI() = 0;
 	glm::mat4 getMatrix() const;
 	void setAspectRatio(float aspectRatio);
 
