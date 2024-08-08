@@ -2,6 +2,7 @@
 
 #include "guis/modelGUIs/modelGUI.hpp"
 #include "guis/modelGUIs/bezierCurveC2GUI.hpp"
+#include "meshes/polylineMesh.hpp"
 #include "models/curveBase.hpp"
 #include "models/model.hpp"
 #include "models/point.hpp"
@@ -9,7 +10,6 @@
 
 #include <glm/glm.hpp>
 
-#include <functional>
 #include <memory>
 #include <string>
 #include <utility>
@@ -43,7 +43,6 @@ public:
 
 private:
 	static int m_count;
-	int m_id{};
 	
 	const ShaderProgram& m_curveShaderProgram;
 	const ShaderProgram& m_polylineShaderProgram;
@@ -52,16 +51,14 @@ private:
 
 	unsigned int m_VBOCurve{};
 	unsigned int m_VAOCurve{};
-	unsigned int m_VBOBoorPolyline{};
-	unsigned int m_VAOBoorPolyline{};
-	unsigned int m_VBOBezierPolyline{};
-	unsigned int m_VAOBezierPolyline{};
+	std::unique_ptr<PolylineMesh> m_boorPolylineMesh{};
+	std::unique_ptr<PolylineMesh> m_bezierPolylineMesh{};
 
 	std::vector<Point*> m_boorPoints{};
 	std::vector<Point*> m_bezierPoints{};
-	std::vector<std::shared_ptr<std::function<void(Point*)>>> m_moveNotificationsBoor{};
-	std::vector<std::shared_ptr<std::function<void(Point*)>>> m_destroyNotificationsBoor{};
-	std::vector<std::shared_ptr<std::function<void(Point*)>>> m_moveNotificationsBezier{};
+	std::vector<std::shared_ptr<Point::Callback>> m_moveNotificationsBoor{};
+	std::vector<std::shared_ptr<Point::Callback>> m_destroyNotificationsBoor{};
+	std::vector<std::shared_ptr<Point::Callback>> m_moveNotificationsBezier{};
 	bool firstCall = true;
 
 	CurveBase m_base = CurveBase::boor;
@@ -95,4 +92,6 @@ private:
 	void renderCurve() const;
 	void renderBoorPolyline() const;
 	void renderBezierPolyline() const;
+
+	static std::vector<glm::vec3> pointsToVertices(const std::vector<Point*> points);
 };

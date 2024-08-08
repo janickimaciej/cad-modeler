@@ -7,12 +7,14 @@
 class Grid
 {
 public:
-	Grid(float scale);
-	void render(const ShaderProgram& shaderProgram, CameraType cameraType) const;
+	Grid(const ShaderProgram& shaderProgram, float scale);
+	void render(CameraType cameraType) const;
 
 private:
+	const ShaderProgram& m_shaderProgram;
+
 	float m_scale{};
 	Canvas m_canvas{};
 
-	void updateShaders(const ShaderProgram& shaderProgram, CameraType cameraType) const;
+	void updateShaders(CameraType cameraType) const;
 };

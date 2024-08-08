@@ -1,7 +1,7 @@
 #pragma once
 
 #include "guis/modelGUIs/torusGUI.hpp"
-#include "mesh.hpp"
+#include "meshes/mesh.hpp"
 #include "models/model.hpp"
 #include "shaderProgram.hpp"
 
@@ -28,7 +28,6 @@ public:
 
 private:
 	static int m_count;
-	int m_id{};
 
 	const ShaderProgram& m_shaderProgram;
 

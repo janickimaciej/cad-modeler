@@ -10,8 +10,7 @@ static constexpr int initialMajor = 32;
 static constexpr int initialMinor = 16;
 
 Torus::Torus(const ShaderProgram& shaderProgram, const glm::vec3& pos) :
-	Model{pos, "Torus " + std::to_string(m_count)},
-	m_id{m_count++},
+	Model{pos, "Torus " + std::to_string(m_count++)},
 	m_shaderProgram{shaderProgram},
 	m_gui{*this},
 	m_majorRadius{initialMajorRadius},

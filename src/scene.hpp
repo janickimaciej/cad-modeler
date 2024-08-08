@@ -88,11 +88,11 @@ private:
 	std::vector<std::unique_ptr<BezierCurveC2>> m_bezierCurvesC2{};
 	std::vector<std::unique_ptr<BezierCurveInter>> m_bezierCurvesInter{};
 
-	Cursor m_cursor;
-	CenterPoint m_selectedModelsCenter{m_selectedModels};
+	Cursor m_cursor{m_shaderPrograms.cursor};
+	CenterPoint m_selectedModelsCenter{m_shaderPrograms.cursor, m_selectedModels};
 
 	static constexpr float gridScale = 10.0f;
-	Grid m_grid{gridScale};
+	Grid m_grid{m_shaderPrograms.grid, gridScale};
 	
 	PerspectiveCamera m_perspectiveCamera;
 	OrthographicCamera m_orthographicCamera;

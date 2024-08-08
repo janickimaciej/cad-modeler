@@ -4,25 +4,21 @@
 
 #include <cmath>
 
-CenterPoint::CenterPoint(const std::vector<Model*>& models) :
+CenterPoint::CenterPoint(const ShaderProgram& shaderProgram, const std::vector<Model*>& models) :
+	m_shaderProgram{shaderProgram},
 	m_models{models},
 	m_gui{*this}
-{
-	glGenVertexArrays(1, &m_VAO);
-}
+{ }
 
-void CenterPoint::render(const ShaderProgram& shaderProgram)
+void CenterPoint::render()
 {
 	if (m_models.size() == 0)
 	{
 		return;
 	}
 
-	updateShaders(shaderProgram);
-
-	glBindVertexArray(m_VAO);
-	glDrawArrays(GL_POINTS, 0, 1);
-	glBindVertexArray(0);
+	updateShaders();
+	m_mesh.render();
 }
 
 void CenterPoint::updateGUI()
@@ -155,9 +151,9 @@ void CenterPoint::rotate(const glm::mat3& rotationMatrix)
 	}
 }
 
-void CenterPoint::updateShaders(const ShaderProgram& shaderProgram) const
+void CenterPoint::updateShaders() const
 {
-	shaderProgram.setUniform("posWorld", getPos());
+	m_shaderProgram.setUniform("posWorld", getPos());
 }
 
 glm::vec3 CenterPoint::matrixToEuler(const glm::mat3& rotationMatrix)

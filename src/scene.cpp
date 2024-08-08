@@ -11,7 +11,6 @@ static constexpr float farPlane = 1000.0f;
 
 Scene::Scene(const glm::ivec2& windowSize) :
 	m_windowSize{windowSize},
-	m_cursor{},
 	m_perspectiveCamera{fovYDeg, static_cast<float>(windowSize.x) / windowSize.y, nearPlane,
 		farPlane, m_shaderPrograms},
 	m_orthographicCamera{viewHeight, static_cast<float>(windowSize.x) / windowSize.y, nearPlane,
@@ -480,19 +479,19 @@ void Scene::renderModels() const
 void Scene::renderCursor() const
 {
 	m_shaderPrograms.cursor.use();
-	m_cursor.render(m_shaderPrograms.cursor);
+	m_cursor.render();
 }
 
 void Scene::renderSelectedModelsCenter()
 {
 	m_shaderPrograms.cursor.use();
-	m_selectedModelsCenter.render(m_shaderPrograms.cursor);
+	m_selectedModelsCenter.render();
 }
 
 void Scene::renderGrid() const
 {
 	m_shaderPrograms.grid.use();
-	m_grid.render(m_shaderPrograms.grid, m_cameraType);
+	m_grid.render(m_cameraType);
 }
 
 Model* Scene::getUniqueSelectedModel() const

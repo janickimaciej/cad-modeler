@@ -50,7 +50,9 @@
     <ClCompile Include="src\guis\valueWindows\scalingWindow.cpp" />
     <ClCompile Include="src\guis\valueWindows\valueWindow.cpp" />
     <ClCompile Include="src\main.cpp" />
-    <ClCompile Include="src\mesh.cpp" />
+    <ClCompile Include="src\meshes\mesh.cpp" />
+    <ClCompile Include="src\meshes\pointMesh.cpp" />
+    <ClCompile Include="src\meshes\polylineMesh.cpp" />
     <ClCompile Include="src\models\bezierCurveC0.cpp" />
     <ClCompile Include="src\models\bezierCurveC2.cpp" />
     <ClCompile Include="src\models\bezierCurveInter.cpp" />
@@ -97,7 +99,9 @@
     <ClInclude Include="src\guis\valueWindows\rotatingWindow.hpp" />
     <ClInclude Include="src\guis\valueWindows\scalingWindow.hpp" />
     <ClInclude Include="src\guis\valueWindows\valueWindow.hpp" />
-    <ClInclude Include="src\mesh.hpp" />
+    <ClInclude Include="src\meshes\mesh.hpp" />
+    <ClInclude Include="src\meshes\pointMesh.hpp" />
+    <ClInclude Include="src\meshes\polylineMesh.hpp" />
     <ClInclude Include="src\models\bezierCurveC0.hpp" />
     <ClInclude Include="src\models\bezierCurveC2.hpp" />
     <ClInclude Include="src\models\bezierCurveInter.hpp" />

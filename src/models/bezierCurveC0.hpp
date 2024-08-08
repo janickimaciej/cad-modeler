@@ -2,13 +2,13 @@
 
 #include "guis/modelGUIs/modelGUI.hpp"
 #include "guis/modelGUIs/bezierCurveC0GUI.hpp"
+#include "meshes/polylineMesh.hpp"
 #include "models/model.hpp"
 #include "models/point.hpp"
 #include "shaderProgram.hpp"
 
 #include <glm/glm.hpp>
 
-#include <functional>
 #include <memory>
 #include <string>
 #include <vector>
@@ -35,7 +35,6 @@ public:
 
 private:
 	static int m_count;
-	int m_id{};
 	
 	const ShaderProgram& m_curveShaderProgram;
 	const ShaderProgram& m_polylineShaderProgram;
@@ -43,12 +42,11 @@ private:
 
 	unsigned int m_VBOCurve{};
 	unsigned int m_VAOCurve{};
-	unsigned int m_VBOPolyline{};
-	unsigned int m_VAOPolyline{};
+	std::unique_ptr<PolylineMesh> m_polylineMesh{};
 
 	std::vector<Point*> m_points{};
-	std::vector<std::shared_ptr<std::function<void(Point*)>>> m_moveNotifications{};
-	std::vector<std::shared_ptr<std::function<void(Point*)>>> m_destroyNotifications{};
+	std::vector<std::shared_ptr<Point::Callback>> m_moveNotifications{};
+	std::vector<std::shared_ptr<Point::Callback>> m_destroyNotifications{};
 
 	bool m_renderPolyline = true;
 
@@ -67,4 +65,6 @@ private:
 
 	void renderCurve() const;
 	void renderPolyline() const;
+
+	static std::vector<glm::vec3> pointsToVertices(const std::vector<Point*> points);
 };

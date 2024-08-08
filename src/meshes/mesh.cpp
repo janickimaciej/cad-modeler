@@ -1,11 +1,10 @@
-#include "mesh.hpp"
+#include "meshes/mesh.hpp"
 
 #include <glad/glad.h>
 
 Mesh::Mesh(const std::vector<glm::vec3>& vertices, const std::vector<unsigned int>& indices)
 {
 	createVBO(vertices);
-
 	m_indexCount = indices.size();
 	createEBO(m_EBO, indices);
 	createVAO();
@@ -51,7 +50,6 @@ void Mesh::createVAO()
 	glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), 0);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_EBO);
-
 	glEnableVertexAttribArray(0);
 
 	glBindVertexArray(0);

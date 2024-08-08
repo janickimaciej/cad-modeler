@@ -2,6 +2,7 @@
 
 #include "guis/modelGUIs/modelGUI.hpp"
 #include "guis/modelGUIs/pointGUI.hpp"
+#include "meshes/pointMesh.hpp"
 #include "models/model.hpp"
 #include "shaderProgram.hpp"
 
@@ -32,13 +33,13 @@ public:
 	bool isReferenced();
 
 private:
-	static int m_count;
-	int m_id{};
+	static int m_nonVirtualCount;
+	static int m_virtualCount;
 
 	const ShaderProgram& m_shaderProgram;
 	PointGUI m_gui;
 
-	unsigned int m_VAO{};
+	PointMesh m_mesh{};
 
 	std::vector<std::weak_ptr<Callback>> m_moveNotifications{};
 	std::vector<std::weak_ptr<Callback>> m_destroyNotifications{};

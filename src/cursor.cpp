@@ -1,25 +1,17 @@
 #include "cursor.hpp"
 
-#include <glad/glad.h>
-
-Cursor::Cursor() :
+Cursor::Cursor(const ShaderProgram& shaderProgram) :
+	m_shaderProgram{shaderProgram},
 	m_gui{*this}
-{
-	glGenVertexArrays(1, &m_VAO);
-}
+{ }
 
 Cursor::~Cursor()
-{
-	glDeleteVertexArrays(1, &m_VAO);
-}
+{ }
 
-void Cursor::render(const ShaderProgram& shaderProgram) const
+void Cursor::render() const
 {
-	updateShaders(shaderProgram);
-
-	glBindVertexArray(m_VAO);
-	glDrawArrays(GL_POINTS, 0, 1);
-	glBindVertexArray(0);
+	updateShaders();
+	m_mesh.render();
 }
 
 void Cursor::updateGUI(const glm::mat4& cameraMatrix, const glm::ivec2& windowSize)
@@ -65,7 +57,7 @@ void Cursor::setScreenPos(const glm::vec2& screenPos, const glm::mat4& cameraMat
 	m_pos = glm::vec3{worldPos};
 }
 
-void Cursor::updateShaders(const ShaderProgram& shaderProgram) const
+void Cursor::updateShaders() const
 {
-	shaderProgram.setUniform("posWorld", m_pos);
+	m_shaderProgram.setUniform("posWorld", m_pos);
 }
