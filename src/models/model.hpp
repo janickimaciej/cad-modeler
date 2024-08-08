@@ -40,9 +40,6 @@ public:
 	void select();
 	void deselect();
 
-	float screenDistanceSquared(const glm::vec2& screenRefPos, const glm::mat4& cameraMatrix,
-		const glm::ivec2& windowSize) const;
-
 	glm::mat4 getRotationMatrix() const;
 
 protected:

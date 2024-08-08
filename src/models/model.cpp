@@ -130,14 +130,6 @@ void Model::deselect()
 	m_isSelected = false;
 }
 
-float Model::screenDistanceSquared(const glm::vec2& screenRefPos, const glm::mat4& cameraMatrix,
-	const glm::ivec2& windowSize) const
-{
-	glm::vec2 screenPos = getScreenPos(cameraMatrix, windowSize);
-	return (screenPos.x - screenRefPos.x) * (screenPos.x - screenRefPos.x) +
-		(screenPos.y - screenRefPos.y) * (screenPos.y - screenRefPos.y);
-}
-
 glm::mat4 Model::getRotationMatrix() const
 {
 	glm::mat4 rotationPitchMatrix

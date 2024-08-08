@@ -96,12 +96,12 @@ int Scene::getModelCount() const
 
 bool Scene::isAnyModelSelected() const
 {
-	return m_selectedModelsCenter.getModelCount() > 0;
+	return m_selectedModels.size() > 0;
 }
 
 bool Scene::isOneModelSelected() const
 {
-	return m_selectedModelsCenter.getModelCount() == 1;
+	return m_selectedModels.size() == 1;
 }
 
 bool Scene::isModelVirtual(int i) const
@@ -117,13 +117,18 @@ bool Scene::isModelSelected(int i) const
 void Scene::selectModel(int i)
 {
 	m_models[i]->select();
-	m_selectedModelsCenter.addModel(m_models[i]);
+	m_selectedModels.push_back(m_models[i]);
 }
 
 void Scene::deselectModel(int i)
 {
 	m_models[i]->deselect();
-	m_selectedModelsCenter.deleteModel(m_models[i]);
+	std::erase_if(m_selectedModels,
+		[deletedModel = m_models[i]] (Model* model)
+		{
+			return model == deletedModel;
+		}
+	);
 }
 
 void Scene::toggleModel(int i)
@@ -144,7 +149,7 @@ void Scene::deselectAllModels()
 	{
 		model->deselect();
 	}
-	m_selectedModelsCenter.deleteAllModels();
+	m_selectedModels.clear();
 }
 
 void Scene::deleteSelectedModels()
@@ -191,7 +196,7 @@ void Scene::deleteSelectedModels()
 	deleteEmptyBezierCurvesInter();
 	deleteUnreferencedVirtualPoints();
 
-	m_selectedModelsCenter.deleteAllModels();
+	m_selectedModels.clear();
 }
 
 bool Scene::selectUniqueModel(const glm::vec2& screenPos)
@@ -286,7 +291,7 @@ void Scene::addPoint()
 	std::unique_ptr<Point> point = std::make_unique<Point>(m_shaderPrograms.point,
 		m_cursor.getPos());
 
-	if (m_selectedModelsCenter.getModelCount() == 1)
+	if (m_selectedModels.size() == 1)
 	{
 		auto selectedBezierCurveC0 = std::find_if(m_bezierCurvesC0.begin(), m_bezierCurvesC0.end(),
 			[] (const std::unique_ptr<BezierCurveC0>& curve)
@@ -341,7 +346,7 @@ void Scene::addTorus()
 void Scene::addBezierCurveC0()
 {
 	std::vector<Point*> nonVirtualSelectedPoints = getNonVirtualSelectedPoints();
-	if (m_selectedModelsCenter.getModelCount() != nonVirtualSelectedPoints.size() ||
+	if (m_selectedModels.size() != nonVirtualSelectedPoints.size() ||
 		nonVirtualSelectedPoints.size() == 0)
 	{
 		return;
@@ -357,7 +362,7 @@ void Scene::addBezierCurveC0()
 void Scene::addBezierCurveC2()
 {
 	std::vector<Point*> nonVirtualSelectedPoints = getNonVirtualSelectedPoints();
-	if (m_selectedModelsCenter.getModelCount() != nonVirtualSelectedPoints.size() ||
+	if (m_selectedModels.size() != nonVirtualSelectedPoints.size() ||
 		nonVirtualSelectedPoints.size() == 0)
 	{
 		return;
@@ -373,7 +378,7 @@ void Scene::addBezierCurveC2()
 void Scene::addBezierCurveInter()
 {
 	std::vector<Point*> nonVirtualSelectedPoints = getNonVirtualSelectedPoints();
-	if (m_selectedModelsCenter.getModelCount() != nonVirtualSelectedPoints.size() ||
+	if (m_selectedModels.size() != nonVirtualSelectedPoints.size() ||
 		nonVirtualSelectedPoints.size() == 0)
 	{
 		return;
@@ -397,7 +402,7 @@ void Scene::addSelectedPointsToCurve()
 	if (selectedBezierCurveC0 != m_bezierCurvesC0.end())
 	{
 		std::vector<Point*> nonVirtualSelectedPoints = getNonVirtualSelectedPoints();
-		if (m_selectedModelsCenter.getModelCount() == nonVirtualSelectedPoints.size() + 1 &&
+		if (m_selectedModels.size() == nonVirtualSelectedPoints.size() + 1 &&
 			nonVirtualSelectedPoints.size() != 0)
 		{
 			(*selectedBezierCurveC0)->addPoints(nonVirtualSelectedPoints);
@@ -413,7 +418,7 @@ void Scene::addSelectedPointsToCurve()
 	if (selectedBezierCurveC2 != m_bezierCurvesC2.end())
 	{
 		std::vector<Point*> nonVirtualSelectedPoints = getNonVirtualSelectedPoints();
-		if (m_selectedModelsCenter.getModelCount() == nonVirtualSelectedPoints.size() + 1 &&
+		if (m_selectedModels.size() == nonVirtualSelectedPoints.size() + 1 &&
 			nonVirtualSelectedPoints.size() != 0)
 		{
 			addVirtualPoints((*selectedBezierCurveC2)->addPoints(nonVirtualSelectedPoints));
@@ -430,7 +435,7 @@ void Scene::addSelectedPointsToCurve()
 	if (selectedBezierCurveInter != m_bezierCurvesInter.end())
 	{
 		std::vector<Point*> nonVirtualSelectedPoints = getNonVirtualSelectedPoints();
-		if (m_selectedModelsCenter.getModelCount() == nonVirtualSelectedPoints.size() + 1 &&
+		if (m_selectedModels.size() == nonVirtualSelectedPoints.size() + 1 &&
 			nonVirtualSelectedPoints.size() != 0)
 		{
 			(*selectedBezierCurveInter)->addPoints(nonVirtualSelectedPoints);
@@ -492,10 +497,9 @@ void Scene::renderGrid() const
 
 Model* Scene::getUniqueSelectedModel() const
 {
-	std::vector<Model*> selectedModels = m_selectedModelsCenter.getModels();
-	if (selectedModels.size() == 1)
+	if (m_selectedModels.size() == 1)
 	{
-		return selectedModels[0];
+		return m_selectedModels[0];
 	}
 	return nullptr;
 }
@@ -503,13 +507,14 @@ Model* Scene::getUniqueSelectedModel() const
 std::optional<int> Scene::getClosestModel(const glm::vec2& screenPos) const
 {
 	std::optional<int> index = std::nullopt;
-	constexpr float treshold = 30;
+	static constexpr float treshold = 30;
 	float minScreenDistanceSquared = treshold * treshold;
 	glm::mat4 cameraMatrix = m_activeCamera->getMatrix();
 	for (int i = 0; i < m_models.size(); ++i)
 	{
-		float screenDistanceSquared = m_models[i]->screenDistanceSquared(screenPos, cameraMatrix,
-			m_windowSize);
+		glm::vec2 modelScreenPos = m_models[i]->getScreenPos(cameraMatrix, m_windowSize);
+		glm::vec2 relativePos = modelScreenPos - screenPos;
+		float screenDistanceSquared = glm::dot(relativePos, relativePos);
 		if (screenDistanceSquared < minScreenDistanceSquared)
 		{
 			index = i;
@@ -522,9 +527,8 @@ std::optional<int> Scene::getClosestModel(const glm::vec2& screenPos) const
 
 std::vector<Point*> Scene::getNonVirtualSelectedPoints() const
 {
-	std::vector<Model*> selectedModels = m_selectedModelsCenter.getModels();
 	std::vector<Point*> selectedPoints{};
-	for (const Model* model : selectedModels)
+	for (const Model* model : m_selectedModels)
 	{
 		if (model->isVirtual())
 		{

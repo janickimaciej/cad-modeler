@@ -81,6 +81,7 @@ private:
 	const glm::ivec2& m_windowSize{};
 
 	std::vector<Model*> m_models{};
+	std::vector<Model*> m_selectedModels{};
 	std::vector<std::unique_ptr<Point>> m_points{};
 	std::vector<std::unique_ptr<Torus>> m_toruses{};
 	std::vector<std::unique_ptr<BezierCurveC0>> m_bezierCurvesC0{};
@@ -88,7 +89,7 @@ private:
 	std::vector<std::unique_ptr<BezierCurveInter>> m_bezierCurvesInter{};
 
 	Cursor m_cursor;
-	CenterPoint m_selectedModelsCenter{};
+	CenterPoint m_selectedModelsCenter{m_selectedModels};
 
 	static constexpr float gridScale = 10.0f;
 	Grid m_grid{gridScale};

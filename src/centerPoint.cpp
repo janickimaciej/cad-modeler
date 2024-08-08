@@ -4,7 +4,8 @@
 
 #include <cmath>
 
-CenterPoint::CenterPoint() :
+CenterPoint::CenterPoint(const std::vector<Model*>& models) :
+	m_models{models},
 	m_gui{*this}
 {
 	glGenVertexArrays(1, &m_VAO);
@@ -29,47 +30,26 @@ void CenterPoint::updateGUI()
 	m_gui.update();
 }
 
-std::vector<Model*> CenterPoint::getModels() const
-{
-	return m_models;
-}
-
-int CenterPoint::getModelCount() const
-{
-	return static_cast<int>(m_models.size());
-}
-
-void CenterPoint::addModel(Model* model)
-{
-	m_models.push_back(model);
-}
-
-void CenterPoint::deleteModel(const Model* model)
-{
-	std::erase_if(m_models,
-		[deletedModel = model] (Model* model)
-		{
-			return model == deletedModel;
-		}
-	);
-}
-
-void CenterPoint::deleteAllModels()
-{
-	m_models.clear();
-}
-
 glm::vec3 CenterPoint::getPos() const
 {
-	return m_pos;
+	if (m_models.size() == 0)
+	{
+		return glm::vec3{0, 0, 0};
+	}
+
+	glm::vec3 modelsPosSum{0, 0, 0};
+	for (const Model* model : m_models)
+	{
+		modelsPosSum += model->getPos();
+	}
+	return modelsPosSum / static_cast<float>(m_models.size());
 }
 
-void CenterPoint::setPos(const glm::vec3& pos)
+void CenterPoint::setPos(const glm::vec3& newPos)
 {
-	updatePos();
 	if (m_models.size() > 0)
 	{
-		glm::vec3 posChange = pos - m_pos;
+		glm::vec3 posChange = newPos - getPos();
 		for (Model* model : m_models)
 		{
 			model->setPos(model->getPos() + posChange);
@@ -124,77 +104,60 @@ void CenterPoint::rotateZ(float angleRad)
 
 void CenterPoint::scaleX(float scale)
 {
-	updatePos();
+	glm::vec3 pos = getPos();
 	if (m_models.size() > 0)
 	{
 		for (Model* model : m_models)
 		{
-			glm::vec3 relativePos = model->getPos() - m_pos;
-			model->setPos(m_pos + glm::vec3{scale * relativePos.x, relativePos.y, relativePos.z});
+			glm::vec3 relativePos = model->getPos() - pos;
+			model->setPos(pos + glm::vec3{scale * relativePos.x, relativePos.y, relativePos.z});
 		}
 	}
 }
 
 void CenterPoint::scaleY(float scale)
 {
-	updatePos();
+	glm::vec3 pos = getPos();
 	if (m_models.size() > 0)
 	{
 		for (Model* model : m_models)
 		{
-			glm::vec3 relativePos = model->getPos() - m_pos;
-			model->setPos(m_pos + glm::vec3{relativePos.x, scale * relativePos.y, relativePos.z});
+			glm::vec3 relativePos = model->getPos() - pos;
+			model->setPos(pos + glm::vec3{relativePos.x, scale * relativePos.y, relativePos.z});
 		}
 	}
 }
 
 void CenterPoint::scaleZ(float scale)
 {
-	updatePos();
+	glm::vec3 pos = getPos();
 	if (m_models.size() > 0)
 	{
 		for (Model* model : m_models)
 		{
-			glm::vec3 relativePos = model->getPos() - m_pos;
-			model->setPos(m_pos + glm::vec3{relativePos.x, relativePos.y, scale * relativePos.z});
+			glm::vec3 relativePos = model->getPos() - pos;
+			model->setPos(pos + glm::vec3{relativePos.x, relativePos.y, scale * relativePos.z});
 		}
 	}
 }
 
 void CenterPoint::rotate(const glm::mat3& rotationMatrix)
 {
+	glm::vec3 pos = getPos();
 	for (Model* model : m_models)
 	{
 		glm::vec3 euler = matrixToEuler(rotationMatrix * glm::mat3{model->getRotationMatrix()});
 		model->setPitchRad(euler.x);
 		model->setYawRad(euler.y);
 		model->setRollRad(euler.z);
-		glm::vec3 relativePos = model->getPos() - m_pos;
-		model->setPos(m_pos + rotationMatrix * relativePos);
+		glm::vec3 relativePos = model->getPos() - pos;
+		model->setPos(pos + rotationMatrix * relativePos);
 	}
 }
 
-void CenterPoint::updatePos()
+void CenterPoint::updateShaders(const ShaderProgram& shaderProgram) const
 {
-	if (m_models.size() != 0)
-	{
-		glm::vec3 modelsPosSum{0, 0, 0};
-		for (const Model* model : m_models)
-		{
-			modelsPosSum += model->getPos();
-		}
-		m_pos = modelsPosSum / static_cast<float>(m_models.size());
-	}
-	else
-	{
-		m_pos = glm::vec3{0, 0, 0};
-	}
-}
-
-void CenterPoint::updateShaders(const ShaderProgram& shaderProgram)
-{
-	updatePos();
-	shaderProgram.setUniform("posWorld", m_pos);
+	shaderProgram.setUniform("posWorld", getPos());
 }
 
 glm::vec3 CenterPoint::matrixToEuler(const glm::mat3& rotationMatrix)
