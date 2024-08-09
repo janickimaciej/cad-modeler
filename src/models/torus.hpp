@@ -40,6 +40,8 @@ private:
 	int m_majorGrid{};
 	int m_minorGrid{};
 
+	void createMesh();
+
 	virtual void updateShaders() const override;
 
 	void updateMesh();

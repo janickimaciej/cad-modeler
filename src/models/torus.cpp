@@ -18,7 +18,7 @@ Torus::Torus(const ShaderProgram& shaderProgram, const glm::vec3& pos) :
 	m_majorGrid{initialMajor},
 	m_minorGrid{initialMinor}
 {
-	updateMesh();
+	createMesh();
 }
 
 void Torus::render() const
@@ -78,6 +78,11 @@ void Torus::setMinorGrid(int minorGrid)
 
 int Torus::m_count = 0;
 
+void Torus::createMesh()
+{
+	m_mesh = std::make_unique<Mesh>(createVertices(), createIndices());
+}
+
 void Torus::updateShaders() const
 {
 	m_shaderProgram.use();
@@ -87,7 +92,7 @@ void Torus::updateShaders() const
 
 void Torus::updateMesh()
 {
-	m_mesh = std::make_unique<Mesh>(createVertices(), createIndices());
+	m_mesh->update(createVertices(), createIndices());
 }
 
 std::vector<glm::vec3> Torus::createVertices() const

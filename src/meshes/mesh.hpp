@@ -10,6 +10,7 @@ class Mesh
 public:
 	Mesh(const std::vector<glm::vec3>& vertices, const std::vector<unsigned int>& indices);
 	~Mesh();
+	void update(const std::vector<glm::vec3>& vertices, const std::vector<unsigned int>& indices);
 	void render() const;
 	
 private:
@@ -19,6 +20,9 @@ private:
 	unsigned int m_VAO{};
 
 	void createVBO(const std::vector<glm::vec3>& vertices);
-	void createEBO(unsigned int& EBO, const std::vector<unsigned int>& indices);
+	void createEBO(const std::vector<unsigned int>& indices);
 	void createVAO();
+
+	void updateVBO(const std::vector<glm::vec3>& vertices) const;
+	void updateEBO(const std::vector<unsigned int>& indices);
 };

@@ -2,6 +2,7 @@
 
 #include "guis/modelGUIs/modelGUI.hpp"
 #include "guis/modelGUIs/bezierCurveC2GUI.hpp"
+#include "meshes/bezierCurveMesh.hpp"
 #include "meshes/polylineMesh.hpp"
 #include "models/curveBase.hpp"
 #include "models/model.hpp"
@@ -49,8 +50,7 @@ private:
 	const ShaderProgram& m_pointShaderProgram;
 	BezierCurveC2GUI m_gui;
 
-	unsigned int m_VBOCurve{};
-	unsigned int m_VAOCurve{};
+	std::unique_ptr<BezierCurveMesh> m_curveMesh{};
 	std::unique_ptr<PolylineMesh> m_boorPolylineMesh{};
 	std::unique_ptr<PolylineMesh> m_bezierPolylineMesh{};
 
@@ -92,6 +92,7 @@ private:
 	void renderCurve() const;
 	void renderBoorPolyline() const;
 	void renderBezierPolyline() const;
-
-	static std::vector<glm::vec3> pointsToVertices(const std::vector<Point*> points);
+	
+	static std::vector<glm::vec3> pointsToCurveVertices(const std::vector<Point*> points);
+	static std::vector<glm::vec3> pointsToPolylineVertices(const std::vector<Point*> points);
 };

@@ -50,6 +50,8 @@
     <ClCompile Include="src\guis\valueWindows\scalingWindow.cpp" />
     <ClCompile Include="src\guis\valueWindows\valueWindow.cpp" />
     <ClCompile Include="src\main.cpp" />
+    <ClCompile Include="src\meshes\bezierCurveInterMesh.cpp" />
+    <ClCompile Include="src\meshes\bezierCurveMesh.cpp" />
     <ClCompile Include="src\meshes\mesh.cpp" />
     <ClCompile Include="src\meshes\pointMesh.cpp" />
     <ClCompile Include="src\meshes\polylineMesh.cpp" />
@@ -99,6 +101,8 @@
     <ClInclude Include="src\guis\valueWindows\rotatingWindow.hpp" />
     <ClInclude Include="src\guis\valueWindows\scalingWindow.hpp" />
     <ClInclude Include="src\guis\valueWindows\valueWindow.hpp" />
+    <ClInclude Include="src\meshes\bezierCurveInterMesh.hpp" />
+    <ClInclude Include="src\meshes\bezierCurveMesh.hpp" />
     <ClInclude Include="src\meshes\mesh.hpp" />
     <ClInclude Include="src\meshes\pointMesh.hpp" />
     <ClInclude Include="src\meshes\polylineMesh.hpp" />

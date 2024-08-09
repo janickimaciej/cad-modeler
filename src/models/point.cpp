@@ -90,14 +90,18 @@ void Point::notify(std::vector<std::weak_ptr<Callback>>& notifications)
 
 void Point::clearExpiredNotifications()
 {
-	std::erase_if(m_moveNotifications,
+	std::erase_if
+	(
+		m_moveNotifications,
 		[] (const std::weak_ptr<Callback>& notification)
 		{
 			return notification.expired();
 		}
 	);
 
-	std::erase_if(m_destroyNotifications,
+	std::erase_if
+	(
+		m_destroyNotifications,
 		[] (const std::weak_ptr<Callback>& notification)
 		{
 			return notification.expired();

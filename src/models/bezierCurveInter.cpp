@@ -1,7 +1,6 @@
 #include "models/bezierCurveInter.hpp"
 
-#include "models/bezierCurveInterSegmentData.hpp"
-
+#include <algorithm>
 #include <cstddef>
 
 BezierCurveInter::BezierCurveInter(const ShaderProgram& curveShaderProgram,
@@ -92,38 +91,12 @@ int BezierCurveInter::m_count = 0;
 
 void BezierCurveInter::createCurveMesh()
 {
-	glGenBuffers(1, &m_VBOCurve);
-	glGenVertexArrays(1, &m_VAOCurve);
-
-	glBindVertexArray(m_VAOCurve);
-
-	updateCurveMesh();
-
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(BezierCurveInterSegmentData),
-		reinterpret_cast<void*>(offsetof(BezierCurveInterSegmentData, a)));
-	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(BezierCurveInterSegmentData),
-		reinterpret_cast<void*>(offsetof(BezierCurveInterSegmentData, b)));
-	glEnableVertexAttribArray(1);
-	glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(BezierCurveInterSegmentData),
-		reinterpret_cast<void*>(offsetof(BezierCurveInterSegmentData, c)));
-	glEnableVertexAttribArray(2);
-	glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, sizeof(BezierCurveInterSegmentData),
-		reinterpret_cast<void*>(offsetof(BezierCurveInterSegmentData, d)));
-	glEnableVertexAttribArray(3);
-	glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, sizeof(BezierCurveInterSegmentData),
-		reinterpret_cast<void*>(offsetof(BezierCurveInterSegmentData, nextPoint)));
-	glEnableVertexAttribArray(4);
-	glVertexAttribPointer(5, 1, GL_FLOAT, GL_FALSE, sizeof(BezierCurveInterSegmentData),
-		reinterpret_cast<void*>(offsetof(BezierCurveInterSegmentData, dt)));
-	glEnableVertexAttribArray(5);
-
-	glBindVertexArray(0);
+	m_curveMesh = std::make_unique<BezierCurveInterMesh>(pointsToCurveSegments(m_points));
 }
 
 void BezierCurveInter::createPolylineMesh()
 {
-	m_polylineMesh = std::make_unique<PolylineMesh>(pointsToVertices(m_points));
+	m_polylineMesh = std::make_unique<PolylineMesh>(pointsToPolylineVertices(m_points));
 }
 
 void BezierCurveInter::updateShaders() const
@@ -157,11 +130,65 @@ void BezierCurveInter::updatePos()
 
 void BezierCurveInter::updateCurveMesh()
 {
-	std::vector<BezierCurveInterSegmentData> segmentsData{};
+	m_curveMesh->update(pointsToCurveSegments(m_points));
+}
 
+void BezierCurveInter::updatePolylineMesh()
+{
+	m_polylineMesh->update(pointsToPolylineVertices(m_points));
+}
+
+void BezierCurveInter::registerForNotifications(Point* point)
+{
+	m_moveNotifications.push_back(point->registerForMoveNotification
+	(
+		[this] (Point*)
+		{
+			updateGeometry();
+		}
+	));
+
+	m_destroyNotifications.push_back(point->registerForDestroyNotification
+	(
+		[this] (Point* point)
+		{
+			auto iterator = std::find(m_points.begin(), m_points.end(), point);
+			int index = static_cast<int>(iterator - m_points.begin());
+			deletePoint(index);
+		}
+	));
+}
+
+void BezierCurveInter::registerForNotifications(const std::vector<Point*>& points)
+{
+	for (Point* point : points)
+	{
+		registerForNotifications(point);
+	}
+}
+
+void BezierCurveInter::renderCurve() const
+{
 	if (m_points.size() >= 3)
 	{
-		std::size_t n = m_points.size() - 1;
+		m_curveShaderProgram.use();
+		m_curveMesh->render();
+	}
+}
+
+void BezierCurveInter::renderPolyline() const
+{
+	m_polylineShaderProgram.use();
+	m_polylineMesh->render();
+}
+
+std::vector<BezierCurveInterSegmentData> BezierCurveInter::pointsToCurveSegments(
+	const std::vector<Point*> points)
+{
+	std::vector<BezierCurveInterSegmentData> segments{};
+	if (points.size() >= 3)
+	{
+		std::size_t n = points.size() - 1;
 		std::vector<float> dt(n);
 		std::vector<glm::vec3> a(n);
 		std::vector<glm::vec3> b(n);
@@ -175,8 +202,8 @@ void BezierCurveInter::updateCurveMesh()
 
 		for (std::size_t i = 0; i < n; ++i)
 		{
-			dt[i] = glm::length(m_points[i + 1]->getPos() - m_points[i]->getPos());
-			a[i] = m_points[i]->getPos();
+			dt[i] = glm::length(points[i + 1]->getPos() - points[i]->getPos());
+			a[i] = points[i]->getPos();
 		}
 
 		for (std::size_t i = 2; i < n; ++i)
@@ -191,9 +218,8 @@ void BezierCurveInter::updateCurveMesh()
 
 		for (std::size_t i = 1; i < n; ++i)
 		{
-			R[i] = 3.0f * ((m_points[i + 1]->getPos() - m_points[i]->getPos()) / dt[i] -
-				(m_points[i]->getPos() - m_points[i - 1]->getPos()) / dt[i - 1]) /
-				(dt[i - 1] + dt[i]);
+			R[i] = 3.0f * ((points[i + 1]->getPos() - points[i]->getPos()) / dt[i] -
+				(points[i]->getPos() - points[i - 1]->getPos()) / dt[i - 1]) / (dt[i - 1] + dt[i]);
 		}
 
 		betap[1] = beta[1] / 2;
@@ -225,80 +251,28 @@ void BezierCurveInter::updateCurveMesh()
 		{
 			b[i] = (a[i + 1] - a[i]) / dt[i] - (c[i] + d[i] * dt[i]) * dt[i];
 		}
-		b[n - 1] = (m_points[n]->getPos() - a[n - 1]) / dt[n - 1] -
+		b[n - 1] = (points[n]->getPos() - a[n - 1]) / dt[n - 1] -
 			(c[n - 1] + d[n - 1] * dt[n - 1]) * dt[n - 1];
 
 		for (std::size_t i = 0; i < n; ++i)
 		{
-			segmentsData.push_back
+			segments.push_back
 			(
 				{
 					a[i],
 					b[i],
 					c[i],
 					d[i],
-					m_points[i + 1]->getPos(),
+					points[i + 1]->getPos(),
 					dt[i]
 				}
 			);
 		}
 	}
-	
-	glBindBuffer(GL_ARRAY_BUFFER, m_VBOCurve);
-	glBufferData(GL_ARRAY_BUFFER,
-		static_cast<GLsizeiptr>(segmentsData.size() * sizeof(BezierCurveInterSegmentData)),
-		segmentsData.data(), GL_DYNAMIC_DRAW);
+	return segments;
 }
 
-void BezierCurveInter::updatePolylineMesh()
-{
-	m_polylineMesh->update(pointsToVertices(m_points));
-}
-
-void BezierCurveInter::registerForNotifications(Point* point)
-{
-	m_moveNotifications.push_back(point->registerForMoveNotification(
-		[this] (Point*)
-		{
-			updateGeometry();
-		}
-	));
-
-	m_destroyNotifications.push_back(point->registerForDestroyNotification(
-		[this, index = static_cast<int>(m_destroyNotifications.size())] (Point*)
-		{
-			deletePoint(index);
-		}
-	));
-}
-
-void BezierCurveInter::registerForNotifications(const std::vector<Point*>& points)
-{
-	for (Point* point : points)
-	{
-		registerForNotifications(point);
-	}
-}
-
-void BezierCurveInter::renderCurve() const
-{
-	if (m_points.size() >= 3)
-	{
-		m_curveShaderProgram.use();
-		glPatchParameteri(GL_PATCH_VERTICES, 1);
-		glBindVertexArray(m_VAOCurve);
-		glDrawArrays(GL_PATCHES, 0, static_cast<GLsizei>(m_points.size() - 1));
-		glBindVertexArray(0);
-	}
-}
-
-void BezierCurveInter::renderPolyline() const
-{
-	m_polylineShaderProgram.use();
-	m_polylineMesh->render();
-}
-
-std::vector<glm::vec3> BezierCurveInter::pointsToVertices(const std::vector<Point*> points)
+std::vector<glm::vec3> BezierCurveInter::pointsToPolylineVertices(const std::vector<Point*> points)
 {
 	std::vector<glm::vec3> vertices{};
 	for (const Point* point : points)
