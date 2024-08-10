@@ -56,6 +56,7 @@
     <ClCompile Include="src\models\bezierCurves\bezierCurve.cpp" />
     <ClCompile Include="src\models\bezierCurves\bezierCurveC0.cpp" />
     <ClCompile Include="src\models\bezierCurves\bezierCurveC2.cpp" />
+    <ClCompile Include="src\models\bezierCurves\bezierCurveCX.cpp" />
     <ClCompile Include="src\models\bezierCurves\bezierCurveInter.cpp" />
     <ClCompile Include="src\models\model.cpp" />
     <ClCompile Include="src\models\torus.cpp" />
@@ -106,6 +107,7 @@
     <ClInclude Include="src\models\bezierCurves\bezierCurve.hpp" />
     <ClInclude Include="src\models\bezierCurves\bezierCurveC0.hpp" />
     <ClInclude Include="src\models\bezierCurves\bezierCurveC2.hpp" />
+    <ClInclude Include="src\models\bezierCurves\bezierCurveCX.hpp" />
     <ClInclude Include="src\models\bezierCurves\bezierCurveInter.hpp" />
     <ClInclude Include="src\models\bezierCurves\bezierCurveInterSegmentData.hpp" />
     <ClInclude Include="src\models\model.hpp" />

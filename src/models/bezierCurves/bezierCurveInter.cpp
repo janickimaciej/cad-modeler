@@ -1,33 +1,19 @@
 #include "models/bezierCurves/bezierCurveInter.hpp"
 
+#include <glm/glm.hpp>
+
 #include <algorithm>
 #include <cstddef>
+#include <memory>
+#include <string>
 
 BezierCurveInter::BezierCurveInter(const ShaderProgram& curveShaderProgram,
 	const ShaderProgram& polylineShaderProgram, const std::vector<Point*>& points) :
 	BezierCurve{"BezierCurveInter " + std::to_string(m_count++), curveShaderProgram,
-		polylineShaderProgram},
-	m_points{points}
+		polylineShaderProgram, points}
 {
-	updatePos();
 	createCurveMesh();
-	createPolylineMesh();
 	registerForNotifications(m_points);
-}
-
-void BezierCurveInter::render() const
-{
-	updateShaders();
-	renderCurve();
-	if (getRenderPolyline())
-	{
-		renderPolyline();
-	}
-}
-
-int BezierCurveInter::pointCount() const
-{
-	return static_cast<int>(m_points.size());
 }
 
 void BezierCurveInter::addPoints(const std::vector<Point*>& points)
@@ -43,22 +29,6 @@ void BezierCurveInter::addPoints(const std::vector<Point*>& points)
 	updateGeometry();
 }
 
-void BezierCurveInter::deletePoint(int index)
-{
-	m_points.erase(m_points.begin() + index);
-	m_moveNotifications.erase(m_moveNotifications.begin() + index);
-	m_destroyNotifications.erase(m_destroyNotifications.begin() + index);
-	if (m_points.size() > 0)
-	{
-		updateGeometry();
-	}
-}
-
-std::string BezierCurveInter::pointName(int index) const
-{
-	return m_points[index]->getName();
-}
-
 int BezierCurveInter::m_count = 0;
 
 void BezierCurveInter::createCurveMesh()
@@ -66,65 +36,9 @@ void BezierCurveInter::createCurveMesh()
 	m_curveMesh = std::make_unique<BezierCurveInterMesh>(pointsToCurveSegments(m_points));
 }
 
-void BezierCurveInter::createPolylineMesh()
-{
-	m_polylineMesh = std::make_unique<PolylineMesh>(pointsToPolylineVertices(m_points));
-}
-
-void BezierCurveInter::updateGeometry()
-{
-	updatePos();
-	updateCurveMesh();
-	updatePolylineMesh();
-}
-
-void BezierCurveInter::updatePos()
-{
-	glm::vec3 pos{};
-	for (Point* point : m_points)
-	{
-		pos += point->getPos();
-	}
-	m_pos = pos / static_cast<float>(m_points.size());
-}
-
 void BezierCurveInter::updateCurveMesh()
 {
 	m_curveMesh->update(pointsToCurveSegments(m_points));
-}
-
-void BezierCurveInter::updatePolylineMesh()
-{
-	m_polylineMesh->update(pointsToPolylineVertices(m_points));
-}
-
-void BezierCurveInter::registerForNotifications(Point* point)
-{
-	m_moveNotifications.push_back(point->registerForMoveNotification
-	(
-		[this] (Point*)
-		{
-			updateGeometry();
-		}
-	));
-
-	m_destroyNotifications.push_back(point->registerForDestroyNotification
-	(
-		[this] (Point* point)
-		{
-			auto iterator = std::find(m_points.begin(), m_points.end(), point);
-			int index = static_cast<int>(iterator - m_points.begin());
-			deletePoint(index);
-		}
-	));
-}
-
-void BezierCurveInter::registerForNotifications(const std::vector<Point*>& points)
-{
-	for (Point* point : points)
-	{
-		registerForNotifications(point);
-	}
 }
 
 void BezierCurveInter::renderCurve() const
@@ -134,12 +48,6 @@ void BezierCurveInter::renderCurve() const
 		useCurveShaderProgram();
 		m_curveMesh->render();
 	}
-}
-
-void BezierCurveInter::renderPolyline() const
-{
-	usePolylineShaderProgram();
-	m_polylineMesh->render();
 }
 
 std::vector<BezierCurveInterSegmentData> BezierCurveInter::pointsToCurveSegments(

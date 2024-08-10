@@ -15,7 +15,7 @@
 class Point : public Model
 {
 public:
-	using Callback = std::function<void(Point*)>;
+	using Callback = std::function<void(const Point*)>;
 
 	Point(const ShaderProgram& shaderProgram, glm::vec3 pos, bool isVirtual = false);
 	virtual ~Point();

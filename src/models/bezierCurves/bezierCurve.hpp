@@ -1,12 +1,14 @@
 #pragma once
 
 #include "guis/modelGUIs/bezierCurveGUI.hpp"
+#include "meshes/polylineMesh.hpp"
 #include "models/model.hpp"
 #include "models/point.hpp"
 #include "shaderProgram.hpp"
 
 #include <glm/glm.hpp>
 
+#include <memory>
 #include <string>
 #include <vector>
 
@@ -14,25 +16,44 @@ class BezierCurve : public Model
 {
 public:
 	BezierCurve(const std::string& name, const ShaderProgram& curveShaderProgram,
-		const ShaderProgram& polylineShaderProgram);
+		const ShaderProgram& polylineShaderProgram, const std::vector<Point*>& points);
+	virtual void render() const override;
 
 	virtual void updateGUI() override;
 
 	virtual void setPos(const glm::vec3&) override;
 	virtual void setScreenPos(const glm::vec2&, const glm::mat4&, const glm::ivec2&) override;
 
-	virtual int pointCount() const = 0;
-	virtual void deletePoint(int index) = 0;
+	int pointCount() const;
+	virtual void deletePoint(int index);
 
-	virtual std::string pointName(int index) const = 0;
+	std::string pointName(int index) const;
 
 	bool getRenderPolyline() const;
 	void setRenderPolyline(bool renderPolyline);
 
 protected:
+	std::vector<Point*> m_points{};
+
 	void useCurveShaderProgram() const;
 	void usePolylineShaderProgram() const;
 	virtual void updateShaders() const override;
+
+	virtual void createCurveMesh() = 0;
+	void createPolylineMesh();
+	
+	virtual void updateGeometry();
+	void updatePos();
+	virtual void updateCurveMesh() = 0;
+	void updatePolylineMesh();
+
+	virtual void renderCurve() const = 0;
+	void renderPolyline() const;
+	
+	void registerForNotifications(const std::vector<Point*>& points);
+	void registerForNotifications(Point* point);
+	virtual void pointMoveNotification();
+	virtual void pointDestroyNotification(const Point* point);
 
 	static std::vector<glm::vec3> pointsToPolylineVertices(const std::vector<Point*> points);
 
@@ -41,6 +62,10 @@ private:
 	const ShaderProgram& m_polylineShaderProgram;
 
 	BezierCurveGUI m_gui{*this};
-
+	
+	std::unique_ptr<PolylineMesh> m_polylineMesh{};
 	bool m_renderPolyline = true;
+
+	std::vector<std::shared_ptr<Point::Callback>> m_pointMoveNotifications{};
+	std::vector<std::shared_ptr<Point::Callback>> m_pointDestroyNotifications{};
 };

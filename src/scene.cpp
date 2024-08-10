@@ -153,37 +153,58 @@ void Scene::deselectAllModels()
 
 void Scene::deleteSelectedModels()
 {
-	std::erase_if(m_models,
+	std::erase_if
+	(
+		m_models,
 		[] (Model* model)
 		{
 			return model->isSelected() && !model->isVirtual();
 		}
 	);
-	std::erase_if(m_points,
+	std::erase_if
+	(
+		m_selectedModels,
+		[] (Model* model)
+		{
+			return !model->isVirtual();
+		}
+	);
+
+	std::erase_if
+	(
+		m_points,
 		[] (const std::unique_ptr<Point>& point)
 		{
 			return point->isSelected() && !point->isVirtual();
 		}
 	);
-	std::erase_if(m_toruses,
+	std::erase_if
+	(
+		m_toruses,
 		[] (const std::unique_ptr<Torus>& torus)
 		{
 			return torus->isSelected() && !torus->isVirtual();
 		}
 	);
-	std::erase_if(m_bezierCurvesC0,
+	std::erase_if
+	(
+		m_bezierCurvesC0,
 		[] (const std::unique_ptr<BezierCurveC0>& curve)
 		{
 			return curve->isSelected() && !curve->isVirtual();
 		}
 	);
-	std::erase_if(m_bezierCurvesC2,
+	std::erase_if
+	(
+		m_bezierCurvesC2,
 		[] (const std::unique_ptr<BezierCurveC2>& curve)
 		{
 			return curve->isSelected() && !curve->isVirtual();
 		}
 	);
-	std::erase_if(m_bezierCurvesInter,
+	std::erase_if
+	(
+		m_bezierCurvesInter,
 		[] (const std::unique_ptr<BezierCurveInter>& curve)
 		{
 			return curve->isSelected() && !curve->isVirtual();
@@ -194,8 +215,6 @@ void Scene::deleteSelectedModels()
 	deleteEmptyBezierCurvesC2();
 	deleteEmptyBezierCurvesInter();
 	deleteUnreferencedVirtualPoints();
-
-	m_selectedModels.clear();
 }
 
 bool Scene::selectUniqueModel(const glm::vec2& screenPos)
