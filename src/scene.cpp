@@ -563,7 +563,7 @@ void Scene::deleteEmptyBezierCurvesC0()
 	std::erase_if(m_bezierCurvesC0,
 		[&bezierCurvesC0ToBeDeleted] (const std::unique_ptr<BezierCurveC0>& curve)
 		{
-			if (curve->getPointCount() == 0)
+			if (curve->pointCount() == 0)
 			{
 				bezierCurvesC0ToBeDeleted.push_back(curve.get());
 				return true;
@@ -573,12 +573,7 @@ void Scene::deleteEmptyBezierCurvesC0()
 	);
 	for (const BezierCurveC0* curve : bezierCurvesC0ToBeDeleted)
 	{
-		std::erase_if(m_models,
-			[&curve] (Model* model)
-			{
-				return model == curve;
-			}
-		);
+		std::erase(m_models, curve);
 	}
 }
 
@@ -588,7 +583,7 @@ void Scene::deleteEmptyBezierCurvesC2()
 	std::erase_if(m_bezierCurvesC2,
 		[&bezierCurvesC2ToBeDeleted] (const std::unique_ptr<BezierCurveC2>& curve)
 		{
-			if (curve->getPointCount() == 0)
+			if (curve->pointCount() == 0)
 			{
 				bezierCurvesC2ToBeDeleted.push_back(curve.get());
 				return true;
@@ -598,12 +593,7 @@ void Scene::deleteEmptyBezierCurvesC2()
 	);
 	for (const BezierCurveC2* curve : bezierCurvesC2ToBeDeleted)
 	{
-		std::erase_if(m_models,
-			[&curve] (Model* model)
-			{
-				return model == curve;
-			}
-		);
+		std::erase(m_models, curve);
 	}
 }
 
@@ -613,7 +603,7 @@ void Scene::deleteEmptyBezierCurvesInter()
 	std::erase_if(m_bezierCurvesInter,
 		[&bezierCurvesInterToBeDeleted] (const std::unique_ptr<BezierCurveInter>& curve)
 		{
-			if (curve->getPointCount() == 0)
+			if (curve->pointCount() == 0)
 			{
 				bezierCurvesInterToBeDeleted.push_back(curve.get());
 				return true;
@@ -623,12 +613,7 @@ void Scene::deleteEmptyBezierCurvesInter()
 	);
 	for (const BezierCurveInter* curve : bezierCurvesInterToBeDeleted)
 	{
-		std::erase_if(m_models,
-			[&curve] (Model* model)
-			{
-				return model == curve;
-			}
-		);
+		std::erase(m_models, curve);
 	}
 }
 
@@ -648,11 +633,6 @@ void Scene::deleteUnreferencedVirtualPoints()
 	);
 	for (const Point* point : pointsToBeDeleted)
 	{
-		std::erase_if(m_models,
-			[&point] (Model* model)
-			{
-				return model == point;
-			}
-		);
+		std::erase(m_models, point);
 	}
 }

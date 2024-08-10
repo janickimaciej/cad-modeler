@@ -59,7 +59,7 @@ void Mesh::updateVBO(const std::vector<glm::vec3>& vertices) const
 {
 	glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
 	glBufferData(GL_ARRAY_BUFFER, static_cast<GLsizeiptr>(vertices.size() * sizeof(glm::vec3)),
-		vertices.data(), GL_STATIC_DRAW);
+		vertices.data(), GL_DYNAMIC_DRAW);
 }
 
 void Mesh::updateEBO(const std::vector<unsigned int>& indices)
@@ -68,5 +68,5 @@ void Mesh::updateEBO(const std::vector<unsigned int>& indices)
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_EBO);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER,
 		static_cast<GLsizeiptr>(indices.size() * sizeof(unsigned int)), indices.data(),
-		GL_STATIC_DRAW);
+		GL_DYNAMIC_DRAW);
 }

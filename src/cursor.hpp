@@ -10,7 +10,6 @@ class Cursor
 {
 public:
 	Cursor(const ShaderProgram& shaderProgram);
-	~Cursor();
 
 	void render() const;
 	void updateGUI(const glm::mat4& cameraMatrix, const glm::ivec2& windowSize);
@@ -24,7 +23,7 @@ public:
 private:
 	const ShaderProgram& m_shaderProgram;
 
-	CursorGUI m_gui;
+	CursorGUI m_gui{*this};
 
 	glm::vec3 m_pos{0, 0, 0};
 

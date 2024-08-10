@@ -18,7 +18,7 @@ public:
 	using Callback = std::function<void(Point*)>;
 
 	Point(const ShaderProgram& shaderProgram, glm::vec3 pos, bool isVirtual = false);
-	~Point();
+	virtual ~Point();
 
 	virtual void render() const override;
 	virtual void updateGUI() override;
@@ -37,7 +37,7 @@ private:
 	static int m_virtualCount;
 
 	const ShaderProgram& m_shaderProgram;
-	PointGUI m_gui;
+	PointGUI m_gui{*this};
 
 	PointMesh m_mesh{};
 

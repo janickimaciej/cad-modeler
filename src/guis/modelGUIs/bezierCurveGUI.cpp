@@ -1,18 +1,15 @@
-#include "guis/modelGUIs/bezierCurveC0GUI.hpp"
+#include "guis/modelGUIs/bezierCurveGUI.hpp"
 
-#include "models/bezierCurveC0.hpp"
+#include "models/bezierCurves/bezierCurve.hpp"
 
 #include <imgui/imgui.h>
 
-#include <string>
-#include <vector>
-
-BezierCurveC0GUI::BezierCurveC0GUI(BezierCurveC0& curve) :
+BezierCurveGUI::BezierCurveGUI(BezierCurve& curve) :
 	ModelGUI{curve},
 	m_curve{curve}
 { }
 
-void BezierCurveC0GUI::update()
+void BezierCurveGUI::update()
 {
 	bool renderPolyline = m_curve.getRenderPolyline();
 	bool prevRenderPolyline = renderPolyline;
@@ -22,10 +19,9 @@ void BezierCurveC0GUI::update()
 		m_curve.setRenderPolyline(renderPolyline);
 	}
 
-	std::vector<std::string> pointNames = m_curve.getPointNames();
-	for (int i = 0; i < pointNames.size(); ++i)
+	for (int i = 0; i < m_curve.pointCount(); ++i)
 	{
-		ImGui::Text(pointNames[i].c_str());
+		ImGui::Text(m_curve.pointName(i).c_str());
 		ImGui::SameLine(ImGui::GetWindowWidth() - 35);
 		if (ImGui::SmallButton(("X" + suffix() + std::to_string(i)).c_str()))
 		{

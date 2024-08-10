@@ -6,8 +6,7 @@
 Point::Point(const ShaderProgram& shaderProgram, glm::vec3 pos, bool isVirtual) :
 	Model{pos, isVirtual ? "VirtualPoint " + std::to_string(m_virtualCount++) :
 		"Point " + std::to_string(m_nonVirtualCount++), isVirtual},
-	m_shaderProgram{shaderProgram},
-	m_gui{*this}
+	m_shaderProgram{shaderProgram}
 { }
 
 Point::~Point()

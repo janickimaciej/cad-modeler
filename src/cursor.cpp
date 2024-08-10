@@ -1,11 +1,7 @@
 #include "cursor.hpp"
 
 Cursor::Cursor(const ShaderProgram& shaderProgram) :
-	m_shaderProgram{shaderProgram},
-	m_gui{*this}
-{ }
-
-Cursor::~Cursor()
+	m_shaderProgram{shaderProgram}
 { }
 
 void Cursor::render() const

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "models/bezierCurveInterSegmentData.hpp"
+#include "models/bezierCurves/bezierCurveInterSegmentData.hpp"
 
 #include <glm/glm.hpp>
 

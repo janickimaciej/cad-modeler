@@ -31,7 +31,7 @@ private:
 	const ShaderProgram& m_shaderProgram;
 
 	const std::vector<Model*>& m_models{};
-	CenterPointGUI m_gui;
+	CenterPointGUI m_gui{*this};
 
 	PointMesh m_mesh{};
 

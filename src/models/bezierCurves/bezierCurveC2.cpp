@@ -1,4 +1,4 @@
-#include "models/bezierCurveC2.hpp"
+#include "models/bezierCurves/bezierCurveC2.hpp"
 
 #include <algorithm>
 #include <cstddef>
@@ -19,8 +19,8 @@ std::pair<std::unique_ptr<BezierCurveC2>, std::vector<std::unique_ptr<Point>>>
 
 	return
 	{
-		std::unique_ptr<BezierCurveC2>(new BezierCurveC2(curveShaderProgram,
-			polylineShaderProgram, pointShaderProgram, boorPoints, bezierPointPtrs)),
+		std::unique_ptr<BezierCurveC2>(new BezierCurveC2(curveShaderProgram, polylineShaderProgram,
+			pointShaderProgram, boorPoints, bezierPointPtrs)),
 		std::move(bezierPoints)
 	};
 }
@@ -81,25 +81,14 @@ void BezierCurveC2::render() const
 {
 	updateShaders();
 	renderCurve();
-	if (m_renderPolyline)
+	if (getRenderPolyline())
 	{
 		renderBoorPolyline();
 		renderBezierPolyline();
 	}
 }
 
-void BezierCurveC2::updateGUI()
-{
-	m_gui.update();
-}
-
-void BezierCurveC2::setPos(const glm::vec3&)
-{ }
-
-void BezierCurveC2::setScreenPos(const glm::vec2&, const glm::mat4&, const glm::ivec2&)
-{ }
-
-int BezierCurveC2::getPointCount() const
+int BezierCurveC2::pointCount() const
 {
 	return static_cast<int>(m_boorPoints.size());
 }
@@ -141,7 +130,7 @@ std::vector<std::unique_ptr<Point>> BezierCurveC2::addPoints(const std::vector<P
 	return newBezierPoints;
 }
 
-void BezierCurveC2::deleteBoorPoint(int index)
+void BezierCurveC2::deletePoint(int index)
 {
 	int deletedBezierPointCount = 0;
 	if (m_boorPoints.size() == 4)
@@ -167,24 +156,9 @@ void BezierCurveC2::deleteBoorPoint(int index)
 	}
 }
 
-std::vector<std::string> BezierCurveC2::getPointNames() const
+std::string BezierCurveC2::pointName(int index) const
 {
-	std::vector<std::string> pointNames{};
-	for (Point* point : m_boorPoints)
-	{
-		pointNames.push_back(point->getName());
-	}
-	return pointNames;
-}
-
-bool BezierCurveC2::getRenderPolyline() const
-{
-	return m_renderPolyline;
-}
-
-void BezierCurveC2::setRenderPolyline(bool renderPolyline)
-{
-	m_renderPolyline = renderPolyline;
+	return m_boorPoints[index]->getName();
 }
 
 int BezierCurveC2::m_count = 0;
@@ -192,11 +166,9 @@ int BezierCurveC2::m_count = 0;
 BezierCurveC2::BezierCurveC2(const ShaderProgram& curveShaderProgram,
 	const ShaderProgram& polylineShaderProgram, const ShaderProgram& pointShaderProgram,
 	const std::vector<Point*>& boorPoints, const std::vector<Point*>& bezierPoints) :
-	Model{{}, "BezierCurveC2 " + std::to_string(m_count++)},
-	m_curveShaderProgram{curveShaderProgram},
-	m_polylineShaderProgram{polylineShaderProgram},
+	BezierCurve{"BezierCurveC2 " + std::to_string(m_count++), curveShaderProgram,
+		polylineShaderProgram},
 	m_pointShaderProgram{pointShaderProgram},
-	m_gui{*this},
 	m_boorPoints{boorPoints},
 	m_bezierPoints{bezierPoints}
 {
@@ -221,18 +193,6 @@ void BezierCurveC2::createBoorPolylineMesh()
 void BezierCurveC2::createBezierPolylineMesh()
 {
 	m_bezierPolylineMesh = std::make_unique<PolylineMesh>(pointsToPolylineVertices(m_bezierPoints));
-}
-
-void BezierCurveC2::updateShaders() const
-{
-	m_curveShaderProgram.use();
-	m_curveShaderProgram.setUniform("isSelected", isSelected());
-
-	if (m_renderPolyline)
-	{
-		m_polylineShaderProgram.use();
-		m_polylineShaderProgram.setUniform("isSelected", isSelected());
-	}
 }
 
 void BezierCurveC2::updateWithBezierPoint(int index)
@@ -351,7 +311,7 @@ void BezierCurveC2::registerForNotificationsBoor(Point* point)
 				firstCall = false;
 				auto iterator = std::find(m_boorPoints.begin(), m_boorPoints.end(), point);
 				int index = static_cast<int>(iterator - m_boorPoints.begin());
-				deleteBoorPoint(index);
+				deletePoint(index);
 				firstCall = true;
 			}
 		}
@@ -396,25 +356,30 @@ void BezierCurveC2::renderCurve() const
 {
 	if (m_bezierPoints.size() >= 4)
 	{
-		m_curveShaderProgram.use();
+		useCurveShaderProgram();
 		m_curveMesh->render();
 	}
 }
 
 void BezierCurveC2::renderBoorPolyline() const
 {
-	m_polylineShaderProgram.use();
+	usePolylineShaderProgram();
 	m_boorPolylineMesh->render();
 }
 
 void BezierCurveC2::renderBezierPolyline() const
 {
-	m_polylineShaderProgram.use();
+	usePolylineShaderProgram();
 	m_bezierPolylineMesh->render();
 }
 
 std::vector<glm::vec3> BezierCurveC2::pointsToCurveVertices(const std::vector<Point*> points)
 {
+	if (points.size() == 0)
+	{
+		return {};
+	}
+
 	std::vector<glm::vec3> vertices{};
 	std::size_t patchCount = (points.size() - 1) / 3;
 	for (std::size_t i = 0; i < patchCount; ++i)
@@ -423,16 +388,6 @@ std::vector<glm::vec3> BezierCurveC2::pointsToCurveVertices(const std::vector<Po
 		{
 			vertices.push_back(points[3 * i + j]->getPos());
 		}
-	}
-	return vertices;
-}
-
-std::vector<glm::vec3> BezierCurveC2::pointsToPolylineVertices(const std::vector<Point*> points)
-{
-	std::vector<glm::vec3> vertices{};
-	for (const Point* point : points)
-	{
-		vertices.push_back(point->getPos());
 	}
 	return vertices;
 }

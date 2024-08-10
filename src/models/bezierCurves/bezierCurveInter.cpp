@@ -1,14 +1,12 @@
-#include "models/bezierCurveInter.hpp"
+#include "models/bezierCurves/bezierCurveInter.hpp"
 
 #include <algorithm>
 #include <cstddef>
 
 BezierCurveInter::BezierCurveInter(const ShaderProgram& curveShaderProgram,
 	const ShaderProgram& polylineShaderProgram, const std::vector<Point*>& points) :
-	Model{{}, "BezierCurveInter " + std::to_string(m_count++)},
-	m_curveShaderProgram{curveShaderProgram},
-	m_polylineShaderProgram{polylineShaderProgram},
-	m_gui{*this},
+	BezierCurve{"BezierCurveInter " + std::to_string(m_count++), curveShaderProgram,
+		polylineShaderProgram},
 	m_points{points}
 {
 	updatePos();
@@ -21,24 +19,13 @@ void BezierCurveInter::render() const
 {
 	updateShaders();
 	renderCurve();
-	if (m_renderPolyline)
+	if (getRenderPolyline())
 	{
 		renderPolyline();
 	}
 }
 
-void BezierCurveInter::updateGUI()
-{
-	m_gui.update();
-}
-
-void BezierCurveInter::setPos(const glm::vec3&)
-{ }
-
-void BezierCurveInter::setScreenPos(const glm::vec2&, const glm::mat4&, const glm::ivec2&)
-{ }
-
-int BezierCurveInter::getPointCount() const
+int BezierCurveInter::pointCount() const
 {
 	return static_cast<int>(m_points.size());
 }
@@ -67,24 +54,9 @@ void BezierCurveInter::deletePoint(int index)
 	}
 }
 
-std::vector<std::string> BezierCurveInter::getPointNames() const
+std::string BezierCurveInter::pointName(int index) const
 {
-	std::vector<std::string> pointNames{};
-	for (Point* point : m_points)
-	{
-		pointNames.push_back(point->getName());
-	}
-	return pointNames;
-}
-
-bool BezierCurveInter::getRenderPolyline() const
-{
-	return m_renderPolyline;
-}
-
-void BezierCurveInter::setRenderPolyline(bool renderPolyline)
-{
-	m_renderPolyline = renderPolyline;
+	return m_points[index]->getName();
 }
 
 int BezierCurveInter::m_count = 0;
@@ -97,18 +69,6 @@ void BezierCurveInter::createCurveMesh()
 void BezierCurveInter::createPolylineMesh()
 {
 	m_polylineMesh = std::make_unique<PolylineMesh>(pointsToPolylineVertices(m_points));
-}
-
-void BezierCurveInter::updateShaders() const
-{
-	m_curveShaderProgram.use();
-	m_curveShaderProgram.setUniform("isSelected", isSelected());
-
-	if (m_renderPolyline)
-	{
-		m_polylineShaderProgram.use();
-		m_polylineShaderProgram.setUniform("isSelected", isSelected());
-	}
 }
 
 void BezierCurveInter::updateGeometry()
@@ -171,14 +131,14 @@ void BezierCurveInter::renderCurve() const
 {
 	if (m_points.size() >= 3)
 	{
-		m_curveShaderProgram.use();
+		useCurveShaderProgram();
 		m_curveMesh->render();
 	}
 }
 
 void BezierCurveInter::renderPolyline() const
 {
-	m_polylineShaderProgram.use();
+	usePolylineShaderProgram();
 	m_polylineMesh->render();
 }
 
@@ -270,14 +230,4 @@ std::vector<BezierCurveInterSegmentData> BezierCurveInter::pointsToCurveSegments
 		}
 	}
 	return segments;
-}
-
-std::vector<glm::vec3> BezierCurveInter::pointsToPolylineVertices(const std::vector<Point*> points)
-{
-	std::vector<glm::vec3> vertices{};
-	for (const Point* point : points)
-	{
-		vertices.push_back(point->getPos());
-	}
-	return vertices;
 }

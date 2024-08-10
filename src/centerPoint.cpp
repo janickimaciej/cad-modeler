@@ -6,8 +6,7 @@
 
 CenterPoint::CenterPoint(const ShaderProgram& shaderProgram, const std::vector<Model*>& models) :
 	m_shaderProgram{shaderProgram},
-	m_models{models},
-	m_gui{*this}
+	m_models{models}
 { }
 
 void CenterPoint::render()

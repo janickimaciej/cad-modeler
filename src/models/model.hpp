@@ -8,7 +8,7 @@ class Model
 {
 public:
 	Model(const glm::vec3& pos, const std::string& name, bool isVirtual = false);
-	~Model() = default;
+	virtual ~Model() = default;
 
 	virtual void render() const = 0;
 	virtual void updateGUI() = 0;
