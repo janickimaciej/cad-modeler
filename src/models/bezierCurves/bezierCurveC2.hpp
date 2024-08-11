@@ -14,7 +14,8 @@ class BezierCurveC2 : public BezierCurveCX
 public:
 	static std::pair<std::unique_ptr<BezierCurveC2>, std::vector<std::unique_ptr<Point>>>
 		create(const ShaderProgram& curveShaderProgram, const ShaderProgram& polylineShaderProgram,
-		const ShaderProgram& pointShaderProgram, const std::vector<Point*>& points);
+		const ShaderProgram& pointShaderProgram, const std::vector<Point*>& points,
+		const SelfDestructCallback& selfDestructCallback);
 	static std::vector<std::unique_ptr<Point>> createBezierPoints(
 		const ShaderProgram& pointShaderProgram, const std::vector<Point*> points);
 	static void updateBezierPoints(const std::vector<Point*>& bezierPoints,
@@ -38,7 +39,8 @@ private:
 
 	BezierCurveC2(const ShaderProgram& curveShaderProgram,
 		const ShaderProgram& polylineShaderProgram, const ShaderProgram& pointShaderProgram,
-		const std::vector<Point*>& points, const std::vector<Point*>& bezierPoints);
+		const std::vector<Point*>& points, const std::vector<Point*>& bezierPoints,
+		const SelfDestructCallback& selfDestructCallback);
 
 	virtual void createCurveMesh() override;
 	void createBezierPolylineMesh();

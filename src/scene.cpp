@@ -24,7 +24,13 @@ Scene::Scene(const glm::ivec2& windowSize) :
 	addYawCamera(glm::radians(15.0f));
 }
 
-void Scene::render()
+void Scene::update()
+{
+	deleteEmptyBezierCurves();
+	deleteUnreferencedVirtualPoints();
+}
+
+void Scene::render() const
 {
 	m_activeCamera->use(m_windowSize);
 	renderModels();
@@ -210,11 +216,6 @@ void Scene::deleteSelectedModels()
 			return curve->isSelected() && !curve->isVirtual();
 		}
 	);
-	
-	deleteEmptyBezierCurvesC0();
-	deleteEmptyBezierCurvesC2();
-	deleteEmptyBezierCurvesInter();
-	deleteUnreferencedVirtualPoints();
 }
 
 bool Scene::selectUniqueModel(const glm::vec2& screenPos)
@@ -372,7 +373,7 @@ void Scene::addBezierCurveC0()
 
 	std::unique_ptr<BezierCurveC0> curve = std::make_unique<BezierCurveC0>(
 		m_shaderPrograms.bezierCurve, m_shaderPrograms.bezierCurvePolyline,
-		nonVirtualSelectedPoints);
+		nonVirtualSelectedPoints, m_curveSelfDestructCallback);
 	m_models.push_back(curve.get());
 	m_bezierCurvesC0.push_back(std::move(curve));
 }
@@ -387,7 +388,8 @@ void Scene::addBezierCurveC2()
 	}
 
 	auto [curve, virtualPoints] = BezierCurveC2::create(m_shaderPrograms.bezierCurve,
-		m_shaderPrograms.bezierCurvePolyline, m_shaderPrograms.point, nonVirtualSelectedPoints);
+		m_shaderPrograms.bezierCurvePolyline, m_shaderPrograms.point, nonVirtualSelectedPoints,
+		m_curveSelfDestructCallback);
 	m_models.push_back(curve.get());
 	m_bezierCurvesC2.push_back(std::move(curve));
 	addVirtualPoints(std::move(virtualPoints));
@@ -404,7 +406,7 @@ void Scene::addBezierCurveInter()
 
 	std::unique_ptr<BezierCurveInter> curve = std::make_unique<BezierCurveInter>(
 		m_shaderPrograms.bezierCurveInter, m_shaderPrograms.bezierCurvePolyline,
-		nonVirtualSelectedPoints);
+		nonVirtualSelectedPoints, m_curveSelfDestructCallback);
 	m_models.push_back(curve.get());
 	m_bezierCurvesInter.push_back(std::move(curve));
 }
@@ -501,7 +503,7 @@ void Scene::renderCursor() const
 	m_cursor.render();
 }
 
-void Scene::renderSelectedModelsCenter()
+void Scene::renderSelectedModelsCenter() const
 {
 	m_shaderPrograms.cursor.use();
 	m_selectedModelsCenter.render();
@@ -576,64 +578,44 @@ void Scene::addVirtualPoints(std::vector<std::unique_ptr<Point>> points)
 		std::make_move_iterator(points.end()));
 }
 
-void Scene::deleteEmptyBezierCurvesC0()
+void Scene::addBezierCurveForDeletion(const BezierCurve* curve)
 {
-	std::vector<BezierCurveC0*> bezierCurvesC0ToBeDeleted{};
-	std::erase_if(m_bezierCurvesC0,
-		[&bezierCurvesC0ToBeDeleted] (const std::unique_ptr<BezierCurveC0>& curve)
-		{
-			if (curve->pointCount() == 0)
-			{
-				bezierCurvesC0ToBeDeleted.push_back(curve.get());
-				return true;
-			}
-			return false;
-		}
-	);
-	for (const BezierCurveC0* curve : bezierCurvesC0ToBeDeleted)
-	{
-		std::erase(m_models, curve);
-	}
+	m_bezierCurvesToBeDeleted.push_back(curve);
 }
 
-void Scene::deleteEmptyBezierCurvesC2()
+void Scene::deleteEmptyBezierCurves()
 {
-	std::vector<BezierCurveC2*> bezierCurvesC2ToBeDeleted{};
-	std::erase_if(m_bezierCurvesC2,
-		[&bezierCurvesC2ToBeDeleted] (const std::unique_ptr<BezierCurveC2>& curve)
-		{
-			if (curve->pointCount() == 0)
-			{
-				bezierCurvesC2ToBeDeleted.push_back(curve.get());
-				return true;
-			}
-			return false;
-		}
-	);
-	for (const BezierCurveC2* curve : bezierCurvesC2ToBeDeleted)
+	for (const BezierCurve* curve : m_bezierCurvesToBeDeleted)
 	{
 		std::erase(m_models, curve);
-	}
-}
+		std::erase(m_selectedModels, curve);
 
-void Scene::deleteEmptyBezierCurvesInter()
-{
-	std::vector<BezierCurveInter*> bezierCurvesInterToBeDeleted{};
-	std::erase_if(m_bezierCurvesInter,
-		[&bezierCurvesInterToBeDeleted] (const std::unique_ptr<BezierCurveInter>& curve)
-		{
-			if (curve->pointCount() == 0)
+		std::erase_if
+		(
+			m_bezierCurvesC0,
+			[curve] (const std::unique_ptr<BezierCurveC0>& curveC0)
 			{
-				bezierCurvesInterToBeDeleted.push_back(curve.get());
-				return true;
+				return curveC0.get() == curve;
 			}
-			return false;
-		}
-	);
-	for (const BezierCurveInter* curve : bezierCurvesInterToBeDeleted)
-	{
-		std::erase(m_models, curve);
+		);
+		std::erase_if
+		(
+			m_bezierCurvesC2,
+			[curve] (const std::unique_ptr<BezierCurveC2>& curveC2)
+			{
+				return curveC2.get() == curve;
+			}
+		);
+		std::erase_if
+		(
+			m_bezierCurvesInter,
+			[curve] (const std::unique_ptr<BezierCurveInter>& curveInter)
+			{
+				return curveInter.get() == curve;
+			}
+		);
 	}
+	m_bezierCurvesToBeDeleted.clear();
 }
 
 void Scene::deleteUnreferencedVirtualPoints()

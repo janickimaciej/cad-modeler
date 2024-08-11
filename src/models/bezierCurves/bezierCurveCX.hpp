@@ -14,7 +14,8 @@ class BezierCurveCX : public BezierCurve
 {
 public:
 	BezierCurveCX(const std::string& name, const ShaderProgram& curveShaderProgram,
-		const ShaderProgram& polylineShaderProgram, const std::vector<Point*>& points);
+		const ShaderProgram& polylineShaderProgram, const std::vector<Point*>& points,
+		const SelfDestructCallback& selfDestructCallback);
 
 protected:
 	std::unique_ptr<BezierCurveMesh> m_curveMesh{};

@@ -10,7 +10,8 @@ class BezierCurveC0 : public BezierCurveCX
 {
 public:
 	BezierCurveC0(const ShaderProgram& bezierCurveShaderProgram,
-		const ShaderProgram& bezierCurvePolylineShaderProgram, const std::vector<Point*>& points);
+		const ShaderProgram& bezierCurvePolylineShaderProgram, const std::vector<Point*>& points,
+		const SelfDestructCallback& selfDestructCallback);
 	void addPoints(const std::vector<Point*>& points);
 
 private:

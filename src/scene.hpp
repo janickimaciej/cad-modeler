@@ -26,7 +26,8 @@ class Scene
 {
 public:
 	Scene(const glm::ivec2& windowSize);
-	void render();
+	void update();
+	void render() const;
 	void updateWindowSize();
 
 	CameraType getCameraType() const;
@@ -100,10 +101,17 @@ private:
 
 	CameraType m_cameraType = CameraType::perspective;
 	
+	std::vector<const BezierCurve*> m_bezierCurvesToBeDeleted{};
+	const BezierCurve::SelfDestructCallback m_curveSelfDestructCallback =
+		[this] (const BezierCurve* curve)
+		{
+			addBezierCurveForDeletion(curve);
+		};
+	
 	void setAspectRatio(float aspectRatio);
 	void renderModels() const;
 	void renderCursor() const;
-	void renderSelectedModelsCenter();
+	void renderSelectedModelsCenter() const;
 	void renderGrid() const;
 
 	Model* getUniqueSelectedModel() const;
@@ -111,8 +119,7 @@ private:
 	std::vector<Point*> getNonVirtualSelectedPoints() const;
 	void addVirtualPoints(std::vector<std::unique_ptr<Point>> points);
 
-	void deleteEmptyBezierCurvesC0();
-	void deleteEmptyBezierCurvesC2();
-	void deleteEmptyBezierCurvesInter();
+	void addBezierCurveForDeletion(const BezierCurve* curve);
+	void deleteEmptyBezierCurves();
 	void deleteUnreferencedVirtualPoints();
 };

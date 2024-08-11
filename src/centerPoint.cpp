@@ -9,7 +9,7 @@ CenterPoint::CenterPoint(const ShaderProgram& shaderProgram, const std::vector<M
 	m_models{models}
 { }
 
-void CenterPoint::render()
+void CenterPoint::render() const
 {
 	if (m_models.size() == 0)
 	{

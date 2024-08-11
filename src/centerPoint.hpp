@@ -13,7 +13,7 @@ class CenterPoint
 {
 public:
 	CenterPoint(const ShaderProgram& shaderProgram, const std::vector<Model*>& models);
-	void render();
+	void render() const;
 	void updateGUI();
 
 	glm::vec3 getPos() const;

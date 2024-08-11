@@ -11,7 +11,7 @@
 std::pair<std::unique_ptr<BezierCurveC2>, std::vector<std::unique_ptr<Point>>>
 	BezierCurveC2::create(const ShaderProgram& curveShaderProgram,
 	const ShaderProgram& polylineShaderProgram, const ShaderProgram& pointShaderProgram,
-	const std::vector<Point*>& points)
+	const std::vector<Point*>& points, const SelfDestructCallback& selfDestructCallback)
 {
 	std::vector<std::unique_ptr<Point>> bezierPoints = createBezierPoints(pointShaderProgram,
 		points);
@@ -25,7 +25,7 @@ std::pair<std::unique_ptr<BezierCurveC2>, std::vector<std::unique_ptr<Point>>>
 	return
 	{
 		std::unique_ptr<BezierCurveC2>(new BezierCurveC2(curveShaderProgram, polylineShaderProgram,
-			pointShaderProgram, points, bezierPointPtrs)),
+			pointShaderProgram, points, bezierPointPtrs, selfDestructCallback)),
 		std::move(bezierPoints)
 	};
 }
@@ -150,9 +150,10 @@ int BezierCurveC2::m_count = 0;
 
 BezierCurveC2::BezierCurveC2(const ShaderProgram& curveShaderProgram,
 	const ShaderProgram& polylineShaderProgram, const ShaderProgram& pointShaderProgram,
-	const std::vector<Point*>& points, const std::vector<Point*>& bezierPoints) :
+	const std::vector<Point*>& points, const std::vector<Point*>& bezierPoints,
+	const SelfDestructCallback& selfDestructCallback) :
 	BezierCurveCX{"BezierCurveC2 " + std::to_string(m_count++), curveShaderProgram,
-		polylineShaderProgram, points},
+		polylineShaderProgram, points, selfDestructCallback},
 	m_pointShaderProgram{pointShaderProgram},
 	m_bezierPoints{bezierPoints}
 {

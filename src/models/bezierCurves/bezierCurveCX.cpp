@@ -3,8 +3,9 @@
 #include <cstddef>
 
 BezierCurveCX::BezierCurveCX(const std::string& name, const ShaderProgram& curveShaderProgram,
-	const ShaderProgram& polylineShaderProgram, const std::vector<Point*>& points) :
-	BezierCurve{name, curveShaderProgram, polylineShaderProgram, points}
+	const ShaderProgram& polylineShaderProgram, const std::vector<Point*>& points,
+	const SelfDestructCallback& selfDestructCallback) :
+	BezierCurve{name, curveShaderProgram, polylineShaderProgram, points, selfDestructCallback}
 { }
 
 std::vector<glm::vec3> BezierCurveCX::pointsToCurveVertices(const std::vector<Point*> points)

@@ -17,6 +17,7 @@ int main()
 	{
 		gui.update();
 		window.clear();
+		scene.update();
 		scene.render();
 		gui.render();
 		window.swapBuffers();

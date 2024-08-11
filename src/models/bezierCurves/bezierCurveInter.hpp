@@ -12,7 +12,8 @@ class BezierCurveInter : public BezierCurve
 {
 public:
 	BezierCurveInter(const ShaderProgram& curveShaderProgram,
-		const ShaderProgram& polylineShaderProgram, const std::vector<Point*>& points);
+		const ShaderProgram& polylineShaderProgram, const std::vector<Point*>& points,
+		const SelfDestructCallback& selfDestructCallback);
 
 	void addPoints(const std::vector<Point*>& points);
 

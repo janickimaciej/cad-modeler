@@ -8,6 +8,7 @@
 
 #include <glm/glm.hpp>
 
+#include <functional>
 #include <memory>
 #include <string>
 #include <vector>
@@ -15,8 +16,11 @@
 class BezierCurve : public Model
 {
 public:
+	using SelfDestructCallback = std::function<void(const BezierCurve*)>;
+
 	BezierCurve(const std::string& name, const ShaderProgram& curveShaderProgram,
-		const ShaderProgram& polylineShaderProgram, const std::vector<Point*>& points);
+		const ShaderProgram& polylineShaderProgram, const std::vector<Point*>& points,
+		const SelfDestructCallback& selfDestructCallback);
 	virtual void render() const override;
 
 	virtual void updateGUI() override;
@@ -68,4 +72,6 @@ private:
 
 	std::vector<std::shared_ptr<Point::Callback>> m_pointMoveNotifications{};
 	std::vector<std::shared_ptr<Point::Callback>> m_pointDestroyNotifications{};
+
+	SelfDestructCallback m_selfDestructCallback;
 };

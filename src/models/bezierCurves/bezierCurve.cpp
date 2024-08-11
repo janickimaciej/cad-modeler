@@ -1,11 +1,13 @@
 #include "models/bezierCurves/bezierCurve.hpp"
 
 BezierCurve::BezierCurve(const std::string& name, const ShaderProgram& curveShaderProgram,
-	const ShaderProgram& polylineShaderProgram, const std::vector<Point*>& points) :
+	const ShaderProgram& polylineShaderProgram, const std::vector<Point*>& points,
+	const SelfDestructCallback& selfDestructCallback) :
 	Model{{}, name},
 	m_points{points},
 	m_curveShaderProgram{curveShaderProgram},
-	m_polylineShaderProgram{polylineShaderProgram}
+	m_polylineShaderProgram{polylineShaderProgram},
+	m_selfDestructCallback{selfDestructCallback}
 {
 	updatePos();
 	createPolylineMesh();
@@ -45,6 +47,10 @@ void BezierCurve::deletePoint(int index)
 	if (pointCount() > 0)
 	{
 		updateGeometry();
+	}
+	else
+	{
+		m_selfDestructCallback(this);
 	}
 }
 

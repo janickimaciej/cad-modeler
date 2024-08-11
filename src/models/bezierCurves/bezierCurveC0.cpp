@@ -5,9 +5,10 @@
 #include <string>
 
 BezierCurveC0::BezierCurveC0(const ShaderProgram& curveShaderProgram,
-	const ShaderProgram& polylineShaderProgram, const std::vector<Point*>& points) :
+	const ShaderProgram& polylineShaderProgram, const std::vector<Point*>& points,
+	const SelfDestructCallback& selfDestructCallback) :
 	BezierCurveCX{"BezierCurveC0 " + std::to_string(m_count++), curveShaderProgram,
-		polylineShaderProgram, points}
+		polylineShaderProgram, points, selfDestructCallback}
 {
 	createCurveMesh();
 	registerForNotifications(m_points);
