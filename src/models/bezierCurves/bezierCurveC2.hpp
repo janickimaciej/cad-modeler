@@ -6,24 +6,19 @@
 #include "shaderProgram.hpp"
 
 #include <memory>
-#include <utility>
 #include <vector>
 
 class BezierCurveC2 : public BezierCurveCX
 {
 public:
-	static std::pair<std::unique_ptr<BezierCurveC2>, std::vector<std::unique_ptr<Point>>>
-		create(const ShaderProgram& curveShaderProgram, const ShaderProgram& polylineShaderProgram,
-		const ShaderProgram& pointShaderProgram, const std::vector<Point*>& points,
-		const SelfDestructCallback& selfDestructCallback);
-	static std::vector<std::unique_ptr<Point>> createBezierPoints(
-		const ShaderProgram& pointShaderProgram, const std::vector<Point*> points);
-	static void updateBezierPoints(const std::vector<Point*>& bezierPoints,
-		const std::vector<Point*> points);
-
+	BezierCurveC2(const ShaderProgram& curveShaderProgram,
+		const ShaderProgram& polylineShaderProgram, const ShaderProgram& pointShaderProgram,
+		const std::vector<Point*>& points, const SelfDestructCallback& selfDestructCallback,
+		std::vector<std::unique_ptr<Point>>& bezierPoints);
 	virtual void render() const override;
 
-	std::vector<std::unique_ptr<Point>> addPoints(const std::vector<Point*>& points);
+	void addPoints(const std::vector<Point*>& points,
+		std::vector<std::unique_ptr<Point>>& bezierPoints);
 	virtual void deletePoint(int index) override;
 
 private:
@@ -35,14 +30,10 @@ private:
 
 	std::vector<Point*> m_bezierPoints{};
 	std::vector<std::shared_ptr<Point::Callback>> m_bezierPointMoveNotifications{};
-	bool m_firstCall = true;
-
-	BezierCurveC2(const ShaderProgram& curveShaderProgram,
-		const ShaderProgram& polylineShaderProgram, const ShaderProgram& pointShaderProgram,
-		const std::vector<Point*>& points, const std::vector<Point*>& bezierPoints,
-		const SelfDestructCallback& selfDestructCallback);
+	bool m_blockNotifications = false;
 
 	virtual void createCurveMesh() override;
+	std::vector<std::unique_ptr<Point>> createBezierPoints();
 	void createBezierPolylineMesh();
 
 	void updateWithBezierPoint(int index);

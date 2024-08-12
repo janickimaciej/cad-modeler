@@ -27,11 +27,8 @@ void Point::updateGUI()
 
 void Point::setPos(const glm::vec3& pos)
 {
-	if (pos != m_pos)
-	{
-		Model::setPos(pos);
-		notify(m_moveNotifications);
-	}
+	Model::setPos(pos);
+	notify(m_moveNotifications);
 }
 
 void Point::setScreenPos(const glm::vec2& screenPos, const glm::mat4& cameraMatrix,

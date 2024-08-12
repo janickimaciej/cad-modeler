@@ -128,7 +128,9 @@ void Scene::selectModel(int i)
 void Scene::deselectModel(int i)
 {
 	m_models[i]->deselect();
-	std::erase_if(m_selectedModels,
+	std::erase_if
+	(
+		m_selectedModels,
 		[deletedModel = m_models[i]] (Model* model)
 		{
 			return model == deletedModel;
@@ -312,7 +314,9 @@ void Scene::addPoint()
 
 	if (m_selectedModels.size() == 1)
 	{
-		auto selectedBezierCurveC0 = std::find_if(m_bezierCurvesC0.begin(), m_bezierCurvesC0.end(),
+		auto selectedBezierCurveC0 = std::find_if
+		(
+			m_bezierCurvesC0.begin(), m_bezierCurvesC0.end(),
 			[] (const std::unique_ptr<BezierCurveC0>& curve)
 			{
 				return curve->isSelected();
@@ -324,7 +328,9 @@ void Scene::addPoint()
 			(*selectedBezierCurveC0)->addPoints({point.get()});
 		}
 
-		auto selectedBezierCurveC2 = std::find_if(m_bezierCurvesC2.begin(), m_bezierCurvesC2.end(),
+		auto selectedBezierCurveC2 = std::find_if
+		(
+			m_bezierCurvesC2.begin(), m_bezierCurvesC2.end(),
 			[] (const std::unique_ptr<BezierCurveC2>& curve)
 			{
 				return curve->isSelected();
@@ -333,11 +339,14 @@ void Scene::addPoint()
 
 		if (selectedBezierCurveC2 != m_bezierCurvesC2.end())
 		{
-			addVirtualPoints((*selectedBezierCurveC2)->addPoints({point.get()}));
+			std::vector<std::unique_ptr<Point>> virtualPoints{};
+			(*selectedBezierCurveC2)->addPoints({point.get()}, virtualPoints);
+			addVirtualPoints(std::move(virtualPoints));
 		}
 
-		auto selectedBezierCurveInter = std::find_if(m_bezierCurvesInter.begin(),
-			m_bezierCurvesInter.end(),
+		auto selectedBezierCurveInter = std::find_if
+		(
+			m_bezierCurvesInter.begin(), m_bezierCurvesInter.end(),
 			[] (const std::unique_ptr<BezierCurveInter>& curve)
 			{
 				return curve->isSelected();
@@ -387,9 +396,10 @@ void Scene::addBezierCurveC2()
 		return;
 	}
 
-	auto [curve, virtualPoints] = BezierCurveC2::create(m_shaderPrograms.bezierCurve,
-		m_shaderPrograms.bezierCurvePolyline, m_shaderPrograms.point, nonVirtualSelectedPoints,
-		m_curveSelfDestructCallback);
+	std::vector<std::unique_ptr<Point>> virtualPoints{};
+	std::unique_ptr<BezierCurveC2> curve = std::make_unique<BezierCurveC2>(
+		m_shaderPrograms.bezierCurve, m_shaderPrograms.bezierCurvePolyline, m_shaderPrograms.point,
+		nonVirtualSelectedPoints, m_curveSelfDestructCallback, virtualPoints);
 	m_models.push_back(curve.get());
 	m_bezierCurvesC2.push_back(std::move(curve));
 	addVirtualPoints(std::move(virtualPoints));
@@ -413,7 +423,9 @@ void Scene::addBezierCurveInter()
 
 void Scene::addSelectedPointsToCurve()
 {
-	auto selectedBezierCurveC0 = std::find_if(m_bezierCurvesC0.begin(), m_bezierCurvesC0.end(),
+	auto selectedBezierCurveC0 = std::find_if
+	(
+		m_bezierCurvesC0.begin(), m_bezierCurvesC0.end(),
 		[] (const std::unique_ptr<BezierCurveC0>& curve)
 		{
 			return curve->isSelected();
@@ -429,7 +441,9 @@ void Scene::addSelectedPointsToCurve()
 		}
 	}
 
-	auto selectedBezierCurveC2 = std::find_if(m_bezierCurvesC2.begin(), m_bezierCurvesC2.end(),
+	auto selectedBezierCurveC2 = std::find_if
+	(
+		m_bezierCurvesC2.begin(), m_bezierCurvesC2.end(),
 		[] (const std::unique_ptr<BezierCurveC2>& curve)
 		{
 			return curve->isSelected();
@@ -441,12 +455,15 @@ void Scene::addSelectedPointsToCurve()
 		if (m_selectedModels.size() == nonVirtualSelectedPoints.size() + 1 &&
 			nonVirtualSelectedPoints.size() != 0)
 		{
-			addVirtualPoints((*selectedBezierCurveC2)->addPoints(nonVirtualSelectedPoints));
+			std::vector<std::unique_ptr<Point>> virtualPoints{};
+			(*selectedBezierCurveC2)->addPoints(nonVirtualSelectedPoints, virtualPoints);
+			addVirtualPoints(std::move(virtualPoints));
 		}
 	}
 
-	auto selectedBezierCurveInter = std::find_if(m_bezierCurvesInter.begin(),
-		m_bezierCurvesInter.end(),
+	auto selectedBezierCurveInter = std::find_if
+	(
+		m_bezierCurvesInter.begin(), m_bezierCurvesInter.end(),
 		[] (const std::unique_ptr<BezierCurveInter>& curve)
 		{
 			return curve->isSelected();
@@ -554,7 +571,9 @@ std::vector<Point*> Scene::getNonVirtualSelectedPoints() const
 		{
 			continue;
 		}
-		auto nonVirtualSelectedPoint = std::find_if(m_points.begin(), m_points.end(),
+		auto nonVirtualSelectedPoint = std::find_if
+		(
+			m_points.begin(), m_points.end(),
 			[model] (const std::unique_ptr<Point>& point)
 			{
 				return model == point.get();

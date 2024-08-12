@@ -1,6 +1,5 @@
 #pragma once
 
-#include "guis/modelGUIs/modelGUI.hpp"
 #include "guis/modelGUIs/pointGUI.hpp"
 #include "meshes/pointMesh.hpp"
 #include "models/model.hpp"
