@@ -91,7 +91,8 @@ int BezierCurveC2::m_count = 0;
 
 void BezierCurveC2::createCurveMesh()
 {
-	m_curveMesh = std::make_unique<BezierCurveMesh>(pointsToCurveVertices(m_bezierPoints));
+	m_curveMesh = std::make_unique<BezierCurveMesh>(pointsToVertices(m_bezierPoints),
+		pointsToCurveIndices(m_bezierPoints));
 }
 
 std::vector<std::unique_ptr<Point>> BezierCurveC2::createBezierPoints()
@@ -112,7 +113,7 @@ std::vector<std::unique_ptr<Point>> BezierCurveC2::createBezierPoints()
 
 void BezierCurveC2::createBezierPolylineMesh()
 {
-	m_bezierPolylineMesh = std::make_unique<PolylineMesh>(pointsToPolylineVertices(m_bezierPoints));
+	m_bezierPolylineMesh = std::make_unique<PolylineMesh>(pointsToVertices(m_bezierPoints));
 }
 
 void BezierCurveC2::updateWithBezierPoint(int index)
@@ -207,12 +208,12 @@ void BezierCurveC2::updateGeometry()
 
 void BezierCurveC2::updateCurveMesh()
 {
-	m_curveMesh->update(pointsToCurveVertices(m_bezierPoints));
+	m_curveMesh->update(pointsToVertices(m_bezierPoints), pointsToCurveIndices(m_bezierPoints));
 }
 
 void BezierCurveC2::updateBezierPolylineMesh()
 {
-	m_bezierPolylineMesh->update(pointsToPolylineVertices(m_bezierPoints));
+	m_bezierPolylineMesh->update(pointsToVertices(m_bezierPoints));
 }
 
 void BezierCurveC2::renderBezierPolyline() const

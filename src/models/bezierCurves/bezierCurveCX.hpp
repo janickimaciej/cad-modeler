@@ -5,8 +5,6 @@
 #include "models/point.hpp"
 #include "shaderProgram.hpp"
 
-#include <glm/glm.hpp>
-
 #include <string>
 #include <vector>
 
@@ -20,7 +18,7 @@ public:
 protected:
 	std::unique_ptr<BezierCurveMesh> m_curveMesh{};
 
-	static std::vector<glm::vec3> pointsToCurveVertices(const std::vector<Point*> points);
+	static std::vector<unsigned int> pointsToCurveIndices(const std::vector<Point*> points);
 
 private:
 	virtual void renderCurve() const override;
