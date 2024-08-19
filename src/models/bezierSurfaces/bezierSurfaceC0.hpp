@@ -1,5 +1,8 @@
 #pragma once
 
+#include "guis/modelGUIs/bezierSurfaceC0GUI.hpp"
+#include "meshes/mesh.hpp"
+#include "models/bezierSurfaces/bezierSurfaceWrapping.hpp"
 #include "models/model.hpp"
 #include "models/point.hpp"
 #include "shaderProgram.hpp"
@@ -11,8 +14,11 @@
 
 class BezierSurfaceC0 : public Model
 {
+public:
 	BezierSurfaceC0(const ShaderProgram& bezierSurfaceShaderProgram,
-		const ShaderProgram& bezierSurfaceGridShaderProgram, int patchesU, int patchesV,
+		const ShaderProgram& bezierSurfaceGridShaderProgram,
+		const ShaderProgram& pointShaderProgram, int patchesU, int patchesV, const glm::vec3& pos,
+		float sizeU, float sizeV, BezierSurfaceWrapping wrapping,
 		std::vector<std::unique_ptr<Point>>& bezierPoints);
 	virtual void render() const override;
 	virtual void updateGUI() override;
@@ -30,9 +36,11 @@ private:
 	const ShaderProgram& m_gridShaderProgram;
 	
 	// std::unique_ptr<BezierSurfaceMesh> m_surfaceMesh{};
-	// std::unique_ptr<BezierSurfaceGridMesh> m_gridMesh{};
-	// BezierSurfaceGUI m_gui{*this};
+	std::unique_ptr<Mesh> m_gridMesh{};
+	BezierSurfaceC0GUI m_gui{*this};
 
+	int m_patchesU{};
+	int m_patchesV{};
 	std::vector<Point*> m_points{};
 	bool m_renderGrid = true;
 	
@@ -41,7 +49,8 @@ private:
 	virtual void updateShaders() const override;
 
 	void createSurfaceMesh();
-	std::vector<std::unique_ptr<Point>> createBezierPoints();
+	std::vector<std::unique_ptr<Point>> createBezierPoints(const ShaderProgram& pointShaderProgram,
+		const glm::vec3& pos, float sizeU, float sizeV);
 	void createGridMesh();
 	
 	virtual void updateGeometry();
@@ -58,4 +67,6 @@ private:
 
 	static std::vector<glm::vec3> pointsToVertices(const std::vector<Point*> points);
 	static std::vector<unsigned int> pointsToCurveIndices(const std::vector<Point*> points);
+	static std::vector<unsigned int> pointsToGridIndices(const std::vector<Point*> points,
+		int patchesU, int patchesV);
 };

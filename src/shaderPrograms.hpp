@@ -6,15 +6,15 @@
 
 struct ShaderPrograms
 {
-	ShaderProgram torus{path("torusVS"), path("torusFS")};
-	ShaderProgram point{path("pointVS"), path("pointGS"), path("pointFS")};
+	ShaderProgram mesh{path("meshVS"), path("FS")};
+	ShaderProgram point{path("pointVS"), path("pointGS"), path("FS")};
 	ShaderProgram cursor{path("cursorVS"), path("cursorGS"), path("cursorFS")};
 	ShaderProgram grid{path("gridVS"), path("gridFS")};
 	ShaderProgram bezierCurve{path("bezierCurveVS"), path("bezierCurveTCS"), path("bezierCurveTES"),
-		path("bezierCurveFS")};
+		path("FS")};
 	ShaderProgram bezierCurveInter{path("bezierCurveInterVS"), path("bezierCurveInterTCS"),
-		path("bezierCurveInterTES"), path("bezierCurveInterFS")};
-	ShaderProgram bezierCurvePolyline{path("bezierCurvePolylineVS"), path("bezierCurvePolylineFS")};
+		path("bezierCurveInterTES"), path("FS")};
+	ShaderProgram polyline{path("polylineVS"), path("FS")};
 
 private:
 	static std::string path(const std::string& shaderName);

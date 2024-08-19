@@ -6,7 +6,17 @@
 
 LeftPanel::LeftPanel(Scene& scene, const glm::ivec2& windowSize) :
 	m_scene{scene},
-	m_windowSize{windowSize}
+	m_windowSize{windowSize},
+	m_addBezierSurfaceC0Panel
+	{
+		[this] (int patchesU, int patchesV, float sizeU, float sizeV,
+			BezierSurfaceWrapping wrapping)
+		{
+			m_scene.addBezierSurfaceC0(patchesU, patchesV, sizeU, sizeV, wrapping);
+			m_addBezierSurfaceC0Panel.reset();
+			m_addingBezierSurfaceC0 = false;
+		}
+	}
 { }
 
 void LeftPanel::update(GUIMode mode)
@@ -40,23 +50,20 @@ void LeftPanel::updateCamera()
 	
 	ImGui::PushItemWidth(120);
 	
-	m_cameraType = cameraTypeLabels[static_cast<int>(m_scene.getCameraType())];
-	if (ImGui::BeginCombo("##cameraType", m_cameraType.c_str()))
+	m_cameraType = m_scene.getCameraType();
+	if (ImGui::BeginCombo("##cameraType", cameraTypeLabels[static_cast<int>(m_cameraType)].c_str()))
 	{
-		for (int cameraTypeIndex = 0; cameraTypeIndex < cameraTypeCount; ++cameraTypeIndex)
+		for (int cameraType = 0; cameraType < cameraTypeCount; ++cameraType)
 		{
-			bool isSelected = m_cameraType == cameraTypeLabels[cameraTypeIndex];
-			if (ImGui::Selectable(cameraTypeLabels[cameraTypeIndex].c_str(), isSelected))
+			bool isSelected = static_cast<int>(m_cameraType) == cameraType;
+			if (ImGui::Selectable(cameraTypeLabels[cameraType].c_str(), isSelected))
 			{
-				m_cameraType = cameraTypeLabels[cameraTypeIndex];
+				m_cameraType = static_cast<CameraType>(cameraType);
 			}
 		}
 		ImGui::EndCombo();
 	}
-	int cameraTypeIndex =
-		static_cast<int>(std::find(cameraTypeLabels.begin(), cameraTypeLabels.end(), m_cameraType) -
-		cameraTypeLabels.begin());
-	m_scene.setCameraType(static_cast<CameraType>(cameraTypeIndex));
+	m_scene.setCameraType(static_cast<CameraType>(m_cameraType));
 	
 	ImGui::PopItemWidth();
 
@@ -117,6 +124,18 @@ void LeftPanel::updateButtons()
 	if (ImGui::Button("Add points to curve"))
 	{
 		m_scene.addSelectedPointsToCurve();
+	}
+
+	ImGui::Spacing();
+	
+	if (ImGui::Button("Add bezier surface C0"))
+	{
+		m_addingBezierSurfaceC0 = !m_addingBezierSurfaceC0;
+	}
+
+	if (m_addingBezierSurfaceC0)
+	{
+		m_addBezierSurfaceC0Panel.update();
 	}
 }
 

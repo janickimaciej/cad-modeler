@@ -32,6 +32,7 @@
     <ClCompile Include="src\cameras\camera.cpp" />
     <ClCompile Include="src\cameras\orthographicCamera.cpp" />
     <ClCompile Include="src\cameras\perspectiveCamera.cpp" />
+    <ClCompile Include="src\guis\addBezierSurfacePanel.cpp" />
     <ClCompile Include="src\guis\cameraGUIs\orthographicCameraGUI.cpp" />
     <ClCompile Include="src\guis\cameraGUIs\perspectiveCameraGUI.cpp" />
     <ClCompile Include="src\cursor.cpp" />
@@ -42,6 +43,7 @@
     <ClCompile Include="src\guis\gui.cpp" />
     <ClCompile Include="src\guis\leftPanel.cpp" />
     <ClCompile Include="src\guis\modelGUIs\bezierCurveGUI.cpp" />
+    <ClCompile Include="src\guis\modelGUIs\bezierSurfaceC0GUI.cpp" />
     <ClCompile Include="src\guis\modelGUIs\modelGUI.cpp" />
     <ClCompile Include="src\guis\valueWindows\renamingWindow.cpp" />
     <ClCompile Include="src\guis\valueWindows\rotatingWindow.cpp" />
@@ -58,6 +60,7 @@
     <ClCompile Include="src\models\bezierCurves\bezierCurveC2.cpp" />
     <ClCompile Include="src\models\bezierCurves\bezierCurveCX.cpp" />
     <ClCompile Include="src\models\bezierCurves\bezierCurveInter.cpp" />
+    <ClCompile Include="src\models\bezierSurfaces\bezierSurfaceC0.cpp" />
     <ClCompile Include="src\models\model.cpp" />
     <ClCompile Include="src\models\torus.cpp" />
     <ClCompile Include="src\guis\modelGUIs\pointGUI.cpp" />
@@ -82,6 +85,7 @@
     <ClInclude Include="src\cameras\camera.hpp" />
     <ClInclude Include="src\cameras\orthographicCamera.hpp" />
     <ClInclude Include="src\cameras\perspectiveCamera.hpp" />
+    <ClInclude Include="src\guis\addBezierSurfacePanel.hpp" />
     <ClInclude Include="src\guis\guiMode.hpp" />
     <ClInclude Include="src\guis\leftPanel.hpp" />
     <ClInclude Include="src\guis\centerPointGUI.hpp" />
@@ -95,6 +99,7 @@
     <ClInclude Include="src\grid\grid.hpp" />
     <ClInclude Include="src\guis\gui.hpp" />
     <ClInclude Include="src\guis\modelGUIs\bezierCurveGUI.hpp" />
+    <ClInclude Include="src\guis\modelGUIs\bezierSurfaceC0GUI.hpp" />
     <ClInclude Include="src\guis\valueWindows\renamingWindow.hpp" />
     <ClInclude Include="src\guis\valueWindows\rotatingWindow.hpp" />
     <ClInclude Include="src\guis\valueWindows\scalingWindow.hpp" />
@@ -110,6 +115,8 @@
     <ClInclude Include="src\models\bezierCurves\bezierCurveCX.hpp" />
     <ClInclude Include="src\models\bezierCurves\bezierCurveInter.hpp" />
     <ClInclude Include="src\models\bezierCurves\bezierCurveInterSegmentData.hpp" />
+    <ClInclude Include="src\models\bezierSurfaces\bezierSurfaceC0.hpp" />
+    <ClInclude Include="src\models\bezierSurfaces\bezierSurfaceWrapping.hpp" />
     <ClInclude Include="src\models\model.hpp" />
     <ClInclude Include="src\models\torus.hpp" />
     <ClInclude Include="src\guis\modelGUIs\modelGUI.hpp" />
@@ -125,15 +132,11 @@
     <None Include="dep\imgui\misc\debuggers\imgui.natstepfilter" />
     <None Include="src\shaders\bezierCurveInterTES.glsl" />
     <None Include="src\shaders\bezierCurveInterVS.glsl" />
-    <None Include="src\shaders\bezierCurveInterFS.glsl" />
     <None Include="src\shaders\bezierCurveInterTCS.glsl" />
-    <None Include="src\shaders\bezierCurveFS.glsl" />
     <None Include="src\shaders\bezierCurveTES.glsl" />
     <None Include="src\shaders\bezierCurveTCS.glsl" />
     <None Include="src\shaders\bezierCurveVS.glsl" />
-    <None Include="src\shaders\bezierCurvePolylineFS.glsl" />
-    <None Include="src\shaders\bezierCurvePolylineVS.glsl" />
-    <None Include="src\shaders\pointFS.glsl" />
+    <None Include="src\shaders\polylineVS.glsl" />
     <None Include="src\shaders\pointGS.glsl" />
     <None Include="src\shaders\pointVS.glsl" />
     <None Include="src\shaders\cursorGS.glsl" />
@@ -141,8 +144,8 @@
     <None Include="src\shaders\cursorVS.glsl" />
     <None Include="src\shaders\gridFS.glsl" />
     <None Include="src\shaders\gridVS.glsl" />
-    <None Include="src\shaders\torusFS.glsl" />
-    <None Include="src\shaders\torusVS.glsl" />
+    <None Include="src\shaders\FS.glsl" />
+    <None Include="src\shaders\meshVS.glsl" />
   </ItemGroup>
   <ItemGroup>
     <Natvis Include="dep\imgui\misc\debuggers\imgui.natvis" />

@@ -87,6 +87,7 @@ void BezierCurve::updateShaders() const
 	if (getRenderPolyline())
 	{
 		usePolylineShaderProgram();
+		m_polylineShaderProgram.setUniform("isDark", true);
 		m_polylineShaderProgram.setUniform("isSelected", isSelected());
 	}
 }

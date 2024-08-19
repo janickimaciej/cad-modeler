@@ -3,13 +3,16 @@
 #include <string>
 
 BezierSurfaceC0::BezierSurfaceC0(const ShaderProgram& bezierSurfaceShaderProgram,
-	const ShaderProgram& bezierSurfaceGridShaderProgram, int patchesU, int patchesV,
-	std::vector<std::unique_ptr<Point>>& bezierPoints) :
+	const ShaderProgram& bezierSurfaceGridShaderProgram, const ShaderProgram& pointShaderProgram,
+	int patchesU, int patchesV, const glm::vec3& pos, float sizeU, float sizeV,
+	BezierSurfaceWrapping wrapping, std::vector<std::unique_ptr<Point>>& bezierPoints) :
 	Model{{}, "BezierSurfaceC0 " + std::to_string(m_count++)},
 	m_surfaceShaderProgram{bezierSurfaceShaderProgram},
-	m_gridShaderProgram{bezierSurfaceGridShaderProgram}
+	m_gridShaderProgram{bezierSurfaceGridShaderProgram},
+	m_patchesU{patchesU},
+	m_patchesV{patchesV}
 {
-	bezierPoints = createBezierPoints();
+	bezierPoints = createBezierPoints(pointShaderProgram, pos, sizeU, sizeV);
 	updatePos();
 	createSurfaceMesh();
 	createGridMesh();
@@ -28,7 +31,7 @@ void BezierSurfaceC0::render() const
 
 void BezierSurfaceC0::updateGUI()
 {
-	// m_gui.update();
+	m_gui.update();
 }
 
 void BezierSurfaceC0::setPos(const glm::vec3&)
@@ -47,9 +50,14 @@ void BezierSurfaceC0::setRenderGrid(bool renderGrid)
 	m_renderGrid = renderGrid;
 }
 
+int BezierSurfaceC0::m_count = 0;
+
 void BezierSurfaceC0::updateShaders() const
 {
-	// TODO
+	m_gridShaderProgram.use();
+	m_gridShaderProgram.setUniform("modelMatrix", m_modelMatrix);
+	m_gridShaderProgram.setUniform("isDark", true);
+	m_gridShaderProgram.setUniform("isSelected", isSelected());
 }
 
 void BezierSurfaceC0::createSurfaceMesh()
@@ -58,14 +66,29 @@ void BezierSurfaceC0::createSurfaceMesh()
 		// pointsToSurfaceIndices(m_points));
 }
 
-std::vector<std::unique_ptr<Point>> BezierSurfaceC0::createBezierPoints()
+std::vector<std::unique_ptr<Point>> BezierSurfaceC0::createBezierPoints(
+	const ShaderProgram& pointShaderProgram, const glm::vec3& pos, float sizeU, float sizeV)
 {
-	// TODO
+	std::vector<std::unique_ptr<Point>> bezierPoints{};
+	float dU = sizeU / (3 * m_patchesU);
+	float dV = sizeV / (3 * m_patchesV);
+	glm::vec3 startCorner = pos + glm::vec3{-sizeU / 2, 0, -sizeV / 2};
+	for (int i = 0; i < 3 * m_patchesU + 1; ++i)
+	{
+		for (int j = 0; j < 3 * m_patchesV + 1; ++j)
+		{
+			glm::vec3 pointPos = startCorner + glm::vec3{i * dU, 0, j * dV};
+			bezierPoints.push_back(std::make_unique<Point>(pointShaderProgram, pointPos, true));
+			m_points.push_back(bezierPoints.back().get());
+		}
+	}
+	return bezierPoints;
 }
 
 void BezierSurfaceC0::createGridMesh()
 {
-	// m_gridMesh = std::make_unique<GridMesh>(pointsToVertices(m_points));
+	m_gridMesh = std::make_unique<Mesh>(pointsToVertices(m_points),
+		pointsToGridIndices(m_points, m_patchesU, m_patchesV));
 }
 
 void BezierSurfaceC0::updateGeometry()
@@ -92,7 +115,8 @@ void BezierSurfaceC0::updateSurfaceMesh()
 
 void BezierSurfaceC0::updateGridMesh()
 {
-	// m_gridMesh->update(pointsToVertices(m_points));
+	m_gridMesh->update(pointsToVertices(m_points), pointsToGridIndices(m_points, m_patchesU,
+		m_patchesV));
 }
 
 void BezierSurfaceC0::renderSurface() const
@@ -104,9 +128,9 @@ void BezierSurfaceC0::renderSurface() const
 void BezierSurfaceC0::renderGrid() const
 {
 	m_gridShaderProgram.use();
-	// m_gridMesh.render();
+	m_gridMesh->render();
 }
-	
+
 void BezierSurfaceC0::registerForNotifications(const std::vector<Point*>& points)
 {
 	for (Point* point : points)
@@ -143,5 +167,30 @@ std::vector<glm::vec3> BezierSurfaceC0::pointsToVertices(const std::vector<Point
 
 std::vector<unsigned int> BezierSurfaceC0::pointsToCurveIndices(const std::vector<Point*> points)
 {
-	// TODO
+	return {}; // TODO
+}
+
+std::vector<unsigned int> BezierSurfaceC0::pointsToGridIndices(const std::vector<Point*> points,
+	int patchesU, int patchesV)
+{
+	unsigned int pointsU = 3 * patchesU + 1;
+	unsigned int pointsV = 3 * patchesV + 1;
+	std::vector<unsigned int> indices{};
+	for (unsigned int v = 0; v < pointsV; ++v)
+	{
+		for (unsigned int u = 0; u < pointsU - 1; ++u)
+		{
+			indices.push_back(v * pointsU + u);
+			indices.push_back(v * pointsU + u + 1);
+		}
+	}
+	for (unsigned int u = 0; u < pointsU; ++u)
+	{
+		for (unsigned int v = 0; v < pointsV - 1; ++v)
+		{
+			indices.push_back(v * pointsU + u);
+			indices.push_back((v + 1) * pointsU + u);
+		}
+	}
+	return indices;
 }

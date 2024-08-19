@@ -178,46 +178,12 @@ void Scene::deleteSelectedModels()
 		}
 	);
 
-	std::erase_if
-	(
-		m_points,
-		[] (const std::unique_ptr<Point>& point)
-		{
-			return point->isSelected() && !point->isVirtual();
-		}
-	);
-	std::erase_if
-	(
-		m_toruses,
-		[] (const std::unique_ptr<Torus>& torus)
-		{
-			return torus->isSelected() && !torus->isVirtual();
-		}
-	);
-	std::erase_if
-	(
-		m_bezierCurvesC0,
-		[] (const std::unique_ptr<BezierCurveC0>& curve)
-		{
-			return curve->isSelected() && !curve->isVirtual();
-		}
-	);
-	std::erase_if
-	(
-		m_bezierCurvesC2,
-		[] (const std::unique_ptr<BezierCurveC2>& curve)
-		{
-			return curve->isSelected() && !curve->isVirtual();
-		}
-	);
-	std::erase_if
-	(
-		m_bezierCurvesInter,
-		[] (const std::unique_ptr<BezierCurveInter>& curve)
-		{
-			return curve->isSelected() && !curve->isVirtual();
-		}
-	);
+	deleteSelectedModels(m_points);
+	deleteSelectedModels(m_toruses);
+	deleteSelectedModels(m_bezierCurvesC0);
+	deleteSelectedModels(m_bezierCurvesC2);
+	deleteSelectedModels(m_bezierCurvesInter);
+	deleteSelectedModels(m_bezierSurfacesC0);
 }
 
 bool Scene::selectUniqueModel(const glm::vec2& screenPos)
@@ -365,7 +331,7 @@ void Scene::addPoint()
 
 void Scene::addTorus()
 {
-	std::unique_ptr<Torus> torus = std::make_unique<Torus>(m_shaderPrograms.torus,
+	std::unique_ptr<Torus> torus = std::make_unique<Torus>(m_shaderPrograms.mesh,
 		m_cursor.getPos());
 	m_models.push_back(torus.get());
 	m_toruses.push_back(std::move(torus));
@@ -381,7 +347,7 @@ void Scene::addBezierCurveC0()
 	}
 
 	std::unique_ptr<BezierCurveC0> curve = std::make_unique<BezierCurveC0>(
-		m_shaderPrograms.bezierCurve, m_shaderPrograms.bezierCurvePolyline,
+		m_shaderPrograms.bezierCurve, m_shaderPrograms.polyline,
 		nonVirtualSelectedPoints, m_curveSelfDestructCallback);
 	m_models.push_back(curve.get());
 	m_bezierCurvesC0.push_back(std::move(curve));
@@ -398,7 +364,7 @@ void Scene::addBezierCurveC2()
 
 	std::vector<std::unique_ptr<Point>> virtualPoints{};
 	std::unique_ptr<BezierCurveC2> curve = std::make_unique<BezierCurveC2>(
-		m_shaderPrograms.bezierCurve, m_shaderPrograms.bezierCurvePolyline, m_shaderPrograms.point,
+		m_shaderPrograms.bezierCurve, m_shaderPrograms.polyline, m_shaderPrograms.point,
 		nonVirtualSelectedPoints, m_curveSelfDestructCallback, virtualPoints);
 	m_models.push_back(curve.get());
 	m_bezierCurvesC2.push_back(std::move(curve));
@@ -415,7 +381,7 @@ void Scene::addBezierCurveInter()
 	}
 
 	std::unique_ptr<BezierCurveInter> curve = std::make_unique<BezierCurveInter>(
-		m_shaderPrograms.bezierCurveInter, m_shaderPrograms.bezierCurvePolyline,
+		m_shaderPrograms.bezierCurveInter, m_shaderPrograms.polyline,
 		nonVirtualSelectedPoints, m_curveSelfDestructCallback);
 	m_models.push_back(curve.get());
 	m_bezierCurvesInter.push_back(std::move(curve));
@@ -478,6 +444,18 @@ void Scene::addSelectedPointsToCurve()
 			(*selectedBezierCurveInter)->addPoints(nonVirtualSelectedPoints);
 		}
 	}
+}
+
+void Scene::addBezierSurfaceC0(int patchesU, int patchesV, float sizeU, float sizeV,
+	BezierSurfaceWrapping wrapping)
+{
+	std::vector<std::unique_ptr<Point>> virtualPoints{};
+	std::unique_ptr<BezierSurfaceC0> surface = std::make_unique<BezierSurfaceC0>(
+		m_shaderPrograms.point, m_shaderPrograms.mesh, m_shaderPrograms.point, patchesU, patchesV,
+		m_cursor.getPos(), sizeU, sizeV, wrapping, virtualPoints);
+	m_models.push_back(surface.get());
+	m_bezierSurfacesC0.push_back(std::move(surface));
+	addVirtualPoints(std::move(virtualPoints));
 }
 
 void Scene::updateActiveCameraGUI()

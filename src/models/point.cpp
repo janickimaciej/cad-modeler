@@ -3,7 +3,7 @@
 #include <array>
 #include <string>
 
-Point::Point(const ShaderProgram& shaderProgram, glm::vec3 pos, bool isVirtual) :
+Point::Point(const ShaderProgram& shaderProgram, const glm::vec3& pos, bool isVirtual) :
 	Model{pos, isVirtual ? "VirtualPoint " + std::to_string(m_virtualCount++) :
 		"Point " + std::to_string(m_nonVirtualCount++), isVirtual},
 	m_shaderProgram{shaderProgram}
@@ -66,7 +66,7 @@ void Point::updateShaders() const
 {
 	m_shaderProgram.use();
 	m_shaderProgram.setUniform("posWorld", m_pos);
-	m_shaderProgram.setUniform("isVirtual", isVirtual());
+	m_shaderProgram.setUniform("isDark", isVirtual());
 	m_shaderProgram.setUniform("isSelected", isSelected());
 }
 

@@ -86,6 +86,7 @@ void Torus::updateShaders() const
 {
 	m_shaderProgram.use();
 	m_shaderProgram.setUniform("modelMatrix", m_modelMatrix);
+	m_shaderProgram.setUniform("isDark", false);
 	m_shaderProgram.setUniform("isSelected", isSelected());
 }
 

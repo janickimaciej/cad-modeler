@@ -82,8 +82,8 @@ void Camera::updateShaders(const glm::ivec2& windowSize) const
 	glm::mat4 projectionViewMatrix = m_projectionMatrix * glm::inverse(m_viewMatrixInverse);
 	glm::mat4 projectionViewMatrixInverse = glm::inverse(projectionViewMatrix);
 
-	m_shaderPrograms.torus.use();
-	m_shaderPrograms.torus.setUniform("projectionViewMatrix", projectionViewMatrix);
+	m_shaderPrograms.mesh.use();
+	m_shaderPrograms.mesh.setUniform("projectionViewMatrix", projectionViewMatrix);
 
 	m_shaderPrograms.point.use();
 	m_shaderPrograms.point.setUniform("projectionViewMatrix", projectionViewMatrix);
@@ -96,8 +96,8 @@ void Camera::updateShaders(const glm::ivec2& windowSize) const
 	m_shaderPrograms.grid.setUniform("projectionViewMatrixInverse",
 		projectionViewMatrixInverse);
 
-	m_shaderPrograms.bezierCurvePolyline.use();
-	m_shaderPrograms.bezierCurvePolyline.setUniform("projectionViewMatrix",
+	m_shaderPrograms.polyline.use();
+	m_shaderPrograms.polyline.setUniform("projectionViewMatrix",
 		projectionViewMatrix);
 
 	m_shaderPrograms.bezierCurve.use();

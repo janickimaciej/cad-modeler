@@ -10,6 +10,8 @@
 #include "models/bezierCurves/bezierCurveC0.hpp"
 #include "models/bezierCurves/bezierCurveC2.hpp"
 #include "models/bezierCurves/bezierCurveInter.hpp"
+#include "models/bezierSurfaces/bezierSurfaceC0.hpp"
+#include "models/bezierSurfaces/bezierSurfaceWrapping.hpp"
 #include "models/model.hpp"
 #include "models/point.hpp"
 #include "models/torus.hpp"
@@ -70,6 +72,8 @@ public:
 	void addBezierCurveC2();
 	void addBezierCurveInter();
 	void addSelectedPointsToCurve();
+	void addBezierSurfaceC0(int patchesU, int patchesV, float sizeU, float sizeV,
+		BezierSurfaceWrapping wrapping);
 
 	void updateActiveCameraGUI();
 	void updateCursorGUI();
@@ -88,6 +92,7 @@ private:
 	std::vector<std::unique_ptr<BezierCurveC0>> m_bezierCurvesC0{};
 	std::vector<std::unique_ptr<BezierCurveC2>> m_bezierCurvesC2{};
 	std::vector<std::unique_ptr<BezierCurveInter>> m_bezierCurvesInter{};
+	std::vector<std::unique_ptr<BezierSurfaceC0>> m_bezierSurfacesC0{};
 
 	Cursor m_cursor{m_shaderPrograms.cursor};
 	CenterPoint m_selectedModelsCenter{m_shaderPrograms.cursor, m_selectedModels};
@@ -122,4 +127,20 @@ private:
 	void addBezierCurveForDeletion(const BezierCurve* curve);
 	void deleteEmptyBezierCurves();
 	void deleteUnreferencedVirtualPoints();
+
+	template <typename ModelType>
+	void deleteSelectedModels(std::vector<std::unique_ptr<ModelType>>& models);
 };
+
+template <typename ModelType>
+void Scene::deleteSelectedModels(std::vector<std::unique_ptr<ModelType>>& models)
+{
+	std::erase_if
+	(
+		models,
+		[] (const std::unique_ptr<ModelType>& model)
+		{
+			return model->isSelected() && !model->isVirtual();
+		}
+	);
+}
