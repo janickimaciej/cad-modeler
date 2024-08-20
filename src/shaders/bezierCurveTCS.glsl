@@ -15,7 +15,7 @@ void main()
 {
 	tessPos[gl_InvocationID] = inTessPos[gl_InvocationID];
 
-	if (gl_InvocationID % 4 == 0)
+	if (gl_InvocationID == 0)
 	{
 		vec2 tessPosScreen[controlVerticesCount];
 		for (int i = 0; i < controlVerticesCount; ++i)

@@ -451,8 +451,8 @@ void Scene::addBezierSurfaceC0(int patchesU, int patchesV, float sizeU, float si
 {
 	std::vector<std::unique_ptr<Point>> virtualPoints{};
 	std::unique_ptr<BezierSurfaceC0> surface = std::make_unique<BezierSurfaceC0>(
-		m_shaderPrograms.point, m_shaderPrograms.mesh, m_shaderPrograms.point, patchesU, patchesV,
-		m_cursor.getPos(), sizeU, sizeV, wrapping, virtualPoints);
+		m_shaderPrograms.bezierSurface, m_shaderPrograms.mesh, m_shaderPrograms.point, patchesU,
+		patchesV, m_cursor.getPos(), sizeU, sizeV, wrapping, virtualPoints);
 	m_models.push_back(surface.get());
 	m_bezierSurfacesC0.push_back(std::move(surface));
 	addVirtualPoints(std::move(virtualPoints));

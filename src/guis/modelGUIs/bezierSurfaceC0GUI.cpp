@@ -18,4 +18,16 @@ void BezierSurfaceC0GUI::update()
 	{
 		m_surface.setRenderGrid(renderGrid);
 	}
+	
+	static constexpr int stepPrecision = 1;
+
+	int lineCount = m_surface.getLineCount();
+	int prevLineCount = lineCount;
+	ImGui::InputInt(("line count" + suffix()).c_str(), &lineCount, stepPrecision, stepPrecision);
+	lineCount = std::max(lineCount, 2);
+	lineCount = std::min(lineCount, 64);
+	if (lineCount != prevLineCount)
+	{
+		m_surface.setLineCount(lineCount);
+	}
 }

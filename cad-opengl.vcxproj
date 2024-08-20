@@ -52,6 +52,7 @@
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\meshes\bezierCurveInterMesh.cpp" />
     <ClCompile Include="src\meshes\bezierCurveMesh.cpp" />
+    <ClCompile Include="src\meshes\bezierSurfaceMesh.cpp" />
     <ClCompile Include="src\meshes\mesh.cpp" />
     <ClCompile Include="src\meshes\pointMesh.cpp" />
     <ClCompile Include="src\meshes\polylineMesh.cpp" />
@@ -106,6 +107,7 @@
     <ClInclude Include="src\guis\valueWindows\valueWindow.hpp" />
     <ClInclude Include="src\meshes\bezierCurveInterMesh.hpp" />
     <ClInclude Include="src\meshes\bezierCurveMesh.hpp" />
+    <ClInclude Include="src\meshes\bezierSurfaceMesh.hpp" />
     <ClInclude Include="src\meshes\mesh.hpp" />
     <ClInclude Include="src\meshes\pointMesh.hpp" />
     <ClInclude Include="src\meshes\polylineMesh.hpp" />
@@ -130,6 +132,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="dep\imgui\misc\debuggers\imgui.natstepfilter" />
+    <None Include="src\shaders\bezierSurfaceTCS.glsl" />
+    <None Include="src\shaders\bezierSurfaceTES.glsl" />
+    <None Include="src\shaders\bezierSurfaceVS.glsl" />
     <None Include="src\shaders\bezierCurveInterTES.glsl" />
     <None Include="src\shaders\bezierCurveInterVS.glsl" />
     <None Include="src\shaders\bezierCurveInterTCS.glsl" />

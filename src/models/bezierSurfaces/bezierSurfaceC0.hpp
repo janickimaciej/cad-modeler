@@ -1,6 +1,7 @@
 #pragma once
 
 #include "guis/modelGUIs/bezierSurfaceC0GUI.hpp"
+#include "meshes/bezierSurfaceMesh.hpp"
 #include "meshes/mesh.hpp"
 #include "models/bezierSurfaces/bezierSurfaceWrapping.hpp"
 #include "models/model.hpp"
@@ -28,6 +29,8 @@ public:
 
 	bool getRenderGrid() const;
 	void setRenderGrid(bool renderGrid);
+	int getLineCount() const;
+	void setLineCount(int lineCount);
 
 private:
 	static int m_count;
@@ -35,14 +38,15 @@ private:
 	const ShaderProgram& m_surfaceShaderProgram;
 	const ShaderProgram& m_gridShaderProgram;
 	
-	// std::unique_ptr<BezierSurfaceMesh> m_surfaceMesh{};
+	std::unique_ptr<BezierSurfaceMesh> m_surfaceMesh{};
 	std::unique_ptr<Mesh> m_gridMesh{};
 	BezierSurfaceC0GUI m_gui{*this};
 
 	int m_patchesU{};
 	int m_patchesV{};
 	std::vector<Point*> m_points{};
-	bool m_renderGrid = true;
+	bool m_renderGrid = false;
+	int m_lineCount = 4;
 	
 	std::vector<std::shared_ptr<Point::Callback>> m_pointMoveNotifications{};
 	
@@ -66,7 +70,8 @@ private:
 	void pointMoveNotification();
 
 	static std::vector<glm::vec3> pointsToVertices(const std::vector<Point*> points);
-	static std::vector<unsigned int> pointsToCurveIndices(const std::vector<Point*> points);
+	static std::vector<unsigned int> pointsToSurfaceIndices(const std::vector<Point*> points,
+		int patchesU, int patchesV);
 	static std::vector<unsigned int> pointsToGridIndices(const std::vector<Point*> points,
 		int patchesU, int patchesV);
 };

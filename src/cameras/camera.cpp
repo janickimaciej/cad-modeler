@@ -96,10 +96,6 @@ void Camera::updateShaders(const glm::ivec2& windowSize) const
 	m_shaderPrograms.grid.setUniform("projectionViewMatrixInverse",
 		projectionViewMatrixInverse);
 
-	m_shaderPrograms.polyline.use();
-	m_shaderPrograms.polyline.setUniform("projectionViewMatrix",
-		projectionViewMatrix);
-
 	m_shaderPrograms.bezierCurve.use();
 	m_shaderPrograms.bezierCurve.setUniform("projectionViewMatrix", projectionViewMatrix);
 	m_shaderPrograms.bezierCurve.setUniform("windowSize", windowSize);
@@ -107,6 +103,13 @@ void Camera::updateShaders(const glm::ivec2& windowSize) const
 	m_shaderPrograms.bezierCurveInter.use();
 	m_shaderPrograms.bezierCurveInter.setUniform("projectionViewMatrix", projectionViewMatrix);
 	m_shaderPrograms.bezierCurveInter.setUniform("windowSize", windowSize);
+
+	m_shaderPrograms.polyline.use();
+	m_shaderPrograms.polyline.setUniform("projectionViewMatrix",
+		projectionViewMatrix);
+
+	m_shaderPrograms.bezierSurface.use();
+	m_shaderPrograms.bezierSurface.setUniform("projectionViewMatrix", projectionViewMatrix);
 }
 
 void Camera::updateViewMatrix()

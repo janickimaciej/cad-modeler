@@ -50,20 +50,38 @@ void BezierSurfaceC0::setRenderGrid(bool renderGrid)
 	m_renderGrid = renderGrid;
 }
 
+int BezierSurfaceC0::getLineCount() const
+{
+	return m_lineCount;
+}
+
+void BezierSurfaceC0::setLineCount(int lineCount)
+{
+	m_lineCount = lineCount;
+}
+
 int BezierSurfaceC0::m_count = 0;
 
 void BezierSurfaceC0::updateShaders() const
 {
-	m_gridShaderProgram.use();
-	m_gridShaderProgram.setUniform("modelMatrix", m_modelMatrix);
-	m_gridShaderProgram.setUniform("isDark", true);
-	m_gridShaderProgram.setUniform("isSelected", isSelected());
+	m_surfaceShaderProgram.use();
+	m_surfaceShaderProgram.setUniform("lineCount", m_lineCount);
+	m_surfaceShaderProgram.setUniform("isDark", false);
+	m_surfaceShaderProgram.setUniform("isSelected", isSelected());
+
+	if (m_renderGrid)
+	{
+		m_gridShaderProgram.use();
+		m_gridShaderProgram.setUniform("modelMatrix", m_modelMatrix);
+		m_gridShaderProgram.setUniform("isDark", true);
+		m_gridShaderProgram.setUniform("isSelected", isSelected());
+	}
 }
 
 void BezierSurfaceC0::createSurfaceMesh()
 {
-	// m_surfaceMesh = std::make_unique<BezierSurfaceMesh>(pointsToVertices(m_points),
-		// pointsToSurfaceIndices(m_points));
+	m_surfaceMesh = std::make_unique<BezierSurfaceMesh>(pointsToVertices(m_points),
+		pointsToSurfaceIndices(m_points, m_patchesU, m_patchesV));
 }
 
 std::vector<std::unique_ptr<Point>> BezierSurfaceC0::createBezierPoints(
@@ -110,7 +128,8 @@ void BezierSurfaceC0::updatePos()
 
 void BezierSurfaceC0::updateSurfaceMesh()
 {
-	// m_surfaceMesh->update(pointsToVertices(m_points));
+	m_surfaceMesh->update(pointsToVertices(m_points), pointsToSurfaceIndices(m_points, m_patchesU,
+		m_patchesV));
 }
 
 void BezierSurfaceC0::updateGridMesh()
@@ -122,7 +141,10 @@ void BezierSurfaceC0::updateGridMesh()
 void BezierSurfaceC0::renderSurface() const
 {
 	m_surfaceShaderProgram.use();
-	// m_surfaceMesh->render();
+	m_surfaceShaderProgram.setUniform("orientationFlipped", false);
+	m_surfaceMesh->render();
+	m_surfaceShaderProgram.setUniform("orientationFlipped", true);
+	m_surfaceMesh->render();
 }
 
 void BezierSurfaceC0::renderGrid() const
@@ -165,9 +187,25 @@ std::vector<glm::vec3> BezierSurfaceC0::pointsToVertices(const std::vector<Point
 	return vertices;
 }
 
-std::vector<unsigned int> BezierSurfaceC0::pointsToCurveIndices(const std::vector<Point*> points)
+std::vector<unsigned int> BezierSurfaceC0::pointsToSurfaceIndices(const std::vector<Point*> points,
+	int patchesU, int patchesV)
 {
-	return {}; // TODO
+	unsigned int pointsU = 3 * patchesU + 1;
+	std::vector<unsigned int> indices{};
+	for (unsigned int patchV = 0; patchV < static_cast<unsigned int>(patchesV); ++patchV)
+	{
+		for (unsigned int patchU = 0; patchU < static_cast<unsigned int>(patchesU); ++patchU)
+		{
+			for (unsigned int v = 3 * patchV; v < 3 * patchV + 4; ++v)
+			{
+				for (unsigned int u = 3 * patchU; u < 3 * patchU + 4; ++u)
+				{
+					indices.push_back(v * pointsU + u);
+				}
+			}
+		}
+	}
+	return indices;
 }
 
 std::vector<unsigned int> BezierSurfaceC0::pointsToGridIndices(const std::vector<Point*> points,

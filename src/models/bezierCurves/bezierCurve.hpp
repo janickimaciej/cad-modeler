@@ -68,7 +68,7 @@ private:
 	BezierCurveGUI m_gui{*this};
 	
 	std::unique_ptr<PolylineMesh> m_polylineMesh{};
-	bool m_renderPolyline = true;
+	bool m_renderPolyline = false;
 
 	std::vector<std::shared_ptr<Point::Callback>> m_pointMoveNotifications{};
 	std::vector<std::shared_ptr<Point::Callback>> m_pointDestroyNotifications{};
