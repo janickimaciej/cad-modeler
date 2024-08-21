@@ -17,13 +17,13 @@ void main()
 	float v;
 	if (orientationFlipped)
 	{
-		u = gl_TessCoord.x;
-		v = gl_TessCoord.y / (1 - 1.0 / lineCount);
+		u = gl_TessCoord.y / (1 - 1.0 / lineCount);
+		v = gl_TessCoord.x;
 	}
 	else
 	{
-		v = gl_TessCoord.x;
-		u = gl_TessCoord.y / (1 - 1.0 / lineCount);
+		u = gl_TessCoord.x;
+		v = gl_TessCoord.y / (1 - 1.0 / lineCount);
 	}
 
 	vec3 bezierV[4];

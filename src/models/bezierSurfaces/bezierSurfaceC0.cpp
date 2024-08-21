@@ -87,15 +87,17 @@ void BezierSurfaceC0::createSurfaceMesh()
 std::vector<std::unique_ptr<Point>> BezierSurfaceC0::createBezierPoints(
 	const ShaderProgram& pointShaderProgram, const glm::vec3& pos, float sizeU, float sizeV)
 {
-	std::vector<std::unique_ptr<Point>> bezierPoints{};
+	int pointsU = 3 * m_patchesU + 1;
+	int pointsV = 3 * m_patchesV + 1;
 	float dU = sizeU / (3 * m_patchesU);
 	float dV = sizeV / (3 * m_patchesV);
 	glm::vec3 startCorner = pos + glm::vec3{-sizeU / 2, 0, -sizeV / 2};
-	for (int i = 0; i < 3 * m_patchesU + 1; ++i)
+	std::vector<std::unique_ptr<Point>> bezierPoints{};
+	for (int v = 0; v < pointsV; ++v)
 	{
-		for (int j = 0; j < 3 * m_patchesV + 1; ++j)
+		for (int u = 0; u < pointsU; ++u)
 		{
-			glm::vec3 pointPos = startCorner + glm::vec3{i * dU, 0, j * dV};
+			glm::vec3 pointPos = startCorner + glm::vec3{u * dU, 0, v * dV};
 			bezierPoints.push_back(std::make_unique<Point>(pointShaderProgram, pointPos, true));
 			m_points.push_back(bezierPoints.back().get());
 		}
