@@ -11,6 +11,7 @@
 #include "models/bezierCurves/bezierCurveC2.hpp"
 #include "models/bezierCurves/bezierCurveInter.hpp"
 #include "models/bezierSurfaces/bezierSurfaceC0.hpp"
+#include "models/bezierSurfaces/bezierSurfaceC2.hpp"
 #include "models/bezierSurfaces/bezierSurfaceWrapping.hpp"
 #include "models/model.hpp"
 #include "models/point.hpp"
@@ -74,6 +75,8 @@ public:
 	void addSelectedPointsToCurve();
 	void addBezierSurfaceC0(int patchesU, int patchesV, float sizeU, float sizeV,
 		BezierSurfaceWrapping wrapping);
+	void addBezierSurfaceC2(int patchesU, int patchesV, float sizeU, float sizeV,
+		BezierSurfaceWrapping wrapping);
 
 	void updateActiveCameraGUI();
 	void updateCursorGUI();
@@ -93,6 +96,7 @@ private:
 	std::vector<std::unique_ptr<BezierCurveC2>> m_bezierCurvesC2{};
 	std::vector<std::unique_ptr<BezierCurveInter>> m_bezierCurvesInter{};
 	std::vector<std::unique_ptr<BezierSurfaceC0>> m_bezierSurfacesC0{};
+	std::vector<std::unique_ptr<BezierSurfaceC2>> m_bezierSurfacesC2{};
 
 	Cursor m_cursor{m_shaderPrograms.cursor};
 	CenterPoint m_selectedModelsCenter{m_shaderPrograms.cursor, m_selectedModels};

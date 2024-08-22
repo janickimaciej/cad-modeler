@@ -21,6 +21,7 @@ public:
 	BezierCurve(const std::string& name, const ShaderProgram& curveShaderProgram,
 		const ShaderProgram& polylineShaderProgram, const std::vector<Point*>& points,
 		const SelfDestructCallback& selfDestructCallback);
+	virtual ~BezierCurve() = default;
 	virtual void render() const override;
 
 	virtual void updateGUI() override;

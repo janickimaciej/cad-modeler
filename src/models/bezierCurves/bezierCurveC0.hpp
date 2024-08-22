@@ -12,6 +12,7 @@ public:
 	BezierCurveC0(const ShaderProgram& bezierCurveShaderProgram,
 		const ShaderProgram& bezierCurvePolylineShaderProgram, const std::vector<Point*>& points,
 		const SelfDestructCallback& selfDestructCallback);
+	virtual ~BezierCurveC0() = default;
 	void addPoints(const std::vector<Point*>& points);
 
 private:

@@ -16,6 +16,16 @@ LeftPanel::LeftPanel(Scene& scene, const glm::ivec2& windowSize) :
 			m_addBezierSurfaceC0Panel.reset();
 			m_addingBezierSurfaceC0 = false;
 		}
+	},
+	m_addBezierSurfaceC2Panel
+	{
+		[this] (int patchesU, int patchesV, float sizeU, float sizeV,
+			BezierSurfaceWrapping wrapping)
+		{
+			m_scene.addBezierSurfaceC2(patchesU, patchesV, sizeU, sizeV, wrapping);
+			m_addBezierSurfaceC2Panel.reset();
+			m_addingBezierSurfaceC2 = false;
+		}
 	}
 { }
 
@@ -130,12 +140,32 @@ void LeftPanel::updateButtons()
 	
 	if (ImGui::Button("Add bezier surface C0"))
 	{
+		m_addBezierSurfaceC0Panel.reset();
 		m_addingBezierSurfaceC0 = !m_addingBezierSurfaceC0;
+
+		m_addBezierSurfaceC2Panel.reset();
+		m_addingBezierSurfaceC2 = false;
 	}
 
 	if (m_addingBezierSurfaceC0)
 	{
 		m_addBezierSurfaceC0Panel.update();
+	}
+
+	ImGui::Spacing();
+
+	if (ImGui::Button("Add bezier surface C2"))
+	{
+		m_addBezierSurfaceC2Panel.reset();
+		m_addingBezierSurfaceC2 = !m_addingBezierSurfaceC2;
+
+		m_addBezierSurfaceC0Panel.reset();
+		m_addingBezierSurfaceC0 = false;
+	}
+
+	if (m_addingBezierSurfaceC2)
+	{
+		m_addBezierSurfaceC2Panel.update();
 	}
 }
 

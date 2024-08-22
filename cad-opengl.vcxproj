@@ -43,7 +43,7 @@
     <ClCompile Include="src\guis\gui.cpp" />
     <ClCompile Include="src\guis\leftPanel.cpp" />
     <ClCompile Include="src\guis\modelGUIs\bezierCurveGUI.cpp" />
-    <ClCompile Include="src\guis\modelGUIs\bezierSurfaceC0GUI.cpp" />
+    <ClCompile Include="src\guis\modelGUIs\bezierSurfaceGUI.cpp" />
     <ClCompile Include="src\guis\modelGUIs\modelGUI.cpp" />
     <ClCompile Include="src\guis\valueWindows\renamingWindow.cpp" />
     <ClCompile Include="src\guis\valueWindows\rotatingWindow.cpp" />
@@ -61,7 +61,9 @@
     <ClCompile Include="src\models\bezierCurves\bezierCurveC2.cpp" />
     <ClCompile Include="src\models\bezierCurves\bezierCurveCX.cpp" />
     <ClCompile Include="src\models\bezierCurves\bezierCurveInter.cpp" />
+    <ClCompile Include="src\models\bezierSurfaces\bezierSurface.cpp" />
     <ClCompile Include="src\models\bezierSurfaces\bezierSurfaceC0.cpp" />
+    <ClCompile Include="src\models\bezierSurfaces\bezierSurfaceC2.cpp" />
     <ClCompile Include="src\models\model.cpp" />
     <ClCompile Include="src\models\torus.cpp" />
     <ClCompile Include="src\guis\modelGUIs\pointGUI.cpp" />
@@ -100,7 +102,7 @@
     <ClInclude Include="src\grid\grid.hpp" />
     <ClInclude Include="src\guis\gui.hpp" />
     <ClInclude Include="src\guis\modelGUIs\bezierCurveGUI.hpp" />
-    <ClInclude Include="src\guis\modelGUIs\bezierSurfaceC0GUI.hpp" />
+    <ClInclude Include="src\guis\modelGUIs\bezierSurfaceGUI.hpp" />
     <ClInclude Include="src\guis\valueWindows\renamingWindow.hpp" />
     <ClInclude Include="src\guis\valueWindows\rotatingWindow.hpp" />
     <ClInclude Include="src\guis\valueWindows\scalingWindow.hpp" />
@@ -117,7 +119,9 @@
     <ClInclude Include="src\models\bezierCurves\bezierCurveCX.hpp" />
     <ClInclude Include="src\models\bezierCurves\bezierCurveInter.hpp" />
     <ClInclude Include="src\models\bezierCurves\bezierCurveInterSegmentData.hpp" />
+    <ClInclude Include="src\models\bezierSurfaces\bezierSurface.hpp" />
     <ClInclude Include="src\models\bezierSurfaces\bezierSurfaceC0.hpp" />
+    <ClInclude Include="src\models\bezierSurfaces\bezierSurfaceC2.hpp" />
     <ClInclude Include="src\models\bezierSurfaces\bezierSurfaceWrapping.hpp" />
     <ClInclude Include="src\models\model.hpp" />
     <ClInclude Include="src\models\torus.hpp" />

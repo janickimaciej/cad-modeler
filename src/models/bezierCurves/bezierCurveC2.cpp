@@ -36,7 +36,7 @@ void BezierCurveC2::render() const
 void BezierCurveC2::addPoints(const std::vector<Point*>& points,
 	std::vector<std::unique_ptr<Point>>& bezierPoints)
 {
-	int oldPointCount = m_points.size();
+	int oldPointCount = static_cast<int>(m_points.size());
 	for (Point* point : points)
 	{
 		if (std::find(m_points.begin(), m_points.end(), point) == m_points.end())
@@ -49,7 +49,7 @@ void BezierCurveC2::addPoints(const std::vector<Point*>& points,
 	int newBezierPointCount = 0;
 	if (m_points.size() >= 5)
 	{
-		newBezierPointCount = 3 * (m_points.size() - std::max(oldPointCount, 4));
+		newBezierPointCount = 3 * (static_cast<int>(m_points.size()) - std::max(oldPointCount, 4));
 	}
 
 	std::vector<Point*> newBezierPointPtrs{};

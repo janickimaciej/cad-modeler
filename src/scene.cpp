@@ -184,6 +184,7 @@ void Scene::deleteSelectedModels()
 	deleteSelectedModels(m_bezierCurvesC2);
 	deleteSelectedModels(m_bezierCurvesInter);
 	deleteSelectedModels(m_bezierSurfacesC0);
+	deleteSelectedModels(m_bezierSurfacesC2);
 }
 
 bool Scene::selectUniqueModel(const glm::vec2& screenPos)
@@ -455,6 +456,18 @@ void Scene::addBezierSurfaceC0(int patchesU, int patchesV, float sizeU, float si
 		patchesV, m_cursor.getPos(), sizeU, sizeV, wrapping, virtualPoints);
 	m_models.push_back(surface.get());
 	m_bezierSurfacesC0.push_back(std::move(surface));
+	addVirtualPoints(std::move(virtualPoints));
+}
+
+void Scene::addBezierSurfaceC2(int patchesU, int patchesV, float sizeU, float sizeV,
+	BezierSurfaceWrapping wrapping)
+{
+	std::vector<std::unique_ptr<Point>> virtualPoints{};
+	std::unique_ptr<BezierSurfaceC2> surface = std::make_unique<BezierSurfaceC2>(
+		m_shaderPrograms.bezierSurface, m_shaderPrograms.mesh, m_shaderPrograms.point, patchesU,
+		patchesV, m_cursor.getPos(), sizeU, sizeV, wrapping, virtualPoints);
+	m_models.push_back(surface.get());
+	m_bezierSurfacesC2.push_back(std::move(surface));
 	addVirtualPoints(std::move(virtualPoints));
 }
 

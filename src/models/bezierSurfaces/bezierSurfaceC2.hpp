@@ -10,19 +10,19 @@
 #include <memory>
 #include <vector>
 
-class BezierSurfaceC0 : public BezierSurface
+class BezierSurfaceC2 : public BezierSurface
 {
 public:
-	BezierSurfaceC0(const ShaderProgram& bezierSurfaceShaderProgram,
+	BezierSurfaceC2(const ShaderProgram& bezierSurfaceShaderProgram,
 		const ShaderProgram& bezierSurfaceGridShaderProgram,
 		const ShaderProgram& pointShaderProgram, int patchesU, int patchesV, const glm::vec3& pos,
 		float sizeU, float sizeV, BezierSurfaceWrapping wrapping,
 		std::vector<std::unique_ptr<Point>>& points);
-	virtual ~BezierSurfaceC0() = default;
+	virtual ~BezierSurfaceC2() = default;
 
 private:
 	static int m_count;
-
+	
 	virtual std::vector<std::unique_ptr<Point>> createPoints(
 		const ShaderProgram& pointShaderProgram, const glm::vec3& pos, float sizeU,
 		float sizeV) override;

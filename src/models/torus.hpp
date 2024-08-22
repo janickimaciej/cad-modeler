@@ -14,6 +14,7 @@ class Torus : public Model
 {
 public:
 	Torus(const ShaderProgram& shaderProgram, const glm::vec3& pos);
+	virtual ~Torus() = default;
 	virtual void render() const override;
 	virtual void updateGUI() override;
 

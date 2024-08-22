@@ -15,6 +15,7 @@ public:
 		const ShaderProgram& polylineShaderProgram, const ShaderProgram& pointShaderProgram,
 		const std::vector<Point*>& points, const SelfDestructCallback& selfDestructCallback,
 		std::vector<std::unique_ptr<Point>>& bezierPoints);
+	virtual ~BezierCurveC2() = default;
 	virtual void render() const override;
 
 	void addPoints(const std::vector<Point*>& points,

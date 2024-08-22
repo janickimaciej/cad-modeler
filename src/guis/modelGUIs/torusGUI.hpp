@@ -8,6 +8,7 @@ class TorusGUI : public ModelGUI
 {
 public:
 	TorusGUI(Torus& torus);
+	virtual ~TorusGUI() = default;
 	virtual void update() override;
 
 private:

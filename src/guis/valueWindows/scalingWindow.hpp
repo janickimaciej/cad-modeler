@@ -13,6 +13,7 @@ class ScalingWindow : public ValueWindow
 {
 public:
 	ScalingWindow(Scene& scene, const glm::ivec2& windowSize);
+	virtual ~ScalingWindow() = default;
 	void startScaling();
 	void apply(GUIMode mode);
 

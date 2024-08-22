@@ -8,6 +8,7 @@ class ModelGUI
 {
 public:
 	ModelGUI(const Model& model);
+	virtual ~ModelGUI() = default;
 	virtual void update() = 0;
 
 protected:

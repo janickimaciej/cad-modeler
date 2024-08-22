@@ -8,6 +8,7 @@ class OrthographicCameraGUI : public CameraGUI
 {
 public:
 	OrthographicCameraGUI(OrthographicCamera& camera);
+	virtual ~OrthographicCameraGUI() = default;
 	virtual void update() override;
 
 private:

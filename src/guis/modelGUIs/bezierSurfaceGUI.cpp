@@ -1,15 +1,15 @@
-#include "guis/modelGUIs/bezierSurfaceC0GUI.hpp"
+#include "guis/modelGUIs/bezierSurfaceGUI.hpp"
 
-#include "models/bezierSurfaces/bezierSurfaceC0.hpp"
+#include "models/bezierSurfaces/bezierSurface.hpp"
 
 #include <imgui/imgui.h>
 
-BezierSurfaceC0GUI::BezierSurfaceC0GUI(BezierSurfaceC0& surface) :
+BezierSurfaceGUI::BezierSurfaceGUI(BezierSurface& surface) :
 	ModelGUI{surface},
 	m_surface{surface}
 { }
 
-void BezierSurfaceC0GUI::update()
+void BezierSurfaceGUI::update()
 {
 	bool renderGrid = m_surface.getRenderGrid();
 	bool prevRenderGrid = renderGrid;

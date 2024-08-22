@@ -14,6 +14,7 @@ public:
 	BezierCurveInter(const ShaderProgram& curveShaderProgram,
 		const ShaderProgram& polylineShaderProgram, const std::vector<Point*>& points,
 		const SelfDestructCallback& selfDestructCallback);
+	virtual ~BezierCurveInter() = default;
 
 	void addPoints(const std::vector<Point*>& points);
 

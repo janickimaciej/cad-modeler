@@ -8,6 +8,7 @@ class BezierCurveGUI : public ModelGUI
 {
 public:
 	BezierCurveGUI(BezierCurve& curve);
+	virtual ~BezierCurveGUI() = default;
 	virtual void update() override;
 
 private:

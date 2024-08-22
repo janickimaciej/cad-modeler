@@ -22,7 +22,9 @@ private:
 	CameraType m_cameraType{};
 
 	bool m_addingBezierSurfaceC0 = false;
+	bool m_addingBezierSurfaceC2 = false;
 	AddBezierSurfacePanel m_addBezierSurfaceC0Panel;
+	AddBezierSurfacePanel m_addBezierSurfaceC2Panel;
 
 	void updateCamera();
 	void updateCursor();
