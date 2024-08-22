@@ -35,6 +35,7 @@ private:
 	virtual void createCurveMesh() override;
 	std::vector<std::unique_ptr<Point>> createBezierPoints();
 	void createBezierPolylineMesh();
+	std::vector<Point*> getAllBezierPoints() const;
 
 	void updateWithBezierPoint(int index);
 	void updateBezierPoints() const;

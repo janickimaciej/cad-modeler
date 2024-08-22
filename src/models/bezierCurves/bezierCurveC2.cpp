@@ -36,25 +36,20 @@ void BezierCurveC2::render() const
 void BezierCurveC2::addPoints(const std::vector<Point*>& points,
 	std::vector<std::unique_ptr<Point>>& bezierPoints)
 {
-	int newPointCount = 0;
+	int oldPointCount = m_points.size();
 	for (Point* point : points)
 	{
 		if (std::find(m_points.begin(), m_points.end(), point) == m_points.end())
 		{
 			m_points.push_back(point);
 			registerForNotifications(point);
-			++newPointCount;
 		}
 	}
 
 	int newBezierPointCount = 0;
-	if (m_points.size() >= 4)
+	if (m_points.size() >= 5)
 	{
-		newBezierPointCount = 3 * newPointCount;
-		if (m_points.size() - newPointCount < 4)
-		{
-			++newBezierPointCount;
-		}
+		newBezierPointCount = 3 * (m_points.size() - std::max(oldPointCount, 4));
 	}
 
 	std::vector<Point*> newBezierPointPtrs{};
@@ -70,18 +65,12 @@ void BezierCurveC2::addPoints(const std::vector<Point*>& points,
 
 void BezierCurveC2::deletePoint(int index)
 {
-	int deletedBezierPointCount = 0;
-	if (m_points.size() == 4)
+	if (m_points.size() >= 5)
 	{
-		deletedBezierPointCount = 4;
-	}
-	else if (m_points.size() > 4)
-	{
-		deletedBezierPointCount = 3;
-	}
-	for (int i = deletedBezierPointCount - 1; i >= 0; --i)
-	{
-		deleteBezierPoint(i);
+		for (int i = 0; i < 3; ++i)
+		{
+			deleteBezierPoint(0);
+		}
 	}
 
 	BezierCurve::deletePoint(index);
@@ -91,8 +80,9 @@ int BezierCurveC2::m_count = 0;
 
 void BezierCurveC2::createCurveMesh()
 {
-	m_curveMesh = std::make_unique<BezierCurveMesh>(pointsToVertices(m_bezierPoints),
-		pointsToCurveIndices(m_bezierPoints));
+	std::vector<Point*> allBezierPoints = getAllBezierPoints();
+	m_curveMesh = std::make_unique<BezierCurveMesh>(pointsToVertices(allBezierPoints),
+		pointsToCurveIndices(allBezierPoints));
 }
 
 std::vector<std::unique_ptr<Point>> BezierCurveC2::createBezierPoints()
@@ -101,7 +91,7 @@ std::vector<std::unique_ptr<Point>> BezierCurveC2::createBezierPoints()
 	int bezierSegments = static_cast<int>(m_points.size()) - 3;
 	if (bezierSegments > 0)
 	{
-		for (int i = 0; i < 3 * bezierSegments + 1; ++i)
+		for (int i = 0; i < 3 * bezierSegments - 3; ++i)
 		{
 			bezierPoints.push_back(std::make_unique<Point>(m_pointShaderProgram, glm::vec3{},
 				true));
@@ -113,47 +103,71 @@ std::vector<std::unique_ptr<Point>> BezierCurveC2::createBezierPoints()
 
 void BezierCurveC2::createBezierPolylineMesh()
 {
-	m_bezierPolylineMesh = std::make_unique<PolylineMesh>(pointsToVertices(m_bezierPoints));
+	m_bezierPolylineMesh = std::make_unique<PolylineMesh>(pointsToVertices(getAllBezierPoints()));
+}
+
+std::vector<Point*> BezierCurveC2::getAllBezierPoints() const
+{
+	std::vector<Point*> allBezierPoints{};
+	if (m_points.size() >= 4)
+	{
+		allBezierPoints.push_back(m_points[0]);
+		allBezierPoints.push_back(m_points[1]);
+		allBezierPoints.insert(allBezierPoints.end(), m_bezierPoints.begin(), m_bezierPoints.end());
+		allBezierPoints.push_back(m_points[m_points.size() - 2]);
+		allBezierPoints.push_back(m_points[m_points.size() - 1]);
+	}
+	return allBezierPoints;
 }
 
 void BezierCurveC2::updateWithBezierPoint(int index)
 {
 	if (index == 0)
 	{
-		m_points[0]->setPos(4.0f * m_bezierPoints[0]->getPos() -
-			m_points[1]->getPos() - 2.0f * m_bezierPoints[1]->getPos());
+		m_points[2]->setPos(2.0f * m_bezierPoints[index]->getPos() - m_points[1]->getPos());
+	}
+	else if (index == 1 && index == m_bezierPoints.size() - 2)
+	{
+		m_points[2]->setPos(2.0f * m_bezierPoints[index]->getPos() -
+			(m_points[1]->getPos() + m_points[3]->getPos()) / 2.0f);
+	}
+	else if (index == 1)
+	{
+		m_points[2]->setPos((12.0f * m_bezierPoints[index]->getPos() -
+			3.0f * m_points[1]->getPos() - 2.0f * m_points[3]->getPos()) / 7.0f);
+	}
+	else if (index == m_bezierPoints.size() - 2)
+	{
+		m_points[m_points.size() - 3]->setPos((12.0f * m_bezierPoints[index]->getPos() -
+			3.0f * m_points[m_points.size() - 2]->getPos() -
+			2.0f * m_points[m_points.size() - 4]->getPos()) / 7.0f);
 	}
 	else if (index == m_bezierPoints.size() - 1)
 	{
-		std::size_t pointCount = m_points.size();
-		std::size_t bezierPointCount = m_bezierPoints.size();
-		m_points[pointCount - 1]->setPos(
-			4.0f * m_bezierPoints[bezierPointCount - 1]->getPos() -
-			m_points[pointCount - 2]->getPos() -
-			2.0f * m_bezierPoints[bezierPointCount - 2]->getPos());
+		m_points[m_points.size() - 3]->setPos(2.0f * m_bezierPoints[index]->getPos() -
+			m_points[m_points.size() - 2]->getPos());
 	}
 	else
 	{
-		std::size_t bezierSegment = index / 3;
-		int remainder = index % 3;
-		if (remainder == 0)
+		std::size_t allBezierPointsIndex = static_cast<std::size_t>(index) + 2;
+		std::size_t bezierSegment = allBezierPointsIndex / 3;
+		int remainder = allBezierPointsIndex % 3;
+		switch (remainder)
 		{
-			m_points[bezierSegment + 1]->setPos(
-				3.0f / 2.0f * m_bezierPoints[index]->getPos() -
-				1.0f / 4.0f * (m_points[bezierSegment]->getPos() +
-				m_points[bezierSegment + 2]->getPos()));
-		}
-		else if (remainder == 1)
-		{
-			m_points[bezierSegment + 1]->setPos(
-				3.0f / 2.0f * m_bezierPoints[index]->getPos() -
-				1.0f / 2.0f * m_points[bezierSegment + 2]->getPos());
-		}
-		else
-		{
-			m_points[bezierSegment + 2]->setPos(
-				3.0f / 2.0f * m_bezierPoints[index]->getPos() -
-				1.0f / 2.0f * m_points[bezierSegment + 1]->getPos());
+			case 0:
+				m_points[bezierSegment + 1]->setPos(3.0f / 2.0f * m_bezierPoints[index]->getPos() -
+				(m_points[bezierSegment]->getPos() + m_points[bezierSegment + 2]->getPos()) / 4.0f);
+				break;
+
+			case 1:
+				m_points[bezierSegment + 1]->setPos((3.0f * m_bezierPoints[index]->getPos() -
+					m_points[bezierSegment + 2]->getPos()) / 2.0f);
+				break;
+
+			case 2:
+				m_points[bezierSegment + 2]->setPos((3.0f * m_bezierPoints[index]->getPos() -
+					m_points[bezierSegment + 1]->getPos()) / 2.0f);
+				break;
 		}
 	}
 	updateGeometry();
@@ -170,31 +184,34 @@ void BezierCurveC2::updateBezierPoints() const
 	std::vector<glm::vec3> e(bezierSegments + 1);
 	std::vector<glm::vec3> f(bezierSegments);
 	std::vector<glm::vec3> g(bezierSegments);
-	glm::vec3 fLast = (m_points[m_points.size() - 2]->getPos() +
-		m_points[m_points.size() - 1]->getPos()) / 2.0f;
-	glm::vec3 gFirst = (m_points[0]->getPos() + m_points[1]->getPos()) / 2.0f;
 
-	for (std::size_t i = 0; i < bezierSegments; ++i)
+	f[0] = m_points[1]->getPos();
+	g[0] = (m_points[1]->getPos() + m_points[2]->getPos()) / 2.0f;
+	for (std::size_t i = 1; i < bezierSegments - 1; ++i)
 	{
-		f[i] = 2.0f / 3.0f * m_points[i + 1]->getPos() +
-			1.0f / 3.0f * m_points[i + 2]->getPos();
-		g[i] = 1.0f / 3.0f * m_points[i + 1]->getPos() +
-			2.0f / 3.0f * m_points[i + 2]->getPos();
+		f[i] = (2.0f * m_points[i + 1]->getPos() + m_points[i + 2]->getPos()) / 3.0f;
+		g[i] = (m_points[i + 1]->getPos() + 2.0f * m_points[i + 2]->getPos()) / 3.0f;
 	}
-	e[0] = (gFirst + f[0]) / 2.0f;
-	e[bezierSegments] = (g[bezierSegments - 1] + fLast) / 2.0f;
+	f[bezierSegments - 1] =
+		(m_points[bezierSegments]->getPos() + m_points[bezierSegments + 1]->getPos()) / 2.0f;
+	g[bezierSegments - 1] = m_points[bezierSegments + 1]->getPos();
+
+	e[0] = m_points[0]->getPos();
 	for (std::size_t i = 1; i < bezierSegments; ++i)
 	{
 		e[i] = (g[i - 1] + f[i]) / 2.0f;
 	}
+	e[bezierSegments] = m_points[bezierSegments + 2]->getPos();
 
-	for (std::size_t i = 0; i < bezierSegments; ++i)
+	m_bezierPoints[0]->setPos(g[0]);
+	for (std::size_t i = 1; i < bezierSegments - 1; ++i)
 	{
-		m_bezierPoints[3 * i]->setPos(e[i]);
-		m_bezierPoints[3 * i + 1]->setPos(f[i]);
-		m_bezierPoints[3 * i + 2]->setPos(g[i]);
+		m_bezierPoints[3 * i - 2]->setPos(e[i]);
+		m_bezierPoints[3 * i - 1]->setPos(f[i]);
+		m_bezierPoints[3 * i]->setPos(g[i]);
 	}
-	m_bezierPoints[3 * bezierSegments]->setPos(e[bezierSegments]);
+	m_bezierPoints[3 * bezierSegments - 5]->setPos(e[bezierSegments - 1]);
+	m_bezierPoints[3 * bezierSegments - 4]->setPos(f[bezierSegments - 1]);
 }
 
 void BezierCurveC2::updateGeometry()
@@ -208,18 +225,26 @@ void BezierCurveC2::updateGeometry()
 
 void BezierCurveC2::updateCurveMesh()
 {
-	m_curveMesh->update(pointsToVertices(m_bezierPoints), pointsToCurveIndices(m_bezierPoints));
+	if (m_points.size() >= 4)
+	{
+		std::vector<Point*> allBezierPoints = getAllBezierPoints();
+		m_curveMesh->update(pointsToVertices(allBezierPoints),
+			pointsToCurveIndices(allBezierPoints));
+	}
 }
 
 void BezierCurveC2::updateBezierPolylineMesh()
 {
-	m_bezierPolylineMesh->update(pointsToVertices(m_bezierPoints));
+	m_bezierPolylineMesh->update(pointsToVertices(getAllBezierPoints()));
 }
 
 void BezierCurveC2::renderBezierPolyline() const
 {
-	usePolylineShaderProgram();
-	m_bezierPolylineMesh->render();
+	if (m_points.size() >= 4)
+	{
+		usePolylineShaderProgram();
+		m_bezierPolylineMesh->render();
+	}
 }
 
 void BezierCurveC2::deleteBezierPoint(int index)

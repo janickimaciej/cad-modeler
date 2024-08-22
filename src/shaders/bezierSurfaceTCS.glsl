@@ -15,12 +15,12 @@ void main()
 
 	if (gl_InvocationID == 0)
 	{
-		gl_TessLevelInner[0] = lineCount;
+		gl_TessLevelInner[0] = lineCount - 1;
 		gl_TessLevelInner[1] = lineCount;
 
 		gl_TessLevelOuter[0] = lineCount;
-		gl_TessLevelOuter[1] = lineCount;
+		gl_TessLevelOuter[1] = lineCount - 1;
 		gl_TessLevelOuter[2] = lineCount;
-		gl_TessLevelOuter[3] = lineCount;
+		gl_TessLevelOuter[3] = lineCount - 1;
 	}
 }
