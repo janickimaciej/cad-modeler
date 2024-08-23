@@ -23,7 +23,7 @@ public:
 private:
 	static int m_count;
 
-	std::vector<glm::vec3> m_bezierPoints{};
+	std::vector<std::vector<glm::vec3>> m_bezierPoints{};
 	
 	virtual std::vector<std::unique_ptr<Point>> createPoints(
 		const ShaderProgram& pointShaderProgram, const glm::vec3& pos, float sizeU,
@@ -33,6 +33,9 @@ private:
 	virtual void createGridMesh() override;
 	virtual void updateGeometry() override;
 	void updateBezierPoints();
+	std::vector<std::vector<glm::vec3>> createIntermediatePoints() const;
 	virtual void updateSurfaceMesh() override;
 	virtual void updateGridMesh() override;
+	
+	static std::vector<glm::vec3> createVertices(const std::vector<std::vector<glm::vec3>>& points);
 };

@@ -34,8 +34,8 @@ protected:
 	std::unique_ptr<BezierSurfaceMesh> m_surfaceMesh{};
 	std::unique_ptr<Mesh> m_gridMesh{};
 
-	int m_patchesU{};
-	int m_patchesV{};
+	const std::size_t m_patchesU{};
+	const std::size_t m_patchesV{};
 	std::vector<std::vector<Point*>> m_points{};
 	
 	virtual void createSurfaceMesh() = 0;

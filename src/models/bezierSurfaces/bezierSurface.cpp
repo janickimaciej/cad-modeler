@@ -1,5 +1,6 @@
 #include "models/bezierSurfaces/bezierSurface.hpp"
 
+#include <cstddef>
 #include <string>
 
 BezierSurface::BezierSurface(const std::string& name,
@@ -8,8 +9,8 @@ BezierSurface::BezierSurface(const std::string& name,
 	Model{{}, name},
 	m_surfaceShaderProgram{bezierSurfaceShaderProgram},
 	m_gridShaderProgram{bezierSurfaceGridShaderProgram},
-	m_patchesU{patchesU},
-	m_patchesV{patchesV}
+	m_patchesU{static_cast<std::size_t>(patchesU)},
+	m_patchesV{static_cast<std::size_t>(patchesV)}
 { }
 
 void BezierSurface::render() const
@@ -93,7 +94,7 @@ std::vector<glm::vec3> BezierSurface::createVertices(
 
 std::vector<unsigned int> BezierSurface::createSurfaceIndices() const
 {
-	unsigned int pointsU = 3 * m_patchesU + 1;
+	unsigned int pointsU = 3 * static_cast<unsigned int>(m_patchesU) + 1;
 	std::vector<unsigned int> indices{};
 	for (unsigned int patchV = 0; patchV < static_cast<unsigned int>(m_patchesV); ++patchV)
 	{
