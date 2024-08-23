@@ -60,7 +60,7 @@ protected:
 	virtual void pointMoveNotification();
 	virtual void pointDestroyNotification(const Point* point);
 
-	static std::vector<glm::vec3> pointsToVertices(const std::vector<Point*> points);
+	static std::vector<glm::vec3> createVertices(const std::vector<Point*>& points);
 
 private:
 	const ShaderProgram& m_curveShaderProgram;

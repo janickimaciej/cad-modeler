@@ -29,6 +29,5 @@ private:
 
 	virtual void renderCurve() const override;
 
-	static std::vector<BezierCurveInterSegmentData> pointsToCurveSegments(
-		const std::vector<Point*> points);
+	std::vector<BezierCurveInterSegmentData> createCurveSegments() const;
 };

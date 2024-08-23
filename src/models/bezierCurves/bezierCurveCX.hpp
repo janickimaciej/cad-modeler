@@ -19,7 +19,7 @@ public:
 protected:
 	std::unique_ptr<BezierCurveMesh> m_curveMesh{};
 
-	static std::vector<unsigned int> pointsToCurveIndices(const std::vector<Point*> points);
+	static std::vector<unsigned int> createCurveIndices(const std::vector<Point*>& points);
 
 private:
 	virtual void renderCurve() const override;

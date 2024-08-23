@@ -36,24 +36,23 @@ protected:
 
 	int m_patchesU{};
 	int m_patchesV{};
-	std::vector<Point*> m_points{};
+	std::vector<std::vector<Point*>> m_points{};
 	
 	virtual void createSurfaceMesh() = 0;
 	virtual std::vector<std::unique_ptr<Point>> createPoints(
 		const ShaderProgram& pointShaderProgram, const glm::vec3& pos, float sizeU,
 		float sizeV) = 0;
 	virtual void createGridMesh() = 0;
+	virtual void updateGeometry();
 	void updatePos();
 	virtual void updateSurfaceMesh() = 0;
 	virtual void updateGridMesh() = 0;
 
-	void registerForNotifications(const std::vector<Point*>& points);
+	void registerForNotifications();
 
-	static std::vector<glm::vec3> pointsToVertices(const std::vector<Point*> points);
-	static std::vector<unsigned int> pointsToSurfaceIndices(const std::vector<Point*> points,
-		int patchesU, int patchesV);
-	static std::vector<unsigned int> pointsToGridIndices(const std::vector<Point*> points,
-		int pointsU, int pointsV);
+	static std::vector<glm::vec3> createVertices(const std::vector<std::vector<Point*>>& points);
+	std::vector<unsigned int> createSurfaceIndices() const;
+	static std::vector<unsigned int> createGridIndices(int pointsU, int pointsV);
 
 private:
 	const ShaderProgram& m_surfaceShaderProgram;
@@ -67,8 +66,6 @@ private:
 	std::vector<std::shared_ptr<Point::Callback>> m_pointMoveNotifications{};
 	
 	virtual void updateShaders() const override;
-	virtual void updateGeometry();
-
 	void renderSurface() const;
 	void renderGrid() const;
 	

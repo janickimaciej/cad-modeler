@@ -6,7 +6,7 @@ BezierCurveCX::BezierCurveCX(const std::string& name, const ShaderProgram& curve
 	BezierCurve{name, curveShaderProgram, polylineShaderProgram, points, selfDestructCallback}
 { }
 
-std::vector<unsigned int> BezierCurveCX::pointsToCurveIndices(const std::vector<Point*> points)
+std::vector<unsigned int> BezierCurveCX::createCurveIndices(const std::vector<Point*>& points)
 {
 	std::vector<unsigned int> indices{};
 	int patchCount = (static_cast<int>(points.size()) - 1) / 3;

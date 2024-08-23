@@ -56,39 +56,48 @@ void BezierSurface::setLineCount(int lineCount)
 void BezierSurface::updatePos()
 {
 	glm::vec3 pos{};
-	for (Point* point : m_points)
+	for (const std::vector<Point*>& row : m_points)
 	{
-		pos += point->getPos();
+		for (const Point* point : row)
+		{
+			pos += point->getPos();
+		}
 	}
 	m_pos = pos / static_cast<float>(m_points.size());
 }
 
-void BezierSurface::registerForNotifications(const std::vector<Point*>& points)
+void BezierSurface::registerForNotifications()
 {
-	for (Point* point : points)
+	for (const std::vector<Point*>& row : m_points)
 	{
-		registerForNotifications(point);
+		for (Point* point : row)
+		{
+			registerForNotifications(point);
+		}
 	}
 }
 
-std::vector<glm::vec3> BezierSurface::pointsToVertices(const std::vector<Point*> points)
+std::vector<glm::vec3> BezierSurface::createVertices(
+	const std::vector<std::vector<Point*>>& points)
 {
 	std::vector<glm::vec3> vertices{};
-	for (const Point* point : points)
+	for (const std::vector<Point*>& row : points)
 	{
-		vertices.push_back(point->getPos());
+		for (const Point* point : row)
+		{
+			vertices.push_back(point->getPos());
+		}
 	}
 	return vertices;
 }
 
-std::vector<unsigned int> BezierSurface::pointsToSurfaceIndices(const std::vector<Point*> points,
-	int patchesU, int patchesV)
+std::vector<unsigned int> BezierSurface::createSurfaceIndices() const
 {
-	unsigned int pointsU = 3 * patchesU + 1;
+	unsigned int pointsU = 3 * m_patchesU + 1;
 	std::vector<unsigned int> indices{};
-	for (unsigned int patchV = 0; patchV < static_cast<unsigned int>(patchesV); ++patchV)
+	for (unsigned int patchV = 0; patchV < static_cast<unsigned int>(m_patchesV); ++patchV)
 	{
-		for (unsigned int patchU = 0; patchU < static_cast<unsigned int>(patchesU); ++patchU)
+		for (unsigned int patchU = 0; patchU < static_cast<unsigned int>(m_patchesU); ++patchU)
 		{
 			for (unsigned int v = 3 * patchV; v < 3 * patchV + 4; ++v)
 			{
@@ -102,8 +111,7 @@ std::vector<unsigned int> BezierSurface::pointsToSurfaceIndices(const std::vecto
 	return indices;
 }
 
-std::vector<unsigned int> BezierSurface::pointsToGridIndices(const std::vector<Point*> points,
-	int pointsU, int pointsV)
+std::vector<unsigned int> BezierSurface::createGridIndices(int pointsU, int pointsV)
 {
 	std::vector<unsigned int> indices{};
 	for (unsigned int v = 0; v < static_cast<unsigned int>(pointsV); ++v)

@@ -31,11 +31,11 @@ int BezierCurveC0::m_count = 0;
 
 void BezierCurveC0::createCurveMesh()
 {
-	m_curveMesh = std::make_unique<BezierCurveMesh>(pointsToVertices(m_points),
-		pointsToCurveIndices(m_points));
+	m_curveMesh = std::make_unique<BezierCurveMesh>(createVertices(m_points),
+		createCurveIndices(m_points));
 }
 
 void BezierCurveC0::updateCurveMesh()
 {
-	m_curveMesh->update(pointsToVertices(m_points), pointsToCurveIndices(m_points));
+	m_curveMesh->update(createVertices(m_points), createCurveIndices(m_points));
 }

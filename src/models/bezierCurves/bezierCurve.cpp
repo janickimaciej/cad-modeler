@@ -95,7 +95,7 @@ void BezierCurve::updateShaders() const
 
 void BezierCurve::createPolylineMesh()
 {
-	m_polylineMesh = std::make_unique<PolylineMesh>(pointsToVertices(m_points));
+	m_polylineMesh = std::make_unique<PolylineMesh>(createVertices(m_points));
 }
 
 void BezierCurve::updateGeometry()
@@ -117,7 +117,7 @@ void BezierCurve::updatePos()
 
 void BezierCurve::updatePolylineMesh()
 {
-	m_polylineMesh->update(pointsToVertices(m_points));
+	m_polylineMesh->update(createVertices(m_points));
 }
 
 void BezierCurve::renderPolyline() const
@@ -165,7 +165,7 @@ void BezierCurve::pointDestroyNotification(const Point* point)
 	deletePoint(index);
 }
 
-std::vector<glm::vec3> BezierCurve::pointsToVertices(const std::vector<Point*> points)
+std::vector<glm::vec3> BezierCurve::createVertices(const std::vector<Point*>& points)
 {
 	std::vector<glm::vec3> vertices{};
 	for (const Point* point : points)

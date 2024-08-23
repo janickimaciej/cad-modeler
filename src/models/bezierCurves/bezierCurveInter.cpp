@@ -34,12 +34,12 @@ int BezierCurveInter::m_count = 0;
 
 void BezierCurveInter::createCurveMesh()
 {
-	m_curveMesh = std::make_unique<BezierCurveInterMesh>(pointsToCurveSegments(m_points));
+	m_curveMesh = std::make_unique<BezierCurveInterMesh>(createCurveSegments());
 }
 
 void BezierCurveInter::updateCurveMesh()
 {
-	m_curveMesh->update(pointsToCurveSegments(m_points));
+	m_curveMesh->update(createCurveSegments());
 }
 
 void BezierCurveInter::renderCurve() const
@@ -51,13 +51,12 @@ void BezierCurveInter::renderCurve() const
 	}
 }
 
-std::vector<BezierCurveInterSegmentData> BezierCurveInter::pointsToCurveSegments(
-	const std::vector<Point*> points)
+std::vector<BezierCurveInterSegmentData> BezierCurveInter::createCurveSegments() const
 {
 	std::vector<BezierCurveInterSegmentData> segments{};
-	if (points.size() >= 3)
+	if (m_points.size() >= 3)
 	{
-		std::size_t n = points.size() - 1;
+		std::size_t n = m_points.size() - 1;
 		std::vector<float> dt(n);
 		std::vector<glm::vec3> a(n);
 		std::vector<glm::vec3> b(n);
@@ -71,8 +70,8 @@ std::vector<BezierCurveInterSegmentData> BezierCurveInter::pointsToCurveSegments
 
 		for (std::size_t i = 0; i < n; ++i)
 		{
-			dt[i] = glm::length(points[i + 1]->getPos() - points[i]->getPos());
-			a[i] = points[i]->getPos();
+			dt[i] = glm::length(m_points[i + 1]->getPos() - m_points[i]->getPos());
+			a[i] = m_points[i]->getPos();
 		}
 
 		for (std::size_t i = 2; i < n; ++i)
@@ -87,8 +86,9 @@ std::vector<BezierCurveInterSegmentData> BezierCurveInter::pointsToCurveSegments
 
 		for (std::size_t i = 1; i < n; ++i)
 		{
-			R[i] = 3.0f * ((points[i + 1]->getPos() - points[i]->getPos()) / dt[i] -
-				(points[i]->getPos() - points[i - 1]->getPos()) / dt[i - 1]) / (dt[i - 1] + dt[i]);
+			R[i] = 3.0f * ((m_points[i + 1]->getPos() - m_points[i]->getPos()) / dt[i] -
+				(m_points[i]->getPos() - m_points[i - 1]->getPos()) / dt[i - 1]) /
+				(dt[i - 1] + dt[i]);
 		}
 
 		betap[1] = beta[1] / 2;
@@ -120,7 +120,7 @@ std::vector<BezierCurveInterSegmentData> BezierCurveInter::pointsToCurveSegments
 		{
 			b[i] = (a[i + 1] - a[i]) / dt[i] - (c[i] + d[i] * dt[i]) * dt[i];
 		}
-		b[n - 1] = (points[n]->getPos() - a[n - 1]) / dt[n - 1] -
+		b[n - 1] = (m_points[n]->getPos() - a[n - 1]) / dt[n - 1] -
 			(c[n - 1] + d[n - 1] * dt[n - 1]) * dt[n - 1];
 
 		for (std::size_t i = 0; i < n; ++i)
@@ -132,7 +132,7 @@ std::vector<BezierCurveInterSegmentData> BezierCurveInter::pointsToCurveSegments
 					b[i],
 					c[i],
 					d[i],
-					points[i + 1]->getPos(),
+					m_points[i + 1]->getPos(),
 					dt[i]
 				}
 			);
