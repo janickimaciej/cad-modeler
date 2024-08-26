@@ -22,7 +22,7 @@ public:
 
 private:
 	static int m_count;
-
+	
 	virtual std::vector<std::unique_ptr<Point>> createPoints(
 		const ShaderProgram& pointShaderProgram, const glm::vec3& pos, float sizeU,
 		float sizeV) override;

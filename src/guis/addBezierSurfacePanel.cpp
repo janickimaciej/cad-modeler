@@ -38,12 +38,31 @@ void AddBezierSurfacePanel::updatePatches()
 {
 	static constexpr int stepPrecision = 1;
 
+	int minPatchesU{};
+	int minPatchesV{};
+	switch (m_wrapping)
+	{
+		case BezierSurfaceWrapping::none:
+			minPatchesU = 1;
+			minPatchesV = 1;
+			break;
+		case BezierSurfaceWrapping::u:
+			minPatchesU = 3;
+			minPatchesV = 1;
+			break;
+		case BezierSurfaceWrapping::v:
+			minPatchesU = 1;
+			minPatchesV = 3;
+			break;
+	}
+
 	ImGui::InputInt(("patches U" + m_suffix).c_str(), &m_patchesU, stepPrecision,
 		stepPrecision);
-	m_patchesU = std::max(m_patchesU, 1);
+	m_patchesU = std::max(m_patchesU, minPatchesU);
+
 	ImGui::InputInt(("patches V" + m_suffix).c_str(), &m_patchesV, stepPrecision,
 		stepPrecision);
-	m_patchesV = std::max(m_patchesV, 1);
+	m_patchesV = std::max(m_patchesV, minPatchesV);
 }
 
 void AddBezierSurfacePanel::updateSize()
