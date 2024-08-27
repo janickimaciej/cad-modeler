@@ -58,8 +58,6 @@ protected:
 
 	std::vector<std::vector<glm::vec3>> createBoorPoints(const glm::vec3& pos, float sizeU,
 		float sizeV) const;
-	std::vector<std::vector<glm::vec3>> createIntermediatePoints(
-		const std::vector<std::vector<glm::vec3>>& boorPoints) const;
 	std::vector<std::vector<glm::vec3>> createBezierPoints(
 		const std::vector<std::vector<glm::vec3>>& boorPoints) const;
 
@@ -91,6 +89,8 @@ private:
 		float sizeU, float sizeV) const;
 	std::vector<std::vector<glm::vec3>> createBoorPointsVWrapping(const glm::vec3& pos,
 		float sizeU, float sizeV) const;
+	std::vector<std::vector<glm::vec3>> createIntermediatePoints(
+		const std::vector<std::vector<glm::vec3>>& boorPoints) const;
 	std::vector<std::vector<glm::vec3>> createIntermediatePointsNoWrapping(
 		const std::vector<std::vector<glm::vec3>>& boorPoints) const;
 	std::vector<std::vector<glm::vec3>> createIntermediatePointsUWrapping(

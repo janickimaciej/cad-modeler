@@ -98,23 +98,6 @@ std::vector<std::vector<glm::vec3>> BezierSurface::createBoorPoints(const glm::v
 	return {};
 }
 
-std::vector<std::vector<glm::vec3>> BezierSurface::createIntermediatePoints(
-	const std::vector<std::vector<glm::vec3>>& boorPoints) const
-{
-	switch (m_wrapping)
-	{
-		case BezierSurfaceWrapping::none:
-			return createIntermediatePointsNoWrapping(boorPoints);
-
-		case BezierSurfaceWrapping::u:
-			return createIntermediatePointsUWrapping(boorPoints);
-
-		case BezierSurfaceWrapping::v:
-			return createIntermediatePointsVWrapping(boorPoints);
-	}
-	return {};
-}
-
 std::vector<std::vector<glm::vec3>> BezierSurface::createBezierPoints(
 	const std::vector<std::vector<glm::vec3>>& boorPoints) const
 {
@@ -353,6 +336,23 @@ std::vector<std::vector<glm::vec3>> BezierSurface::createBoorPointsVWrapping(con
 		}
 	}
 	return points;
+}
+
+std::vector<std::vector<glm::vec3>> BezierSurface::createIntermediatePoints(
+	const std::vector<std::vector<glm::vec3>>& boorPoints) const
+{
+	switch (m_wrapping)
+	{
+		case BezierSurfaceWrapping::none:
+			return createIntermediatePointsNoWrapping(boorPoints);
+
+		case BezierSurfaceWrapping::u:
+			return createIntermediatePointsUWrapping(boorPoints);
+
+		case BezierSurfaceWrapping::v:
+			return createIntermediatePointsVWrapping(boorPoints);
+	}
+	return {};
 }
 
 std::vector<std::vector<glm::vec3>> BezierSurface::createIntermediatePointsNoWrapping(

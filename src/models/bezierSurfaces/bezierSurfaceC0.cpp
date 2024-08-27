@@ -39,8 +39,20 @@ int BezierSurfaceC0::m_count = 0;
 std::vector<std::unique_ptr<Point>> BezierSurfaceC0::createPoints(
 	const ShaderProgram& pointShaderProgram, const glm::vec3& pos, float sizeU, float sizeV)
 {
-	// TODO
-	return {};
+	std::vector<std::vector<glm::vec3>> boorPoints = createBoorPoints(pos, sizeU, sizeV);
+	std::vector<std::vector<glm::vec3>> bezierPoints = createBezierPoints(boorPoints);
+	std::vector<std::unique_ptr<Point>> points{};
+	m_points.resize(bezierPoints.size());
+	for (int v = 0; v < bezierPoints.size(); ++v)
+	{
+		for (int u = 0; u < bezierPoints[v].size(); ++u)
+		{
+			points.push_back(std::make_unique<Point>(pointShaderProgram, bezierPoints[v][u],
+				true));
+			m_points[v].push_back(points.back().get());
+		}
+	}
+	return points;
 }
 
 void BezierSurfaceC0::createSurfaceMesh()
