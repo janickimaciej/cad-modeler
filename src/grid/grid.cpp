@@ -8,7 +8,7 @@ Grid::Grid(const ShaderProgram& shaderProgram, float scale) :
 void Grid::render(CameraType cameraType) const
 {
 	updateShaders(cameraType);
-	m_canvas.render();
+	m_quad.render();
 }
 
 void Grid::updateShaders(CameraType cameraType) const

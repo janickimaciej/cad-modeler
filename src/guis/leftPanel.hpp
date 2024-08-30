@@ -1,6 +1,5 @@
 #pragma once
 
-#include "cameras/cameraType.hpp"
 #include "guis/addBezierSurfacePanel.hpp"
 #include "guis/guiMode.hpp"
 #include "scene.hpp"
@@ -18,8 +17,6 @@ public:
 private:
 	Scene& m_scene;
 	const glm::ivec2& m_windowSize;
-	
-	CameraType m_cameraType{};
 
 	bool m_addingBezierSurfaceC0 = false;
 	bool m_addingBezierSurfaceC2 = false;
@@ -27,6 +24,7 @@ private:
 	AddBezierSurfacePanel m_addBezierSurfaceC2Panel;
 
 	void updateCamera();
+	void updateAnaglyph();
 	void updateCursor();
 	void updateSelectedModelsCenter();
 	void updateButtons();

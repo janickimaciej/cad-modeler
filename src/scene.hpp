@@ -1,11 +1,13 @@
 #pragma once
 
+#include "anaglyphMode.hpp"
 #include "cameras/camera.hpp"
 #include "cameras/cameraType.hpp"
 #include "cameras/orthographicCamera.hpp"
 #include "cameras/perspectiveCamera.hpp"
 #include "centerPoint.hpp"
 #include "cursor.hpp"
+#include "framebuffer.hpp"
 #include "grid/grid.hpp"
 #include "models/bezierCurves/bezierCurveC0.hpp"
 #include "models/bezierCurves/bezierCurveC2.hpp"
@@ -16,6 +18,7 @@
 #include "models/model.hpp"
 #include "models/point.hpp"
 #include "models/torus.hpp"
+#include "quad.hpp"
 #include "shaderPrograms.hpp"
 
 #include <glm/glm.hpp>
@@ -83,6 +86,15 @@ public:
 	void updateSelectedModelsCenterGUI();
 	void updateModelGUI(int i);
 
+	bool getAnaglyphOn() const;
+	void setAnaglyphOn(bool anaglyphOn);
+	float getEyesDistance() const;
+	void setEyesDistance(float eyesDistance);
+	float getScreenDistance() const;
+	void setScreenDistance(float screenDistance);
+	float getProjectionPlane() const;
+	void setProjectionPlane(float projectionPlane);
+
 private:
 	ShaderPrograms m_shaderPrograms{};
 
@@ -116,7 +128,14 @@ private:
 		{
 			addBezierCurveForDeletion(curve);
 		};
+
+	Framebuffer m_leftEyeFramebuffer;
+	Quad m_leftEyeQuad{};
+	bool m_anaglyphOn = false;
 	
+	void setUpFramebuffer() const;
+	void clearFramebuffer(AnaglyphMode anaglyphMode) const;
+
 	void setAspectRatio(float aspectRatio);
 	void renderModels() const;
 	void renderCursor() const;

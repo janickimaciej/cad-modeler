@@ -1,4 +1,4 @@
-#include "canvas.hpp"
+#include "quad.hpp"
 
 #include <glad/glad.h>
 #include <glm/glm.hpp>
@@ -7,7 +7,7 @@
 
 static constexpr int vertexCount = 6;
 
-Canvas::Canvas()
+Quad::Quad()
 {
 	static const std::array<glm::vec3, vertexCount> vertices
 	{{
@@ -34,7 +34,7 @@ Canvas::Canvas()
 	glBindVertexArray(0);
 }
 
-void Canvas::render() const
+void Quad::render() const
 {
 	glBindVertexArray(m_VAO);
 	glDrawArrays(GL_TRIANGLES, 0, static_cast<GLsizei>(vertexCount));

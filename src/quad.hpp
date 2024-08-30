@@ -1,9 +1,9 @@
 #pragma once
 
-class Canvas
+class Quad
 {
 public:
-	Canvas();
+	Quad();
 	void render() const;
 
 private:

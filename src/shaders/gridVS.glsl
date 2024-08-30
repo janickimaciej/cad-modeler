@@ -1,6 +1,6 @@
 #version 420 core
 
-layout (location = 0) in vec3 inPosCanvas;
+layout (location = 0) in vec3 inPosQuad;
 
 uniform mat4 projectionViewMatrixInverse;
 
@@ -11,9 +11,9 @@ vec3 clipToWorld(vec3 posClip);
 
 void main()
 {
-	nearPlanePoint = clipToWorld(vec3(inPosCanvas.xy, -1));
-	farPlanePoint = clipToWorld(vec3(inPosCanvas.xy, 1));
-	gl_Position = vec4(inPosCanvas, 1);
+	nearPlanePoint = clipToWorld(vec3(inPosQuad.xy, -1));
+	farPlanePoint = clipToWorld(vec3(inPosQuad.xy, 1));
+	gl_Position = vec4(inPosQuad, 1);
 }
 
 vec3 clipToWorld(vec3 posClip)

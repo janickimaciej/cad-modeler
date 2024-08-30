@@ -14,7 +14,8 @@ Scene::Scene(const glm::ivec2& windowSize) :
 	m_perspectiveCamera{fovYDeg, static_cast<float>(windowSize.x) / windowSize.y, nearPlane,
 		farPlane, m_shaderPrograms},
 	m_orthographicCamera{viewHeight, static_cast<float>(windowSize.x) / windowSize.y, nearPlane,
-		farPlane, m_shaderPrograms}
+		farPlane, m_shaderPrograms},
+	m_leftEyeFramebuffer{windowSize}
 {
 	auto firstModelIter = m_models.begin();
 
@@ -22,6 +23,11 @@ Scene::Scene(const glm::ivec2& windowSize) :
 	zoomCamera(0.5);
 	addPitchCamera(glm::radians(-30.0f));
 	addYawCamera(glm::radians(15.0f));
+
+	setUpFramebuffer();
+	m_leftEyeFramebuffer.bind();
+	setUpFramebuffer();
+	m_leftEyeFramebuffer.unbind();
 }
 
 void Scene::update()
@@ -32,16 +38,50 @@ void Scene::update()
 
 void Scene::render() const
 {
-	m_activeCamera->use(m_windowSize);
-	renderModels();
-	renderCursor();
-	renderSelectedModelsCenter();
-	renderGrid();
+	if (m_anaglyphOn)
+	{
+		m_leftEyeFramebuffer.bind();
+		clearFramebuffer(AnaglyphMode::leftEye);
+
+		m_activeCamera->useLeftEye(m_windowSize);
+		renderModels();
+		renderCursor();
+		renderSelectedModelsCenter();
+		renderGrid();
+
+		m_leftEyeFramebuffer.unbind();
+		clearFramebuffer(AnaglyphMode::rightEye);
+
+		m_activeCamera->useRightEye(m_windowSize);
+		renderModels();
+		renderCursor();
+		renderSelectedModelsCenter();
+		renderGrid();
+
+		glDisable(GL_DEPTH_TEST);
+		glBlendFunc(GL_ONE, GL_ONE);
+		m_leftEyeFramebuffer.bindTexture();
+		m_shaderPrograms.quad.use();
+		m_leftEyeQuad.render();
+		glEnable(GL_DEPTH_TEST);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	}
+	else
+	{
+		clearFramebuffer(AnaglyphMode::none);
+
+		m_activeCamera->use(m_windowSize);
+		renderModels();
+		renderCursor();
+		renderSelectedModelsCenter();
+		renderGrid();
+	}
 }
 
 void Scene::updateWindowSize()
 {
 	setAspectRatio(static_cast<float>(m_windowSize.x) / m_windowSize.y);
+	m_leftEyeFramebuffer.resize(m_windowSize);
 }
 
 CameraType Scene::getCameraType() const
@@ -489,6 +529,78 @@ void Scene::updateSelectedModelsCenterGUI()
 void Scene::updateModelGUI(int i)
 {
 	m_models[i]->updateGUI();
+}
+
+bool Scene::getAnaglyphOn() const
+{
+	return m_anaglyphOn;
+}
+
+void Scene::setAnaglyphOn(bool anaglyphOn)
+{
+	m_anaglyphOn = anaglyphOn;
+}
+
+float Scene::getEyesDistance() const
+{
+	return m_activeCamera->getEyesDistance();
+}
+
+void Scene::setEyesDistance(float eyesDistance)
+{
+	m_perspectiveCamera.setEyesDistance(eyesDistance);
+	m_orthographicCamera.setEyesDistance(eyesDistance);
+}
+
+float Scene::getScreenDistance() const
+{
+	return m_activeCamera->getScreenDistance();
+}
+
+void Scene::setScreenDistance(float screenDistance)
+{
+	m_perspectiveCamera.setScreenDistance(screenDistance);
+	m_orthographicCamera.setScreenDistance(screenDistance);
+}
+
+float Scene::getProjectionPlane() const
+{
+	return m_activeCamera->getProjectionPlane();
+}
+
+void Scene::setProjectionPlane(float projectionPlane)
+{
+	m_perspectiveCamera.setProjectionPlane(projectionPlane);
+	m_orthographicCamera.setProjectionPlane(projectionPlane);
+}
+
+void Scene::setUpFramebuffer() const
+{
+	glEnable(GL_DEPTH_TEST);
+	glEnable(GL_CULL_FACE);
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	glEnable(GL_MULTISAMPLE);
+}
+
+void Scene::clearFramebuffer(AnaglyphMode anaglyphMode) const
+{
+	static constexpr glm::vec3 backgroundColor{0.1f, 0.1f, 0.1f};
+	switch (anaglyphMode)
+	{
+		case AnaglyphMode::none:
+		glClearColor(backgroundColor.r, backgroundColor.g, backgroundColor.b, 1.0f);
+		break;
+
+		case AnaglyphMode::leftEye:
+		glClearColor(backgroundColor.r, 0, 0, 1.0f);
+		break;
+
+		case AnaglyphMode::rightEye:
+		glClearColor(0, backgroundColor.g, backgroundColor.b, 1.0f);
+		break;
+	}
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 
 void Scene::setAspectRatio(float aspectRatio)

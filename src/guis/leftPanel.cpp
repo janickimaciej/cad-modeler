@@ -1,5 +1,7 @@
 #include "guis/leftPanel.hpp"
 
+#include "cameras/cameraType.hpp"
+
 #include <imgui/imgui.h>
 
 #include <optional>
@@ -41,6 +43,8 @@ void LeftPanel::update(GUIMode mode)
 
 	updateCamera();
 	separator();
+	updateAnaglyph();
+	separator();
 	updateCursor();
 	separator();
 	updateSelectedModelsCenter();
@@ -60,24 +64,84 @@ void LeftPanel::updateCamera()
 	
 	ImGui::PushItemWidth(120);
 	
-	m_cameraType = m_scene.getCameraType();
-	if (ImGui::BeginCombo("##cameraType", cameraTypeLabels[static_cast<int>(m_cameraType)].c_str()))
+	CameraType cameraType = m_scene.getCameraType();
+	CameraType prevCameraType = cameraType;
+	if (ImGui::BeginCombo("##cameraType", cameraTypeLabels[static_cast<int>(cameraType)].c_str()))
 	{
-		for (int cameraType = 0; cameraType < cameraTypeCount; ++cameraType)
+		for (int cameraTypeIndex = 0; cameraTypeIndex < cameraTypeCount; ++cameraTypeIndex)
 		{
-			bool isSelected = static_cast<int>(m_cameraType) == cameraType;
-			if (ImGui::Selectable(cameraTypeLabels[cameraType].c_str(), isSelected))
+			bool isSelected = static_cast<int>(cameraType) == cameraTypeIndex;
+			if (ImGui::Selectable(cameraTypeLabels[cameraTypeIndex].c_str(), isSelected))
 			{
-				m_cameraType = static_cast<CameraType>(cameraType);
+				cameraType = static_cast<CameraType>(cameraTypeIndex);
 			}
 		}
 		ImGui::EndCombo();
 	}
-	m_scene.setCameraType(static_cast<CameraType>(m_cameraType));
+	if (cameraType != prevCameraType)
+	{
+		m_scene.setCameraType(static_cast<CameraType>(cameraType));
+	}
 	
 	ImGui::PopItemWidth();
 
 	m_scene.updateActiveCameraGUI();
+}
+
+void LeftPanel::updateAnaglyph()
+{
+	bool anaglyphOn = m_scene.getAnaglyphOn();
+	bool prevAnaglyphOn = anaglyphOn;
+	ImGui::Checkbox("anaglyph", &anaglyphOn);
+	if (anaglyphOn != prevAnaglyphOn)
+	{
+		m_scene.setAnaglyphOn(anaglyphOn);
+	}
+
+	if (anaglyphOn)
+	{
+		{
+			static constexpr float stepPrecision = 1;
+			static const std::string format = "%.1f";
+
+			float eyesDistance = m_scene.getEyesDistance() * 1000;
+			float prevEyesDistance = eyesDistance;
+			ImGui::InputFloat("eyes distance", &eyesDistance, stepPrecision, stepPrecision,
+				format.c_str());
+			if (eyesDistance != prevEyesDistance)
+			{
+				m_scene.setEyesDistance(eyesDistance / 1000);
+			}
+		}
+
+		{
+			static constexpr float stepPrecision = 10;
+			static const std::string format = "%.0f";
+
+			float screenDistance = m_scene.getScreenDistance() * 1000;
+			float prevScreenDistance = screenDistance;
+			ImGui::InputFloat("screen distance", &screenDistance, stepPrecision, stepPrecision,
+				format.c_str());
+			if (screenDistance != prevScreenDistance)
+			{
+				m_scene.setScreenDistance(screenDistance / 1000);
+			}
+		}
+
+		{
+			static constexpr float stepPrecision = 0.1f;
+			static const std::string format = "%.2f";
+
+			float projectionPlane = m_scene.getProjectionPlane();
+			float prevProjectionPlane = projectionPlane;
+			ImGui::InputFloat("projection plane", &projectionPlane, stepPrecision, stepPrecision,
+				format.c_str());
+			if (projectionPlane != prevProjectionPlane)
+			{
+				m_scene.setProjectionPlane(projectionPlane);
+			}
+		}
+	}
 }
 
 void LeftPanel::updateCursor()

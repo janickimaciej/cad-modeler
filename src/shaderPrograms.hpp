@@ -17,6 +17,7 @@ struct ShaderPrograms
 	ShaderProgram polyline{path("polylineVS"), path("FS")};
 	ShaderProgram bezierSurface{path("bezierSurfaceVS"), path("bezierSurfaceTCS"),
 		path("bezierSurfaceTES"), path("FS")};
+	ShaderProgram quad{path("quadVS"), path("quadFS")};
 
 private:
 	static std::string path(const std::string& shaderName);

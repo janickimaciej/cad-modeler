@@ -1,7 +1,7 @@
 #pragma once
 
 #include "cameras/cameraType.hpp"
-#include "grid/canvas.hpp"
+#include "quad.hpp"
 #include "shaderProgram.hpp"
 
 class Grid
@@ -14,7 +14,7 @@ private:
 	const ShaderProgram& m_shaderProgram;
 
 	float m_scale{};
-	Canvas m_canvas{};
+	Quad m_quad{};
 
 	void updateShaders(CameraType cameraType) const;
 };

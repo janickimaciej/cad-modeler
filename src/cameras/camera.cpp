@@ -17,6 +17,16 @@ void Camera::use(const glm::ivec2& windowSize) const
 	updateShaders(windowSize);
 }
 
+void Camera::useLeftEye(const glm::ivec2& windowSize) const
+{
+	updateShadersLeftEye(windowSize);
+}
+
+void Camera::useRightEye(const glm::ivec2& windowSize) const
+{
+	updateShadersRightEye(windowSize);
+}
+
 glm::mat4 Camera::getMatrix() const
 {
 	return m_projectionMatrix * glm::inverse(m_viewMatrixInverse);
@@ -77,39 +87,43 @@ void Camera::moveY(float y)
 	updateViewMatrix();
 }
 
-void Camera::updateShaders(const glm::ivec2& windowSize) const
+float Camera::getEyesDistance() const
 {
-	glm::mat4 projectionViewMatrix = m_projectionMatrix * glm::inverse(m_viewMatrixInverse);
-	glm::mat4 projectionViewMatrixInverse = glm::inverse(projectionViewMatrix);
+	return m_eyesDistance;
+}
 
-	m_shaderPrograms.mesh.use();
-	m_shaderPrograms.mesh.setUniform("projectionViewMatrix", projectionViewMatrix);
+void Camera::setEyesDistance(float eyesDistance)
+{
+	m_eyesDistance = eyesDistance;
 
-	m_shaderPrograms.point.use();
-	m_shaderPrograms.point.setUniform("projectionViewMatrix", projectionViewMatrix);
+	updateViewMatrix();
+	updateProjectionMatrix();
+}
 
-	m_shaderPrograms.cursor.use();
-	m_shaderPrograms.cursor.setUniform("projectionViewMatrix", projectionViewMatrix);
+float Camera::getScreenDistance() const
+{
+	return m_screenDistance;
+}
 
-	m_shaderPrograms.grid.use();
-	m_shaderPrograms.grid.setUniform("projectionViewMatrix", projectionViewMatrix);
-	m_shaderPrograms.grid.setUniform("projectionViewMatrixInverse",
-		projectionViewMatrixInverse);
+void Camera::setScreenDistance(float screenDistance)
+{
+	m_screenDistance = screenDistance;
 
-	m_shaderPrograms.bezierCurve.use();
-	m_shaderPrograms.bezierCurve.setUniform("projectionViewMatrix", projectionViewMatrix);
-	m_shaderPrograms.bezierCurve.setUniform("windowSize", windowSize);
+	updateViewMatrix();
+	updateProjectionMatrix();
+}
 
-	m_shaderPrograms.bezierCurveInter.use();
-	m_shaderPrograms.bezierCurveInter.setUniform("projectionViewMatrix", projectionViewMatrix);
-	m_shaderPrograms.bezierCurveInter.setUniform("windowSize", windowSize);
+float Camera::getProjectionPlane() const
+{
+	return m_projectionPlane;
+}
 
-	m_shaderPrograms.polyline.use();
-	m_shaderPrograms.polyline.setUniform("projectionViewMatrix",
-		projectionViewMatrix);
+void Camera::setProjectionPlane(float projectionPlane)
+{
+	m_projectionPlane = projectionPlane;
 
-	m_shaderPrograms.bezierSurface.use();
-	m_shaderPrograms.bezierSurface.setUniform("projectionViewMatrix", projectionViewMatrix);
+	updateViewMatrix();
+	updateProjectionMatrix();
 }
 
 void Camera::updateViewMatrix()
@@ -126,6 +140,9 @@ void Camera::updateViewMatrix()
 	glm::vec3 right = glm::normalize(glm::cross(glm::vec3{0, 1, 0}, direction));
 	glm::vec3 up = glm::cross(direction, right);
 
+	float virtualEyesDistance = m_projectionPlane / m_screenDistance * m_eyesDistance;
+	glm::vec3 leftEyePos = pos - right * virtualEyesDistance / 2.0f;
+	glm::vec3 rightEyePos = pos + right * virtualEyesDistance / 2.0f;
 
 	m_viewMatrixInverse =
 	{
@@ -134,4 +151,83 @@ void Camera::updateViewMatrix()
 		direction.x, direction.y, direction.z, 0,
 		pos.x, pos.y, pos.z, 1
 	};
+
+	m_leftEyeViewMatrixInverse =
+	{
+		right.x, right.y, right.z, 0,
+		up.x, up.y, up.z, 0,
+		direction.x, direction.y, direction.z, 0,
+		leftEyePos.x, leftEyePos.y, leftEyePos.z, 1
+	};
+
+	m_rightEyeViewMatrixInverse =
+	{
+		right.x, right.y, right.z, 0,
+		up.x, up.y, up.z, 0,
+		direction.x, direction.y, direction.z, 0,
+		rightEyePos.x, rightEyePos.y, rightEyePos.z, 1
+	};
+}
+
+void Camera::updateShaders(const glm::ivec2& windowSize) const
+{
+	glm::mat4 projectionViewMatrix = m_projectionMatrix * glm::inverse(m_viewMatrixInverse);
+	updateShaders(windowSize, projectionViewMatrix, AnaglyphMode::none);
+}
+
+void Camera::updateShadersLeftEye(const glm::ivec2& windowSize) const
+{
+	glm::mat4 projectionViewMatrix =
+		m_leftEyeProjectionMatrix * glm::inverse(m_leftEyeViewMatrixInverse);
+	updateShaders(windowSize, projectionViewMatrix, AnaglyphMode::leftEye);
+}
+
+void Camera::updateShadersRightEye(const glm::ivec2& windowSize) const
+{
+	glm::mat4 projectionViewMatrix =
+		m_rightEyeProjectionMatrix * glm::inverse(m_rightEyeViewMatrixInverse);
+	updateShaders(windowSize, projectionViewMatrix, AnaglyphMode::rightEye);
+}
+
+void Camera::updateShaders(const glm::ivec2& windowSize,
+	const glm::mat4& projectionViewMatrix, AnaglyphMode anaglyphMode) const
+{
+	glm::mat4 projectionViewMatrixInverse = glm::inverse(projectionViewMatrix);
+
+	m_shaderPrograms.mesh.use();
+	m_shaderPrograms.mesh.setUniform("projectionViewMatrix", projectionViewMatrix);
+	m_shaderPrograms.mesh.setUniform("anaglyphMode", static_cast<int>(anaglyphMode));
+
+	m_shaderPrograms.point.use();
+	m_shaderPrograms.point.setUniform("projectionViewMatrix", projectionViewMatrix);
+	m_shaderPrograms.point.setUniform("anaglyphMode", static_cast<int>(anaglyphMode));
+
+	m_shaderPrograms.cursor.use();
+	m_shaderPrograms.cursor.setUniform("projectionViewMatrix", projectionViewMatrix);
+	m_shaderPrograms.cursor.setUniform("anaglyphMode", static_cast<int>(anaglyphMode));
+
+	m_shaderPrograms.grid.use();
+	m_shaderPrograms.grid.setUniform("projectionViewMatrix", projectionViewMatrix);
+	m_shaderPrograms.grid.setUniform("projectionViewMatrixInverse",
+		projectionViewMatrixInverse);
+	m_shaderPrograms.grid.setUniform("anaglyphMode", static_cast<int>(anaglyphMode));
+
+	m_shaderPrograms.bezierCurve.use();
+	m_shaderPrograms.bezierCurve.setUniform("projectionViewMatrix", projectionViewMatrix);
+	m_shaderPrograms.bezierCurve.setUniform("windowSize", windowSize);
+	m_shaderPrograms.bezierCurve.setUniform("anaglyphMode", static_cast<int>(anaglyphMode));
+
+	m_shaderPrograms.bezierCurveInter.use();
+	m_shaderPrograms.bezierCurveInter.setUniform("projectionViewMatrix", projectionViewMatrix);
+	m_shaderPrograms.bezierCurveInter.setUniform("windowSize", windowSize);
+	m_shaderPrograms.bezierCurveInter.setUniform("anaglyphMode", static_cast<int>(anaglyphMode));
+
+	m_shaderPrograms.polyline.use();
+	m_shaderPrograms.polyline.setUniform("projectionViewMatrix",
+		projectionViewMatrix);
+	m_shaderPrograms.polyline.setUniform("anaglyphMode", static_cast<int>(anaglyphMode));
+
+	m_shaderPrograms.bezierSurface.use();
+	m_shaderPrograms.bezierSurface.setUniform("projectionViewMatrix", projectionViewMatrix);
+	m_shaderPrograms.bezierSurface.setUniform("anaglyphMode", static_cast<int>(anaglyphMode));
 }

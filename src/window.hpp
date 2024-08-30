@@ -16,7 +16,6 @@ public:
 	const glm::ivec2& size() const;
 	void setWindowData(Scene& scene, GUI& gui);
 	bool shouldClose() const;
-	void clear() const;
 	void swapBuffers() const;
 	void pollEvents() const;
 	GLFWwindow* getPtr();

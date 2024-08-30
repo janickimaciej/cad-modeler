@@ -24,11 +24,6 @@ Window::Window(const glm::ivec2& initialSize) :
 	glfwSetKeyCallback(m_windowPtr, keyCallback);
 
 	gladLoadGLLoader(reinterpret_cast<GLADloadproc>(glfwGetProcAddress));
-	glEnable(GL_DEPTH_TEST);
-	glEnable(GL_CULL_FACE);
-	glEnable(GL_BLEND);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	glEnable(GL_MULTISAMPLE);
 }
 
 Window::~Window()
@@ -50,13 +45,6 @@ void Window::setWindowData(Scene& scene, GUI& gui)
 bool Window::shouldClose() const
 {
 	return glfwWindowShouldClose(m_windowPtr);
-}
-
-void Window::clear() const
-{
-	static constexpr glm::vec3 backgroundColor{0.1f, 0.1f, 0.1f};
-	glClearColor(backgroundColor.r, backgroundColor.g, backgroundColor.b, 1.0f);
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 
 void Window::swapBuffers() const
