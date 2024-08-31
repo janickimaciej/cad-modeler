@@ -11,4 +11,8 @@ enum class CameraType
 	perspective
 };
 
-inline std::array<std::string, cameraTypeCount> cameraTypeLabels{"orthographic", "perspective"};
+inline const std::array<const std::string, cameraTypeCount> cameraTypeLabels
+{
+	"Orthographic",
+	"Perspective"
+};

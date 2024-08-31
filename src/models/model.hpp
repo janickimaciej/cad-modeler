@@ -7,7 +7,8 @@
 class Model
 {
 public:
-	Model(const glm::vec3& pos, const std::string& name, bool isVirtual = false);
+	Model(const glm::vec3& pos, const std::string& name, bool isDeletable = true,
+		bool isVirtual = false);
 	virtual ~Model() = default;
 
 	virtual void render() const = 0;
@@ -33,8 +34,9 @@ public:
 	std::string getName() const;
 	void setName(const std::string& name);
 	
-	bool isVirtual() const;
 	bool isSelected() const;
+	bool isDeletable() const;
+	bool isVirtual() const;
 	void select();
 	void deselect();
 
@@ -57,5 +59,6 @@ private:
 	std::string m_name{};
 
 	bool m_isSelected = false;
+	bool m_isDeletable{};
 	bool m_isVirtual{};
 };

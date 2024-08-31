@@ -28,7 +28,8 @@ LeftPanel::LeftPanel(Scene& scene, const glm::ivec2& windowSize) :
 			m_addBezierSurfaceC2Panel.reset();
 			m_addingBezierSurfaceC2 = false;
 		}
-	}
+	},
+	m_modelListPanel{scene}
 { }
 
 void LeftPanel::update(GUIMode mode)
@@ -42,8 +43,11 @@ void LeftPanel::update(GUIMode mode)
 	ImGui::PushItemWidth(100);
 
 	updateCamera();
-	separator();
-	updateAnaglyph();
+	if (m_scene.getCameraType() == CameraType::perspective)
+	{
+		separator();
+		updateAnaglyph();
+	}
 	separator();
 	updateCursor();
 	separator();
@@ -51,7 +55,7 @@ void LeftPanel::update(GUIMode mode)
 	separator();
 	updateButtons();
 	separator();
-	updateModelList(mode);
+	m_modelListPanel.update(mode);
 
 	ImGui::PopItemWidth();
 	ImGui::End();
@@ -70,7 +74,7 @@ void LeftPanel::updateCamera()
 	{
 		for (int cameraTypeIndex = 0; cameraTypeIndex < cameraTypeCount; ++cameraTypeIndex)
 		{
-			bool isSelected = static_cast<int>(cameraType) == cameraTypeIndex;
+			bool isSelected = cameraTypeIndex == static_cast<int>(cameraType);
 			if (ImGui::Selectable(cameraTypeLabels[cameraTypeIndex].c_str(), isSelected))
 			{
 				cameraType = static_cast<CameraType>(cameraTypeIndex);
@@ -104,13 +108,13 @@ void LeftPanel::updateAnaglyph()
 			static constexpr float stepPrecision = 1;
 			static const std::string format = "%.1f";
 
-			float eyesDistance = m_scene.getEyesDistance() * 1000;
+			float eyesDistance = m_scene.getEyesDistance();
 			float prevEyesDistance = eyesDistance;
 			ImGui::InputFloat("eyes distance", &eyesDistance, stepPrecision, stepPrecision,
 				format.c_str());
 			if (eyesDistance != prevEyesDistance)
 			{
-				m_scene.setEyesDistance(eyesDistance / 1000);
+				m_scene.setEyesDistance(eyesDistance);
 			}
 		}
 
@@ -118,13 +122,13 @@ void LeftPanel::updateAnaglyph()
 			static constexpr float stepPrecision = 10;
 			static const std::string format = "%.0f";
 
-			float screenDistance = m_scene.getScreenDistance() * 1000;
+			float screenDistance = m_scene.getScreenDistance();
 			float prevScreenDistance = screenDistance;
 			ImGui::InputFloat("screen distance", &screenDistance, stepPrecision, stepPrecision,
 				format.c_str());
 			if (screenDistance != prevScreenDistance)
 			{
-				m_scene.setScreenDistance(screenDistance / 1000);
+				m_scene.setScreenDistance(screenDistance);
 			}
 		}
 
@@ -230,56 +234,6 @@ void LeftPanel::updateButtons()
 	if (m_addingBezierSurfaceC2)
 	{
 		m_addBezierSurfaceC2Panel.update();
-	}
-}
-
-void LeftPanel::updateModelList(GUIMode mode)
-{
-	ImGui::Text("Model list");
-
-	static constexpr ImGuiTreeNodeFlags globalFlags =
-		ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick;
-
-	std::optional<int> clickedModel = std::nullopt;
-	for (int i = 0; i < m_scene.getModelCount(); ++i)
-	{
-		if (m_scene.isModelVirtual(i))
-		{
-			continue;
-		}
-
-		ImGuiTreeNodeFlags flags = globalFlags;
-		if (m_scene.isModelSelected(i))
-		{
-			flags |= ImGuiTreeNodeFlags_Selected;
-		}
-
-		bool isOpen = ImGui::TreeNodeEx(
-			(m_scene.getModelName(i) + "##modelList" + std::to_string(i)).c_str(), flags);
-		if (ImGui::IsItemClicked())
-		{
-			clickedModel = i;
-		}
-		if (isOpen)
-		{
-			ImGui::Spacing();
-			m_scene.updateModelGUI(i);
-			ImGui::TreePop();
-			ImGui::Spacing();
-		}
-	}
-
-	if (clickedModel.has_value() && mode == GUIMode::none)
-	{
-		if (ImGui::GetIO().KeyCtrl)
-		{
-			m_scene.toggleModel(*clickedModel);
-		}
-		else
-		{
-			m_scene.deselectAllModels();
-			m_scene.selectModel(*clickedModel);
-		}
 	}
 }
 

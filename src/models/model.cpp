@@ -2,10 +2,11 @@
 
 #include <cmath>
 
-Model::Model(const glm::vec3& pos, const std::string& name, bool isVirtual) :
+Model::Model(const glm::vec3& pos, const std::string& name, bool isDeletable, bool isVirtual) :
 	m_pos{pos},
 	m_originalName{name},
 	m_name{name},
+	m_isDeletable{isDeletable},
 	m_isVirtual{isVirtual}
 {
 	updateMatrix();
@@ -110,14 +111,19 @@ void Model::setName(const std::string& name)
 	m_name = name;
 }
 
-bool Model::isVirtual() const
-{
-	return m_isVirtual;
-}
-
 bool Model::isSelected() const
 {
 	return m_isSelected;
+}
+
+bool Model::isDeletable() const
+{
+	return m_isDeletable;
+}
+
+bool Model::isVirtual() const
+{
+	return m_isVirtual;
 }
 
 void Model::select()

@@ -45,8 +45,8 @@ protected:
 	glm::mat4 m_leftEyeProjectionMatrix{1};
 	glm::mat4 m_rightEyeProjectionMatrix{1};
 
-	float m_eyesDistance = 0.06f;
-	float m_screenDistance = 1;
+	float m_eyesDistance = 60;
+	float m_screenDistance = 1000;
 	float m_projectionPlane = 1;
 	
 	void updateViewMatrix();

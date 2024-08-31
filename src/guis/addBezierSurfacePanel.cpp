@@ -105,7 +105,7 @@ void AddBezierSurfacePanel::updateWrapping()
 	{
 		for (int wrapping = 0; wrapping < bezierSurfaceWrappingCount; ++wrapping)
 		{
-			bool isSelected = static_cast<int>(m_wrapping) == wrapping;
+			bool isSelected = wrapping == static_cast<int>(m_wrapping);
 			if (ImGui::Selectable(bezierSurfaceWrappingLabels[wrapping].c_str(), isSelected))
 			{
 				m_wrapping = static_cast<BezierSurfaceWrapping>(wrapping);

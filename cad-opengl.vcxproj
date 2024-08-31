@@ -37,6 +37,7 @@
     <ClCompile Include="src\guis\cameraGUIs\orthographicCameraGUI.cpp" />
     <ClCompile Include="src\guis\cameraGUIs\perspectiveCameraGUI.cpp" />
     <ClCompile Include="src\cursor.cpp" />
+    <ClCompile Include="src\guis\modelListPanel.cpp" />
     <ClCompile Include="src\quad.cpp" />
     <ClCompile Include="src\grid\grid.cpp" />
     <ClCompile Include="src\guis\centerPointGUI.cpp" />
@@ -101,6 +102,8 @@
     <ClInclude Include="src\cameras\cameraType.hpp" />
     <ClInclude Include="src\cursor.hpp" />
     <ClInclude Include="src\guis\cursorGUI.hpp" />
+    <ClInclude Include="src\guis\modelListPanel.hpp" />
+    <ClInclude Include="src\models\modelType.hpp" />
     <ClInclude Include="src\quad.hpp" />
     <ClInclude Include="src\grid\grid.hpp" />
     <ClInclude Include="src\guis\gui.hpp" />

@@ -16,7 +16,8 @@ class Point : public Model
 public:
 	using Callback = std::function<void(const Point*)>;
 
-	Point(const ShaderProgram& shaderProgram, const glm::vec3& pos, bool isVirtual = false);
+	Point(const ShaderProgram& shaderProgram, const glm::vec3& pos, bool isDeletable = true,
+		bool isVirtual = false);
 	virtual ~Point();
 
 	virtual void render() const override;

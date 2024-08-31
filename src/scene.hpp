@@ -16,6 +16,7 @@
 #include "models/bezierSurfaces/bezierSurfaceC2.hpp"
 #include "models/bezierSurfaces/bezierSurfaceWrapping.hpp"
 #include "models/model.hpp"
+#include "models/modelType.hpp"
 #include "models/point.hpp"
 #include "models/torus.hpp"
 #include "quad.hpp"
@@ -45,14 +46,14 @@ public:
 	void moveYCamera(float y);
 	void zoomCamera(float zoom);
 
-	int getModelCount() const;
+	int getModelCount(ModelType type = ModelType::all) const;
 	bool isAnyModelSelected() const;
 	bool isOneModelSelected() const;
-	bool isModelVirtual(int i) const;
-	bool isModelSelected(int i) const;
-	void selectModel(int i);
-	void deselectModel(int i);
-	void toggleModel(int i);
+	bool isModelVirtual(int i, ModelType type = ModelType::all) const;
+	bool isModelSelected(int i, ModelType type = ModelType::all) const;
+	void selectModel(int i, ModelType type = ModelType::all);
+	void deselectModel(int i, ModelType type = ModelType::all);
+	void toggleModel(int i, ModelType type = ModelType::all);
 	void deselectAllModels();
 	void deleteSelectedModels();
 	bool selectUniqueModel(const glm::vec2& screenPos);
@@ -68,7 +69,8 @@ public:
 
 	std::string getUniqueSelectedModelName() const;
 	void setUniqueSelectedModelName(const std::string& name) const;
-	std::string getModelName(int i) const;
+	std::string getModelOriginalName(int i, ModelType type = ModelType::all) const;
+	std::string getModelName(int i, ModelType type = ModelType::all) const;
 
 	void addPoint();
 	void addTorus();
@@ -84,7 +86,7 @@ public:
 	void updateActiveCameraGUI();
 	void updateCursorGUI();
 	void updateSelectedModelsCenterGUI();
-	void updateModelGUI(int i);
+	void updateModelGUI(int i, ModelType type = ModelType::all);
 
 	bool getAnaglyphOn() const;
 	void setAnaglyphOn(bool anaglyphOn);
@@ -145,11 +147,11 @@ private:
 	Model* getUniqueSelectedModel() const;
 	std::optional<int> getClosestModel(const glm::vec2& screenPos) const;
 	std::vector<Point*> getNonVirtualSelectedPoints() const;
-	void addVirtualPoints(std::vector<std::unique_ptr<Point>> points);
+	void addPoints(std::vector<std::unique_ptr<Point>> points);
 
 	void addBezierCurveForDeletion(const BezierCurve* curve);
 	void deleteEmptyBezierCurves();
-	void deleteUnreferencedVirtualPoints();
+	void deleteUnreferencedNonDeletablePoints();
 
 	template <typename ModelType>
 	void deleteSelectedModels(std::vector<std::unique_ptr<ModelType>>& models);
@@ -163,7 +165,7 @@ void Scene::deleteSelectedModels(std::vector<std::unique_ptr<ModelType>>& models
 		models,
 		[] (const std::unique_ptr<ModelType>& model)
 		{
-			return model->isSelected() && !model->isVirtual();
+			return model->isSelected() && model->isDeletable();
 		}
 	);
 }

@@ -12,5 +12,9 @@ enum class BezierSurfaceWrapping
 	v
 };
 
-inline std::array<std::string, bezierSurfaceWrappingCount> bezierSurfaceWrappingLabels{"none", "U",
-	"V"};
+inline const std::array<const std::string, bezierSurfaceWrappingCount> bezierSurfaceWrappingLabels
+{
+	"None",
+	"U",
+	"V"
+};

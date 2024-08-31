@@ -2,6 +2,7 @@
 
 #include "guis/addBezierSurfacePanel.hpp"
 #include "guis/guiMode.hpp"
+#include "guis/modelListPanel.hpp"
 #include "scene.hpp"
 
 #include <string>
@@ -22,13 +23,13 @@ private:
 	bool m_addingBezierSurfaceC2 = false;
 	AddBezierSurfacePanel m_addBezierSurfaceC0Panel;
 	AddBezierSurfacePanel m_addBezierSurfaceC2Panel;
+	ModelListPanel m_modelListPanel;
 
 	void updateCamera();
 	void updateAnaglyph();
 	void updateCursor();
 	void updateSelectedModelsCenter();
 	void updateButtons();
-	void updateModelList(GUIMode mode);
 
 	void separator();
 };

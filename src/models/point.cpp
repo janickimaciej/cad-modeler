@@ -3,9 +3,10 @@
 #include <array>
 #include <string>
 
-Point::Point(const ShaderProgram& shaderProgram, const glm::vec3& pos, bool isVirtual) :
+Point::Point(const ShaderProgram& shaderProgram, const glm::vec3& pos, bool isDeletable,
+	bool isVirtual) :
 	Model{pos, isVirtual ? "VirtualPoint " + std::to_string(m_virtualCount++) :
-		"Point " + std::to_string(m_nonVirtualCount++), isVirtual},
+		"Point " + std::to_string(m_nonVirtualCount++), isDeletable, isVirtual},
 	m_shaderProgram{shaderProgram}
 { }
 

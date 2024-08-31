@@ -8,7 +8,7 @@ BezierSurfaceC2::BezierSurfaceC2(const ShaderProgram& bezierSurfaceShaderProgram
 	const ShaderProgram& bezierSurfaceGridShaderProgram, const ShaderProgram& pointShaderProgram,
 	int patchesU, int patchesV, const glm::vec3& pos, float sizeU, float sizeV,
 	BezierSurfaceWrapping wrapping, std::vector<std::unique_ptr<Point>>& points) :
-	BezierSurface{"BezierSurfaceC2 " + std::to_string(m_count++), bezierSurfaceShaderProgram,
+	BezierSurface{"C2 Bezier Surface " + std::to_string(m_count++), bezierSurfaceShaderProgram,
 		bezierSurfaceGridShaderProgram, patchesU, patchesV, wrapping}
 {
 	switch (wrapping)
@@ -49,8 +49,7 @@ std::vector<std::unique_ptr<Point>> BezierSurfaceC2::createPoints(
 	{
 		for (int u = 0; u < boorPoints[v].size(); ++u)
 		{
-			points.push_back(std::make_unique<Point>(pointShaderProgram, boorPoints[v][u],
-				true));
+			points.push_back(std::make_unique<Point>(pointShaderProgram, boorPoints[v][u], false));
 			m_points[v].push_back(points.back().get());
 		}
 	}
