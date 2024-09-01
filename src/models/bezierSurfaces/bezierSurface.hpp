@@ -21,7 +21,7 @@ public:
 	BezierSurface(const std::string& name, const ShaderProgram& bezierSurfaceShaderProgram,
 		const ShaderProgram& bezierSurfaceGridShaderProgram, int patchesU, int patchesV,
 		BezierSurfaceWrapping wrapping);
-	virtual ~BezierSurface() = default;
+	virtual ~BezierSurface();
 	virtual void render() const override;
 	virtual void updateGUI() override;
 	
@@ -75,6 +75,8 @@ private:
 	int m_lineCount = 4;
 	
 	std::vector<std::shared_ptr<Point::Callback>> m_pointMoveNotifications{};
+	std::vector<std::shared_ptr<Point::RereferenceCallback>> m_pointRereferenceNotifications{};
+	std::vector<Point::DeletabilityLock> m_pointDeletabilityLocks{};
 	
 	virtual void updateShaders() const override;
 	void renderSurface() const;
@@ -82,6 +84,7 @@ private:
 	
 	void registerForNotifications(Point* point);
 	void pointMoveNotification();
+	void pointRereferenceNotification(const Point* oldPoint, Point* newPoint);
 
 	std::vector<std::vector<glm::vec3>> createBoorPointsNoWrapping(const glm::vec3& pos,
 		float sizeU, float sizeV) const;

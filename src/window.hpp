@@ -31,6 +31,8 @@ private:
 	bool m_rotatingRequested = false;
 	bool m_scalingRequested = false;
 
+	glm::vec2 cursorPos() const;
+
 	static void resizeCallback(GLFWwindow* windowPtr, int width, int height);
 	static void cursorMovementCallback(GLFWwindow* windowPtr, double x, double y);
 	static void scrollCallback(GLFWwindow* windowPtr, double, double yOffset);

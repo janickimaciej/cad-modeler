@@ -59,6 +59,7 @@ public:
 	bool selectUniqueModel(const glm::vec2& screenPos);
 	void toggleModel(const glm::vec2& screenPos);
 	void moveUniqueSelectedModel(const glm::vec2& screenPos) const;
+	void collapse2Points();
 
 	void rotateXSelectedModels(float angleRad);
 	void rotateYSelectedModels(float angleRad);

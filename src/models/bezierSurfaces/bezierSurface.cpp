@@ -16,6 +16,22 @@ BezierSurface::BezierSurface(const std::string& name,
 	m_wrapping{wrapping}
 { }
 
+BezierSurface::~BezierSurface()
+{
+	m_pointMoveNotifications.clear();
+	m_pointDeletabilityLocks.clear();
+	for (const std::vector<Point*>& row : m_points)
+	{
+		for (Point* point : row)
+		{
+			if (point->isReferenced())
+			{
+				point->tryMakeDeletable();
+			}
+		}
+	}
+}
+
 void BezierSurface::render() const
 {
 	updateShaders();
@@ -559,16 +575,66 @@ void BezierSurface::renderGrid() const
 void BezierSurface::registerForNotifications(Point* point)
 {
 	m_pointMoveNotifications.push_back(point->registerForMoveNotification
-	(
-		[this] (const Point*)
-		{
-			pointMoveNotification();
-		}
-	));
+		(
+			[this] (const Point*)
+			{
+				pointMoveNotification();
+			}
+		));
+
+	m_pointRereferenceNotifications.push_back(point->registerForRereferenceNotification
+		(
+			[this] (const Point* oldPoint, Point* newPoint)
+			{
+				pointRereferenceNotification(oldPoint, newPoint);
+			}
+		));
+
+	m_pointDeletabilityLocks.push_back(point->getDeletabilityLock());
 }
 
 void BezierSurface::pointMoveNotification()
 {
+	updateGeometry();
+}
+
+void BezierSurface::pointRereferenceNotification(const Point* oldPoint, Point* newPoint)
+{
+	std::size_t rowIndex{};
+	std::size_t pointIndex{};
+	for (std::size_t row = 0; row < m_points.size(); ++row)
+	{
+		auto pointIterator = std::find(m_points[row].begin(), m_points[row].end(), oldPoint);
+		if (pointIterator != m_points[row].end())
+		{
+			rowIndex = row;
+			pointIndex = pointIterator - m_points[row].begin();
+			break;
+		}
+	}
+	std::size_t notificationIndex = rowIndex * m_points[0].size() + pointIndex;
+
+	m_points[rowIndex][pointIndex] = newPoint;
+
+	m_pointMoveNotifications[notificationIndex] = newPoint->registerForMoveNotification
+		(
+			[this] (const Point*)
+			{
+				pointMoveNotification();
+			}
+		);
+
+	m_pointRereferenceNotifications[notificationIndex] =
+		newPoint->registerForRereferenceNotification
+		(
+			[this] (const Point* oldPoint, Point* newPoint)
+			{
+				pointRereferenceNotification(oldPoint, newPoint);
+			}
+		);
+
+	m_pointDeletabilityLocks[notificationIndex] = newPoint->getDeletabilityLock();
+
 	updateGeometry();
 }
 

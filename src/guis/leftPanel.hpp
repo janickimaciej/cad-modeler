@@ -12,6 +12,9 @@
 class LeftPanel
 {
 public:
+	static constexpr int width = 250;
+	static constexpr int height = 1000;
+
 	LeftPanel(Scene& scene, const glm::ivec2& windowSize);
 	void update(GUIMode mode);
 

@@ -1,5 +1,7 @@
 #include "models/bezierCurves/bezierCurve.hpp"
 
+#include <cstddef>
+
 BezierCurve::BezierCurve(const std::string& name, const ShaderProgram& curveShaderProgram,
 	const ShaderProgram& polylineShaderProgram, const std::vector<Point*>& points,
 	const SelfDestructCallback& selfDestructCallback) :
@@ -137,20 +139,28 @@ void BezierCurve::registerForNotifications(const std::vector<Point*>& points)
 void BezierCurve::registerForNotifications(Point* point)
 {
 	m_pointMoveNotifications.push_back(point->registerForMoveNotification
-	(
-		[this] (const Point*)
-		{
-			pointMoveNotification();
-		}
-	));
+		(
+			[this] (const Point*)
+			{
+				pointMoveNotification();
+			}
+		));
 
 	m_pointDestroyNotifications.push_back(point->registerForDestroyNotification
-	(
-		[this] (const Point* point)
-		{
-			pointDestroyNotification(point);
-		}
-	));
+		(
+			[this] (const Point* point)
+			{
+				pointDestroyNotification(point);
+			}
+		));
+
+	m_pointRereferenceNotifications.push_back(point->registerForRereferenceNotification
+		(
+			[this] (const Point* oldPoint, Point* newPoint)
+			{
+				pointRereferenceNotification(oldPoint, newPoint);
+			}
+		));
 }
 
 void BezierCurve::pointMoveNotification()
@@ -163,6 +173,40 @@ void BezierCurve::pointDestroyNotification(const Point* point)
 	auto iterator = std::find(m_points.begin(), m_points.end(), point);
 	int index = static_cast<int>(iterator - m_points.begin());
 	deletePoint(index);
+}
+
+void BezierCurve::pointRereferenceNotification(const Point* oldPoint, Point* newPoint)
+{
+	auto pointIterator = std::find(m_points.begin(), m_points.end(), oldPoint);
+	std::size_t pointIndex = pointIterator - m_points.begin();
+
+	m_points[pointIndex] = newPoint;
+
+	m_pointMoveNotifications[pointIndex] = newPoint->registerForMoveNotification
+		(
+			[this] (const Point*)
+			{
+				pointMoveNotification();
+			}
+		);
+
+	m_pointDestroyNotifications[pointIndex] = newPoint->registerForDestroyNotification
+		(
+			[this] (const Point* point)
+			{
+				pointDestroyNotification(point);
+			}
+		);
+
+	m_pointRereferenceNotifications[pointIndex] = newPoint->registerForRereferenceNotification
+		(
+			[this] (const Point* oldPoint, Point* newPoint)
+			{
+				pointRereferenceNotification(oldPoint, newPoint);
+			}
+		);
+
+	updateGeometry();
 }
 
 std::vector<glm::vec3> BezierCurve::createVertices(const std::vector<Point*>& points)

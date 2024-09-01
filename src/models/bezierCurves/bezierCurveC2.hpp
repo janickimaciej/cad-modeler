@@ -52,5 +52,6 @@ private:
 	void registerForNotificationsBezier(Point* point);
 	virtual void pointMoveNotification() override;
 	virtual void pointDestroyNotification(const Point* point) override;
+	virtual void pointRereferenceNotification(const Point* oldPoint, Point* newPoint) override;
 	void bezierPointMoveNotification(const Point* point);
 };

@@ -20,7 +20,7 @@ Scene::Scene(const glm::ivec2& windowSize) :
 	auto firstModelIter = m_models.begin();
 
 	setCameraType(m_cameraType);
-	zoomCamera(0.5);
+	zoomCamera(0.5f);
 	addPitchCamera(glm::radians(-30.0f));
 	addYawCamera(glm::radians(15.0f));
 
@@ -419,6 +419,36 @@ void Scene::moveUniqueSelectedModel(const glm::vec2& screenPos) const
 	{
 		selectedModel->setScreenPos(screenPos, m_activeCamera->getMatrix(), m_windowSize);
 	}
+}
+
+void Scene::collapse2Points()
+{
+	std::vector<Point*> points = getNonVirtualSelectedPoints();
+	if (points.size() != 2)
+	{
+		return;
+	}
+
+	Point* oldPoint = points[0];
+	Point* newPoint = points[1];
+	if (!oldPoint->isDeletable() && newPoint->isDeletable())
+	{
+		std::swap(oldPoint, newPoint);
+	}
+
+	glm::vec3 newPos = (oldPoint->getPos() + newPoint->getPos()) / 2.0f;
+	newPoint->setPos(newPos);
+
+	oldPoint->rereference(newPoint);
+	std::erase(m_models, oldPoint);
+	std::erase_if
+	(
+		m_points,
+		[oldPoint] (const std::unique_ptr<Point>& point)
+		{
+			return point.get() == oldPoint;
+		}
+	);
 }
 
 void Scene::rotateXSelectedModels(float angleRad)
@@ -921,7 +951,7 @@ std::vector<Point*> Scene::getNonVirtualSelectedPoints() const
 	std::vector<Point*> selectedPoints{};
 	for (const std::unique_ptr<Point>& point : m_points)
 	{
-		if (!point->isVirtual())
+		if (!point->isVirtual() && point->isSelected())
 		{
 			selectedPoints.push_back(point.get());
 		}

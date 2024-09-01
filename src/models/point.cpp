@@ -3,6 +3,33 @@
 #include <array>
 #include <string>
 
+Point::DeletabilityLock::DeletabilityLock(Point* point) :
+	m_point{point}
+{
+	++m_point->m_deletabilityLockCounter;
+}
+
+Point::DeletabilityLock::DeletabilityLock(DeletabilityLock&& lock) noexcept
+{
+	m_point = lock.m_point;
+	lock.m_point = nullptr;
+}
+
+Point::DeletabilityLock::~DeletabilityLock()
+{
+	if (m_point != nullptr)
+	{
+		--m_point->m_deletabilityLockCounter;
+	}
+}
+
+Point::DeletabilityLock& Point::DeletabilityLock::operator=(DeletabilityLock&& lock) noexcept
+{
+	m_point = lock.m_point;
+	lock.m_point = nullptr;
+	return *this;
+}
+
 Point::Point(const ShaderProgram& shaderProgram, const glm::vec3& pos, bool isDeletable,
 	bool isVirtual) :
 	Model{pos, isVirtual ? "VirtualPoint " + std::to_string(m_virtualCount++) :
@@ -53,10 +80,38 @@ std::shared_ptr<Point::Callback> Point::registerForDestroyNotification(const Cal
 	return notification;
 }
 
+std::shared_ptr<Point::RereferenceCallback> Point::registerForRereferenceNotification(
+	const Point::RereferenceCallback& callback)
+{
+	std::shared_ptr<RereferenceCallback> notification =
+		std::make_shared<RereferenceCallback>(callback);
+	m_rereferenceNotifications.push_back(notification);
+	return notification;
+}
+
+Point::DeletabilityLock Point::getDeletabilityLock()
+{
+	return DeletabilityLock(this);
+}
+
+void Point::tryMakeDeletable()
+{
+	if (m_deletabilityLockCounter == 0)
+	{
+		m_isDeletable = true;
+	}
+}
+
 bool Point::isReferenced()
 {
 	clearExpiredNotifications();
-	return m_moveNotifications.size() != 0 || m_destroyNotifications.size() != 0;
+	return m_moveNotifications.size() > 0 || m_destroyNotifications.size() > 0 ||
+		m_deletabilityLockCounter > 0;
+}
+
+void Point::rereference(Point* newPoint)
+{
+	notify(m_rereferenceNotifications, newPoint);
 }
 
 int Point::m_nonVirtualCount = 0;
@@ -85,6 +140,20 @@ void Point::notify(std::vector<std::weak_ptr<Callback>>& notifications)
 	}
 }
 
+void Point::notify(std::vector<std::weak_ptr<RereferenceCallback>>& notifications, Point* newPoint)
+{
+	clearExpiredNotifications();
+
+	for (const std::weak_ptr<RereferenceCallback>& notification : notifications)
+	{
+		std::shared_ptr<RereferenceCallback> notificationShared = notification.lock();
+		if (notificationShared)
+		{
+			(*notificationShared)(this, newPoint);
+		}
+	}
+}
+
 void Point::clearExpiredNotifications()
 {
 	std::erase_if
@@ -100,6 +169,15 @@ void Point::clearExpiredNotifications()
 	(
 		m_destroyNotifications,
 		[] (const std::weak_ptr<Callback>& notification)
+		{
+			return notification.expired();
+		}
+	);
+
+	std::erase_if
+	(
+		m_rereferenceNotifications,
+		[] (const std::weak_ptr<RereferenceCallback>& notification)
 		{
 			return notification.expired();
 		}

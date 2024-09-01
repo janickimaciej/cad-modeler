@@ -265,12 +265,12 @@ void BezierCurveC2::registerForNotificationsBezier(const std::vector<Point*>& po
 void BezierCurveC2::registerForNotificationsBezier(Point* point)
 {
 	m_bezierPointMoveNotifications.push_back(point->registerForMoveNotification
-	(
-		[this] (const Point* point)
-		{
-			bezierPointMoveNotification(point);
-		}
-	));
+		(
+			[this] (const Point* point)
+			{
+				bezierPointMoveNotification(point);
+			}
+		));
 }
 
 void BezierCurveC2::pointMoveNotification()
@@ -289,6 +289,16 @@ void BezierCurveC2::pointDestroyNotification(const Point* point)
 	{
 		m_blockNotifications = true;
 		BezierCurve::pointDestroyNotification(point);
+		m_blockNotifications = false;
+	}
+}
+
+void BezierCurveC2::pointRereferenceNotification(const Point* oldPoint, Point* newPoint)
+{
+	if (!m_blockNotifications)
+	{
+		m_blockNotifications = true;
+		BezierCurve::pointRereferenceNotification(oldPoint, newPoint);
 		m_blockNotifications = false;
 	}
 }

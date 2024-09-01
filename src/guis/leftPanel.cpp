@@ -35,10 +35,8 @@ LeftPanel::LeftPanel(Scene& scene, const glm::ivec2& windowSize) :
 void LeftPanel::update(GUIMode mode)
 {
 	ImGui::SetNextWindowPos({0, 0}, ImGuiCond_Always);
-	static constexpr int mainGUIWidth = 250;
-	static constexpr int mainGUIHeight = 1000;
-	ImGui::SetNextWindowSize({mainGUIWidth, mainGUIHeight}, ImGuiCond_Always);
-	ImGui::Begin("mainGUI", nullptr, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoTitleBar |
+	ImGui::SetNextWindowSize({width, height}, ImGuiCond_Always);
+	ImGui::Begin("leftPanel", nullptr, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoTitleBar |
 		ImGuiWindowFlags_NoBackground);
 	ImGui::PushItemWidth(100);
 
@@ -234,6 +232,13 @@ void LeftPanel::updateButtons()
 	if (m_addingBezierSurfaceC2)
 	{
 		m_addBezierSurfaceC2Panel.update();
+	}
+
+	ImGui::Spacing();
+
+	if (ImGui::Button("Collapse 2 points"))
+	{
+		m_scene.collapse2Points();
 	}
 }
 

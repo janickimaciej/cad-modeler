@@ -51,6 +51,8 @@ protected:
 	float m_rollRad = 0;
 	glm::vec3 m_scale = {1, 1, 1};
 
+	bool m_isDeletable{};
+
 	void updateMatrix();
 	virtual void updateShaders() const = 0;
 
@@ -59,6 +61,5 @@ private:
 	std::string m_name{};
 
 	bool m_isSelected = false;
-	bool m_isDeletable{};
 	bool m_isVirtual{};
 };

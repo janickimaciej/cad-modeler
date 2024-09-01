@@ -59,6 +59,7 @@ protected:
 	void registerForNotifications(Point* point);
 	virtual void pointMoveNotification();
 	virtual void pointDestroyNotification(const Point* point);
+	virtual void pointRereferenceNotification(const Point* oldPoint, Point* newPoint);
 
 	static std::vector<glm::vec3> createVertices(const std::vector<Point*>& points);
 
@@ -73,6 +74,7 @@ private:
 
 	std::vector<std::shared_ptr<Point::Callback>> m_pointMoveNotifications{};
 	std::vector<std::shared_ptr<Point::Callback>> m_pointDestroyNotifications{};
+	std::vector<std::shared_ptr<Point::RereferenceCallback>> m_pointRereferenceNotifications{};
 
 	SelfDestructCallback m_selfDestructCallback;
 };

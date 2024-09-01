@@ -1,5 +1,7 @@
 #include "window.hpp"
 
+#include "guis/leftPanel.hpp"
+
 #include <string>
 
 Window::Window(const glm::ivec2& initialSize) :
@@ -60,6 +62,14 @@ void Window::pollEvents() const
 GLFWwindow* Window::getPtr()
 {
 	return m_windowPtr;
+}
+
+glm::vec2 Window::cursorPos() const
+{
+	double x{};
+	double y{};
+	glfwGetCursorPos(m_windowPtr, &x, &y);
+	return {static_cast<float>(x), static_cast<float>(y)};
 }
 
 void Window::resizeCallback(GLFWwindow* windowPtr, int width, int height)
@@ -128,6 +138,12 @@ void Window::scrollCallback(GLFWwindow* windowPtr, double, double yOffset)
 {
 	Window* window = static_cast<Window*>(glfwGetWindowUserPointer(windowPtr));
 
+	glm::vec2 cursorPos = window->cursorPos();
+	if (cursorPos.x <= LeftPanel::width && cursorPos.y <= LeftPanel::height)
+	{
+		return;
+	}
+
 	static constexpr float sensitivity = 1.1f;
 	window->m_scene->zoomCamera(std::pow(sensitivity, static_cast<float>(yOffset)));
 }
@@ -138,10 +154,7 @@ void Window::buttonCallback(GLFWwindow* windowPtr, int button, int action, int)
 
 	if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS)
 	{
-		double x{};
-		double y{};
-		glfwGetCursorPos(windowPtr, &x, &y);
-		glm::vec2 cursorPos{static_cast<float>(x), static_cast<float>(y)};
+		glm::vec2 cursorPos = window->cursorPos();
 		
 		bool toggle = glfwGetKey(windowPtr, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS;
 		if (toggle)
