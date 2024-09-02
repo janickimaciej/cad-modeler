@@ -31,7 +31,7 @@ nlohmann::ordered_json TorusSerializer::serialize(const Torus& torus, int id)
 	return json;
 }
 
-void TorusSerializer::deserialize(const nlohmann::json& json, Scene& scene)
+void TorusSerializer::deserialize(const nlohmann::ordered_json& json, Scene& scene)
 {
 	scene.addTorus();
 	Torus& torus = *scene.m_toruses.back();

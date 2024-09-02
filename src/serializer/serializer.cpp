@@ -16,11 +16,11 @@ void Serializer::serialize(Scene& scene, const std::string& path)
 	nlohmann::ordered_json sceneJson{};
 	int id = 0;
 
-	nlohmann::ordered_json pointsJson{};
+	nlohmann::ordered_json pointsJson = nlohmann::ordered_json::array();
 	serializePoints(pointsJson, scene, id);
 	sceneJson["points"] = pointsJson;
 
-	nlohmann::ordered_json geometryJson{};
+	nlohmann::ordered_json geometryJson = nlohmann::ordered_json::array();
 	serializeToruses(geometryJson, scene, id);
 	serializeBezierCurvesC0(geometryJson, scene, id);
 	serializeBezierCurvesC2(geometryJson, scene, id);
@@ -28,23 +28,31 @@ void Serializer::serialize(Scene& scene, const std::string& path)
 	sceneJson["geometry"] = geometryJson;
 
 	std::ofstream file(path);
-	file << std::setw(4) << sceneJson;
+	if (file.fail())
+	{
+		return;
+	}
+	file << std::setw(4) << sceneJson << '\n';
 }
 
 void Serializer::deserialize(Scene& scene, const std::string& path)
 {
-	std::ifstream file(path);
-	nlohmann::json sceneJson = nlohmann::json::parse(file);
-
 	clearScene(scene);
 
+	std::ifstream file(path);
+	if (file.fail())
+	{
+		return;
+	}
+	nlohmann::ordered_json sceneJson = nlohmann::ordered_json::parse(file);
+
 	std::unordered_map<int, int> pointMap{};
-	for (const nlohmann::json& pointJson : sceneJson["points"])
+	for (const nlohmann::ordered_json& pointJson : sceneJson["points"])
 	{
 		pointMap.insert(PointSerializer::deserialize(pointJson, scene));
 	}
 
-	for (const nlohmann::json& modelJson : sceneJson["geometry"])
+	for (const nlohmann::ordered_json& modelJson : sceneJson["geometry"])
 	{
 		std::string modelType = modelJson["objectType"];
 		if (modelType == "torus")
@@ -78,6 +86,11 @@ void Serializer::serializePoints(nlohmann::ordered_json& pointsJson, Scene& scen
 {
 	for (const std::unique_ptr<Point>& point : scene.m_points)
 	{
+		if (point->isVirtual())
+		{
+			continue;
+		}
+
 		nlohmann::ordered_json pointJson = PointSerializer::serialize(*point, id++);
 		pointsJson.push_back(pointJson);
 	}
@@ -136,4 +149,5 @@ void Serializer::clearScene(Scene& scene)
 	scene.m_bezierCurvesInter.clear();
 	scene.m_bezierSurfacesC0.clear();
 	scene.m_bezierSurfacesC2.clear();
+	scene.m_bezierCurvesToBeDeleted.clear();
 }

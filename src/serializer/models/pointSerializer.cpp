@@ -6,7 +6,6 @@ nlohmann::ordered_json PointSerializer::serialize(const Point& point, int id)
 {
 	nlohmann::ordered_json json{};
 
-	json["objectType"] = "point";
 	json["name"] = point.getName();
 	json["id"] = id;
 
@@ -17,7 +16,7 @@ nlohmann::ordered_json PointSerializer::serialize(const Point& point, int id)
 	return json;
 }
 
-std::pair<int, int> PointSerializer::deserialize(const nlohmann::json& json, Scene& scene)
+std::pair<int, int> PointSerializer::deserialize(const nlohmann::ordered_json& json, Scene& scene)
 {
 	scene.addPoint();
 	Point& point = *scene.m_points.back();
@@ -29,5 +28,5 @@ std::pair<int, int> PointSerializer::deserialize(const nlohmann::json& json, Sce
 
 	point.setPos({json["position"]["x"], json["position"]["y"], json["position"]["z"]});
 
-	return {json["id"], scene.m_points.size() - 1};
+	return {json["id"], static_cast<int>(scene.m_points.size()) - 1};
 }
