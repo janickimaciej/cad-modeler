@@ -16,7 +16,7 @@ void RenamingWindow::startRenaming()
 
 void RenamingWindow::apply()
 {
-	m_scene.setUniqueSelectedModelName(std::string{m_name.data()});
+	m_scene.setUniqueSelectedModelName({m_name.data()});
 }
 
 std::string RenamingWindow::name()

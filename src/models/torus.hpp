@@ -12,6 +12,8 @@
 
 class Torus : public Model
 {
+	friend class TorusSerializer;
+
 public:
 	Torus(const ShaderProgram& shaderProgram, const glm::vec3& pos);
 	virtual ~Torus() = default;

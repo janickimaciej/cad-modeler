@@ -2,9 +2,11 @@
 
 #include "guis/guiMode.hpp"
 #include "guis/leftPanel.hpp"
+#include "guis/valueWindows/deserializingWindow.hpp"
 #include "guis/valueWindows/renamingWindow.hpp"
 #include "guis/valueWindows/rotatingWindow.hpp"
 #include "guis/valueWindows/scalingWindow.hpp"
+#include "guis/valueWindows/serializingWindow.hpp"
 #include "models/model.hpp"
 #include "scene.hpp"
 
@@ -27,6 +29,8 @@ public:
 	void startScalingY();
 	void startScalingZ();
 	void startRenaming();
+	void startSerializing();
+	void startDeserializing();
 	void cancel();
 	void apply();
 	void deleteSelectedModels();
@@ -37,6 +41,8 @@ private:
 	RotatingWindow m_rotatingWindow;
 	ScalingWindow m_scalingWindow;
 	RenamingWindow m_renamingWindow;
+	SerializingWindow m_serializingWindow;
+	DeserializingWindow m_deserializingWindow;
 
 	GUIMode m_mode = GUIMode::none;
 	Scene& m_scene;

@@ -249,12 +249,25 @@ void Window::keyCallback(GLFWwindow* windowPtr, int key, int, int action, int)
 		window->m_rotatingRequested = false;
 	}
 
-	if (key == GLFW_KEY_S && action == GLFW_PRESS)
+	if (key == GLFW_KEY_S && action == GLFW_PRESS &&
+		glfwGetKey(windowPtr, GLFW_KEY_LEFT_CONTROL) == GLFW_RELEASE)
 	{
 		window->m_scalingRequested = true;
 	}
 	else if (action == GLFW_PRESS)
 	{
 		window->m_scalingRequested = false;
+	}
+
+	if (key == GLFW_KEY_S && action == GLFW_PRESS &&
+		glfwGetKey(windowPtr, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS)
+	{
+		window->m_gui->startSerializing();
+	}
+
+	if (key == GLFW_KEY_L && action == GLFW_PRESS &&
+		glfwGetKey(windowPtr, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS)
+	{
+		window->m_gui->startDeserializing();
 	}
 }

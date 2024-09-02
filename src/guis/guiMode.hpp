@@ -9,5 +9,7 @@ enum class GUIMode
 	rotatingZ,
 	scalingX,
 	scalingY,
-	scalingZ
+	scalingZ,
+	serializing,
+	deserializing
 };

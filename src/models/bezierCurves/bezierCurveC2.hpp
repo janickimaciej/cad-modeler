@@ -10,6 +10,8 @@
 
 class BezierCurveC2 : public BezierCurveCX
 {
+	friend class BezierCurveC2Serializer;
+
 public:
 	BezierCurveC2(const ShaderProgram& curveShaderProgram,
 		const ShaderProgram& polylineShaderProgram, const ShaderProgram& pointShaderProgram,

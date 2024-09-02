@@ -8,6 +8,8 @@
 
 class BezierCurveC0 : public BezierCurveCX
 {
+	friend class BezierCurveC0Serializer;
+
 public:
 	BezierCurveC0(const ShaderProgram& bezierCurveShaderProgram,
 		const ShaderProgram& bezierCurvePolylineShaderProgram, const std::vector<Point*>& points,

@@ -38,6 +38,8 @@
     <ClCompile Include="src\guis\cameraGUIs\perspectiveCameraGUI.cpp" />
     <ClCompile Include="src\cursor.cpp" />
     <ClCompile Include="src\guis\modelListPanel.cpp" />
+    <ClCompile Include="src\guis\valueWindows\deserializingWindow.cpp" />
+    <ClCompile Include="src\guis\valueWindows\serializingWindow.cpp" />
     <ClCompile Include="src\quad.cpp" />
     <ClCompile Include="src\grid\grid.cpp" />
     <ClCompile Include="src\guis\centerPointGUI.cpp" />
@@ -72,6 +74,12 @@
     <ClCompile Include="src\guis\modelGUIs\torusGUI.cpp" />
     <ClCompile Include="src\models\point.cpp" />
     <ClCompile Include="src\scene.cpp" />
+    <ClCompile Include="src\serializer\models\bezierCurves\bezierCurveC0Serializer.cpp" />
+    <ClCompile Include="src\serializer\models\bezierCurves\bezierCurveC2Serializer.cpp" />
+    <ClCompile Include="src\serializer\models\bezierCurves\bezierCurveInterSerializer.cpp" />
+    <ClCompile Include="src\serializer\models\pointSerializer.cpp" />
+    <ClCompile Include="src\serializer\models\torusSerializer.cpp" />
+    <ClCompile Include="src\serializer\serializer.cpp" />
     <ClCompile Include="src\shaderProgram.cpp" />
     <ClCompile Include="src\shaderPrograms.cpp" />
     <ClCompile Include="src\window.cpp" />
@@ -103,6 +111,8 @@
     <ClInclude Include="src\cursor.hpp" />
     <ClInclude Include="src\guis\cursorGUI.hpp" />
     <ClInclude Include="src\guis\modelListPanel.hpp" />
+    <ClInclude Include="src\guis\valueWindows\deserializingWindow.hpp" />
+    <ClInclude Include="src\guis\valueWindows\serializingWindow.hpp" />
     <ClInclude Include="src\models\modelType.hpp" />
     <ClInclude Include="src\quad.hpp" />
     <ClInclude Include="src\grid\grid.hpp" />
@@ -136,6 +146,12 @@
     <ClInclude Include="src\guis\modelGUIs\torusGUI.hpp" />
     <ClInclude Include="src\models\point.hpp" />
     <ClInclude Include="src\scene.hpp" />
+    <ClInclude Include="src\serializer\models\bezierCurves\bezierCurveC0Serializer.hpp" />
+    <ClInclude Include="src\serializer\models\bezierCurves\bezierCurveC2Serializer.hpp" />
+    <ClInclude Include="src\serializer\models\bezierCurves\bezierCurveInterSerializer.hpp" />
+    <ClInclude Include="src\serializer\models\pointSerializer.hpp" />
+    <ClInclude Include="src\serializer\models\torusSerializer.hpp" />
+    <ClInclude Include="src\serializer\serializer.hpp" />
     <ClInclude Include="src\shaderProgram.hpp" />
     <ClInclude Include="src\shaderPrograms.hpp" />
     <ClInclude Include="src\window.hpp" />

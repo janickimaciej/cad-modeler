@@ -31,6 +31,13 @@
 
 class Scene
 {
+	friend class BezierCurveC0Serializer;
+	friend class BezierCurveC2Serializer;
+	friend class BezierCurveInterSerializer;
+	friend class PointSerializer;
+	friend class Serializer;
+	friend class TorusSerializer;
+
 public:
 	Scene(const glm::ivec2& windowSize);
 	void update();

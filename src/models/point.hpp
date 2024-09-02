@@ -13,6 +13,8 @@
 
 class Point : public Model
 {
+	friend class PointSerializer;
+
 public:
 	class DeletabilityLock
 	{

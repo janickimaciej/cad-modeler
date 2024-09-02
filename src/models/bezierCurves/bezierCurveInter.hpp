@@ -10,6 +10,8 @@
 
 class BezierCurveInter : public BezierCurve
 {
+	friend class BezierCurveInterSerializer;
+
 public:
 	BezierCurveInter(const ShaderProgram& curveShaderProgram,
 		const ShaderProgram& polylineShaderProgram, const std::vector<Point*>& points,

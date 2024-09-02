@@ -14,6 +14,8 @@ GUI::GUI(GLFWwindow* window, Scene& scene, const glm::ivec2& windowSize) :
 	m_rotatingWindow{scene, windowSize},
 	m_scalingWindow{scene, windowSize},
 	m_renamingWindow{scene, windowSize},
+	m_serializingWindow{scene, windowSize},
+	m_deserializingWindow{scene, windowSize},
 	m_scene{scene}
 {
 	IMGUI_CHECKVERSION();
@@ -54,6 +56,14 @@ void GUI::update()
 
 		case GUIMode::renaming:
 			m_renamingWindow.update();
+			break;
+
+		case GUIMode::serializing:
+			m_serializingWindow.update();
+			break;
+
+		case GUIMode::deserializing:
+			m_deserializingWindow.update();
 			break;
 	}
 
@@ -105,6 +115,24 @@ void GUI::startRenaming()
 	}
 }
 
+void GUI::startSerializing()
+{
+	if (m_mode == GUIMode::none)
+	{
+		m_serializingWindow.startSerializing();
+		m_mode = GUIMode::serializing;
+	}
+}
+
+void GUI::startDeserializing()
+{
+	if (m_mode == GUIMode::none)
+	{
+		m_deserializingWindow.startDeserializing();
+		m_mode = GUIMode::deserializing;
+	}
+}
+
 void GUI::cancel()
 {
 	m_mode = GUIMode::none;
@@ -128,6 +156,14 @@ void GUI::apply()
 
 		case GUIMode::renaming:
 			m_renamingWindow.apply();
+			break;
+
+		case GUIMode::serializing:
+			m_serializingWindow.apply();
+			break;
+
+		case GUIMode::deserializing:
+			m_deserializingWindow.apply();
 			break;
 	}
 
