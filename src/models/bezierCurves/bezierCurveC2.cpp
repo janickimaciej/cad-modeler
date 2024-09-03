@@ -266,9 +266,9 @@ void BezierCurveC2::registerForNotificationsBezier(Point* point)
 {
 	m_bezierPointMoveNotifications.push_back(point->registerForMoveNotification
 		(
-			[this] (const Point* point)
+			[this] (void* notification)
 			{
-				bezierPointMoveNotification(point);
+				bezierPointMoveNotification(static_cast<Point::MoveCallback*>(notification));
 			}
 		));
 }
@@ -283,33 +283,41 @@ void BezierCurveC2::pointMoveNotification()
 	}
 }
 
-void BezierCurveC2::pointDestroyNotification(const Point* point)
+void BezierCurveC2::pointDestroyNotification(Point::DestroyCallback* notification)
 {
 	if (!m_blockNotifications)
 	{
 		m_blockNotifications = true;
-		BezierCurve::pointDestroyNotification(point);
+		BezierCurve::pointDestroyNotification(notification);
 		m_blockNotifications = false;
 	}
 }
 
-void BezierCurveC2::pointRereferenceNotification(const Point* oldPoint, Point* newPoint)
+void BezierCurveC2::pointRereferenceNotification(Point::RereferenceCallback* notification,
+	Point* newPoint)
 {
 	if (!m_blockNotifications)
 	{
 		m_blockNotifications = true;
-		BezierCurve::pointRereferenceNotification(oldPoint, newPoint);
+		BezierCurve::pointRereferenceNotification(notification, newPoint);
 		m_blockNotifications = false;
 	}
 }
 
-void BezierCurveC2::bezierPointMoveNotification(const Point* point)
+void BezierCurveC2::bezierPointMoveNotification(Point::MoveCallback* notification)
 {
 	if (!m_blockNotifications)
 	{
 		m_blockNotifications = true;
-		auto iterator = std::find(m_bezierPoints.begin(), m_bezierPoints.end(), point);
-		int index = static_cast<int>(iterator - m_bezierPoints.begin());
+		auto iterator = std::find_if
+		(
+			m_bezierPointMoveNotifications.begin(), m_bezierPointMoveNotifications.end(),
+			[notification] (const std::shared_ptr<Point::MoveCallback>& sharedNotification)
+			{
+				return sharedNotification.get() == notification;
+			}
+		);
+		int index = static_cast<int>(iterator - m_bezierPointMoveNotifications.begin());
 		updateWithBezierPoint(index);
 		m_blockNotifications = false;
 	}

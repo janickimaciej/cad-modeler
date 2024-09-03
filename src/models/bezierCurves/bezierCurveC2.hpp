@@ -32,7 +32,7 @@ private:
 	std::unique_ptr<PolylineMesh> m_bezierPolylineMesh{};
 
 	std::vector<Point*> m_bezierPoints{};
-	std::vector<std::shared_ptr<Point::Callback>> m_bezierPointMoveNotifications{};
+	std::vector<std::shared_ptr<Point::MoveCallback>> m_bezierPointMoveNotifications{};
 	bool m_blockNotifications = false;
 
 	virtual void createCurveMesh() override;
@@ -53,7 +53,8 @@ private:
 	void registerForNotificationsBezier(const std::vector<Point*>& points);
 	void registerForNotificationsBezier(Point* point);
 	virtual void pointMoveNotification() override;
-	virtual void pointDestroyNotification(const Point* point) override;
-	virtual void pointRereferenceNotification(const Point* oldPoint, Point* newPoint) override;
-	void bezierPointMoveNotification(const Point* point);
+	virtual void pointDestroyNotification(Point::DestroyCallback* notification) override;
+	virtual void pointRereferenceNotification(Point::RereferenceCallback* notification,
+		Point* newPoint) override;
+	void bezierPointMoveNotification(Point::MoveCallback* notification);
 };

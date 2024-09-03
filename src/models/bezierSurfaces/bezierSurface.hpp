@@ -74,7 +74,7 @@ private:
 	bool m_renderGrid = false;
 	int m_lineCount = 4;
 	
-	std::vector<std::shared_ptr<Point::Callback>> m_pointMoveNotifications{};
+	std::vector<std::shared_ptr<Point::MoveCallback>> m_pointMoveNotifications{};
 	std::vector<std::shared_ptr<Point::RereferenceCallback>> m_pointRereferenceNotifications{};
 	std::vector<Point::DeletabilityLock> m_pointDeletabilityLocks{};
 	
@@ -84,7 +84,7 @@ private:
 	
 	void registerForNotifications(Point* point);
 	void pointMoveNotification();
-	void pointRereferenceNotification(const Point* oldPoint, Point* newPoint);
+	void pointRereferenceNotification(Point::RereferenceCallback* notification, Point* newPoint);
 
 	std::vector<std::vector<glm::vec3>> createBoorPointsNoWrapping(const glm::vec3& pos,
 		float sizeU, float sizeV) const;

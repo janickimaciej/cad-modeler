@@ -576,7 +576,7 @@ void BezierSurface::registerForNotifications(Point* point)
 {
 	m_pointMoveNotifications.push_back(point->registerForMoveNotification
 		(
-			[this] (const Point*)
+			[this] (void*)
 			{
 				pointMoveNotification();
 			}
@@ -584,9 +584,10 @@ void BezierSurface::registerForNotifications(Point* point)
 
 	m_pointRereferenceNotifications.push_back(point->registerForRereferenceNotification
 		(
-			[this] (const Point* oldPoint, Point* newPoint)
+			[this] (void* notification, Point* newPoint)
 			{
-				pointRereferenceNotification(oldPoint, newPoint);
+				pointRereferenceNotification(static_cast<Point::RereferenceCallback*>(notification),
+					newPoint);
 			}
 		));
 
@@ -598,27 +599,26 @@ void BezierSurface::pointMoveNotification()
 	updateGeometry();
 }
 
-void BezierSurface::pointRereferenceNotification(const Point* oldPoint, Point* newPoint)
+void BezierSurface::pointRereferenceNotification(Point::RereferenceCallback* notification,
+	Point* newPoint)
 {
-	std::size_t rowIndex{};
-	std::size_t pointIndex{};
-	for (std::size_t row = 0; row < m_points.size(); ++row)
-	{
-		auto pointIterator = std::find(m_points[row].begin(), m_points[row].end(), oldPoint);
-		if (pointIterator != m_points[row].end())
+	auto iterator = std::find_if
+	(
+		m_pointRereferenceNotifications.begin(), m_pointRereferenceNotifications.end(),
+		[notification] (const std::shared_ptr<Point::RereferenceCallback>& sharedNotification)
 		{
-			rowIndex = row;
-			pointIndex = pointIterator - m_points[row].begin();
-			break;
+			return sharedNotification.get() == notification;
 		}
-	}
-	std::size_t notificationIndex = rowIndex * m_points[0].size() + pointIndex;
+	);
+	std::size_t notificationIndex = iterator - m_pointRereferenceNotifications.begin();
+	std::size_t rowIndex = notificationIndex / m_points[0].size();
+	std::size_t pointIndex = notificationIndex % m_points[0].size();
 
 	m_points[rowIndex][pointIndex] = newPoint;
 
 	m_pointMoveNotifications[notificationIndex] = newPoint->registerForMoveNotification
 		(
-			[this] (const Point*)
+			[this] (void*)
 			{
 				pointMoveNotification();
 			}
@@ -627,9 +627,10 @@ void BezierSurface::pointRereferenceNotification(const Point* oldPoint, Point* n
 	m_pointRereferenceNotifications[notificationIndex] =
 		newPoint->registerForRereferenceNotification
 		(
-			[this] (const Point* oldPoint, Point* newPoint)
+			[this] (void* notification, Point* newPoint)
 			{
-				pointRereferenceNotification(oldPoint, newPoint);
+				pointRereferenceNotification(static_cast<Point::RereferenceCallback*>(notification),
+					newPoint);
 			}
 		);
 

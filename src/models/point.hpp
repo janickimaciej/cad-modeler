@@ -31,8 +31,9 @@ public:
 		Point* m_point{};
 	};
 
-	using Callback = std::function<void(const Point*)>;
-	using RereferenceCallback = std::function<void(const Point*, Point*)>;
+	using MoveCallback = std::function<void(void*)>;
+	using DestroyCallback = std::function<void(void*)>;
+	using RereferenceCallback = std::function<void(void*, Point*)>;
 
 	Point(const ShaderProgram& shaderProgram, const glm::vec3& pos, bool isDeletable = true,
 		bool isVirtual = false);
@@ -45,8 +46,9 @@ public:
 	virtual void setScreenPos(const glm::vec2& screenPos, const glm::mat4& cameraMatrix,
 		const glm::ivec2& windowSize) override;
 
-	std::shared_ptr<Callback> registerForMoveNotification(const Callback& callback);
-	std::shared_ptr<Callback> registerForDestroyNotification(const Callback& callback);
+	std::shared_ptr<MoveCallback> registerForMoveNotification(const MoveCallback& callback);
+	std::shared_ptr<DestroyCallback> registerForDestroyNotification(
+		const DestroyCallback& callback);
 	std::shared_ptr<RereferenceCallback> registerForRereferenceNotification(
 		const RereferenceCallback& callback);
 	DeletabilityLock getDeletabilityLock();
@@ -64,14 +66,15 @@ private:
 
 	PointMesh m_mesh{};
 
-	std::vector<std::weak_ptr<Callback>> m_moveNotifications{};
-	std::vector<std::weak_ptr<Callback>> m_destroyNotifications{};
+	std::vector<std::weak_ptr<MoveCallback>> m_moveNotifications{};
+	std::vector<std::weak_ptr<DestroyCallback>> m_destroyNotifications{};
 	std::vector<std::weak_ptr<RereferenceCallback>> m_rereferenceNotifications{};
 	int m_deletabilityLockCounter = 0;
 
 	virtual void updateShaders() const override;
 
-	void notify(std::vector<std::weak_ptr<Callback>>& notifications);
-	void notify(std::vector<std::weak_ptr<RereferenceCallback>>& notifications, Point* newPoint);
+	void notifyMove();
+	void notifyDestroy();
+	void notifyRereference(Point* newPoint);
 	void clearExpiredNotifications();
 };

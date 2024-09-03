@@ -39,7 +39,7 @@ Point::Point(const ShaderProgram& shaderProgram, const glm::vec3& pos, bool isDe
 
 Point::~Point()
 {
-	notify(m_destroyNotifications);
+	notifyDestroy();
 }
 
 void Point::render() const
@@ -56,26 +56,27 @@ void Point::updateGUI()
 void Point::setPos(const glm::vec3& pos)
 {
 	Model::setPos(pos);
-	notify(m_moveNotifications);
+	notifyMove();
 }
 
 void Point::setScreenPos(const glm::vec2& screenPos, const glm::mat4& cameraMatrix,
 	const glm::ivec2& windowSize)
 {
 	Model::setScreenPos(screenPos, cameraMatrix, windowSize);
-	notify(m_moveNotifications);
+	notifyMove();
 }
 
-std::shared_ptr<Point::Callback> Point::registerForMoveNotification(const Callback& callback)
+std::shared_ptr<Point::MoveCallback> Point::registerForMoveNotification(const MoveCallback& callback)
 {
-	std::shared_ptr<Callback> notification = std::make_shared<Callback>(callback);
+	std::shared_ptr<MoveCallback> notification = std::make_shared<MoveCallback>(callback);
 	m_moveNotifications.push_back(notification);
 	return notification;
 }
 
-std::shared_ptr<Point::Callback> Point::registerForDestroyNotification(const Callback& callback)
+std::shared_ptr<Point::DestroyCallback> Point::registerForDestroyNotification(
+	const DestroyCallback& callback)
 {
-	std::shared_ptr<Callback> notification = std::make_shared<Callback>(callback);
+	std::shared_ptr<DestroyCallback> notification = std::make_shared<DestroyCallback>(callback);
 	m_destroyNotifications.push_back(notification);
 	return notification;
 }
@@ -111,7 +112,7 @@ bool Point::isReferenced()
 
 void Point::rereference(Point* newPoint)
 {
-	notify(m_rereferenceNotifications, newPoint);
+	notifyRereference(newPoint);
 }
 
 int Point::m_nonVirtualCount = 0;
@@ -126,30 +127,44 @@ void Point::updateShaders() const
 	m_shaderProgram.setUniform("isSelected", isSelected());
 }
 
-void Point::notify(std::vector<std::weak_ptr<Callback>>& notifications)
+void Point::notifyMove()
 {
 	clearExpiredNotifications();
 
-	for (const std::weak_ptr<Callback>& notification : notifications)
+	for (const std::weak_ptr<MoveCallback>& notification : m_moveNotifications)
 	{
-		std::shared_ptr<Callback> notificationShared = notification.lock();
+		std::shared_ptr<MoveCallback> notificationShared = notification.lock();
 		if (notificationShared)
 		{
-			(*notificationShared)(this);
+			(*notificationShared)(static_cast<void*>(notificationShared.get()));
 		}
 	}
 }
 
-void Point::notify(std::vector<std::weak_ptr<RereferenceCallback>>& notifications, Point* newPoint)
+void Point::notifyDestroy()
 {
 	clearExpiredNotifications();
 
-	for (const std::weak_ptr<RereferenceCallback>& notification : notifications)
+	for (const std::weak_ptr<DestroyCallback>& notification : m_destroyNotifications)
+	{
+		std::shared_ptr<DestroyCallback> notificationShared = notification.lock();
+		if (notificationShared)
+		{
+			(*notificationShared)(static_cast<void*>(notificationShared.get()));
+		}
+	}
+}
+
+void Point::notifyRereference(Point* newPoint)
+{
+	clearExpiredNotifications();
+
+	for (const std::weak_ptr<RereferenceCallback>& notification : m_rereferenceNotifications)
 	{
 		std::shared_ptr<RereferenceCallback> notificationShared = notification.lock();
 		if (notificationShared)
 		{
-			(*notificationShared)(this, newPoint);
+			(*notificationShared)(static_cast<void*>(notificationShared.get()), newPoint);
 		}
 	}
 }
@@ -159,7 +174,7 @@ void Point::clearExpiredNotifications()
 	std::erase_if
 	(
 		m_moveNotifications,
-		[] (const std::weak_ptr<Callback>& notification)
+		[] (const std::weak_ptr<MoveCallback>& notification)
 		{
 			return notification.expired();
 		}
@@ -168,7 +183,7 @@ void Point::clearExpiredNotifications()
 	std::erase_if
 	(
 		m_destroyNotifications,
-		[] (const std::weak_ptr<Callback>& notification)
+		[] (const std::weak_ptr<DestroyCallback>& notification)
 		{
 			return notification.expired();
 		}
