@@ -2,26 +2,26 @@
 
 #include <glm/glm.hpp>
 
-nlohmann::ordered_json BezierCurveC0Serializer::serialize(const BezierCurveC0& bezierCurveC0,
-	int id, const std::vector<std::unique_ptr<Point>>& points)
+nlohmann::ordered_json BezierCurveC0Serializer::serialize(const BezierCurveC0& curve,
+	const std::vector<Point*>& points, int& id)
 {
 	nlohmann::ordered_json json{};
 
 	json["objectType"] = "bezierC0";
-	json["name"] = bezierCurveC0.getName();
-	json["id"] = id;
+	json["name"] = curve.getName();
+	json["id"] = id++;
 
-	for (const Point* curvePoint : bezierCurveC0.m_points)
+	for (const Point* curvePoint : curve.m_points)
 	{
+		nlohmann::ordered_json pointJson{};
 		auto pointIterator = std::find_if
 		(
 			points.begin(), points.end(),
-			[curvePoint] (const std::unique_ptr<Point>& point)
+			[curvePoint] (const Point* point)
 			{
-				return point.get() == curvePoint;
+				return point == curvePoint;
 			}
 		);
-		nlohmann::ordered_json pointJson{};
 		pointJson["id"] = pointIterator - points.begin();
 		json["controlPoints"].push_back(pointJson);
 	}

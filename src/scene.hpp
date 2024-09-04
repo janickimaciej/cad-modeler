@@ -34,8 +34,10 @@ class Scene
 	friend class BezierCurveC0Serializer;
 	friend class BezierCurveC2Serializer;
 	friend class BezierCurveInterSerializer;
+	friend class BezierSurfaceC0Serializer;
+	friend class BezierSurfaceC2Serializer;
 	friend class PointSerializer;
-	friend class Serializer;
+	friend class SceneSerializer;
 	friend class TorusSerializer;
 
 public:

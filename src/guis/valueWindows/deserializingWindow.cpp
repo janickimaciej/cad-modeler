@@ -1,6 +1,6 @@
 #include "guis/valueWindows/deserializingWindow.hpp"
 
-#include "serializer/serializer.hpp"
+#include "serializer/sceneSerializer.hpp"
 
 #include <imgui/imgui.h>
 
@@ -16,7 +16,7 @@ void DeserializingWindow::startDeserializing()
 
 void DeserializingWindow::apply()
 {
-	Serializer serializer;
+	SceneSerializer serializer;
 	serializer.deserialize(m_scene, {m_path.data()});
 }
 

@@ -11,7 +11,7 @@ void emitTriangle(vec4 vertexClip0, vec4 vertexClip1, vec4 vertexClip2);
 
 void main()
 {
-	const float size = 0.1;
+	const float size = 0.05;
 
 	vec4 points[8] =
 	{

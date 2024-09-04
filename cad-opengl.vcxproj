@@ -77,9 +77,11 @@
     <ClCompile Include="src\serializer\models\bezierCurves\bezierCurveC0Serializer.cpp" />
     <ClCompile Include="src\serializer\models\bezierCurves\bezierCurveC2Serializer.cpp" />
     <ClCompile Include="src\serializer\models\bezierCurves\bezierCurveInterSerializer.cpp" />
+    <ClCompile Include="src\serializer\models\bezierSurfaces\bezierSurfaceC2Serializer.cpp" />
+    <ClCompile Include="src\serializer\models\bezierSurfaces\bezierSurfaceC0Serializer.cpp" />
     <ClCompile Include="src\serializer\models\pointSerializer.cpp" />
     <ClCompile Include="src\serializer\models\torusSerializer.cpp" />
-    <ClCompile Include="src\serializer\serializer.cpp" />
+    <ClCompile Include="src\serializer\sceneSerializer.cpp" />
     <ClCompile Include="src\shaderProgram.cpp" />
     <ClCompile Include="src\shaderPrograms.cpp" />
     <ClCompile Include="src\window.cpp" />
@@ -149,9 +151,11 @@
     <ClInclude Include="src\serializer\models\bezierCurves\bezierCurveC0Serializer.hpp" />
     <ClInclude Include="src\serializer\models\bezierCurves\bezierCurveC2Serializer.hpp" />
     <ClInclude Include="src\serializer\models\bezierCurves\bezierCurveInterSerializer.hpp" />
+    <ClInclude Include="src\serializer\models\bezierSurfaces\bezierSurfaceC2Serializer.hpp" />
+    <ClInclude Include="src\serializer\models\bezierSurfaces\bezierSurfaceC0Serializer.hpp" />
     <ClInclude Include="src\serializer\models\pointSerializer.hpp" />
     <ClInclude Include="src\serializer\models\torusSerializer.hpp" />
-    <ClInclude Include="src\serializer\serializer.hpp" />
+    <ClInclude Include="src\serializer\sceneSerializer.hpp" />
     <ClInclude Include="src\shaderProgram.hpp" />
     <ClInclude Include="src\shaderPrograms.hpp" />
     <ClInclude Include="src\window.hpp" />

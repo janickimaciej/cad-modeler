@@ -17,6 +17,9 @@
 
 class BezierSurface : public Model
 {
+	friend class BezierSurfaceC0Serializer;
+	friend class BezierSurfaceC2Serializer;
+
 public:
 	BezierSurface(const std::string& name, const ShaderProgram& bezierSurfaceShaderProgram,
 		const ShaderProgram& bezierSurfaceGridShaderProgram, int patchesU, int patchesV,

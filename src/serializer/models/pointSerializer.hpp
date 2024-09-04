@@ -10,6 +10,6 @@
 class PointSerializer
 {
 public:
-	static nlohmann::ordered_json serialize(const Point& point, int id);
+	static nlohmann::ordered_json serialize(const Point& point, int& id);
 	static std::pair<int, int> deserialize(const nlohmann::ordered_json& json, Scene& scene);
 };

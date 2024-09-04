@@ -2,13 +2,13 @@
 
 #include <glm/glm.hpp>
 
-nlohmann::ordered_json TorusSerializer::serialize(const Torus& torus, int id)
+nlohmann::ordered_json TorusSerializer::serialize(const Torus& torus, int& id)
 {
 	nlohmann::ordered_json json{};
 
 	json["objectType"] = "torus";
 	json["name"] = torus.getName();
-	json["id"] = id;
+	json["id"] = id++;
 
 	json["position"]["x"] = torus.m_pos.x;
 	json["position"]["y"] = torus.m_pos.y;

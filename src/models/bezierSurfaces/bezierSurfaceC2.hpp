@@ -12,6 +12,8 @@
 
 class BezierSurfaceC2 : public BezierSurface
 {
+	friend class BezierSurfaceC2Serializer;
+
 public:
 	BezierSurfaceC2(const ShaderProgram& bezierSurfaceShaderProgram,
 		const ShaderProgram& bezierSurfaceGridShaderProgram,

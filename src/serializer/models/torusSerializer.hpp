@@ -8,6 +8,6 @@
 class TorusSerializer
 {
 public:
-	static nlohmann::ordered_json serialize(const Torus& torus, int id);
+	static nlohmann::ordered_json serialize(const Torus& torus, int& id);
 	static void deserialize(const nlohmann::ordered_json& json, Scene& scene);
 };

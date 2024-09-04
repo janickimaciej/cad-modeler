@@ -2,12 +2,12 @@
 
 #include <glm/glm.hpp>
 
-nlohmann::ordered_json PointSerializer::serialize(const Point& point, int id)
+nlohmann::ordered_json PointSerializer::serialize(const Point& point, int& id)
 {
 	nlohmann::ordered_json json{};
 
 	json["name"] = point.getName();
-	json["id"] = id;
+	json["id"] = id++;
 
 	json["position"]["x"] = point.m_pos.x;
 	json["position"]["y"] = point.m_pos.y;

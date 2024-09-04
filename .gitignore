@@ -3,5 +3,6 @@
 /x64/
 *.exe
 *.ini
+*.json
 
 /dep/

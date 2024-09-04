@@ -13,8 +13,8 @@
 class BezierCurveC2Serializer
 {
 public:
-	static nlohmann::ordered_json serialize(const BezierCurveC2& curve, int id,
-		const std::vector<std::unique_ptr<Point>>& points);
+	static nlohmann::ordered_json serialize(const BezierCurveC2& curve,
+		const std::vector<Point*>& points, int& id);
 	static void deserialize(const nlohmann::ordered_json& json, Scene& scene,
 		const std::unordered_map<int, int>& pointMap);
 };

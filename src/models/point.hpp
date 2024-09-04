@@ -13,6 +13,8 @@
 
 class Point : public Model
 {
+	friend class BezierSurfaceC0Serializer;
+	friend class BezierSurfaceC2Serializer;
 	friend class PointSerializer;
 
 public:
