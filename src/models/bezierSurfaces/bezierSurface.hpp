@@ -10,8 +10,10 @@
 
 #include <glm/glm.hpp>
 
+#include <array>
 #include <cstddef>
 #include <memory>
+#include <optional>
 #include <string>
 #include <vector>
 
@@ -35,6 +37,12 @@ public:
 	void setRenderGrid(bool renderGrid);
 	int getLineCount() const;
 	void setLineCount(int lineCount);
+	std::size_t getPatchCount() const;
+	void selectPatch(std::size_t patch);
+	void deselectPatch();
+	virtual Point* getCornerPointIfOnEdge(std::size_t patch, int corner) = 0;
+	virtual std::array<std::array<Point*, 4>, 2> getPointsBetweenCorners(std::size_t patch,
+		int leftCorner, int rightCorner) = 0;
 
 protected:
 	std::unique_ptr<BezierSurfaceMesh> m_surfaceMesh{};
@@ -42,10 +50,14 @@ protected:
 
 	const std::size_t m_patchesU{};
 	const std::size_t m_patchesV{};
+	std::optional<std::size_t> m_selectedPatch = std::nullopt;
 	std::vector<std::vector<Point*>> m_points{};
 	std::size_t m_pointsU{};
 	std::size_t m_pointsV{};
 	BezierSurfaceWrapping m_wrapping{};
+
+	std::size_t getBezierPointsU() const;
+	std::size_t getBezierPointsV() const;
 	
 	virtual std::vector<std::unique_ptr<Point>> createPoints(
 		const ShaderProgram& pointShaderProgram, const glm::vec3& pos, float sizeU,
@@ -64,9 +76,16 @@ protected:
 	std::vector<std::vector<glm::vec3>> createBezierPoints(
 		const std::vector<std::vector<glm::vec3>>& boorPoints) const;
 
-	static std::vector<glm::vec3> createVertices(const std::vector<std::vector<Point*>>& points);
-	std::vector<unsigned int> createSurfaceIndices() const;
+	std::vector<std::vector<unsigned int>> createSurfaceIndices() const;
 	std::vector<unsigned int> createGridIndices() const;
+
+	template <typename PointPtr>
+	static std::vector<glm::vec3> createVertices(const std::vector<std::vector<PointPtr>>& points);
+
+	template <typename PointPtr>
+	std::array<std::array<Point*, 4>, 2> getPointsBetweenCorners(
+		const std::vector<std::vector<PointPtr>>& bezierPoints, std::size_t patch, int leftCorner,
+		int rightCorner);
 
 private:
 	const ShaderProgram& m_surfaceShaderProgram;
@@ -114,3 +133,97 @@ private:
 	std::vector<unsigned int> createGridIndicesUWrapping() const;
 	std::vector<unsigned int> createGridIndicesVWrapping() const;
 };
+
+template <typename PointPtr>
+std::vector<glm::vec3> BezierSurface::createVertices(
+	const std::vector<std::vector<PointPtr>>& points)
+{
+	std::vector<glm::vec3> vertices{};
+	for (const std::vector<PointPtr>& row : points)
+	{
+		for (const PointPtr& point : row)
+		{
+			vertices.push_back(point->getPos());
+		}
+	}
+	return vertices;
+}
+
+template <typename PointPtr>
+std::array<std::array<Point*, 4>, 2> BezierSurface::getPointsBetweenCorners(
+	const std::vector<std::vector<PointPtr>>& bezierPoints, std::size_t patch, int leftCorner,
+	int rightCorner)
+{
+	std::size_t patchU = patch % m_patchesU;
+	std::size_t patchV = patch / m_patchesU;
+	std::size_t startingCornerU = 3 * patchU;
+	std::size_t startingCornerV = 3 * patchV;
+	std::size_t endingCornerU = 3 * patchU + 3;
+	std::size_t endingCornerV = 3 * patchV + 3;
+
+	std::array<std::array<Point*, 4>, 2> points{};
+	for (std::size_t i = 0; i < 2; ++i)
+	{
+		for (std::size_t j = 0; j < 4; ++j)
+		{
+			std::size_t u{};
+			std::size_t v{};
+			switch (leftCorner)
+			{
+				case 0:
+					if (rightCorner == 3)
+					{
+						u = startingCornerU + i;
+						v = startingCornerV + j;
+					}
+					else
+					{
+						u = startingCornerU + j;
+						v = startingCornerV + i;
+					}
+					break;
+
+				case 1:
+					if (rightCorner == 0)
+					{
+						u = endingCornerU - j;
+						v = startingCornerV + i;
+					}
+					else
+					{
+						u = endingCornerU - i;
+						v = startingCornerV + j;
+					}
+					break;
+
+				case 2:
+					if (rightCorner == 1)
+					{
+						u = endingCornerU - i;
+						v = endingCornerV - j;
+					}
+					else
+					{
+						u = endingCornerU - j;
+						v = endingCornerV - i;
+					}
+					break;
+
+				case 3:
+					if (rightCorner == 2)
+					{
+						u = startingCornerU + j;
+						v = endingCornerV - i;
+					}
+					else
+					{
+						u = startingCornerU + i;
+						v = endingCornerV - j;
+					}
+					break;
+			}
+			points[i][j] = &*bezierPoints[v % m_pointsV][u % m_pointsU];
+		}
+	}
+	return points;
+}

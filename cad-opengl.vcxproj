@@ -34,14 +34,16 @@
     <ClCompile Include="src\cameras\perspectiveCamera.cpp" />
     <ClCompile Include="src\framebuffer.cpp" />
     <ClCompile Include="src\guis\addBezierSurfacePanel.cpp" />
+    <ClCompile Include="src\guis\addGregorySurfacePanel.cpp" />
     <ClCompile Include="src\guis\cameraGUIs\orthographicCameraGUI.cpp" />
     <ClCompile Include="src\guis\cameraGUIs\perspectiveCameraGUI.cpp" />
     <ClCompile Include="src\cursor.cpp" />
     <ClCompile Include="src\guis\modelListPanel.cpp" />
     <ClCompile Include="src\guis\valueWindows\deserializingWindow.cpp" />
     <ClCompile Include="src\guis\valueWindows\serializingWindow.cpp" />
+    <ClCompile Include="src\models\gregorySurface.cpp" />
     <ClCompile Include="src\quad.cpp" />
-    <ClCompile Include="src\grid\grid.cpp" />
+    <ClCompile Include="src\plane\plane.cpp" />
     <ClCompile Include="src\guis\centerPointGUI.cpp" />
     <ClCompile Include="src\guis\cursorGUI.cpp" />
     <ClCompile Include="src\guis\gui.cpp" />
@@ -103,6 +105,7 @@
     <ClInclude Include="src\cameras\perspectiveCamera.hpp" />
     <ClInclude Include="src\framebuffer.hpp" />
     <ClInclude Include="src\guis\addBezierSurfacePanel.hpp" />
+    <ClInclude Include="src\guis\addGregorySurfacePanel.hpp" />
     <ClInclude Include="src\guis\guiMode.hpp" />
     <ClInclude Include="src\guis\leftPanel.hpp" />
     <ClInclude Include="src\guis\centerPointGUI.hpp" />
@@ -115,9 +118,10 @@
     <ClInclude Include="src\guis\modelListPanel.hpp" />
     <ClInclude Include="src\guis\valueWindows\deserializingWindow.hpp" />
     <ClInclude Include="src\guis\valueWindows\serializingWindow.hpp" />
+    <ClInclude Include="src\models\gregorySurface.hpp" />
     <ClInclude Include="src\models\modelType.hpp" />
     <ClInclude Include="src\quad.hpp" />
-    <ClInclude Include="src\grid\grid.hpp" />
+    <ClInclude Include="src\plane\plane.hpp" />
     <ClInclude Include="src\guis\gui.hpp" />
     <ClInclude Include="src\guis\modelGUIs\bezierCurveGUI.hpp" />
     <ClInclude Include="src\guis\modelGUIs\bezierSurfaceGUI.hpp" />
@@ -179,8 +183,8 @@
     <None Include="src\shaders\cursorGS.glsl" />
     <None Include="src\shaders\cursorFS.glsl" />
     <None Include="src\shaders\cursorVS.glsl" />
-    <None Include="src\shaders\gridFS.glsl" />
-    <None Include="src\shaders\gridVS.glsl" />
+    <None Include="src\shaders\planeFS.glsl" />
+    <None Include="src\shaders\planeVS.glsl" />
     <None Include="src\shaders\FS.glsl" />
     <None Include="src\shaders\meshVS.glsl" />
   </ItemGroup>

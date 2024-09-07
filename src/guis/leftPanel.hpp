@@ -1,6 +1,7 @@
 #pragma once
 
 #include "guis/addBezierSurfacePanel.hpp"
+#include "guis/addGregorySurfacePanel.hpp"
 #include "guis/guiMode.hpp"
 #include "guis/modelListPanel.hpp"
 #include "scene.hpp"
@@ -24,8 +25,10 @@ private:
 
 	bool m_addingBezierSurfaceC0 = false;
 	bool m_addingBezierSurfaceC2 = false;
+	bool m_addingGregorySurface = false;
 	AddBezierSurfacePanel m_addBezierSurfaceC0Panel;
 	AddBezierSurfacePanel m_addBezierSurfaceC2Panel;
+	AddGregorySurfacePanel m_addGregorySurfacePanel;
 	ModelListPanel m_modelListPanel;
 
 	void updateCamera();

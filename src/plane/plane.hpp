@@ -4,10 +4,10 @@
 #include "quad.hpp"
 #include "shaderProgram.hpp"
 
-class Grid
+class Plane
 {
 public:
-	Grid(const ShaderProgram& shaderProgram, float scale);
+	Plane(const ShaderProgram& shaderProgram, float scale);
 	void render(CameraType cameraType) const;
 
 private:

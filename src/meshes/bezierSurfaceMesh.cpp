@@ -3,32 +3,33 @@
 #include <glad/glad.h>
 
 BezierSurfaceMesh::BezierSurfaceMesh(const std::vector<glm::vec3>& vertices,
-	const std::vector<unsigned int>& indices)
+	const std::vector<std::vector<unsigned int>>& indices)
 {
+	m_patchCount = indices.size();
 	createVBO(vertices);
-	createEBO(indices);
-	createVAO();
+	createEBOs(indices);
+	createVAOs();
 }
 
 BezierSurfaceMesh::~BezierSurfaceMesh()
 {
-	glDeleteVertexArrays(1, &m_VAO);
-	glDeleteBuffers(1, &m_EBO);
+	glDeleteVertexArrays(static_cast<GLsizei>(m_VAOs.size()), m_VAOs.data());
+	glDeleteBuffers(static_cast<GLsizei>(m_EBOs.size()), m_EBOs.data());
 	glDeleteBuffers(1, &m_VBO);
 }
 
 void BezierSurfaceMesh::update(const std::vector<glm::vec3>& vertices,
-	const std::vector<unsigned int>& indices)
+	const std::vector<std::vector<unsigned int>>& indices)
 {
 	updateVBO(vertices);
-	updateEBO(indices);
+	updateEBOs(indices);
 }
 
-void BezierSurfaceMesh::render() const
+void BezierSurfaceMesh::render(std::size_t patch) const
 {
 	glPatchParameteri(GL_PATCH_VERTICES, 16);
-	glBindVertexArray(m_VAO);
-	glDrawElements(GL_PATCHES, static_cast<GLsizei>(m_indexCount), GL_UNSIGNED_INT, nullptr);
+	glBindVertexArray(m_VAOs[patch]);
+	glDrawElements(GL_PATCHES, 16, GL_UNSIGNED_INT, nullptr);
 	glBindVertexArray(0);
 }
 
@@ -38,24 +39,29 @@ void BezierSurfaceMesh::createVBO(const std::vector<glm::vec3>& vertices)
 	updateVBO(vertices);
 }
 
-void BezierSurfaceMesh::createEBO(const std::vector<unsigned int>& indices)
+void BezierSurfaceMesh::createEBOs(const std::vector<std::vector<unsigned int>>& indices)
 {
-	glGenBuffers(1, &m_EBO);
-	updateEBO(indices);
+	m_EBOs.resize(m_patchCount);
+	glGenBuffers(static_cast<GLsizei>(m_patchCount), m_EBOs.data());
+	updateEBOs(indices);
 }
 
-void BezierSurfaceMesh::createVAO()
+void BezierSurfaceMesh::createVAOs()
 {
-	glGenVertexArrays(1, &m_VAO);
+	m_VAOs.resize(m_patchCount);
+	glGenVertexArrays(static_cast<GLsizei>(m_patchCount), m_VAOs.data());
 
-	glBindVertexArray(m_VAO);
+	for (std::size_t patch = 0; patch < m_patchCount; ++patch)
+	{
+		glBindVertexArray(m_VAOs[patch]);
 
-	glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), 0);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_EBO);
-	glEnableVertexAttribArray(0);
+		glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
+		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), 0);
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_EBOs[patch]);
+		glEnableVertexAttribArray(0);
 
-	glBindVertexArray(0);
+		glBindVertexArray(0);
+	}
 }
 
 void BezierSurfaceMesh::updateVBO(const std::vector<glm::vec3>& vertices) const
@@ -65,11 +71,13 @@ void BezierSurfaceMesh::updateVBO(const std::vector<glm::vec3>& vertices) const
 		vertices.data(), GL_DYNAMIC_DRAW);
 }
 
-void BezierSurfaceMesh::updateEBO(const std::vector<unsigned int>& indices)
+void BezierSurfaceMesh::updateEBOs(const std::vector<std::vector<unsigned int>>& indices)
 {
-	m_indexCount = indices.size();
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_EBO);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER,
-		static_cast<GLsizeiptr>(indices.size() * sizeof(unsigned int)), indices.data(),
-		GL_DYNAMIC_DRAW);
+	for (std::size_t patch = 0; patch < m_patchCount; ++patch)
+	{
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_EBOs[patch]);
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER,
+			static_cast<GLsizeiptr>(indices[patch].size() * sizeof(unsigned int)),
+			indices[patch].data(), GL_DYNAMIC_DRAW);
+	}
 }

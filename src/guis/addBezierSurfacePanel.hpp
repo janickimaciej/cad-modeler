@@ -18,7 +18,7 @@ private:
 	static int m_count;
 	std::string m_suffix{};
 
-	Callback m_callback;
+	Callback m_callback{};
 
 	int m_patchesU{};
 	int m_patchesV{};

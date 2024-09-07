@@ -29,6 +29,15 @@ LeftPanel::LeftPanel(Scene& scene, const glm::ivec2& windowSize) :
 			m_addingBezierSurfaceC2 = false;
 		}
 	},
+	m_addGregorySurfacePanel
+	{
+		scene,
+		[this] ()
+		{
+			m_addGregorySurfacePanel.reset();
+			m_addingGregorySurface = false;
+		}
+	},
 	m_modelListPanel{scene}
 { }
 
@@ -176,21 +185,21 @@ void LeftPanel::updateButtons()
 
 	ImGui::Spacing();
 
-	if (ImGui::Button("Add bezier curve C0"))
+	if (ImGui::Button("Add Bezier curve C0"))
 	{
 		m_scene.addBezierCurveC0();
 	}
 
 	ImGui::Spacing();
 
-	if (ImGui::Button("Add bezier curve C2"))
+	if (ImGui::Button("Add Bezier curve C2"))
 	{
 		m_scene.addBezierCurveC2();
 	}
 
 	ImGui::Spacing();
 
-	if (ImGui::Button("Add bezier curve inter"))
+	if (ImGui::Button("Add Bezier curve inter"))
 	{
 		m_scene.addBezierCurveInter();
 	}
@@ -204,13 +213,15 @@ void LeftPanel::updateButtons()
 
 	ImGui::Spacing();
 	
-	if (ImGui::Button("Add bezier surface C0"))
+	if (ImGui::Button("Add Bezier surface C0"))
 	{
 		m_addBezierSurfaceC0Panel.reset();
 		m_addingBezierSurfaceC0 = !m_addingBezierSurfaceC0;
 
 		m_addBezierSurfaceC2Panel.reset();
 		m_addingBezierSurfaceC2 = false;
+		m_addGregorySurfacePanel.reset();
+		m_addingGregorySurface = false;
 	}
 
 	if (m_addingBezierSurfaceC0)
@@ -220,18 +231,43 @@ void LeftPanel::updateButtons()
 
 	ImGui::Spacing();
 
-	if (ImGui::Button("Add bezier surface C2"))
+	if (ImGui::Button("Add Bezier surface C2"))
 	{
 		m_addBezierSurfaceC2Panel.reset();
 		m_addingBezierSurfaceC2 = !m_addingBezierSurfaceC2;
 
 		m_addBezierSurfaceC0Panel.reset();
 		m_addingBezierSurfaceC0 = false;
+		m_addGregorySurfacePanel.reset();
+		m_addingGregorySurface = false;
 	}
 
 	if (m_addingBezierSurfaceC2)
 	{
 		m_addBezierSurfaceC2Panel.update();
+	}
+
+	ImGui::Spacing();
+
+	if (ImGui::Button("Add Gregory surface") && (m_scene.getModelCount(ModelType::bezierSurfaceC0) +
+		m_scene.getModelCount(ModelType::bezierSurfaceC2) > 0))
+	{
+		m_addGregorySurfacePanel.reset();
+		m_addingGregorySurface = !m_addingGregorySurface;
+		if (m_addingGregorySurface)
+		{
+			m_addGregorySurfacePanel.start();
+		}
+
+		m_addBezierSurfaceC0Panel.reset();
+		m_addingBezierSurfaceC0 = false;
+		m_addBezierSurfaceC2Panel.reset();
+		m_addingBezierSurfaceC2 = false;
+	}
+
+	if (m_addingGregorySurface)
+	{
+		m_addGregorySurfacePanel.update();
 	}
 
 	ImGui::Spacing();

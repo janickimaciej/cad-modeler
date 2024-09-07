@@ -7,7 +7,7 @@
 BezierCurveC0::BezierCurveC0(const ShaderProgram& curveShaderProgram,
 	const ShaderProgram& polylineShaderProgram, const std::vector<Point*>& points,
 	const SelfDestructCallback& selfDestructCallback) :
-	BezierCurveCX{"C0 Bezier Curve " + std::to_string(m_count++), curveShaderProgram,
+	BezierCurveCX{"C0 Bezier curve " + std::to_string(m_count++), curveShaderProgram,
 		polylineShaderProgram, points, selfDestructCallback}
 {
 	createCurveMesh();

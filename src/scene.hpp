@@ -8,22 +8,24 @@
 #include "centerPoint.hpp"
 #include "cursor.hpp"
 #include "framebuffer.hpp"
-#include "grid/grid.hpp"
 #include "models/bezierCurves/bezierCurveC0.hpp"
 #include "models/bezierCurves/bezierCurveC2.hpp"
 #include "models/bezierCurves/bezierCurveInter.hpp"
 #include "models/bezierSurfaces/bezierSurfaceC0.hpp"
 #include "models/bezierSurfaces/bezierSurfaceC2.hpp"
 #include "models/bezierSurfaces/bezierSurfaceWrapping.hpp"
+#include "models/gregorySurface.hpp"
 #include "models/model.hpp"
 #include "models/modelType.hpp"
 #include "models/point.hpp"
 #include "models/torus.hpp"
+#include "plane/plane.hpp"
 #include "quad.hpp"
 #include "shaderPrograms.hpp"
 
 #include <glm/glm.hpp>
 
+#include <array>
 #include <memory>
 #include <optional>
 #include <string>
@@ -92,6 +94,8 @@ public:
 		BezierSurfaceWrapping wrapping);
 	void addBezierSurfaceC2(int patchesU, int patchesV, float sizeU, float sizeV,
 		BezierSurfaceWrapping wrapping);
+	void addGregorySurface(const std::array<ModelType, 3>& types,
+		const std::array<int, 3>& surfaces, const std::array<int, 3>& patches);
 
 	void updateActiveCameraGUI();
 	void updateCursorGUI();
@@ -107,6 +111,13 @@ public:
 	float getProjectionPlane() const;
 	void setProjectionPlane(float projectionPlane);
 
+	void startAddingGregoryPatch();
+	void stopAddingGregoryPatch();
+	bool isPatchSelected(ModelType type, int surface, int patch) const;
+	void selectPatch(ModelType type, int surface, int patch);
+	void deselectPatch();
+	int getPatchCount(ModelType type, int surface) const;
+
 private:
 	ShaderPrograms m_shaderPrograms{};
 
@@ -121,12 +132,13 @@ private:
 	std::vector<std::unique_ptr<BezierCurveInter>> m_bezierCurvesInter{};
 	std::vector<std::unique_ptr<BezierSurfaceC0>> m_bezierSurfacesC0{};
 	std::vector<std::unique_ptr<BezierSurfaceC2>> m_bezierSurfacesC2{};
+	std::vector<std::unique_ptr<GregorySurface>> m_gregorySurfaces{};
 
 	Cursor m_cursor{m_shaderPrograms.cursor};
 	CenterPoint m_selectedModelsCenter{m_shaderPrograms.cursor, m_selectedModels};
 
 	static constexpr float gridScale = 10.0f;
-	Grid m_grid{m_shaderPrograms.grid, gridScale};
+	Plane m_plane{m_shaderPrograms.plane, gridScale};
 	
 	PerspectiveCamera m_perspectiveCamera;
 	OrthographicCamera m_orthographicCamera;
@@ -135,15 +147,27 @@ private:
 	CameraType m_cameraType = CameraType::perspective;
 	
 	std::vector<const BezierCurve*> m_bezierCurvesToBeDeleted{};
-	const BezierCurve::SelfDestructCallback m_curveSelfDestructCallback =
+	const BezierCurve::SelfDestructCallback m_bezierCurveSelfDestructCallback =
 		[this] (const BezierCurve* curve)
 		{
 			addBezierCurveForDeletion(curve);
 		};
 
+	std::vector<const GregorySurface*> m_gregorySurfacesToBeDeleted{};
+	const GregorySurface::SelfDestructCallback m_gregorySurfaceSelfDestructCallback =
+		[this] (const GregorySurface* surface)
+		{
+			addGregorySurfaceForDeletion(surface);
+		};
+
 	Framebuffer m_leftEyeFramebuffer;
 	Quad m_leftEyeQuad{};
 	bool m_anaglyphOn = false;
+
+	bool m_addingGregorySurface = false;
+	std::optional<ModelType> m_selectedPatchSurfaceType = std::nullopt;
+	std::optional<int> m_selectedPatchSurface = std::nullopt;
+	std::optional<int> m_selectedPatch = std::nullopt;
 	
 	void setUpFramebuffer() const;
 	void clearFramebuffer(AnaglyphMode anaglyphMode) const;
@@ -160,8 +184,12 @@ private:
 	void addPoints(std::vector<std::unique_ptr<Point>> points);
 
 	void addBezierCurveForDeletion(const BezierCurve* curve);
+	void addGregorySurfaceForDeletion(const GregorySurface* surface);
 	void deleteEmptyBezierCurves();
 	void deleteUnreferencedNonDeletablePoints();
+
+	static std::optional<std::array<int, 6>> find3Cycle(
+		const std::array<BezierSurface*, 3>& surfaces, const std::array<int, 3>& patches);
 
 	template <typename ModelType>
 	void deleteSelectedModels(std::vector<std::unique_ptr<ModelType>>& models);

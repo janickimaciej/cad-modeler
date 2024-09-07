@@ -206,11 +206,11 @@ void Camera::updateShaders(const glm::ivec2& windowSize,
 	m_shaderPrograms.cursor.setUniform("projectionViewMatrix", projectionViewMatrix);
 	m_shaderPrograms.cursor.setUniform("anaglyphMode", static_cast<int>(anaglyphMode));
 
-	m_shaderPrograms.grid.use();
-	m_shaderPrograms.grid.setUniform("projectionViewMatrix", projectionViewMatrix);
-	m_shaderPrograms.grid.setUniform("projectionViewMatrixInverse",
+	m_shaderPrograms.plane.use();
+	m_shaderPrograms.plane.setUniform("projectionViewMatrix", projectionViewMatrix);
+	m_shaderPrograms.plane.setUniform("projectionViewMatrixInverse",
 		projectionViewMatrixInverse);
-	m_shaderPrograms.grid.setUniform("anaglyphMode", static_cast<int>(anaglyphMode));
+	m_shaderPrograms.plane.setUniform("anaglyphMode", static_cast<int>(anaglyphMode));
 
 	m_shaderPrograms.bezierCurve.use();
 	m_shaderPrograms.bezierCurve.setUniform("projectionViewMatrix", projectionViewMatrix);

@@ -12,7 +12,7 @@ BezierCurveC2::BezierCurveC2(const ShaderProgram& curveShaderProgram,
 	const ShaderProgram& polylineShaderProgram, const ShaderProgram& pointShaderProgram,
 	const std::vector<Point*>& points, const SelfDestructCallback& selfDestructCallback,
 	std::vector<std::unique_ptr<Point>>& bezierPoints) :
-	BezierCurveCX{"C2 Bezier Curve " + std::to_string(m_count++), curveShaderProgram,
+	BezierCurveCX{"C2 Bezier curve " + std::to_string(m_count++), curveShaderProgram,
 		polylineShaderProgram, points, selfDestructCallback},
 	m_pointShaderProgram{pointShaderProgram}
 {

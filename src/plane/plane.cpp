@@ -1,17 +1,17 @@
-#include "grid/grid.hpp"
+#include "plane/plane.hpp"
 
-Grid::Grid(const ShaderProgram& shaderProgram, float scale) :
+Plane::Plane(const ShaderProgram& shaderProgram, float scale) :
 	m_shaderProgram{shaderProgram},
 	m_scale{scale}
 { }
 
-void Grid::render(CameraType cameraType) const
+void Plane::render(CameraType cameraType) const
 {
 	updateShaders(cameraType);
 	m_quad.render();
 }
 
-void Grid::updateShaders(CameraType cameraType) const
+void Plane::updateShaders(CameraType cameraType) const
 {
 	m_shaderProgram.setUniform("scale", m_scale);
 	m_shaderProgram.setUniform("cameraType", static_cast<int>(cameraType));

@@ -7,6 +7,8 @@
 
 #include <glm/glm.hpp>
 
+#include <array>
+#include <cstddef>
 #include <memory>
 #include <vector>
 
@@ -21,6 +23,10 @@ public:
 		float sizeU, float sizeV, BezierSurfaceWrapping wrapping,
 		std::vector<std::unique_ptr<Point>>& points);
 	virtual ~BezierSurfaceC0() = default;
+
+	virtual Point* getCornerPointIfOnEdge(std::size_t patch, int corner) override;
+	virtual std::array<std::array<Point*, 4>, 2> getPointsBetweenCorners(std::size_t patch,
+		int leftCorner, int rightCorner) override;
 
 private:
 	static int m_count;

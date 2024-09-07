@@ -10,7 +10,7 @@
 BezierCurveInter::BezierCurveInter(const ShaderProgram& curveShaderProgram,
 	const ShaderProgram& polylineShaderProgram, const std::vector<Point*>& points,
 	const SelfDestructCallback& selfDestructCallback) :
-	BezierCurve{"Interpolating Bezier Curve " + std::to_string(m_count++), curveShaderProgram,
+	BezierCurve{"Interpolating Bezier curve " + std::to_string(m_count++), curveShaderProgram,
 		polylineShaderProgram, points, selfDestructCallback}
 {
 	createCurveMesh();

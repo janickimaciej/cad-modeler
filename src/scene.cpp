@@ -162,6 +162,9 @@ int Scene::getModelCount(ModelType type) const
 
 		case ModelType::bezierSurfaceC2:
 			return static_cast<int>(m_bezierSurfacesC2.size());
+
+		case ModelType::gregorySurface:
+			return static_cast<int>(m_gregorySurfaces.size());
 	}
 	return {};
 }
@@ -203,6 +206,9 @@ bool Scene::isModelVirtual(int i, ModelType type) const
 
 		case ModelType::bezierSurfaceC2:
 			return m_bezierSurfacesC2[i]->isVirtual();
+
+		case ModelType::gregorySurface:
+			return m_gregorySurfaces[i]->isVirtual();
 	}
 	return {};
 }
@@ -234,12 +240,20 @@ bool Scene::isModelSelected(int i, ModelType type) const
 
 		case ModelType::bezierSurfaceC2:
 			return m_bezierSurfacesC2[i]->isSelected();
+
+		case ModelType::gregorySurface:
+			return m_gregorySurfaces[i]->isSelected();
 	}
 	return {};
 }
 
 void Scene::selectModel(int i, ModelType type)
 {
+	if (m_addingGregorySurface)
+	{
+		return;
+	}
+
 	switch (type)
 	{
 		case ModelType::all:
@@ -281,6 +295,10 @@ void Scene::selectModel(int i, ModelType type)
 			m_bezierSurfacesC2[i]->select();
 			m_selectedModels.push_back(m_bezierSurfacesC2[i].get());
 			break;
+
+		case ModelType::gregorySurface:
+			m_gregorySurfaces[i]->select();
+			m_selectedModels.push_back(m_gregorySurfaces[i].get());
 	}
 }
 
@@ -327,6 +345,11 @@ void Scene::deselectModel(int i, ModelType type)
 		case ModelType::bezierSurfaceC2:
 			m_bezierSurfacesC2[i]->deselect();
 			deselectedModel = m_bezierSurfacesC2[i].get();
+			break;
+			
+		case ModelType::gregorySurface:
+			m_gregorySurfaces[i]->deselect();
+			deselectedModel = m_gregorySurfaces[i].get();
 			break;
 	}
 	std::erase_if
@@ -386,10 +409,16 @@ void Scene::deleteSelectedModels()
 	deleteSelectedModels(m_bezierCurvesInter);
 	deleteSelectedModels(m_bezierSurfacesC0);
 	deleteSelectedModels(m_bezierSurfacesC2);
+	deleteSelectedModels(m_gregorySurfaces);
 }
 
 bool Scene::selectUniqueModel(const glm::vec2& screenPos)
 {
+	if (m_addingGregorySurface)
+	{
+		return false;
+	}
+
 	std::optional<int> closestModel = getClosestModel(screenPos);
 	if (!closestModel.has_value())
 	{
@@ -527,6 +556,9 @@ std::string Scene::getModelOriginalName(int i, ModelType type) const
 
 		case ModelType::bezierSurfaceC2:
 			return m_bezierSurfacesC2[i]->getOriginalName();
+			
+		case ModelType::gregorySurface:
+			return m_gregorySurfaces[i]->getOriginalName();
 	}
 	return {};
 }
@@ -558,6 +590,9 @@ std::string Scene::getModelName(int i, ModelType type) const
 
 		case ModelType::bezierSurfaceC2:
 			return m_bezierSurfacesC2[i]->getName();
+			
+		case ModelType::gregorySurface:
+			return m_gregorySurfaces[i]->getName();
 	}
 	return {};
 }
@@ -637,7 +672,7 @@ void Scene::addBezierCurveC0()
 
 	std::unique_ptr<BezierCurveC0> curve = std::make_unique<BezierCurveC0>(
 		m_shaderPrograms.bezierCurve, m_shaderPrograms.polyline,
-		nonVirtualSelectedPoints, m_curveSelfDestructCallback);
+		nonVirtualSelectedPoints, m_bezierCurveSelfDestructCallback);
 	m_models.push_back(curve.get());
 	m_bezierCurvesC0.push_back(std::move(curve));
 }
@@ -654,7 +689,7 @@ void Scene::addBezierCurveC2()
 	std::vector<std::unique_ptr<Point>> newPoints{};
 	std::unique_ptr<BezierCurveC2> curve = std::make_unique<BezierCurveC2>(
 		m_shaderPrograms.bezierCurve, m_shaderPrograms.polyline, m_shaderPrograms.point,
-		nonVirtualSelectedPoints, m_curveSelfDestructCallback, newPoints);
+		nonVirtualSelectedPoints, m_bezierCurveSelfDestructCallback, newPoints);
 	m_models.push_back(curve.get());
 	m_bezierCurvesC2.push_back(std::move(curve));
 	addPoints(std::move(newPoints));
@@ -671,7 +706,7 @@ void Scene::addBezierCurveInter()
 
 	std::unique_ptr<BezierCurveInter> curve = std::make_unique<BezierCurveInter>(
 		m_shaderPrograms.bezierCurveInter, m_shaderPrograms.polyline,
-		nonVirtualSelectedPoints, m_curveSelfDestructCallback);
+		nonVirtualSelectedPoints, m_bezierCurveSelfDestructCallback);
 	m_models.push_back(curve.get());
 	m_bezierCurvesInter.push_back(std::move(curve));
 }
@@ -742,9 +777,9 @@ void Scene::addBezierSurfaceC0(int patchesU, int patchesV, float sizeU, float si
 	std::unique_ptr<BezierSurfaceC0> surface = std::make_unique<BezierSurfaceC0>(
 		m_shaderPrograms.bezierSurface, m_shaderPrograms.mesh, m_shaderPrograms.point, patchesU,
 		patchesV, m_cursor.getPos(), sizeU, sizeV, wrapping, newPoints);
+	addPoints(std::move(newPoints));
 	m_models.push_back(surface.get());
 	m_bezierSurfacesC0.push_back(std::move(surface));
-	addPoints(std::move(newPoints));
 }
 
 void Scene::addBezierSurfaceC2(int patchesU, int patchesV, float sizeU, float sizeV,
@@ -754,9 +789,42 @@ void Scene::addBezierSurfaceC2(int patchesU, int patchesV, float sizeU, float si
 	std::unique_ptr<BezierSurfaceC2> surface = std::make_unique<BezierSurfaceC2>(
 		m_shaderPrograms.bezierSurface, m_shaderPrograms.mesh, m_shaderPrograms.point, patchesU,
 		patchesV, m_cursor.getPos(), sizeU, sizeV, wrapping, newPoints);
+	addPoints(std::move(newPoints));
 	m_models.push_back(surface.get());
 	m_bezierSurfacesC2.push_back(std::move(surface));
-	addPoints(std::move(newPoints));
+}
+
+void Scene::addGregorySurface(const std::array<ModelType, 3>& types,
+	const std::array<int, 3>& surfaces, const std::array<int, 3>& patches)
+{
+	std::array<BezierSurface*, 3> bezierSurfaces{};
+	for (std::size_t i = 0; i < 3; ++i)
+	{
+		if (types[i] == ModelType::bezierSurfaceC0)
+		{
+			bezierSurfaces[i] = m_bezierSurfacesC0[surfaces[i]].get();
+		}
+		else
+		{
+			bezierSurfaces[i] = m_bezierSurfacesC2[surfaces[i]].get();
+		}
+	}
+
+	std::optional<std::array<int, 6>> corners = find3Cycle(bezierSurfaces, patches);
+	if (!corners.has_value())
+	{
+		return;
+	}
+
+	std::array<std::array<std::array<Point*, 4>, 2>, 3> bezierPoints{};
+	for (std::size_t i = 0; i < 3; ++i)
+	{
+		bezierPoints[i] = bezierSurfaces[i]->getPointsBetweenCorners(patches[i], (*corners)[2 * i],
+			(*corners)[2 * i + 1]);
+	}
+
+	m_gregorySurfaces.push_back(std::make_unique<GregorySurface>(m_shaderPrograms.gregorySurface,
+		bezierPoints, m_gregorySurfaceSelfDestructCallback));
 }
 
 void Scene::updateActiveCameraGUI()
@@ -809,6 +877,10 @@ void Scene::updateModelGUI(int i, ModelType type)
 		case ModelType::bezierSurfaceC2:
 			m_bezierSurfacesC2[i]->updateGUI();
 			break;
+			
+		case ModelType::gregorySurface:
+			m_gregorySurfaces[i]->updateGUI();
+			break;
 	}
 }
 
@@ -853,6 +925,75 @@ void Scene::setProjectionPlane(float projectionPlane)
 {
 	m_perspectiveCamera.setProjectionPlane(projectionPlane);
 	m_orthographicCamera.setProjectionPlane(projectionPlane);
+}
+
+void Scene::startAddingGregoryPatch()
+{
+	m_addingGregorySurface = true;
+	deselectAllModels();
+}
+
+void Scene::stopAddingGregoryPatch()
+{
+	m_addingGregorySurface = false;
+	deselectPatch();
+}
+
+bool Scene::isPatchSelected(ModelType type, int surface, int patch) const
+{
+	return m_selectedPatchSurfaceType.has_value() && type == *m_selectedPatchSurfaceType &&
+		m_selectedPatchSurface.has_value() && surface == *m_selectedPatchSurface &&
+		m_selectedPatch.has_value() && patch == *m_selectedPatch;
+}
+
+void Scene::selectPatch(ModelType type, int surface, int patch)
+{
+	deselectPatch();
+
+	m_selectedPatchSurfaceType = type;
+	m_selectedPatchSurface = surface;
+	m_selectedPatch = patch;
+
+	if (type == ModelType::bezierSurfaceC0)
+	{
+		m_bezierSurfacesC0[surface]->selectPatch(patch);
+	}
+	else
+	{
+		m_bezierSurfacesC2[surface]->selectPatch(patch);
+	}
+}
+
+void Scene::deselectPatch()
+{
+	if (m_selectedPatchSurfaceType.has_value())
+	{
+		if (*m_selectedPatchSurfaceType == ModelType::bezierSurfaceC0)
+		{
+			m_bezierSurfacesC0[*m_selectedPatchSurface]->deselectPatch();
+		}
+		else
+		{
+			m_bezierSurfacesC2[*m_selectedPatchSurface]->deselectPatch();
+		}
+
+		m_selectedPatchSurfaceType = std::nullopt;
+		m_selectedPatchSurface = std::nullopt;
+		m_selectedPatch = std::nullopt;
+	}
+}
+
+int Scene::getPatchCount(ModelType type, int surface) const
+{
+	if (type == ModelType::bezierSurfaceC0)
+	{
+		return static_cast<int>(m_bezierSurfacesC0[surface]->getPatchCount());
+	}
+	else if (type == ModelType::bezierSurfaceC2)
+	{
+		return static_cast<int>(m_bezierSurfacesC2[surface]->getPatchCount());
+	}
+	return {};
 }
 
 void Scene::setUpFramebuffer() const
@@ -912,8 +1053,8 @@ void Scene::renderSelectedModelsCenter() const
 
 void Scene::renderGrid() const
 {
-	m_shaderPrograms.grid.use();
-	m_grid.render(m_cameraType);
+	m_shaderPrograms.plane.use();
+	m_plane.render(m_cameraType);
 }
 
 Model* Scene::getUniqueSelectedModel() const
@@ -974,6 +1115,11 @@ void Scene::addBezierCurveForDeletion(const BezierCurve* curve)
 	m_bezierCurvesToBeDeleted.push_back(curve);
 }
 
+void Scene::addGregorySurfaceForDeletion(const GregorySurface* surface)
+{
+	m_gregorySurfacesToBeDeleted.push_back(surface);
+}
+
 void Scene::deleteEmptyBezierCurves()
 {
 	for (const BezierCurve* curve : m_bezierCurvesToBeDeleted)
@@ -1027,4 +1173,58 @@ void Scene::deleteUnreferencedNonDeletablePoints()
 	{
 		std::erase(m_models, point);
 	}
+}
+
+std::optional<std::array<int, 6>> Scene::find3Cycle(const std::array<BezierSurface*, 3>& surfaces,
+	const std::array<int, 3>& patches)
+{
+	for (int i1 = 0; i1 < 4; ++i1)
+	{
+		Point* i1Point = surfaces[0]->getCornerPointIfOnEdge(patches[0], i1);
+		if (i1Point != nullptr)
+		{
+			std::array<int, 2> i2 = {(i1 + 1) % 4, (i1 + 3) % 4};
+			for (int i2Index = 0; i2Index < 2; ++i2Index)
+			{
+				for (int j1 = 0; j1 < 4; ++j1)
+				{
+					Point* i2Point = surfaces[0]->getCornerPointIfOnEdge(patches[0], i2[i2Index]);
+					Point* j1Point = surfaces[1]->getCornerPointIfOnEdge(patches[1], j1);
+					if (i2Point != nullptr && j1Point == i2Point)
+					{
+						std::array<int, 2> j2 = {(j1 + 1) % 4, (j1 + 3) % 4};
+						for (int j2Index = 0; j2Index < 2; ++j2Index)
+						{
+							for (int k1 = 0; k1 < 4; ++k1)
+							{
+								Point* j2Point = surfaces[1]->getCornerPointIfOnEdge(patches[1],
+									j2[j2Index]);
+								Point* k1Point = surfaces[2]->getCornerPointIfOnEdge(patches[2],
+									k1);
+								if (j2Point != nullptr && k1Point == j2Point)
+								{
+									std::array<int, 2> k2 = {(k1 + 1) % 4, (k1 + 3) % 4};
+									for (int k2Index = 0; k2Index < 2; ++k2Index)
+									{
+										Point* k2Point = surfaces[2]->getCornerPointIfOnEdge(
+											patches[2], k2[k2Index]);
+										if (i1Point == k2Point)
+										{
+											return std::array<int, 6>
+											{
+												i1, i2[i2Index],
+												j1, j2[j2Index],
+												k1, k2[k2Index]
+											};
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+	return std::nullopt;
 }
