@@ -18,6 +18,7 @@ BezierSurface::BezierSurface(const std::string& name,
 
 BezierSurface::~BezierSurface()
 {
+	notifyDestroy();
 	m_pointMoveNotifications.clear();
 	m_pointDeletabilityLocks.clear();
 	for (const std::vector<Point*>& row : m_points)
@@ -503,6 +504,14 @@ void BezierSurface::createBezierPointsVWrapping(
 	}
 }
 
+std::shared_ptr<BezierSurface::DestroyCallback> BezierSurface::registerForDestroyNotification(
+	const DestroyCallback& callback)
+{
+	std::shared_ptr<DestroyCallback> notification = std::make_shared<DestroyCallback>(callback);
+	m_destroyNotifications.push_back(notification);
+	return notification;
+}
+
 std::size_t BezierSurface::getBezierPointsU() const
 {
 	switch (m_wrapping)
@@ -708,4 +717,30 @@ std::vector<unsigned int> BezierSurface::createGridIndicesVWrapping() const
 		}
 	}
 	return indices;
+}
+
+void BezierSurface::notifyDestroy()
+{
+	clearExpiredNotifications();
+
+	for (const std::weak_ptr<DestroyCallback>& notification : m_destroyNotifications)
+	{
+		std::shared_ptr<DestroyCallback> notificationShared = notification.lock();
+		if (notificationShared)
+		{
+			(*notificationShared)();
+		}
+	}
+}
+
+void BezierSurface::clearExpiredNotifications()
+{
+	std::erase_if
+	(
+		m_destroyNotifications,
+		[] (const std::weak_ptr<DestroyCallback>& notification)
+		{
+			return notification.expired();
+		}
+	);
 }

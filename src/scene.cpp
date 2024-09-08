@@ -33,6 +33,7 @@ Scene::Scene(const glm::ivec2& windowSize) :
 void Scene::update()
 {
 	deleteEmptyBezierCurves();
+	deleteInvalidGregorySurfaces();
 	deleteUnreferencedNonDeletablePoints();
 }
 
@@ -809,22 +810,9 @@ void Scene::addGregorySurface(const std::array<ModelType, 3>& types,
 			bezierSurfaces[i] = m_bezierSurfacesC2[surfaces[i]].get();
 		}
 	}
-
-	std::optional<std::array<int, 6>> corners = find3Cycle(bezierSurfaces, patches);
-	if (!corners.has_value())
-	{
-		return;
-	}
-
-	std::array<std::array<std::array<Point*, 4>, 2>, 3> bezierPoints{};
-	for (std::size_t i = 0; i < 3; ++i)
-	{
-		bezierPoints[i] = bezierSurfaces[i]->getPointsBetweenCorners(patches[i], (*corners)[2 * i],
-			(*corners)[2 * i + 1]);
-	}
 	
 	m_gregorySurfaces.push_back(std::make_unique<GregorySurface>(m_shaderPrograms.gregorySurface,
-		m_shaderPrograms.vectors, bezierPoints, m_gregorySurfaceSelfDestructCallback));
+		m_shaderPrograms.vectors, bezierSurfaces, patches, m_gregorySurfaceSelfDestructCallback));
 	m_models.push_back(m_gregorySurfaces.back().get());
 }
 
@@ -1156,6 +1144,25 @@ void Scene::deleteEmptyBezierCurves()
 	m_bezierCurvesToBeDeleted.clear();
 }
 
+void Scene::deleteInvalidGregorySurfaces()
+{
+	for (const GregorySurface* surface : m_gregorySurfacesToBeDeleted)
+	{
+		std::erase(m_models, surface);
+		std::erase(m_selectedModels, surface);
+
+		std::erase_if
+		(
+			m_gregorySurfaces,
+			[surface] (const std::unique_ptr<GregorySurface>& gregorySurface)
+			{
+				return gregorySurface.get() == surface;
+			}
+		);
+	}
+	m_gregorySurfacesToBeDeleted.clear();
+}
+
 void Scene::deleteUnreferencedNonDeletablePoints()
 {
 	std::vector<Point*> pointsToBeDeleted{};
@@ -1174,58 +1181,4 @@ void Scene::deleteUnreferencedNonDeletablePoints()
 	{
 		std::erase(m_models, point);
 	}
-}
-
-std::optional<std::array<int, 6>> Scene::find3Cycle(const std::array<BezierSurface*, 3>& surfaces,
-	const std::array<int, 3>& patches)
-{
-	for (int i1 = 0; i1 < 4; ++i1)
-	{
-		Point* i1Point = surfaces[0]->getCornerPointIfOnEdge(patches[0], i1);
-		if (i1Point != nullptr)
-		{
-			std::array<int, 2> i2 = {(i1 + 1) % 4, (i1 + 3) % 4};
-			for (int i2Index = 0; i2Index < 2; ++i2Index)
-			{
-				for (int j1 = 0; j1 < 4; ++j1)
-				{
-					Point* i2Point = surfaces[0]->getCornerPointIfOnEdge(patches[0], i2[i2Index]);
-					Point* j1Point = surfaces[1]->getCornerPointIfOnEdge(patches[1], j1);
-					if (i2Point != nullptr && j1Point == i2Point)
-					{
-						std::array<int, 2> j2 = {(j1 + 1) % 4, (j1 + 3) % 4};
-						for (int j2Index = 0; j2Index < 2; ++j2Index)
-						{
-							for (int k1 = 0; k1 < 4; ++k1)
-							{
-								Point* j2Point = surfaces[1]->getCornerPointIfOnEdge(patches[1],
-									j2[j2Index]);
-								Point* k1Point = surfaces[2]->getCornerPointIfOnEdge(patches[2],
-									k1);
-								if (j2Point != nullptr && k1Point == j2Point)
-								{
-									std::array<int, 2> k2 = {(k1 + 1) % 4, (k1 + 3) % 4};
-									for (int k2Index = 0; k2Index < 2; ++k2Index)
-									{
-										Point* k2Point = surfaces[2]->getCornerPointIfOnEdge(
-											patches[2], k2[k2Index]);
-										if (i1Point == k2Point)
-										{
-											return std::array<int, 6>
-											{
-												i1, i2[i2Index],
-												j1, j2[j2Index],
-												k1, k2[k2Index]
-											};
-										}
-									}
-								}
-							}
-						}
-					}
-				}
-			}
-		}
-	}
-	return std::nullopt;
 }

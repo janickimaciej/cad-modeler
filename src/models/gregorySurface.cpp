@@ -4,20 +4,19 @@
 #include <string>
 
 GregorySurface::GregorySurface(const ShaderProgram& surfaceShaderProgram,
-	const ShaderProgram& vectorsShaderProgram,
-	const std::array<std::array<std::array<Point*, 4>, 2>, 3>& bezierPoints,
-	const SelfDestructCallback& selfDestructCallback) :
+	const ShaderProgram& vectorsShaderProgram, const std::array<BezierSurface*, 3>& bezierSurfaces,
+	const std::array<int, 3>& patches, const SelfDestructCallback& selfDestructCallback) :
 	Model{{}, "Gregory surface " + std::to_string(m_count++)},
 	m_surfaceShaderProgram{surfaceShaderProgram},
 	m_vectorsShaderProgram{vectorsShaderProgram},
-	m_bezierPoints{bezierPoints},
 	m_selfDestructCallback{selfDestructCallback}
 {
+	getBezierPoints(bezierSurfaces, patches);
 	createPoints();
 	updatePos();
 	createSurfaceMesh();
 	createVectorsMesh();
-	registerForNotifications();
+	registerForNotifications(bezierSurfaces);
 }
 
 void GregorySurface::render() const
@@ -56,6 +55,22 @@ void GregorySurface::setLineCount(int lineCount)
 }
 
 int GregorySurface::m_count = 0;
+
+void GregorySurface::getBezierPoints(const std::array<BezierSurface*, 3>& bezierSurfaces,
+	const std::array<int, 3>& patches)
+{
+	std::optional<std::array<int, 6>> corners = find3Cycle(bezierSurfaces, patches);
+	if (!corners.has_value())
+	{
+		return;
+	}
+
+	for (std::size_t i = 0; i < 3; ++i)
+	{
+		m_bezierPoints[i] = bezierSurfaces[i]->getPointsBetweenCorners(patches[i],
+			(*corners)[2 * i], (*corners)[2 * i + 1]);
+	}
+}
 
 void GregorySurface::createPoints()
 {
@@ -240,7 +255,7 @@ void GregorySurface::renderVectors() const
 	m_vectorsMesh->render();
 }
 
-void GregorySurface::registerForNotifications()
+void GregorySurface::registerForNotifications(const std::array<BezierSurface*, 3>& bezierSurfaces)
 {
 	for (const std::array<std::array<Point*, 4>, 2>& patchPoints : m_bezierPoints)
 	{
@@ -252,6 +267,17 @@ void GregorySurface::registerForNotifications()
 			}
 		}
 	}
+
+	for (BezierSurface* bezierSurface : bezierSurfaces)
+	{
+		m_surfaceDestroyNotifications.push_back(bezierSurface->registerForDestroyNotification
+			(
+				[this] ()
+				{
+					surfaceDestroyNotification();
+				}
+			));
+	}
 }
 
 void GregorySurface::registerForNotifications(Point* point)
@@ -261,14 +287,6 @@ void GregorySurface::registerForNotifications(Point* point)
 			[this] (void*)
 			{
 				pointMoveNotification();
-			}
-		));
-
-	m_pointDestroyNotifications.push_back(point->registerForDestroyNotification
-		(
-			[this] (void* notification)
-			{
-				pointDestroyNotification(static_cast<Point::DestroyCallback*>(notification));
 			}
 		));
 
@@ -285,14 +303,6 @@ void GregorySurface::registerForNotifications(Point* point)
 void GregorySurface::pointMoveNotification()
 {
 	updateGeometry();
-}
-
-void GregorySurface::pointDestroyNotification(Point::DestroyCallback*)
-{
-	m_pointMoveNotifications.clear();
-	m_pointDestroyNotifications.clear();
-	m_pointRereferenceNotifications.clear();
-	m_selfDestructCallback(this);
 }
 
 void GregorySurface::pointRereferenceNotification(Point::RereferenceCallback* notification,
@@ -321,14 +331,6 @@ void GregorySurface::pointRereferenceNotification(Point::RereferenceCallback* no
 			}
 		);
 
-	m_pointDestroyNotifications[notificationIndex] = newPoint->registerForDestroyNotification
-		(
-			[this] (void* notification)
-			{
-				pointDestroyNotification(static_cast<Point::DestroyCallback*>(notification));
-			}
-		);
-
 	m_pointRereferenceNotifications[notificationIndex] =
 		newPoint->registerForRereferenceNotification
 		(
@@ -342,6 +344,14 @@ void GregorySurface::pointRereferenceNotification(Point::RereferenceCallback* no
 	updateGeometry();
 }
 
+void GregorySurface::surfaceDestroyNotification()
+{
+	m_pointMoveNotifications.clear();
+	m_pointRereferenceNotifications.clear();
+	m_surfaceDestroyNotifications.clear();
+	m_selfDestructCallback(this);
+}
+
 glm::vec3 GregorySurface::deCasteljau(const glm::vec3& a, const glm::vec3& b, float t)
 {
 	return (1 - t) * a + t * b;
@@ -351,4 +361,58 @@ glm::vec3 GregorySurface::deCasteljau(const glm::vec3& a, const glm::vec3& b, co
 	float t)
 {
 	return (1 - t) * deCasteljau(a, b, t) + t * deCasteljau(b, c, t);
+}
+
+std::optional<std::array<int, 6>> GregorySurface::find3Cycle(
+	const std::array<BezierSurface*, 3>& surfaces, const std::array<int, 3>& patches)
+{
+	for (int i1 = 0; i1 < 4; ++i1)
+	{
+		Point* i1Point = surfaces[0]->getCornerPointIfOnEdge(patches[0], i1);
+		if (i1Point != nullptr)
+		{
+			std::array<int, 2> i2 = {(i1 + 1) % 4, (i1 + 3) % 4};
+			for (int i2Index = 0; i2Index < 2; ++i2Index)
+			{
+				for (int j1 = 0; j1 < 4; ++j1)
+				{
+					Point* i2Point = surfaces[0]->getCornerPointIfOnEdge(patches[0], i2[i2Index]);
+					Point* j1Point = surfaces[1]->getCornerPointIfOnEdge(patches[1], j1);
+					if (i2Point != nullptr && j1Point == i2Point)
+					{
+						std::array<int, 2> j2 = {(j1 + 1) % 4, (j1 + 3) % 4};
+						for (int j2Index = 0; j2Index < 2; ++j2Index)
+						{
+							for (int k1 = 0; k1 < 4; ++k1)
+							{
+								Point* j2Point = surfaces[1]->getCornerPointIfOnEdge(patches[1],
+									j2[j2Index]);
+								Point* k1Point = surfaces[2]->getCornerPointIfOnEdge(patches[2],
+									k1);
+								if (j2Point != nullptr && k1Point == j2Point)
+								{
+									std::array<int, 2> k2 = {(k1 + 1) % 4, (k1 + 3) % 4};
+									for (int k2Index = 0; k2Index < 2; ++k2Index)
+									{
+										Point* k2Point = surfaces[2]->getCornerPointIfOnEdge(
+											patches[2], k2[k2Index]);
+										if (i1Point == k2Point)
+										{
+											return std::array<int, 6>
+											{
+												i1, i2[i2Index],
+												j1, j2[j2Index],
+												k1, k2[k2Index]
+											};
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+	return std::nullopt;
 }

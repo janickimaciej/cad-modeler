@@ -12,6 +12,7 @@
 
 #include <array>
 #include <cstddef>
+#include <functional>
 #include <memory>
 #include <optional>
 #include <string>
@@ -23,6 +24,8 @@ class BezierSurface : public Model
 	friend class BezierSurfaceC2Serializer;
 
 public:
+	using DestroyCallback = std::function<void()>;
+
 	BezierSurface(const std::string& name, const ShaderProgram& bezierSurfaceShaderProgram,
 		const ShaderProgram& bezierSurfaceGridShaderProgram, int patchesU, int patchesV,
 		BezierSurfaceWrapping wrapping);
@@ -43,6 +46,9 @@ public:
 	virtual Point* getCornerPointIfOnEdge(std::size_t patch, int corner) = 0;
 	virtual std::array<std::array<Point*, 4>, 2> getPointsBetweenCorners(std::size_t patch,
 		int leftCorner, int rightCorner) = 0;
+
+	std::shared_ptr<DestroyCallback> registerForDestroyNotification(
+		const DestroyCallback& callback);
 
 protected:
 	std::unique_ptr<BezierSurfaceMesh> m_surfaceMesh{};
@@ -95,6 +101,8 @@ private:
 
 	bool m_renderGrid = false;
 	int m_lineCount = 4;
+
+	std::vector<std::weak_ptr<DestroyCallback>> m_destroyNotifications{};
 	
 	std::vector<std::shared_ptr<Point::MoveCallback>> m_pointMoveNotifications{};
 	std::vector<std::shared_ptr<Point::RereferenceCallback>> m_pointRereferenceNotifications{};
@@ -132,6 +140,9 @@ private:
 	std::vector<unsigned int> createGridIndicesNoWrapping() const;
 	std::vector<unsigned int> createGridIndicesUWrapping() const;
 	std::vector<unsigned int> createGridIndicesVWrapping() const;
+
+	void notifyDestroy();
+	void clearExpiredNotifications();
 };
 
 template <typename PointPtr>

@@ -3,6 +3,7 @@
 #include "guis/modelGUIs/gregorySurfaceGUI.hpp"
 #include "meshes/gregorySurfaceMesh.hpp"
 #include "meshes/vectorsMesh.hpp"
+#include "models/bezierSurfaces/bezierSurface.hpp"
 #include "models/model.hpp"
 #include "models/point.hpp"
 #include "shaderProgram.hpp"
@@ -12,6 +13,7 @@
 #include <array>
 #include <functional>
 #include <memory>
+#include <optional>
 #include <vector>
 
 class GregorySurface : public Model
@@ -21,7 +23,7 @@ public:
 
 	GregorySurface(const ShaderProgram& surfaceShaderProgram,
 		const ShaderProgram& vectorsShaderProgram,
-		const std::array<std::array<std::array<Point*, 4>, 2>, 3>& bezierPoints,
+		const std::array<BezierSurface*, 3>& bezierSurfaces, const std::array<int, 3>& patches,
 		const SelfDestructCallback& selfDestructCallback);
 	virtual ~GregorySurface() = default;
 
@@ -46,14 +48,16 @@ private:
 	std::array<std::array<std::array<Point*, 4>, 2>, 3> m_bezierPoints{};
 	std::array<std::array<glm::vec3, 20>, 3> m_points{};
 	std::vector<std::shared_ptr<Point::MoveCallback>> m_pointMoveNotifications{};
-	std::vector<std::shared_ptr<Point::DestroyCallback>> m_pointDestroyNotifications{};
 	std::vector<std::shared_ptr<Point::RereferenceCallback>> m_pointRereferenceNotifications{};
+	std::vector<std::shared_ptr<BezierSurface::DestroyCallback>> m_surfaceDestroyNotifications{};
 
 	bool m_renderVectors = false;
 	int m_lineCount = 4;
 
 	SelfDestructCallback m_selfDestructCallback;
 	
+	void getBezierPoints(const std::array<BezierSurface*, 3>& bezierSurfaces,
+		const std::array<int, 3>& patches);
 	void createPoints();
 	std::array<glm::vec3, 48> createVectors() const;
 	void createSurfaceMesh();
@@ -67,13 +71,15 @@ private:
 	void renderSurface() const;
 	void renderVectors() const;
 
-	void registerForNotifications();
+	void registerForNotifications(const std::array<BezierSurface*, 3>& bezierSurfaces);
 	void registerForNotifications(Point* point);
 	void pointMoveNotification();
-	void pointDestroyNotification(Point::DestroyCallback*);
 	void pointRereferenceNotification(Point::RereferenceCallback* notification, Point* newPoint);
+	void surfaceDestroyNotification();
 
 	static glm::vec3 deCasteljau(const glm::vec3& a, const glm::vec3& b, float t);
 	static glm::vec3 deCasteljau(const glm::vec3& a, const glm::vec3& b, const glm::vec3& c,
 		float t);
+	static std::optional<std::array<int, 6>> find3Cycle(
+		const std::array<BezierSurface*, 3>& surfaces, const std::array<int, 3>& patches);
 };

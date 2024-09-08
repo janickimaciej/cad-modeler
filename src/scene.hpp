@@ -186,10 +186,8 @@ private:
 	void addBezierCurveForDeletion(const BezierCurve* curve);
 	void addGregorySurfaceForDeletion(const GregorySurface* surface);
 	void deleteEmptyBezierCurves();
+	void deleteInvalidGregorySurfaces();
 	void deleteUnreferencedNonDeletablePoints();
-
-	static std::optional<std::array<int, 6>> find3Cycle(
-		const std::array<BezierSurface*, 3>& surfaces, const std::array<int, 3>& patches);
 
 	template <typename ModelType>
 	void deleteSelectedModels(std::vector<std::unique_ptr<ModelType>>& models);

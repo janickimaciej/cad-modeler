@@ -45,8 +45,7 @@ void LeftPanel::update(GUIMode mode)
 {
 	ImGui::SetNextWindowPos({0, 0}, ImGuiCond_Always);
 	ImGui::SetNextWindowSize({width, height}, ImGuiCond_Always);
-	ImGui::Begin("leftPanel", nullptr, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoTitleBar |
-		ImGuiWindowFlags_NoBackground);
+	ImGui::Begin("leftPanel", nullptr, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoTitleBar);
 	ImGui::PushItemWidth(100);
 
 	updateCamera();
