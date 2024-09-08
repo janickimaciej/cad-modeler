@@ -822,9 +822,10 @@ void Scene::addGregorySurface(const std::array<ModelType, 3>& types,
 		bezierPoints[i] = bezierSurfaces[i]->getPointsBetweenCorners(patches[i], (*corners)[2 * i],
 			(*corners)[2 * i + 1]);
 	}
-
+	
 	m_gregorySurfaces.push_back(std::make_unique<GregorySurface>(m_shaderPrograms.gregorySurface,
-		bezierPoints, m_gregorySurfaceSelfDestructCallback));
+		m_shaderPrograms.vectors, bezierPoints, m_gregorySurfaceSelfDestructCallback));
+	m_models.push_back(m_gregorySurfaces.back().get());
 }
 
 void Scene::updateActiveCameraGUI()

@@ -71,7 +71,7 @@ void BezierSurfaceMesh::updateVBO(const std::vector<glm::vec3>& vertices) const
 		vertices.data(), GL_DYNAMIC_DRAW);
 }
 
-void BezierSurfaceMesh::updateEBOs(const std::vector<std::vector<unsigned int>>& indices)
+void BezierSurfaceMesh::updateEBOs(const std::vector<std::vector<unsigned int>>& indices) const
 {
 	for (std::size_t patch = 0; patch < m_patchCount; ++patch)
 	{

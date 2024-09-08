@@ -38,9 +38,12 @@
     <ClCompile Include="src\guis\cameraGUIs\orthographicCameraGUI.cpp" />
     <ClCompile Include="src\guis\cameraGUIs\perspectiveCameraGUI.cpp" />
     <ClCompile Include="src\cursor.cpp" />
+    <ClCompile Include="src\guis\modelGUIs\gregorySurfaceGUI.cpp" />
     <ClCompile Include="src\guis\modelListPanel.cpp" />
     <ClCompile Include="src\guis\valueWindows\deserializingWindow.cpp" />
     <ClCompile Include="src\guis\valueWindows\serializingWindow.cpp" />
+    <ClCompile Include="src\meshes\gregorySurfaceMesh.cpp" />
+    <ClCompile Include="src\meshes\vectorsMesh.cpp" />
     <ClCompile Include="src\models\gregorySurface.cpp" />
     <ClCompile Include="src\quad.cpp" />
     <ClCompile Include="src\plane\plane.cpp" />
@@ -115,9 +118,12 @@
     <ClInclude Include="src\cameras\cameraType.hpp" />
     <ClInclude Include="src\cursor.hpp" />
     <ClInclude Include="src\guis\cursorGUI.hpp" />
+    <ClInclude Include="src\guis\modelGUIs\gregorySurfaceGUI.hpp" />
     <ClInclude Include="src\guis\modelListPanel.hpp" />
     <ClInclude Include="src\guis\valueWindows\deserializingWindow.hpp" />
     <ClInclude Include="src\guis\valueWindows\serializingWindow.hpp" />
+    <ClInclude Include="src\meshes\gregorySurfaceMesh.hpp" />
+    <ClInclude Include="src\meshes\vectorsMesh.hpp" />
     <ClInclude Include="src\models\gregorySurface.hpp" />
     <ClInclude Include="src\models\modelType.hpp" />
     <ClInclude Include="src\quad.hpp" />
@@ -166,18 +172,21 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="dep\imgui\misc\debuggers\imgui.natstepfilter" />
+    <None Include="src\shaders\vectorsFS.glsl" />
+    <None Include="src\shaders\gregorySurfaceTCS.glsl" />
+    <None Include="src\shaders\gregorySurfaceTES.glsl" />
     <None Include="src\shaders\quadFS.glsl" />
     <None Include="src\shaders\quadVS.glsl" />
     <None Include="src\shaders\bezierSurfaceTCS.glsl" />
     <None Include="src\shaders\bezierSurfaceTES.glsl" />
-    <None Include="src\shaders\bezierSurfaceVS.glsl" />
+    <None Include="src\shaders\surfaceVS.glsl" />
     <None Include="src\shaders\bezierCurveInterTES.glsl" />
     <None Include="src\shaders\bezierCurveInterVS.glsl" />
     <None Include="src\shaders\bezierCurveInterTCS.glsl" />
     <None Include="src\shaders\bezierCurveTES.glsl" />
     <None Include="src\shaders\bezierCurveTCS.glsl" />
     <None Include="src\shaders\bezierCurveVS.glsl" />
-    <None Include="src\shaders\polylineVS.glsl" />
+    <None Include="src\shaders\VS.glsl" />
     <None Include="src\shaders\pointGS.glsl" />
     <None Include="src\shaders\pointVS.glsl" />
     <None Include="src\shaders\cursorGS.glsl" />

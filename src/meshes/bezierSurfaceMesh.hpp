@@ -26,5 +26,5 @@ private:
 	void createVAOs();
 
 	void updateVBO(const std::vector<glm::vec3>& vertices) const;
-	void updateEBOs(const std::vector<std::vector<unsigned int>>& indices);
+	void updateEBOs(const std::vector<std::vector<unsigned int>>& indices) const;
 };

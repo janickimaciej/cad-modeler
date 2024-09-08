@@ -14,12 +14,13 @@ struct ShaderPrograms
 		path("FS")};
 	ShaderProgram bezierCurveInter{path("bezierCurveInterVS"), path("bezierCurveInterTCS"),
 		path("bezierCurveInterTES"), path("FS")};
-	ShaderProgram polyline{path("polylineVS"), path("FS")};
-	ShaderProgram bezierSurface{path("bezierSurfaceVS"), path("bezierSurfaceTCS"),
+	ShaderProgram polyline{path("VS"), path("FS")};
+	ShaderProgram bezierSurface{path("surfaceVS"), path("bezierSurfaceTCS"),
 		path("bezierSurfaceTES"), path("FS")};
-	ShaderProgram gregorySurface{path("gregorySurfaceVS"), path("gregorySurfaceTCS"),
+	ShaderProgram gregorySurface{path("surfaceVS"), path("gregorySurfaceTCS"),
 		path("gregorySurfaceTES"), path("FS")};
 	ShaderProgram quad{path("quadVS"), path("quadFS")};
+	ShaderProgram vectors{path("VS"), path("vectorsFS")};
 
 private:
 	static std::string path(const std::string& shaderName);
