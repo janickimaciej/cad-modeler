@@ -162,7 +162,7 @@ glm::mat4 Model::getRotationMatrix() const
 		0, 0, 0, 1
 	};
 
-	return rotationYawMatrix * rotationPitchMatrix * rotationRollMatrix;
+	return rotationRollMatrix * rotationYawMatrix * rotationPitchMatrix;
 }
 
 void Model::updateMatrix()

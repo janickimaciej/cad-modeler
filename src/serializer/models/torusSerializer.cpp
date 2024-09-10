@@ -43,9 +43,9 @@ void TorusSerializer::deserialize(const nlohmann::ordered_json& json, Scene& sce
 
 	torus.setPos({json["position"]["x"], json["position"]["y"], json["position"]["z"]});
 
-	torus.setPitchRad(glm::radians(static_cast<float>(json["rotation"]["x"])));
-	torus.setYawRad(glm::radians(static_cast<float>(json["rotation"]["y"])));
-	torus.setRollRad(glm::radians(static_cast<float>(json["rotation"]["z"])));
+	torus.setPitchRad(json["rotation"]["x"]);
+	torus.setYawRad(json["rotation"]["y"]);
+	torus.setRollRad(json["rotation"]["z"]);
 
 	torus.setScale({json["scale"]["x"], json["scale"]["y"], json["scale"]["z"]});
 

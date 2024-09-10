@@ -4,8 +4,8 @@
 
 #include <cmath>
 
-static constexpr float initialMajorRadius = 3.0f;
-static constexpr float initialMinorRadius = 1.0f;
+static constexpr float initialMajorRadius = 1.0f;
+static constexpr float initialMinorRadius = 0.3f;
 static constexpr int initialMajor = 32;
 static constexpr int initialMinor = 16;
 

@@ -12,7 +12,7 @@ void emitAxis(vec4 axisClip, vec3 axisColor);
 
 void main()
 {
-	const float size = 1;
+	const float size = 0.2;
 
 	vec4 xAxisClip = transformVec(vec4(size, 0, 0, 0));
 	vec3 xAxisColor = vec3(1, 0, 0);

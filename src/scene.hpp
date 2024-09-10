@@ -137,7 +137,7 @@ private:
 	Cursor m_cursor{m_shaderPrograms.cursor};
 	CenterPoint m_selectedModelsCenter{m_shaderPrograms.cursor, m_selectedModels};
 
-	static constexpr float gridScale = 10.0f;
+	static constexpr float gridScale = 5.0f;
 	Plane m_plane{m_shaderPrograms.plane, gridScale};
 	
 	PerspectiveCamera m_perspectiveCamera;

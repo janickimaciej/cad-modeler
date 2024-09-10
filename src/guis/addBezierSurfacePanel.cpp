@@ -15,8 +15,8 @@ void AddBezierSurfacePanel::reset()
 {
 	m_patchesU = 2;
 	m_patchesV = 2;
-	m_sizeU = 6;
-	m_sizeV = 6;
+	m_sizeU = 2;
+	m_sizeV = 2;
 	m_wrapping = BezierSurfaceWrapping::none;
 }
 

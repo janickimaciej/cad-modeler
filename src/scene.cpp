@@ -20,7 +20,6 @@ Scene::Scene(const glm::ivec2& windowSize) :
 	auto firstModelIter = m_models.begin();
 
 	setCameraType(m_cameraType);
-	zoomCamera(0.5f);
 	addPitchCamera(glm::radians(-30.0f));
 	addYawCamera(glm::radians(15.0f));
 

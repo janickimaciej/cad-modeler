@@ -99,7 +99,7 @@ void BezierSurface::updatePos()
 			pos += point->getPos();
 		}
 	}
-	m_pos = pos / static_cast<float>(m_points.size());
+	m_pos = pos / static_cast<float>(m_points[0].size() * m_points.size());
 }
 
 void BezierSurface::registerForNotifications()
@@ -207,7 +207,7 @@ std::vector<std::vector<glm::vec3>> BezierSurface::createBoorPointsNoWrapping(co
 	std::size_t boorPointsV = m_patchesV + 3;
 	float dU = sizeU / m_patchesU;
 	float dV = sizeV / m_patchesV;
-	glm::vec3 startPoint = pos + glm::vec3{-sizeU / 2, 0, -sizeV / 2};
+	glm::vec3 startPoint = pos + glm::vec3{-sizeU / 2 - dU, 0, -sizeV / 2 - dV};
 
 	std::vector<std::vector<glm::vec3>> points{};
 	points.resize(boorPointsV);
@@ -218,27 +218,12 @@ std::vector<std::vector<glm::vec3>> BezierSurface::createBoorPointsNoWrapping(co
 
 	for (std::size_t v = 0; v < boorPointsV; ++v)
 	{
-		points[v][0] = startPoint;
-		points[v][1] = startPoint + glm::vec3{dU / 3.0f, 0, 0};
-		for (std::size_t u = 2; u < boorPointsU - 2; ++u)
+		for (std::size_t u = 0; u < boorPointsU; ++u)
 		{
-			points[v][u] = startPoint + glm::vec3{(u - 1) * dU, 0, 0};
+			points[v][u] = startPoint + glm::vec3{u * dU, 0, v * dV};
 		}
-		points[v][boorPointsU - 2] = startPoint +
-			glm::vec3{(m_patchesU - 1.0 / 3.0f) * dU, 0, 0};
-		points[v][boorPointsU - 1] = startPoint + glm::vec3{m_patchesU * dU, 0, 0};
 	}
-	for (std::size_t u = 0; u < boorPointsU; ++u)
-	{
-		points[1][u] = points[1][u] + glm::vec3{0, 0, dV / 3.0f};
-		for (std::size_t v = 2; v < boorPointsV - 2; ++v)
-		{
-			points[v][u] = points[v][u] + glm::vec3{0, 0, (v - 1) * dV};
-		}
-		points[boorPointsV - 2][u] =
-			points[boorPointsV - 2][u] + glm::vec3{0, 0, (m_patchesV - 1.0 / 3.0f) * dV};
-		points[boorPointsV - 1][u] = points[boorPointsV - 1][u] + glm::vec3{0, 0, m_patchesV * dV};
-	}
+
 	return points;
 }
 
@@ -252,7 +237,7 @@ std::vector<std::vector<glm::vec3>> BezierSurface::createBoorPointsUWrapping(con
 	float dV = sizeV / m_patchesV;
 	float sin = std::sin(dAlpha / 2);
 	float R = 3 * sizeU / (3 - 2 * sin * sin);
-	glm::vec3 startPoint = pos + glm::vec3{0, 0, -sizeV / 2};
+	glm::vec3 startPoint = pos + glm::vec3{0, 0, -sizeV / 2 - dV};
 	
 	std::vector<std::vector<glm::vec3>> points{};
 	points.resize(boorPointsV);
@@ -271,14 +256,10 @@ std::vector<std::vector<glm::vec3>> BezierSurface::createBoorPointsUWrapping(con
 	}
 	for (std::size_t u = 0; u < boorPointsU; ++u)
 	{
-		points[1][u] = points[1][u] + glm::vec3{0, 0, dV / 3.0f};
-		for (std::size_t v = 2; v < boorPointsV - 2; ++v)
+		for (std::size_t v = 0; v < boorPointsV; ++v)
 		{
-			points[v][u] = points[v][u] + glm::vec3{0, 0, (v - 1) * dV};
+			points[v][u] = points[v][u] + glm::vec3{0, 0, v * dV};
 		}
-		points[boorPointsV - 2][u] =
-			points[boorPointsV - 2][u] + glm::vec3{0, 0, (m_patchesV - 1.0 / 3.0f) * dV};
-		points[boorPointsV - 1][u] = points[boorPointsV - 1][u] + glm::vec3{0, 0, m_patchesV * dV};
 	}
 	return points;
 }
@@ -293,7 +274,7 @@ std::vector<std::vector<glm::vec3>> BezierSurface::createBoorPointsVWrapping(con
 	float dAlpha = 2 * pi / m_patchesV;
 	float sin = std::sin(dAlpha / 2);
 	float R = 3 * sizeV / (3 - 2 * sin * sin);
-	glm::vec3 startPoint = pos + glm::vec3{-sizeU / 2, 0, 0};
+	glm::vec3 startPoint = pos + glm::vec3{-sizeU / 2 - dU, 0, 0};
 	
 	std::vector<std::vector<glm::vec3>> points{};
 	points.resize(boorPointsV);
@@ -304,14 +285,10 @@ std::vector<std::vector<glm::vec3>> BezierSurface::createBoorPointsVWrapping(con
 
 	for (std::size_t v = 0; v < boorPointsV; ++v)
 	{
-		points[v][0] = startPoint;
-		points[v][1] = startPoint + glm::vec3{dU / 3.0f, 0, 0};
-		for (std::size_t u = 2; u < boorPointsU - 2; ++u)
+		for (std::size_t u = 0; u < boorPointsU; ++u)
 		{
-			points[v][u] = startPoint + glm::vec3{(u - 1) * dU, 0, 0};
+			points[v][u] = startPoint + glm::vec3{u * dU, 0, 0};
 		}
-		points[v][boorPointsU - 2] = startPoint + glm::vec3{(m_patchesU - 1.0 / 3.0f) * dU, 0, 0};
-		points[v][boorPointsU - 1] = startPoint + glm::vec3{m_patchesU * dU, 0, 0};
 	}
 	for (std::size_t u = 0; u < boorPointsU; ++u)
 	{
@@ -350,27 +327,22 @@ std::vector<std::vector<glm::vec3>> BezierSurface::createIntermediatePointsNoWra
 		std::vector<glm::vec3> e(m_patchesU + 1);
 		std::vector<glm::vec3> f(m_patchesU);
 		std::vector<glm::vec3> g(m_patchesU);
-
-		f[0] = boorPoints[v][1];
-		if (m_patchesU > 1)
+		
+		glm::vec3 gFirst = (boorPoints[v][0] + 2.0f * boorPoints[v][1]) / 3.0f;
+		for (std::size_t patchU = 0; patchU < m_patchesU; ++patchU)
 		{
-			g[0] = (boorPoints[v][1] + boorPoints[v][2]) / 2.0f;
-			for (std::size_t patchU = 1; patchU < m_patchesU - 1; ++patchU)
-			{
-				f[patchU] = (2.0f * boorPoints[v][patchU + 1] + boorPoints[v][patchU + 2]) / 3.0f;
-				g[patchU] = (boorPoints[v][patchU + 1] + 2.0f * boorPoints[v][patchU + 2]) / 3.0f;
-			}
-			f[m_patchesU - 1] = (boorPoints[v][m_patchesU] +
-				boorPoints[v][m_patchesU + 1]) / 2.0f;
+			f[patchU] = (2.0f * boorPoints[v][patchU + 1] + boorPoints[v][patchU + 2]) / 3.0f;
+			g[patchU] = (boorPoints[v][patchU + 1] + 2.0f * boorPoints[v][patchU + 2]) / 3.0f;
 		}
-		g[m_patchesU - 1] = boorPoints[v][m_patchesU + 1];
+		glm::vec3 fLast = (2.0f * boorPoints[v][boorPoints[v].size() - 2] +
+			boorPoints[v][boorPoints[v].size() - 1]) / 3.0f;
 
-		e[0] = boorPoints[v][0];
+		e[0] = (gFirst + f[0]) / 2.0f;
 		for (std::size_t patchU = 1; patchU < m_patchesU; ++patchU)
 		{
 			e[patchU] = (g[patchU - 1] + f[patchU]) / 2.0f;
 		}
-		e[m_patchesU] = boorPoints[v][m_patchesU + 2];
+		e[m_patchesU] = (g[m_patchesU - 1] + fLast) / 2.0f;
 
 		for (std::size_t patchU = 0; patchU < m_patchesU; ++patchU)
 		{
@@ -431,29 +403,24 @@ void BezierSurface::createBezierPointsNoWrapping(
 		std::vector<glm::vec3> e(m_patchesV + 1);
 		std::vector<glm::vec3> f(m_patchesV);
 		std::vector<glm::vec3> g(m_patchesV);
-
-		f[0] = intermediatePoints[1][u];
-		if (m_patchesV > 1)
+		
+		glm::vec3 gFirst = (intermediatePoints[0][u] + 2.0f * intermediatePoints[1][u]) / 3.0f;
+		for (std::size_t patchV = 0; patchV < m_patchesV; ++patchV)
 		{
-			g[0] = (intermediatePoints[1][u] + intermediatePoints[2][u]) / 2.0f;
-			for (std::size_t patchV = 1; patchV < m_patchesV - 1; ++patchV)
-			{
-				f[patchV] = (2.0f * intermediatePoints[patchV + 1][u] +
-					intermediatePoints[patchV + 2][u]) / 3.0f;
-				g[patchV] = (intermediatePoints[patchV + 1][u] +
-					2.0f * intermediatePoints[patchV + 2][u]) / 3.0f;
-			}
-			f[m_patchesV - 1] = (intermediatePoints[m_patchesV][u] +
-				intermediatePoints[m_patchesV + 1][u]) / 2.0f;
+			f[patchV] = (2.0f * intermediatePoints[patchV + 1][u] +
+				intermediatePoints[patchV + 2][u]) / 3.0f;
+			g[patchV] = (intermediatePoints[patchV + 1][u] +
+				2.0f * intermediatePoints[patchV + 2][u]) / 3.0f;
 		}
-		g[m_patchesV - 1] = intermediatePoints[m_patchesV + 1][u];
-
-		e[0] = intermediatePoints[0][u];
+		glm::vec3 fLast = (2.0f * intermediatePoints[intermediatePoints.size() - 2][u] +
+			intermediatePoints[intermediatePoints.size() - 1][u]) / 3.0f;
+		
+		e[0] = (gFirst + f[0]) / 2.0f;
 		for (std::size_t patchV = 1; patchV < m_patchesV; ++patchV)
 		{
 			e[patchV] = (g[patchV - 1] + f[patchV]) / 2.0f;
 		}
-		e[m_patchesV] = intermediatePoints[m_patchesV + 2][u];
+		e[m_patchesV] = (g[m_patchesV - 1] + fLast) / 2.0f;
 
 		for (std::size_t patchV = 0; patchV < m_patchesV; ++patchV)
 		{
