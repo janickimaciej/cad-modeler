@@ -33,7 +33,6 @@ private:
 	static int m_count;
 
 	const ShaderProgram& m_shaderProgram;
-
 	std::unique_ptr<Mesh> m_mesh{};
 	TorusGUI m_gui{*this};
 

@@ -3,7 +3,7 @@
 #include <array>
 #include <string>
 
-inline constexpr int modelTypeCount = 9;
+inline constexpr int modelTypeCount = 10;
 
 enum class ModelType
 {
@@ -13,6 +13,7 @@ enum class ModelType
 	bezierCurveC0,
 	bezierCurveC2,
 	bezierCurveInter,
+	bezierPatch,
 	bezierSurfaceC0,
 	bezierSurfaceC2,
 	gregorySurface
@@ -26,6 +27,7 @@ inline const std::array<std::string, modelTypeCount> modelTypeLabels
 	"C0 Bezier curves",
 	"C2 Bezier curves",
 	"Inter. Bezier curves",
+	"Bezier patches",
 	"C0 Bezier surfaces",
 	"C2 Bezier surfaces",
 	"Gregory surfaces"

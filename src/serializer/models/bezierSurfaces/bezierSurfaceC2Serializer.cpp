@@ -70,10 +70,13 @@ void BezierSurfaceC2Serializer::deserialize(const nlohmann::ordered_json& json, 
 	int patchesV = json["size"]["y"];
 
 	std::vector<std::unique_ptr<Point>> points{};
+	std::vector<std::unique_ptr<BezierPatch>> patches{};
 	std::unique_ptr<BezierSurfaceC2> surface = std::make_unique<BezierSurfaceC2>(
 		scene.m_shaderPrograms.bezierSurface, scene.m_shaderPrograms.mesh,
 		scene.m_shaderPrograms.point, patchesU, patchesV, glm::vec3{}, 1.0f, 1.0f, wrapping,
-		points);
+		points, patches);
+	scene.addBezierPatches(std::move(patches));
+
 	surface->m_pointMoveNotifications.clear();
 	surface->m_pointRereferenceNotifications.clear();
 	surface->m_pointDeletabilityLocks.clear();

@@ -11,6 +11,7 @@
 #include "models/bezierCurves/bezierCurveC0.hpp"
 #include "models/bezierCurves/bezierCurveC2.hpp"
 #include "models/bezierCurves/bezierCurveInter.hpp"
+#include "models/bezierSurfaces/bezierPatch.hpp"
 #include "models/bezierSurfaces/bezierSurfaceC0.hpp"
 #include "models/bezierSurfaces/bezierSurfaceC2.hpp"
 #include "models/bezierSurfaces/bezierSurfaceWrapping.hpp"
@@ -94,8 +95,7 @@ public:
 		BezierSurfaceWrapping wrapping);
 	void addBezierSurfaceC2(int patchesU, int patchesV, float sizeU, float sizeV,
 		BezierSurfaceWrapping wrapping);
-	void addGregorySurface(const std::array<ModelType, 3>& types,
-		const std::array<int, 3>& surfaces, const std::array<int, 3>& patches);
+	void addGregorySurface(const std::array<int, 3>& patches);
 
 	void updateActiveCameraGUI();
 	void updateCursorGUI();
@@ -113,10 +113,6 @@ public:
 
 	void startAddingGregoryPatch();
 	void stopAddingGregoryPatch();
-	bool isPatchSelected(ModelType type, int surface, int patch) const;
-	void selectPatch(ModelType type, int surface, int patch);
-	void deselectPatch();
-	int getPatchCount(ModelType type, int surface) const;
 
 private:
 	ShaderPrograms m_shaderPrograms{};
@@ -130,6 +126,7 @@ private:
 	std::vector<std::unique_ptr<BezierCurveC0>> m_bezierCurvesC0{};
 	std::vector<std::unique_ptr<BezierCurveC2>> m_bezierCurvesC2{};
 	std::vector<std::unique_ptr<BezierCurveInter>> m_bezierCurvesInter{};
+	std::vector<std::unique_ptr<BezierPatch>> m_bezierPatches{};
 	std::vector<std::unique_ptr<BezierSurfaceC0>> m_bezierSurfacesC0{};
 	std::vector<std::unique_ptr<BezierSurfaceC2>> m_bezierSurfacesC2{};
 	std::vector<std::unique_ptr<GregorySurface>> m_gregorySurfaces{};
@@ -165,9 +162,6 @@ private:
 	bool m_anaglyphOn = false;
 
 	bool m_addingGregorySurface = false;
-	std::optional<ModelType> m_selectedPatchSurfaceType = std::nullopt;
-	std::optional<int> m_selectedPatchSurface = std::nullopt;
-	std::optional<int> m_selectedPatch = std::nullopt;
 	
 	void setUpFramebuffer() const;
 	void clearFramebuffer(AnaglyphMode anaglyphMode) const;
@@ -182,10 +176,12 @@ private:
 	std::optional<int> getClosestModel(const glm::vec2& screenPos) const;
 	std::vector<Point*> getNonVirtualSelectedPoints() const;
 	void addPoints(std::vector<std::unique_ptr<Point>> points);
+	void addBezierPatches(std::vector<std::unique_ptr<BezierPatch>> patches);
 
 	void addBezierCurveForDeletion(const BezierCurve* curve);
 	void addGregorySurfaceForDeletion(const GregorySurface* surface);
 	void deleteEmptyBezierCurves();
+	void deleteInvalidBezierPatches();
 	void deleteInvalidGregorySurfaces();
 	void deleteUnreferencedNonDeletablePoints();
 

@@ -14,7 +14,7 @@ PointGUI::PointGUI(Point& point) :
 
 void PointGUI::update()
 {
-	static constexpr float stepPrecision = 0.1f;
+	static constexpr float stepPrecision = 0.02f;
 	static const std::string format = "%.2f";
 
 	glm::vec3 pos = m_point.getPos();

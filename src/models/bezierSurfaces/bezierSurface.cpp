@@ -5,11 +5,9 @@
 #include <string>
 
 BezierSurface::BezierSurface(const std::string& name,
-	const ShaderProgram& bezierSurfaceShaderProgram,
 	const ShaderProgram& bezierSurfaceGridShaderProgram, int patchesU, int patchesV,
 	BezierSurfaceWrapping wrapping) :
 	Model{{}, name},
-	m_surfaceShaderProgram{bezierSurfaceShaderProgram},
 	m_gridShaderProgram{bezierSurfaceGridShaderProgram},
 	m_patchesU{static_cast<std::size_t>(patchesU)},
 	m_patchesV{static_cast<std::size_t>(patchesV)},
@@ -31,15 +29,23 @@ BezierSurface::~BezierSurface()
 			}
 		}
 	}
+
+	for (const std::vector<BezierPatch*>& row : m_patches)
+	{
+		for (BezierPatch* patch : row)
+		{
+			patch->setInvalid();
+		}
+	}
 }
 
 void BezierSurface::render() const
 {
 	updateShaders();
-	renderSurface();
 	if (getRenderGrid())
 	{
-		renderGrid();
+		m_gridShaderProgram.use();
+		m_gridMesh->render();
 	}
 }
 
@@ -74,21 +80,6 @@ void BezierSurface::setLineCount(int lineCount)
 	m_lineCount = lineCount;
 }
 
-std::size_t BezierSurface::getPatchCount() const
-{
-	return m_patchesU * m_patchesV;
-}
-
-void BezierSurface::selectPatch(std::size_t patch)
-{
-	m_selectedPatch = patch;
-}
-
-void BezierSurface::deselectPatch()
-{
-	m_selectedPatch = std::nullopt;
-}
-
 void BezierSurface::updatePos()
 {
 	glm::vec3 pos{};
@@ -100,6 +91,17 @@ void BezierSurface::updatePos()
 		}
 	}
 	m_pos = pos / static_cast<float>(m_points[0].size() * m_points.size());
+}
+
+void BezierSurface::updatePatches()
+{
+	for (std::size_t patchV = 0; patchV < m_patchesV; ++patchV)
+	{
+		for (std::size_t patchU = 0; patchU < m_patchesU; ++patchU)
+		{
+			m_patches[patchV][patchU]->updatePoints(getBezierPoints(patchU, patchV));
+		}
+	}
 }
 
 void BezierSurface::registerForNotifications()
@@ -158,30 +160,6 @@ std::vector<std::vector<glm::vec3>> BezierSurface::createBezierPoints(
 	}
 
 	return bezierPoints;
-}
-
-std::vector<std::vector<unsigned int>> BezierSurface::createSurfaceIndices() const
-{
-	std::size_t pointsU = getBezierPointsU();
-	std::size_t pointsV = getBezierPointsV();
-
-	std::vector<std::vector<unsigned int>> indices(getPatchCount());
-	for (std::size_t patchV = 0; patchV < m_patchesV; ++patchV)
-	{
-		for (std::size_t patchU = 0; patchU < m_patchesU; ++patchU)
-		{
-			std::size_t patch = patchV * m_patchesU + patchU;
-			for (std::size_t v = 3 * patchV; v < 3 * patchV + 4; ++v)
-			{
-				for (std::size_t u = 3 * patchU; u < 3 * patchU + 4; ++u)
-				{
-					indices[patch].push_back(static_cast<unsigned int>(v % pointsV * pointsU +
-						u % pointsU));
-				}
-			}
-		}
-	}
-	return indices;
 }
 
 std::vector<unsigned int> BezierSurface::createGridIndices() const
@@ -511,19 +489,37 @@ std::size_t BezierSurface::getBezierPointsV() const
 	return{};
 }
 
+std::vector<std::unique_ptr<BezierPatch>> BezierSurface::createPatches(
+	const ShaderProgram& bezierSurfaceShaderProgram)
+{
+	std::vector<std::unique_ptr<BezierPatch>> patches{};
+	m_patches.resize(m_patchesV);
+	for (std::size_t patchV = 0; patchV < m_patchesV; ++patchV)
+	{
+		for (std::size_t patchU = 0; patchU < m_patchesU; ++patchU)
+		{
+			bool isOnNegativeUEdge = patchU == 0;
+			bool isOnPositiveUEdge = patchU == m_patchesU - 1;
+			bool isOnNegativeVEdge = patchV == 0;
+			bool isOnPositiveVEdge = patchV == m_patchesV - 1;
+			patches.push_back(std::make_unique<BezierPatch>(bezierSurfaceShaderProgram,
+				getBezierPoints(patchU, patchV), *this, isOnNegativeUEdge, isOnPositiveUEdge,
+				isOnNegativeVEdge, isOnPositiveVEdge));
+			m_patches[patchV].push_back(patches.back().get());
+		}
+	}
+	return patches;
+}
+
 void BezierSurface::updateGeometry()
 {
 	updatePos();
-	updateSurfaceMesh();
+	updatePatches();
 	updateGridMesh();
 }
 
 void BezierSurface::updateShaders() const
 {
-	m_surfaceShaderProgram.use();
-	m_surfaceShaderProgram.setUniform("lineCount", m_lineCount);
-	m_surfaceShaderProgram.setUniform("isDark", false);
-
 	if (m_renderGrid)
 	{
 		m_gridShaderProgram.use();
@@ -531,26 +527,6 @@ void BezierSurface::updateShaders() const
 		m_gridShaderProgram.setUniform("isDark", true);
 		m_gridShaderProgram.setUniform("isSelected", isSelected());
 	}
-}
-
-void BezierSurface::renderSurface() const
-{
-	m_surfaceShaderProgram.use();
-	for (std::size_t patch = 0; patch < getPatchCount(); ++patch)
-	{
-		m_surfaceShaderProgram.setUniform("isSelected", isSelected() ||
-			(m_selectedPatch.has_value() && *m_selectedPatch == patch));
-		m_surfaceShaderProgram.setUniform("orientationFlipped", false);
-		m_surfaceMesh->render(patch);
-		m_surfaceShaderProgram.setUniform("orientationFlipped", true);
-		m_surfaceMesh->render(patch);
-	}
-}
-
-void BezierSurface::renderGrid() const
-{
-	m_gridShaderProgram.use();
-	m_gridMesh->render();
 }
 
 void BezierSurface::registerForNotifications(Point* point)

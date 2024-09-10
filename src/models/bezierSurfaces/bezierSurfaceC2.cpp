@@ -7,9 +7,10 @@
 BezierSurfaceC2::BezierSurfaceC2(const ShaderProgram& bezierSurfaceShaderProgram,
 	const ShaderProgram& bezierSurfaceGridShaderProgram, const ShaderProgram& pointShaderProgram,
 	int patchesU, int patchesV, const glm::vec3& pos, float sizeU, float sizeV,
-	BezierSurfaceWrapping wrapping, std::vector<std::unique_ptr<Point>>& points) :
-	BezierSurface{"C2 Bezier surface " + std::to_string(m_count++), bezierSurfaceShaderProgram,
-		bezierSurfaceGridShaderProgram, patchesU, patchesV, wrapping}
+	BezierSurfaceWrapping wrapping, std::vector<std::unique_ptr<Point>>& points,
+	std::vector<std::unique_ptr<BezierPatch>>& patches) :
+	BezierSurface{"C2 Bezier surface " + std::to_string(m_count++), bezierSurfaceGridShaderProgram,
+		patchesU, patchesV, wrapping}
 {
 	switch (wrapping)
 	{
@@ -33,57 +34,9 @@ BezierSurfaceC2::BezierSurfaceC2(const ShaderProgram& bezierSurfaceShaderProgram
 	createBezierPoints(pointShaderProgram);
 	updateBezierPoints();
 	updatePos();
-	createSurfaceMesh();
+	patches = createPatches(bezierSurfaceShaderProgram);
 	createGridMesh();
 	registerForNotifications();
-}
-
-Point* BezierSurfaceC2::getCornerPointIfOnEdge(std::size_t patch, int corner)
-{
-	std::size_t patchU = patch % m_patchesU;
-	std::size_t patchV = patch / m_patchesU;
-	std::size_t startingCornerU = 3 * patchU;
-	std::size_t startingCornerV = 3 * patchV;
-	std::size_t endingCornerU = (startingCornerU + 3) % m_pointsU;
-	std::size_t endingCornerV = (startingCornerV + 3) % m_pointsV;
-
-	switch (corner)
-	{
-		case 0:
-			if (startingCornerU == 0 || startingCornerV == 0)
-			{
-				return m_bezierPoints[startingCornerV][startingCornerU].get();
-			}
-			break;
-
-		case 1:
-			if (endingCornerU == m_pointsU - 1 || startingCornerV == 0)
-			{
-				return m_bezierPoints[startingCornerV][endingCornerU].get();
-			}
-			break;
-
-		case 2:
-			if (endingCornerU == m_pointsU - 1 || endingCornerV == m_pointsV - 1)
-			{
-				return m_bezierPoints[endingCornerV][endingCornerU].get();
-			}
-			break;
-
-		case 3:
-			if (startingCornerU == 0 || endingCornerV == m_pointsV - 1)
-			{
-				return m_bezierPoints[endingCornerV][startingCornerU].get();
-			}
-			break;
-	}
-	return {};
-}
-
-std::array<std::array<Point*, 4>, 2> BezierSurfaceC2::getPointsBetweenCorners(std::size_t patch,
-	int leftCorner, int rightCorner)
-{
-	return BezierSurface::getPointsBetweenCorners(m_bezierPoints, patch, leftCorner, rightCorner);
 }
 
 int BezierSurfaceC2::m_count = 0;
@@ -139,12 +92,6 @@ void BezierSurfaceC2::updateBezierPoints()
 	}
 }
 
-void BezierSurfaceC2::createSurfaceMesh()
-{
-	m_surfaceMesh = std::make_unique<BezierSurfaceMesh>(createVertices(m_bezierPoints),
-		createSurfaceIndices());
-}
-
 void BezierSurfaceC2::createGridMesh()
 {
 	m_gridMesh = std::make_unique<Mesh>(BezierSurface::createVertices(m_points),
@@ -157,12 +104,24 @@ void BezierSurfaceC2::updateGeometry()
 	BezierSurface::updateGeometry();
 }
 
-void BezierSurfaceC2::updateSurfaceMesh()
-{
-	m_surfaceMesh->update(createVertices(m_bezierPoints), createSurfaceIndices());
-}
-
 void BezierSurfaceC2::updateGridMesh()
 {
 	m_gridMesh->update(createVertices(m_points), createGridIndices());
+}
+
+std::array<std::array<Point*, 4>, 4> BezierSurfaceC2::getBezierPoints(std::size_t patchU,
+	std::size_t patchV) const
+{
+	std::array<std::array<Point*, 4>, 4> points{};
+	std::size_t bezierPointsU = getBezierPointsU();
+	std::size_t bezierPointsV = getBezierPointsV();
+	for (int v = 0; v < 4; ++v)
+	{
+		for (int u = 0; u < 4; ++u)
+		{
+			points[v][u] = m_bezierPoints[(3 * patchV + v) % bezierPointsV][(3 * patchU + u) %
+				bezierPointsU].get();
+		}
+	}
+	return points;
 }

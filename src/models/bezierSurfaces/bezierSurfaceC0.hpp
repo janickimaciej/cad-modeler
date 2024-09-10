@@ -2,6 +2,7 @@
 
 #include "models/bezierSurfaces/bezierSurface.hpp"
 #include "models/bezierSurfaces/bezierSurfaceWrapping.hpp"
+#include "models/bezierSurfaces/bezierPatch.hpp"
 #include "models/point.hpp"
 #include "shaderProgram.hpp"
 
@@ -21,12 +22,9 @@ public:
 		const ShaderProgram& bezierSurfaceGridShaderProgram,
 		const ShaderProgram& pointShaderProgram, int patchesU, int patchesV, const glm::vec3& pos,
 		float sizeU, float sizeV, BezierSurfaceWrapping wrapping,
-		std::vector<std::unique_ptr<Point>>& points);
+		std::vector<std::unique_ptr<Point>>& points,
+		std::vector<std::unique_ptr<BezierPatch>>& patches);
 	virtual ~BezierSurfaceC0() = default;
-
-	virtual Point* getCornerPointIfOnEdge(std::size_t patch, int corner) override;
-	virtual std::array<std::array<Point*, 4>, 2> getPointsBetweenCorners(std::size_t patch,
-		int leftCorner, int rightCorner) override;
 
 private:
 	static int m_count;
@@ -34,8 +32,8 @@ private:
 	virtual std::vector<std::unique_ptr<Point>> createPoints(
 		const ShaderProgram& pointShaderProgram, const glm::vec3& pos, float sizeU,
 		float sizeV) override;
-	virtual void createSurfaceMesh() override;
 	virtual void createGridMesh() override;
-	virtual void updateSurfaceMesh() override;
 	virtual void updateGridMesh() override;
+	virtual std::array<std::array<Point*, 4>, 4> getBezierPoints(std::size_t patchU,
+		std::size_t patchV) const override;
 };

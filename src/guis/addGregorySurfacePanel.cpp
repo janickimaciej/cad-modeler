@@ -20,63 +20,46 @@ void AddGregorySurfacePanel::reset()
 
 void AddGregorySurfacePanel::update()
 {
-	std::optional<ModelType> clickedType = std::nullopt;
-	std::optional<int> clickedSurface = std::nullopt;
 	std::optional<int> clickedPatch = std::nullopt;
 
-	update(ModelType::bezierSurfaceC0, clickedType, clickedSurface, clickedPatch);
-	update(ModelType::bezierSurfaceC2, clickedType, clickedSurface, clickedPatch);
+	updateList(clickedPatch);
+	updateButton(clickedPatch);
+}
 
-	if (ImGui::Button(("Add patch (" + std::to_string(m_chosenPatches) +
-		"/3)##AddGregorySurfacePanelApply").c_str()) && clickedType.has_value())
+void AddGregorySurfacePanel::updateList(std::optional<int>& clickedPatch)
+{	
+	ImGuiTreeNodeFlags globalFlags = ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen;
+
+	for (int i = 0; i < m_scene.getModelCount(ModelType::bezierPatch); ++i)
 	{
-		m_types[m_chosenPatches] = *clickedType;
-		m_surfaces[m_chosenPatches] = *clickedSurface;
-		m_patches[m_chosenPatches] = *clickedPatch;
-		++m_chosenPatches;
-		m_scene.deselectPatch();
-		if (m_chosenPatches == 3)
+		ImGuiTreeNodeFlags flags = globalFlags;
+		if (m_scene.isModelSelected(i, ModelType::bezierPatch))
 		{
-			m_scene.addGregorySurface(m_types, m_surfaces, m_patches);
-			m_callback();
+			flags |= ImGuiTreeNodeFlags_Selected;
+			clickedPatch = i;
+		}
+		ImGui::TreeNodeEx((m_scene.getModelName(i, ModelType::bezierPatch) +
+			"##AddGregorySurfacePanelPatches" +
+			m_scene.getModelOriginalName(i, ModelType::bezierPatch)).c_str(), flags);
+		if (ImGui::IsItemClicked())
+		{
+			m_scene.selectModel(i, ModelType::bezierPatch);
 		}
 	}
 }
 
-void AddGregorySurfacePanel::update(ModelType type, std::optional<ModelType>& clickedType,
-	std::optional<int>& clickedSurface, std::optional<int>& clickedPatch)
+void AddGregorySurfacePanel::updateButton(std::optional<int> clickedPatch)
 {
-	static constexpr ImGuiTreeNodeFlags surfaceFlags =
-		ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick;
-
-	for (int surface = 0; surface < m_scene.getModelCount(type); ++surface)
+	if (ImGui::Button(("Add patch (" + std::to_string(m_chosenPatches) +
+		"/3)##AddGregorySurfacePanelApply").c_str()) && clickedPatch.has_value())
 	{
-		bool isOpen = ImGui::TreeNodeEx((m_scene.getModelName(surface, type) +
-			"##AddGregorySurfacePanelSurfaces" +
-			m_scene.getModelOriginalName(surface, type)).c_str(), surfaceFlags);
-		if (isOpen)
+		m_patches[m_chosenPatches] = *clickedPatch;
+		++m_chosenPatches;
+		m_scene.deselectAllModels();
+		if (m_chosenPatches == 3)
 		{
-			for (int patch = 0; patch < m_scene.getPatchCount(type, surface); ++patch)
-			{
-				ImGuiTreeNodeFlags patchFlags =
-					ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen;
-				if (m_scene.isPatchSelected(type, surface, patch))
-				{
-					patchFlags |= ImGuiTreeNodeFlags_Selected;
-					clickedType = type;
-					clickedSurface = surface;
-					clickedPatch = patch;
-				}
-				ImGui::TreeNodeEx(("Patch " + std::to_string(patch) +
-					"##AddGregorySurfacePanelPatches" +
-					m_scene.getModelOriginalName(surface, type)).c_str(), patchFlags);
-				if (ImGui::IsItemClicked())
-				{
-					m_scene.selectPatch(type, surface, patch);
-				}
-			}
-			ImGui::TreePop();
-			ImGui::Spacing();
+			m_scene.addGregorySurface(m_patches);
+			m_callback();
 		}
 	}
 }

@@ -38,12 +38,14 @@
     <ClCompile Include="src\guis\cameraGUIs\orthographicCameraGUI.cpp" />
     <ClCompile Include="src\guis\cameraGUIs\perspectiveCameraGUI.cpp" />
     <ClCompile Include="src\cursor.cpp" />
+    <ClCompile Include="src\guis\modelGUIs\bezierPatchGUI.cpp" />
     <ClCompile Include="src\guis\modelGUIs\gregorySurfaceGUI.cpp" />
     <ClCompile Include="src\guis\modelListPanel.cpp" />
     <ClCompile Include="src\guis\valueWindows\deserializingWindow.cpp" />
     <ClCompile Include="src\guis\valueWindows\serializingWindow.cpp" />
     <ClCompile Include="src\meshes\gregorySurfaceMesh.cpp" />
     <ClCompile Include="src\meshes\vectorsMesh.cpp" />
+    <ClCompile Include="src\models\bezierSurfaces\bezierPatch.cpp" />
     <ClCompile Include="src\models\gregorySurface.cpp" />
     <ClCompile Include="src\quad.cpp" />
     <ClCompile Include="src\plane\plane.cpp" />
@@ -61,7 +63,7 @@
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\meshes\bezierCurveInterMesh.cpp" />
     <ClCompile Include="src\meshes\bezierCurveMesh.cpp" />
-    <ClCompile Include="src\meshes\bezierSurfaceMesh.cpp" />
+    <ClCompile Include="src\meshes\bezierPatchMesh.cpp" />
     <ClCompile Include="src\meshes\mesh.cpp" />
     <ClCompile Include="src\meshes\pointMesh.cpp" />
     <ClCompile Include="src\meshes\polylineMesh.cpp" />
@@ -118,12 +120,14 @@
     <ClInclude Include="src\cameras\cameraType.hpp" />
     <ClInclude Include="src\cursor.hpp" />
     <ClInclude Include="src\guis\cursorGUI.hpp" />
+    <ClInclude Include="src\guis\modelGUIs\bezierPatchGUI.hpp" />
     <ClInclude Include="src\guis\modelGUIs\gregorySurfaceGUI.hpp" />
     <ClInclude Include="src\guis\modelListPanel.hpp" />
     <ClInclude Include="src\guis\valueWindows\deserializingWindow.hpp" />
     <ClInclude Include="src\guis\valueWindows\serializingWindow.hpp" />
     <ClInclude Include="src\meshes\gregorySurfaceMesh.hpp" />
     <ClInclude Include="src\meshes\vectorsMesh.hpp" />
+    <ClInclude Include="src\models\bezierSurfaces\bezierPatch.hpp" />
     <ClInclude Include="src\models\gregorySurface.hpp" />
     <ClInclude Include="src\models\modelType.hpp" />
     <ClInclude Include="src\quad.hpp" />
@@ -137,7 +141,7 @@
     <ClInclude Include="src\guis\valueWindows\valueWindow.hpp" />
     <ClInclude Include="src\meshes\bezierCurveInterMesh.hpp" />
     <ClInclude Include="src\meshes\bezierCurveMesh.hpp" />
-    <ClInclude Include="src\meshes\bezierSurfaceMesh.hpp" />
+    <ClInclude Include="src\meshes\bezierPatchMesh.hpp" />
     <ClInclude Include="src\meshes\mesh.hpp" />
     <ClInclude Include="src\meshes\pointMesh.hpp" />
     <ClInclude Include="src\meshes\polylineMesh.hpp" />

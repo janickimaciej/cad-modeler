@@ -24,7 +24,7 @@ void TorusGUI::update()
 
 void TorusGUI::updatePos()
 {
-	static constexpr float stepPrecision = 0.1f;
+	static constexpr float stepPrecision = 0.02f;
 	static const std::string format = "%.2f";
 
 	glm::vec3 pos = m_torus.getPos();
@@ -126,7 +126,7 @@ void TorusGUI::updateScale()
 
 void TorusGUI::updateRadii()
 {
-	static constexpr float stepPrecision = 0.1f;
+	static constexpr float stepPrecision = 0.02f;
 	static const std::string format = "%.2f";
 	
 	float majorRadius = m_torus.getMajorRadius();

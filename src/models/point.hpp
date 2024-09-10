@@ -64,9 +64,8 @@ private:
 	static int m_virtualCount;
 
 	const ShaderProgram& m_shaderProgram;
-	PointGUI m_gui{*this};
-
 	PointMesh m_mesh{};
+	PointGUI m_gui{*this};
 
 	std::vector<std::weak_ptr<MoveCallback>> m_moveNotifications{};
 	std::vector<std::weak_ptr<DestroyCallback>> m_destroyNotifications{};
