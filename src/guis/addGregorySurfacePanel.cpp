@@ -1,5 +1,7 @@
 #include "guis/addGregorySurfacePanel.hpp"
 
+#include "models/modelType.hpp"
+
 #include <imgui/imgui.h>
 
 AddGregorySurfacePanel::AddGregorySurfacePanel(Scene& scene, const Callback& callback) :
@@ -27,7 +29,7 @@ void AddGregorySurfacePanel::update()
 }
 
 void AddGregorySurfacePanel::updateList(std::optional<int>& clickedPatch)
-{	
+{
 	ImGuiTreeNodeFlags globalFlags = ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen;
 
 	for (int i = 0; i < m_scene.getModelCount(ModelType::bezierPatch); ++i)

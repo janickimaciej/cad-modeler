@@ -178,6 +178,39 @@ std::shared_ptr<BezierPatch::DestroyCallback> BezierPatch::registerForDestroyNot
 	return notification;
 }
 
+glm::vec3 BezierPatch::surface(float u, float v) const
+{
+	std::array<glm::vec3, 4> surfaceV{};
+	for (int i = 0; i < 4; ++i)
+	{
+		surfaceV[i] = deCasteljau(m_bezierPoints[i][0]->getPos(), m_bezierPoints[i][1]->getPos(),
+			m_bezierPoints[i][2]->getPos(), m_bezierPoints[i][3]->getPos(), u);
+	}
+	return deCasteljau(surfaceV[0], surfaceV[1], surfaceV[2], surfaceV[3], v);
+}
+
+glm::vec3 BezierPatch::surfaceDU(float u, float v) const
+{
+	std::array<glm::vec3, 4> surfaceV{};
+	for (int i = 0; i < 4; ++i)
+	{
+		surfaceV[i] = deCasteljauDT(m_bezierPoints[i][0]->getPos(), m_bezierPoints[i][1]->getPos(),
+			m_bezierPoints[i][2]->getPos(), m_bezierPoints[i][3]->getPos(), u);
+	}
+	return deCasteljau(surfaceV[0], surfaceV[1], surfaceV[2], surfaceV[3], v);
+}
+
+glm::vec3 BezierPatch::surfaceDV(float u, float v) const
+{
+	std::array<glm::vec3, 4> surfaceV{};
+	for (int i = 0; i < 4; ++i)
+	{
+		surfaceV[i] = deCasteljau(m_bezierPoints[i][0]->getPos(), m_bezierPoints[i][1]->getPos(),
+			m_bezierPoints[i][2]->getPos(), m_bezierPoints[i][3]->getPos(), u);
+	}
+	return deCasteljauDT(surfaceV[0], surfaceV[1], surfaceV[2], surfaceV[3], v);
+}
+
 int BezierPatch::m_count = 0;
 
 void BezierPatch::createSurfaceMesh()
@@ -248,4 +281,27 @@ void BezierPatch::clearExpiredNotifications()
 			return notification.expired();
 		}
 	);
+}
+
+glm::vec3 BezierPatch::deCasteljau(const glm::vec3& a, const glm::vec3& b, float t)
+{
+	return (1 - t) * a + t * b;
+}
+
+glm::vec3 BezierPatch::deCasteljau(const glm::vec3& a, const glm::vec3& b, const glm::vec3& c,
+	float t)
+{
+	return (1 - t) * deCasteljau(a, b, t) + t * deCasteljau(b, c, t);
+}
+
+glm::vec3 BezierPatch::deCasteljau(const glm::vec3& a, const glm::vec3& b, const glm::vec3& c,
+	const glm::vec3& d,	float t)
+{
+	return (1 - t) * deCasteljau(a, b, c, t) + t * deCasteljau(b, c, d, t);
+}
+
+glm::vec3 BezierPatch::deCasteljauDT(const glm::vec3& a, const glm::vec3& b, const glm::vec3& c,
+	const glm::vec3& d,	float t)
+{
+	return deCasteljau(-3.0f * a + 3.0f * b, -3.0f* b + 3.0f * c, -3.0f * c + 3.0f * d, t);
 }

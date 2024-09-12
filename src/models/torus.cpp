@@ -75,6 +75,51 @@ void Torus::setMinorGrid(int minorGrid)
 	updateMesh();
 }
 
+glm::vec3 Torus::surface(float u, float v) const
+{
+	static constexpr float pi = glm::pi<float>();
+	float uScaled = 2 * pi * u;
+	float vScaled = 2 * pi * v;
+	float common = m_minorRadius * std::cos(vScaled) + m_majorRadius;
+
+	return glm::vec3
+	{
+		std::sin(uScaled) * common,
+		m_minorRadius * std::sin(vScaled),
+		std::cos(uScaled) * common
+	};
+}
+
+glm::vec3 Torus::surfaceDU(float u, float v) const
+{
+	static constexpr float pi = glm::pi<float>();
+	float uScaled = 2 * pi * u;
+	float vScaled = 2 * pi * v;
+	float common = m_minorRadius * std::cos(vScaled) + m_majorRadius;
+
+	return glm::vec3
+	{
+		2 * pi * std::cos(uScaled) * common,
+		0,
+		-2 * pi * std::sin(uScaled) * common
+	};
+}
+
+glm::vec3 Torus::surfaceDV(float u, float v) const
+{
+	static constexpr float pi = glm::pi<float>();
+	float uScaled = 2 * pi * u;
+	float vScaled = 2 * pi * v;
+	float common = -2 * pi * m_minorRadius * std::sin(vScaled);
+
+	return glm::vec3
+	{
+		std::sin(uScaled) * common,
+		2 * pi * m_minorRadius * std::cos(vScaled),
+		std::cos(uScaled) * common
+	};
+}
+
 int Torus::m_count = 0;
 
 void Torus::createMesh()
@@ -99,17 +144,16 @@ std::vector<glm::vec3> Torus::createVertices() const
 {
 	std::vector<glm::vec3> vertices{};
 	
-	static constexpr float pi = glm::pi<float>();
-	float ds = 2 * pi / m_majorGrid;
-	float dt = 2 * pi / m_minorGrid;
-	for (int is = 0; is < m_majorGrid; ++is)
+	float du = 1.0f / m_majorGrid;
+	float dv = 1.0f / m_minorGrid;
+	for (int iu = 0; iu < m_majorGrid; ++iu)
 	{
-		for (int it = 0; it < m_minorGrid; ++it)
+		for (int iv = 0; iv < m_minorGrid; ++iv)
 		{
-			float s = is * ds;
-			float t = it * dt;
+			float u = iu * du;
+			float v = iv * dv;
 
-			vertices.push_back(getSurfacePos(s, t));
+			vertices.push_back(surface(u, v));
 		}
 	}
 
@@ -137,17 +181,4 @@ std::vector<unsigned int> Torus::createIndices() const
 	}
 
 	return indices;
-}
-
-glm::vec3 Torus::getSurfacePos(float s, float t) const
-{
-	float common = m_minorRadius * std::cos(t) + m_majorRadius;
-
-	return
-		glm::vec3
-		{
-			std::sin(s) * common,
-			m_minorRadius * std::sin(t),
-			std::cos(s) * common
-		};
 }

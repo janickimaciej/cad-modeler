@@ -259,7 +259,7 @@ bool Scene::isModelSelected(int i, ModelType type) const
 
 void Scene::selectModel(int i, ModelType type)
 {
-	if (m_addingGregorySurface)
+	if (m_addingGregorySurface || m_addingIntersection)
 	{
 		deselectAllModels();
 	}
@@ -839,6 +839,12 @@ void Scene::addGregorySurface(const std::array<int, 3>& patches)
 	}
 }
 
+void Scene::addIntersection(const std::array<ModelType, 2>& types,
+	const std::array<int, 2>& surfaces)
+{
+	// TODO
+}
+
 void Scene::updateActiveCameraGUI()
 {
 	m_activeCamera->updateGUI();
@@ -952,6 +958,18 @@ void Scene::startAddingGregoryPatch()
 void Scene::stopAddingGregoryPatch()
 {
 	m_addingGregorySurface = false;
+	deselectAllModels();
+}
+
+void Scene::startAddingIntersection()
+{
+	m_addingIntersection = true;
+	deselectAllModels();
+}
+
+void Scene::stopAddingIntersection()
+{
+	m_addingIntersection = false;
 	deselectAllModels();
 }
 

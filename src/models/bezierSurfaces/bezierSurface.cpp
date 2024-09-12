@@ -457,6 +457,77 @@ std::shared_ptr<BezierSurface::DestroyCallback> BezierSurface::registerForDestro
 	return notification;
 }
 
+glm::vec3 BezierSurface::surface(float u, float v) const
+{
+	int patchU{};
+	int patchV{};
+	float localU{};
+	float localV{};
+	mapToPatch(u, v, patchU, patchV, localU, localV);
+
+	return m_patches[patchV][patchU]->surface(localU, localV);
+}
+
+glm::vec3 BezierSurface::surfaceDU(float u, float v) const
+{
+	int patchU{};
+	int patchV{};
+	float localU{};
+	float localV{};
+	mapToPatch(u, v, patchU, patchV, localU, localV);
+
+	return static_cast<float>(m_patchesU) * m_patches[patchV][patchU]->surfaceDU(localU, localV);
+}
+
+glm::vec3 BezierSurface::surfaceDV(float u, float v) const
+{
+	int patchU{};
+	int patchV{};
+	float localU{};
+	float localV{};
+	mapToPatch(u, v, patchU, patchV, localU, localV);
+
+	return static_cast<float>(m_patchesV) * m_patches[patchV][patchU]->surfaceDV(localU, localV);
+}
+
+void BezierSurface::mapToPatch(float u, float v, int& patchU, int& patchV, float& localU,
+	float& localV) const
+{
+	if (m_wrapping == BezierSurfaceWrapping::u && (u < 0 || u >= 1))
+	{
+		u -= std::floor(u);
+	}
+	if (m_wrapping == BezierSurfaceWrapping::v && (v < 0 || v >= 1))
+	{
+		v -= std::floor(v);
+	}
+
+	float uScaled = m_patchesU * u;
+	float vScaled = m_patchesV * v;
+
+	patchU = static_cast<int>(uScaled);
+	patchV = static_cast<int>(vScaled);
+	if (u < 0)
+	{
+		patchU = 0;
+	}
+	if (u >= 1)
+	{
+		patchU = static_cast<int>(m_patchesU) - 1;
+	}
+	if (v < 0)
+	{
+		patchV = 0;
+	}
+	if (v >= 1)
+	{
+		patchV = static_cast<int>(m_patchesV) - 1;
+	}
+
+	localU = uScaled - patchU;
+	localV = vScaled - patchV;
+}
+
 std::size_t BezierSurface::getBezierPointsU() const
 {
 	switch (m_wrapping)

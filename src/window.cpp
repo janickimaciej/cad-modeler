@@ -1,6 +1,7 @@
 #include "window.hpp"
 
 #include "guis/leftPanel.hpp"
+#include "guis/rightPanel.hpp"
 
 #include <string>
 
@@ -139,7 +140,7 @@ void Window::scrollCallback(GLFWwindow* windowPtr, double, double yOffset)
 	Window* window = static_cast<Window*>(glfwGetWindowUserPointer(windowPtr));
 
 	glm::vec2 cursorPos = window->cursorPos();
-	if (cursorPos.x <= LeftPanel::width && cursorPos.y <= LeftPanel::height)
+	if (cursorPos.x <= LeftPanel::width || cursorPos.x >= window->m_size.x - RightPanel::width)
 	{
 		return;
 	}

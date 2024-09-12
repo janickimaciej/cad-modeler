@@ -5,6 +5,7 @@
 #include <imgui/imgui.h>
 
 #include <optional>
+#include <string>
 
 LeftPanel::LeftPanel(Scene& scene, const glm::ivec2& windowSize) :
 	m_scene{scene},
@@ -16,7 +17,7 @@ LeftPanel::LeftPanel(Scene& scene, const glm::ivec2& windowSize) :
 		{
 			m_scene.addBezierSurfaceC0(patchesU, patchesV, sizeU, sizeV, wrapping);
 			m_addBezierSurfaceC0Panel.reset();
-			m_addingBezierSurfaceC0 = false;
+			m_mode = Mode::none;
 		}
 	},
 	m_addBezierSurfaceC2Panel
@@ -26,7 +27,7 @@ LeftPanel::LeftPanel(Scene& scene, const glm::ivec2& windowSize) :
 		{
 			m_scene.addBezierSurfaceC2(patchesU, patchesV, sizeU, sizeV, wrapping);
 			m_addBezierSurfaceC2Panel.reset();
-			m_addingBezierSurfaceC2 = false;
+			m_mode = Mode::none;
 		}
 	},
 	m_addGregorySurfacePanel
@@ -35,16 +36,24 @@ LeftPanel::LeftPanel(Scene& scene, const glm::ivec2& windowSize) :
 		[this] ()
 		{
 			m_addGregorySurfacePanel.reset();
-			m_addingGregorySurface = false;
+			m_mode = Mode::none;
 		}
 	},
-	m_modelListPanel{scene}
+	m_addIntersectionPanel
+	{
+		scene,
+		[this] ()
+		{
+			m_addIntersectionPanel.reset();
+			m_mode = Mode::none;
+		}
+	}
 { }
 
-void LeftPanel::update(GUIMode mode)
+void LeftPanel::update()
 {
 	ImGui::SetNextWindowPos({0, 0}, ImGuiCond_Always);
-	ImGui::SetNextWindowSize({width, height}, ImGuiCond_Always);
+	ImGui::SetNextWindowSize({width, static_cast<float>(m_windowSize.y)}, ImGuiCond_Always);
 	ImGui::Begin("leftPanel", nullptr, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoTitleBar);
 	ImGui::PushItemWidth(100);
 
@@ -60,8 +69,6 @@ void LeftPanel::update(GUIMode mode)
 	updateSelectedModelsCenter();
 	separator();
 	updateButtons();
-	separator();
-	m_modelListPanel.update(mode);
 
 	ImGui::PopItemWidth();
 	ImGui::End();
@@ -214,16 +221,18 @@ void LeftPanel::updateButtons()
 	
 	if (ImGui::Button("Add Bezier surface C0"))
 	{
-		m_addBezierSurfaceC0Panel.reset();
-		m_addingBezierSurfaceC0 = !m_addingBezierSurfaceC0;
-
-		m_addBezierSurfaceC2Panel.reset();
-		m_addingBezierSurfaceC2 = false;
-		m_addGregorySurfacePanel.reset();
-		m_addingGregorySurface = false;
+		resetPanels();
+		if (m_mode == Mode::bezierSurfaceC0)
+		{
+			m_mode = Mode::none;
+		}
+		else
+		{
+			m_mode = Mode::bezierSurfaceC0;
+		}
 	}
 
-	if (m_addingBezierSurfaceC0)
+	if (m_mode == Mode::bezierSurfaceC0)
 	{
 		m_addBezierSurfaceC0Panel.update();
 	}
@@ -232,16 +241,18 @@ void LeftPanel::updateButtons()
 
 	if (ImGui::Button("Add Bezier surface C2"))
 	{
-		m_addBezierSurfaceC2Panel.reset();
-		m_addingBezierSurfaceC2 = !m_addingBezierSurfaceC2;
-
-		m_addBezierSurfaceC0Panel.reset();
-		m_addingBezierSurfaceC0 = false;
-		m_addGregorySurfacePanel.reset();
-		m_addingGregorySurface = false;
+		resetPanels();
+		if (m_mode == Mode::bezierSurfaceC2)
+		{
+			m_mode = Mode::none;
+		}
+		else
+		{
+			m_mode = Mode::bezierSurfaceC2;
+		}
 	}
 
-	if (m_addingBezierSurfaceC2)
+	if (m_mode == Mode::bezierSurfaceC2)
 	{
 		m_addBezierSurfaceC2Panel.update();
 	}
@@ -251,22 +262,45 @@ void LeftPanel::updateButtons()
 	if (ImGui::Button("Add Gregory surface") && (m_scene.getModelCount(ModelType::bezierSurfaceC0) +
 		m_scene.getModelCount(ModelType::bezierSurfaceC2) > 0))
 	{
-		m_addGregorySurfacePanel.reset();
-		m_addingGregorySurface = !m_addingGregorySurface;
-		if (m_addingGregorySurface)
+		resetPanels();
+		if (m_mode == Mode::gregorySurface)
 		{
+			m_mode = Mode::none;
+		}
+		else
+		{
+			m_mode = Mode::gregorySurface;
 			m_addGregorySurfacePanel.start();
 		}
-
-		m_addBezierSurfaceC0Panel.reset();
-		m_addingBezierSurfaceC0 = false;
-		m_addBezierSurfaceC2Panel.reset();
-		m_addingBezierSurfaceC2 = false;
 	}
 
-	if (m_addingGregorySurface)
+	if (m_mode == Mode::gregorySurface)
 	{
 		m_addGregorySurfacePanel.update();
+	}
+
+	ImGui::Spacing();
+
+	if (ImGui::Button("Add intersection") && (m_scene.getModelCount(ModelType::torus) +
+		m_scene.getModelCount(ModelType::bezierPatch) +
+		m_scene.getModelCount(ModelType::bezierSurfaceC0) +
+		m_scene.getModelCount(ModelType::bezierSurfaceC2) > 0))
+	{
+		resetPanels();
+		if (m_mode == Mode::intersection)
+		{
+			m_mode = Mode::none;
+		}
+		else
+		{
+			m_mode = Mode::intersection;
+			m_addIntersectionPanel.start();
+		}
+	}
+
+	if (m_mode == Mode::intersection)
+	{
+		m_addIntersectionPanel.update();
 	}
 
 	ImGui::Spacing();
@@ -275,6 +309,14 @@ void LeftPanel::updateButtons()
 	{
 		m_scene.collapse2Points();
 	}
+}
+
+void LeftPanel::resetPanels()
+{
+	m_addBezierSurfaceC0Panel.reset();
+	m_addBezierSurfaceC2Panel.reset();
+	m_addGregorySurfacePanel.reset();
+	m_addIntersectionPanel.reset();
 }
 
 void LeftPanel::separator()

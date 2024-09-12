@@ -1,6 +1,5 @@
 #pragma once
 
-#include "models/modelType.hpp"
 #include "scene.hpp"
 
 #include <array>

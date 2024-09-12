@@ -96,6 +96,7 @@ public:
 	void addBezierSurfaceC2(int patchesU, int patchesV, float sizeU, float sizeV,
 		BezierSurfaceWrapping wrapping);
 	void addGregorySurface(const std::array<int, 3>& patches);
+	void addIntersection(const std::array<ModelType, 2>& types, const std::array<int, 2>& surfaces);
 
 	void updateActiveCameraGUI();
 	void updateCursorGUI();
@@ -113,6 +114,8 @@ public:
 
 	void startAddingGregoryPatch();
 	void stopAddingGregoryPatch();
+	void startAddingIntersection();
+	void stopAddingIntersection();
 
 private:
 	ShaderPrograms m_shaderPrograms{};
@@ -162,6 +165,7 @@ private:
 	bool m_anaglyphOn = false;
 
 	bool m_addingGregorySurface = false;
+	bool m_addingIntersection = false;
 	
 	void setUpFramebuffer() const;
 	void clearFramebuffer(AnaglyphMode anaglyphMode) const;
@@ -185,17 +189,17 @@ private:
 	void deleteInvalidGregorySurfaces();
 	void deleteUnreferencedNonDeletablePoints();
 
-	template <typename ModelType>
-	void deleteSelectedModels(std::vector<std::unique_ptr<ModelType>>& models);
+	template <typename Type>
+	void deleteSelectedModels(std::vector<std::unique_ptr<Type>>& models);
 };
 
-template <typename ModelType>
-void Scene::deleteSelectedModels(std::vector<std::unique_ptr<ModelType>>& models)
+template <typename Type>
+void Scene::deleteSelectedModels(std::vector<std::unique_ptr<Type>>& models)
 {
 	std::erase_if
 	(
 		models,
-		[] (const std::unique_ptr<ModelType>& model)
+		[] (const std::unique_ptr<Type>& model)
 		{
 			return model->isSelected() && model->isDeletable();
 		}

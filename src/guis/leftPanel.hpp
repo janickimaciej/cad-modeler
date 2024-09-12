@@ -2,40 +2,44 @@
 
 #include "guis/addBezierSurfacePanel.hpp"
 #include "guis/addGregorySurfacePanel.hpp"
-#include "guis/guiMode.hpp"
-#include "guis/modelListPanel.hpp"
+#include "guis/addIntersectionPanel.hpp"
 #include "scene.hpp"
-
-#include <string>
 
 #include <glm/glm.hpp>
 
 class LeftPanel
 {
+	enum class Mode
+	{
+		none,
+		bezierSurfaceC0,
+		bezierSurfaceC2,
+		gregorySurface,
+		intersection
+	};
+
 public:
 	static constexpr int width = 250;
-	static constexpr int height = 1000;
 
 	LeftPanel(Scene& scene, const glm::ivec2& windowSize);
-	void update(GUIMode mode);
+	void update();
 
 private:
 	Scene& m_scene;
 	const glm::ivec2& m_windowSize;
 
-	bool m_addingBezierSurfaceC0 = false;
-	bool m_addingBezierSurfaceC2 = false;
-	bool m_addingGregorySurface = false;
+	Mode m_mode = Mode::none;
 	AddBezierSurfacePanel m_addBezierSurfaceC0Panel;
 	AddBezierSurfacePanel m_addBezierSurfaceC2Panel;
 	AddGregorySurfacePanel m_addGregorySurfacePanel;
-	ModelListPanel m_modelListPanel;
+	AddIntersectionPanel m_addIntersectionPanel;
 
 	void updateCamera();
 	void updateAnaglyph();
 	void updateCursor();
 	void updateSelectedModelsCenter();
 	void updateButtons();
+	void resetPanels();
 
 	void separator();
 };

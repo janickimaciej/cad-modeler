@@ -2,6 +2,7 @@
 
 #include "guis/guiMode.hpp"
 #include "guis/leftPanel.hpp"
+#include "guis/rightPanel.hpp"
 #include "guis/valueWindows/deserializingWindow.hpp"
 #include "guis/valueWindows/renamingWindow.hpp"
 #include "guis/valueWindows/rotatingWindow.hpp"
@@ -34,10 +35,10 @@ public:
 	void cancel();
 	void apply();
 	void deleteSelectedModels();
-	void setWindowSize(const glm::ivec2& windowSize);
 
 private:
 	LeftPanel m_leftPanel;
+	RightPanel m_rightPanel;
 	RotatingWindow m_rotatingWindow;
 	ScalingWindow m_scalingWindow;
 	RenamingWindow m_renamingWindow;

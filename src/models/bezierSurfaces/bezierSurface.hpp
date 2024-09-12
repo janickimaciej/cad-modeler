@@ -1,6 +1,7 @@
 #pragma once
 
 #include "guis/modelGUIs/bezierSurfaceGUI.hpp"
+#include "intersectable.hpp"
 #include "meshes/mesh.hpp"
 #include "models/bezierSurfaces/bezierPatch.hpp"
 #include "models/bezierSurfaces/bezierSurfaceWrapping.hpp"
@@ -17,7 +18,7 @@
 #include <string>
 #include <vector>
 
-class BezierSurface : public Model
+class BezierSurface : public Model, public Intersectable
 {
 	friend class BezierSurfaceC0Serializer;
 	friend class BezierSurfaceC2Serializer;
@@ -41,6 +42,11 @@ public:
 
 	std::shared_ptr<DestroyCallback> registerForDestroyNotification(
 		const DestroyCallback& callback);
+
+	virtual glm::vec3 surface(float u, float v) const override;
+	virtual glm::vec3 surfaceDU(float u, float v) const override;
+	virtual glm::vec3 surfaceDV(float u, float v) const override;
+	void mapToPatch(float u, float v, int& patchU, int& patchV, float& localU, float& localV) const;
 
 protected:
 	std::unique_ptr<Mesh> m_gridMesh{};

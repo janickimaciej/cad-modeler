@@ -1,6 +1,7 @@
 #pragma once
 
 #include "guis/modelGUIs/bezierPatchGUI.hpp"
+#include "intersectable.hpp"
 #include "meshes/bezierPatchMesh.hpp"
 #include "models/model.hpp"
 #include "models/point.hpp"
@@ -13,7 +14,7 @@
 
 class BezierSurface;
 
-class BezierPatch : public Model
+class BezierPatch : public Model, public Intersectable
 {
 public:
 	using DestroyCallback = std::function<void()>;
@@ -39,6 +40,10 @@ public:
 
 	std::shared_ptr<DestroyCallback> registerForDestroyNotification(
 		const DestroyCallback& callback);
+	
+	virtual glm::vec3 surface(float u, float v) const override;
+	virtual glm::vec3 surfaceDU(float u, float v) const override;
+	virtual glm::vec3 surfaceDV(float u, float v) const override;
 
 private:
 	static int m_count;
@@ -68,4 +73,12 @@ private:
 
 	void notifyDestroy();
 	void clearExpiredNotifications();
+
+	static glm::vec3 deCasteljau(const glm::vec3& a, const glm::vec3& b, float t);
+	static glm::vec3 deCasteljau(const glm::vec3& a, const glm::vec3& b, const glm::vec3& c,
+		float t);
+	static glm::vec3 deCasteljau(const glm::vec3& a, const glm::vec3& b, const glm::vec3& c,
+		const glm::vec3& d,	float t);
+	static glm::vec3 deCasteljauDT(const glm::vec3& a, const glm::vec3& b, const glm::vec3& c,
+		const glm::vec3& d, float t);
 };

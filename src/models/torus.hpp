@@ -1,6 +1,7 @@
 #pragma once
 
 #include "guis/modelGUIs/torusGUI.hpp"
+#include "intersectable.hpp"
 #include "meshes/mesh.hpp"
 #include "models/model.hpp"
 #include "shaderProgram.hpp"
@@ -10,7 +11,7 @@
 #include <memory>
 #include <vector>
 
-class Torus : public Model
+class Torus : public Model, public Intersectable
 {
 	friend class TorusSerializer;
 
@@ -28,6 +29,10 @@ public:
 	void setMajorGrid(int majorGrid);
 	int getMinorGrid() const;
 	void setMinorGrid(int minorGrid);
+
+	virtual glm::vec3 surface(float u, float v) const override;
+	virtual glm::vec3 surfaceDU(float u, float v) const override;
+	virtual glm::vec3 surfaceDV(float u, float v) const override;
 
 private:
 	static int m_count;
@@ -49,6 +54,4 @@ private:
 	void updateMesh();
 	std::vector<glm::vec3> createVertices() const;
 	std::vector<unsigned int> createIndices() const;
-
-	glm::vec3 getSurfacePos(float s, float t) const;
 };
