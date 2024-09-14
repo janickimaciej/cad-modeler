@@ -22,11 +22,13 @@ private:
 	Callback m_callback{};
 
 	std::array<ModelType, 2> m_types{};
-	std::array<int, 2> m_surfaces{};
-	int m_chosenSurfaces = 0;
+	std::array<int, 2> m_surfaceIndices{};
+	int m_surfaceCount = 0;
+	bool m_useCursor = false;
 
-	void updateList(std::optional<ModelType>& clickedType, std::optional<int>& clickedSurface);
-	void updateList(std::optional<ModelType>& clickedType, std::optional<int>& clickedSurface,
+	void updateCheckbox();
+	void updateList(std::optional<ModelType>& clickedType, std::optional<int>& clickedSurfaceIndex);
+	void updateList(std::optional<ModelType>& clickedType, std::optional<int>& clickedSurfaceIndex,
 		ModelType type);
-	void updateButton(std::optional<ModelType> clickedType, std::optional<int> clickedSurface);
+	void updateButton(std::optional<ModelType> clickedType, std::optional<int> clickedSurfaceIndex);
 };

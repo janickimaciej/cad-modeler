@@ -21,8 +21,8 @@ private:
 	Callback m_callback{};
 
 	std::array<int, 3> m_patches{};
-	int m_chosenPatches = 0;
+	int m_patchCount = 0;
 
-	void updateList(std::optional<int>& clickedPatch);
-	void updateButton(std::optional<int> clickedPatch);
+	void updateList(std::optional<int>& clickedPatchIndex);
+	void updateButton(std::optional<int> clickedPatchIndex);
 };

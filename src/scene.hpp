@@ -16,6 +16,7 @@
 #include "models/bezierSurfaces/bezierSurfaceC2.hpp"
 #include "models/bezierSurfaces/bezierSurfaceWrapping.hpp"
 #include "models/gregorySurface.hpp"
+#include "models/intersectionCurve.hpp"
 #include "models/model.hpp"
 #include "models/modelType.hpp"
 #include "models/point.hpp"
@@ -95,8 +96,9 @@ public:
 		BezierSurfaceWrapping wrapping);
 	void addBezierSurfaceC2(int patchesU, int patchesV, float sizeU, float sizeV,
 		BezierSurfaceWrapping wrapping);
-	void addGregorySurface(const std::array<int, 3>& patches);
-	void addIntersection(const std::array<ModelType, 2>& types, const std::array<int, 2>& surfaces);
+	void addGregorySurface(const std::array<int, 3>& patchIndices);
+	void addIntersection(const std::array<ModelType, 2>& types,
+		const std::array<int, 2>& surfaceIndices, bool useCursor);
 
 	void updateActiveCameraGUI();
 	void updateCursorGUI();
@@ -133,6 +135,7 @@ private:
 	std::vector<std::unique_ptr<BezierSurfaceC0>> m_bezierSurfacesC0{};
 	std::vector<std::unique_ptr<BezierSurfaceC2>> m_bezierSurfacesC2{};
 	std::vector<std::unique_ptr<GregorySurface>> m_gregorySurfaces{};
+	std::vector<std::unique_ptr<IntersectionCurve>> m_intersectionCurves{};
 
 	Cursor m_cursor{m_shaderPrograms.cursor};
 	CenterPoint m_selectedModelsCenter{m_shaderPrograms.cursor, m_selectedModels};

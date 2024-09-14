@@ -45,10 +45,12 @@
     <ClCompile Include="src\guis\rightPanel.cpp" />
     <ClCompile Include="src\guis\valueWindows\deserializingWindow.cpp" />
     <ClCompile Include="src\guis\valueWindows\serializingWindow.cpp" />
+    <ClCompile Include="src\intersectable.cpp" />
     <ClCompile Include="src\meshes\gregorySurfaceMesh.cpp" />
     <ClCompile Include="src\meshes\vectorsMesh.cpp" />
     <ClCompile Include="src\models\bezierSurfaces\bezierPatch.cpp" />
     <ClCompile Include="src\models\gregorySurface.cpp" />
+    <ClCompile Include="src\models\intersectionCurve.cpp" />
     <ClCompile Include="src\quad.cpp" />
     <ClCompile Include="src\plane\plane.cpp" />
     <ClCompile Include="src\guis\centerPointGUI.cpp" />
@@ -134,6 +136,7 @@
     <ClInclude Include="src\meshes\vectorsMesh.hpp" />
     <ClInclude Include="src\models\bezierSurfaces\bezierPatch.hpp" />
     <ClInclude Include="src\models\gregorySurface.hpp" />
+    <ClInclude Include="src\models\intersectionCurve.hpp" />
     <ClInclude Include="src\models\modelType.hpp" />
     <ClInclude Include="src\quad.hpp" />
     <ClInclude Include="src\plane\plane.hpp" />

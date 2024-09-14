@@ -15,29 +15,36 @@ void AddIntersectionPanel::start()
 void AddIntersectionPanel::reset()
 {
 	m_scene.stopAddingIntersection();
-	m_chosenSurfaces = 0;
+	m_surfaceCount = 0;
+	m_useCursor = false;
 }
 
 void AddIntersectionPanel::update()
 {
 	std::optional<ModelType> clickedType = std::nullopt;
-	std::optional<int> clickedSurface = std::nullopt;
+	std::optional<int> clickedSurfaceIndex = std::nullopt;
 
-	updateList(clickedType, clickedSurface);
-	updateButton(clickedType, clickedSurface);
+	updateCheckbox();
+	updateList(clickedType, clickedSurfaceIndex);
+	updateButton(clickedType, clickedSurfaceIndex);
 }
 
-void AddIntersectionPanel::updateList(std::optional<ModelType>& clickedType,
-	std::optional<int>& clickedSurface)
+void AddIntersectionPanel::updateCheckbox()
 {
-	updateList(clickedType, clickedSurface, ModelType::torus);
-	updateList(clickedType, clickedSurface, ModelType::bezierPatch);
-	updateList(clickedType, clickedSurface, ModelType::bezierSurfaceC0);
-	updateList(clickedType, clickedSurface, ModelType::bezierSurfaceC2);
+	ImGui::Checkbox("Use cursor##AddIntersectionPanelCheckbox", &m_useCursor);
 }
 
 void AddIntersectionPanel::updateList(std::optional<ModelType>& clickedType,
-	std::optional<int>& clickedSurface, ModelType type)
+	std::optional<int>& clickedSurfaceIndex)
+{
+	updateList(clickedType, clickedSurfaceIndex, ModelType::torus);
+	updateList(clickedType, clickedSurfaceIndex, ModelType::bezierPatch);
+	updateList(clickedType, clickedSurfaceIndex, ModelType::bezierSurfaceC0);
+	updateList(clickedType, clickedSurfaceIndex, ModelType::bezierSurfaceC2);
+}
+
+void AddIntersectionPanel::updateList(std::optional<ModelType>& clickedType,
+	std::optional<int>& clickedSurfaceIndex, ModelType type)
 {
 	ImGuiTreeNodeFlags globalFlags = ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen;
 
@@ -48,9 +55,9 @@ void AddIntersectionPanel::updateList(std::optional<ModelType>& clickedType,
 		{
 			flags |= ImGuiTreeNodeFlags_Selected;
 			clickedType = type;
-			clickedSurface = i;
+			clickedSurfaceIndex = i;
 		}
-		ImGui::TreeNodeEx((m_scene.getModelName(i, type) + "##AddIntersectionPanelSurfaces" +
+		ImGui::TreeNodeEx((m_scene.getModelName(i, type) + "##AddIntersectionPanelList" +
 			m_scene.getModelOriginalName(i, type)).c_str(), flags);
 		if (ImGui::IsItemClicked())
 		{
@@ -60,18 +67,18 @@ void AddIntersectionPanel::updateList(std::optional<ModelType>& clickedType,
 }
 
 void AddIntersectionPanel::updateButton(std::optional<ModelType> clickedType,
-	std::optional<int> clickedSurface)
+	std::optional<int> clickedSurfaceIndex)
 {
-	if (ImGui::Button(("Add patch (" + std::to_string(m_chosenSurfaces) +
-		"/2)##AddIntersectionPanelApply").c_str()) && clickedType.has_value())
+	if (ImGui::Button(("Add patch (" + std::to_string(m_surfaceCount) +
+		"/2)##AddIntersectionPanelButton").c_str()) && clickedType.has_value())
 	{
-		m_types[m_chosenSurfaces] = *clickedType;
-		m_surfaces[m_chosenSurfaces] = *clickedSurface;
-		++m_chosenSurfaces;
+		m_types[m_surfaceCount] = *clickedType;
+		m_surfaceIndices[m_surfaceCount] = *clickedSurfaceIndex;
+		++m_surfaceCount;
 		m_scene.deselectAllModels();
-		if (m_chosenSurfaces == 2)
+		if (m_surfaceCount == 2)
 		{
-			m_scene.addIntersection(m_types, m_surfaces);
+			m_scene.addIntersection(m_types, m_surfaceIndices, m_useCursor);
 			m_callback();
 		}
 	}
