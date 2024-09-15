@@ -19,7 +19,7 @@ private:
 	unsigned int m_VBO{};
 	unsigned int m_EBO{};
 	unsigned int m_VAO{};
-	
+
 	void createVBO(const std::vector<glm::vec3>& vertices);
 	void createEBO(const std::vector<unsigned int>& indices);
 	void createVAO();

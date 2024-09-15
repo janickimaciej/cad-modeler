@@ -381,12 +381,12 @@ void Scene::deselectModel(int i, ModelType type)
 			m_bezierSurfacesC2[i]->deselect();
 			deselectedModel = m_bezierSurfacesC2[i].get();
 			break;
-			
+
 		case ModelType::gregorySurface:
 			m_gregorySurfaces[i]->deselect();
 			deselectedModel = m_gregorySurfaces[i].get();
 			break;
-			
+
 		case ModelType::intersectionCurve:
 			m_intersectionCurves[i]->deselect();
 			deselectedModel = m_intersectionCurves[i].get();
@@ -517,6 +517,66 @@ void Scene::collapse2Points()
 	);
 }
 
+BezierPatch* Scene::getUniqueSelectedBezierPatch() const
+{
+	if (m_selectedModels.size() != 1)
+	{
+		return nullptr;
+	}
+
+	for (const std::unique_ptr<BezierPatch>& patch : m_bezierPatches)
+	{
+		if (patch->isSelected())
+		{
+			return patch.get();
+		}
+	}
+
+	return nullptr;
+}
+
+const Intersectable* Scene::getUniqueSelectedIntersectable() const
+{
+	if (m_selectedModels.size() != 1)
+	{
+		return nullptr;
+	}
+
+	for (const std::unique_ptr<Torus>& torus : m_toruses)
+	{
+		if (torus->isSelected())
+		{
+			return torus.get();
+		}
+	}
+
+	for (const std::unique_ptr<BezierPatch>& patch : m_bezierPatches)
+	{
+		if (patch->isSelected())
+		{
+			return patch.get();
+		}
+	}
+
+	for (const std::unique_ptr<BezierSurfaceC0>& surface : m_bezierSurfacesC0)
+	{
+		if (surface->isSelected())
+		{
+			return surface.get();
+		}
+	}
+
+	for (const std::unique_ptr<BezierSurfaceC2>& surface : m_bezierSurfacesC2)
+	{
+		if (surface->isSelected())
+		{
+			return surface.get();
+		}
+	}
+
+	return nullptr;
+}
+
 void Scene::rotateXSelectedModels(float angleRad)
 {
 	m_selectedModelsCenter.rotateX(angleRad);
@@ -596,10 +656,10 @@ std::string Scene::getModelOriginalName(int i, ModelType type) const
 
 		case ModelType::bezierSurfaceC2:
 			return m_bezierSurfacesC2[i]->getOriginalName();
-			
+
 		case ModelType::gregorySurface:
 			return m_gregorySurfaces[i]->getOriginalName();
-			
+
 		case ModelType::intersectionCurve:
 			return m_intersectionCurves[i]->getOriginalName();
 	}
@@ -636,10 +696,10 @@ std::string Scene::getModelName(int i, ModelType type) const
 
 		case ModelType::bezierSurfaceC2:
 			return m_bezierSurfacesC2[i]->getName();
-			
+
 		case ModelType::gregorySurface:
 			return m_gregorySurfaces[i]->getName();
-			
+
 		case ModelType::intersectionCurve:
 			return m_intersectionCurves[i]->getName();
 	}
@@ -697,7 +757,7 @@ void Scene::addPoint()
 			(*selectedBezierCurveInter)->addPoints({point.get()});
 		}
 	}
-	
+
 	m_models.push_back(point.get());
 	m_points.push_back(std::move(point));
 }
@@ -847,14 +907,8 @@ void Scene::addBezierSurfaceC2(int patchesU, int patchesV, float sizeU, float si
 	m_bezierSurfacesC2.push_back(std::move(surface));
 }
 
-void Scene::addGregorySurface(const std::array<int, 3>& patchIndices)
+void Scene::addGregorySurface(const std::array<BezierPatch*, 3>& patches)
 {
-	std::array<BezierPatch*, 3> patches{};
-	for (std::size_t i = 0; i < 3; ++i)
-	{
-		patches[i] = m_bezierPatches[patchIndices[i]].get();
-	}
-	
 	std::unique_ptr<GregorySurface> surface = GregorySurface::create(
 		m_shaderPrograms.gregorySurface, m_shaderPrograms.vectors, patches,
 		m_gregorySurfaceSelfDestructCallback);
@@ -866,32 +920,8 @@ void Scene::addGregorySurface(const std::array<int, 3>& patchIndices)
 	}
 }
 
-void Scene::addIntersection(const std::array<ModelType, 2>& types,
-	const std::array<int, 2>& surfaceIndices, bool useCursor)
+void Scene::addIntersection(const std::array<const Intersectable*, 2>& surfaces, bool useCursor)
 {
-	std::array<const Intersectable*, 2> surfaces{};
-	for (std::size_t i = 0; i < 2; ++i)
-	{
-		switch (types[i])
-		{
-			case ModelType::torus:
-				surfaces[i] = m_toruses[surfaceIndices[i]].get();
-				break;
-
-			case ModelType::bezierPatch:
-				surfaces[i] = m_bezierPatches[surfaceIndices[i]].get();
-				break;
-
-			case ModelType::bezierSurfaceC0:
-				surfaces[i] = m_bezierSurfacesC0[surfaceIndices[i]].get();
-				break;
-
-			case ModelType::bezierSurfaceC2:
-				surfaces[i] = m_bezierSurfacesC2[surfaceIndices[i]].get();
-				break;
-		}
-	}
-
 	std::vector<std::unique_ptr<IntersectionCurve>> intersectionCurves{};
 	if (useCursor)
 	{
@@ -966,11 +996,11 @@ void Scene::updateModelGUI(int i, ModelType type)
 		case ModelType::bezierSurfaceC2:
 			m_bezierSurfacesC2[i]->updateGUI();
 			break;
-			
+
 		case ModelType::gregorySurface:
 			m_gregorySurfaces[i]->updateGUI();
 			break;
-			
+
 		case ModelType::intersectionCurve:
 			m_intersectionCurves[i]->updateGUI();
 			break;

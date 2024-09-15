@@ -48,7 +48,7 @@ protected:
 	float m_eyesDistance = 60;
 	float m_screenDistance = 1000;
 	float m_projectionPlane = 1;
-	
+
 	void updateViewMatrix();
 	virtual void updateProjectionMatrix() = 0;
 	void updateShaders(const glm::ivec2& windowSize) const;
@@ -59,7 +59,7 @@ private:
 	glm::vec3 m_targetPos{0, 0, 0};
 	float m_pitchRad = 0;
 	float m_yawRad = 0;
-	
+
 	const ShaderPrograms& m_shaderPrograms;
 
 	void updateShaders(const glm::ivec2& windowSize, const glm::mat4& projectionViewMatrix,

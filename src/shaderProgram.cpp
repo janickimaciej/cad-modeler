@@ -159,19 +159,19 @@ void ShaderProgram::printCompilationError(unsigned int shader, GLenum shaderType
 		case GL_VERTEX_SHADER:
 			shaderTypeName = "vertex";
 			break;
-		
+
 		case GL_FRAGMENT_SHADER:
 			shaderTypeName = "fragment";
 			break;
-		
+
 		case GL_GEOMETRY_SHADER:
 			shaderTypeName = "geometry";
 			break;
-		
+
 		case GL_TESS_CONTROL_SHADER:
 			shaderTypeName = "tessellation control";
 			break;
-		
+
 		case GL_TESS_EVALUATION_SHADER:
 			shaderTypeName = "tessellation evaluation";
 			break;

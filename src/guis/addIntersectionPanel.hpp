@@ -1,10 +1,9 @@
 #pragma once
 
-#include "models/modelType.hpp"
+#include "intersectable.hpp"
 #include "scene.hpp"
 
 #include <array>
-#include <optional>
 #include <functional>
 
 class AddIntersectionPanel
@@ -21,14 +20,7 @@ private:
 	Scene& m_scene;
 	Callback m_callback{};
 
-	std::array<ModelType, 2> m_types{};
-	std::array<int, 2> m_surfaceIndices{};
+	std::array<const Intersectable*, 2> m_surfaces{};
 	int m_surfaceCount = 0;
 	bool m_useCursor = false;
-
-	void updateCheckbox();
-	void updateList(std::optional<ModelType>& clickedType, std::optional<int>& clickedSurfaceIndex);
-	void updateList(std::optional<ModelType>& clickedType, std::optional<int>& clickedSurfaceIndex,
-		ModelType type);
-	void updateButton(std::optional<ModelType> clickedType, std::optional<int> clickedSurfaceIndex);
 };

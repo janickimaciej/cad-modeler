@@ -19,7 +19,7 @@ public:
 private:
 	unsigned int m_VBO{};
 	unsigned int m_VAO{};
-	
+
 	void createVBO(const std::array<glm::vec3, m_vertexCount>& vertices);
 	void createVAO();
 };

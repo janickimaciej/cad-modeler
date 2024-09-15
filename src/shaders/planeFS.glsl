@@ -30,7 +30,7 @@ void main()
 		min((gl_DepthRange.diff * depth(posWorld) + gl_DepthRange.near + gl_DepthRange.far) / 2,
 			gl_DepthRange.far - EPS);
 	outColor = gridColor(posWorld);
-	
+
 	if (cameraType == PERSPECTIVE_CAMERA)
 	{
 		outColor *= float(t > 0);

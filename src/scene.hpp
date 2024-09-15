@@ -73,6 +73,8 @@ public:
 	void toggleModel(const glm::vec2& screenPos);
 	void moveUniqueSelectedModel(const glm::vec2& screenPos) const;
 	void collapse2Points();
+	BezierPatch* getUniqueSelectedBezierPatch() const;
+	const Intersectable* getUniqueSelectedIntersectable() const;
 
 	void rotateXSelectedModels(float angleRad);
 	void rotateYSelectedModels(float angleRad);
@@ -96,9 +98,8 @@ public:
 		BezierSurfaceWrapping wrapping);
 	void addBezierSurfaceC2(int patchesU, int patchesV, float sizeU, float sizeV,
 		BezierSurfaceWrapping wrapping);
-	void addGregorySurface(const std::array<int, 3>& patchIndices);
-	void addIntersection(const std::array<ModelType, 2>& types,
-		const std::array<int, 2>& surfaceIndices, bool useCursor);
+	void addGregorySurface(const std::array<BezierPatch*, 3>& patches);
+	void addIntersection(const std::array<const Intersectable*, 2>& surfaces, bool useCursor);
 
 	void updateActiveCameraGUI();
 	void updateCursorGUI();
@@ -142,13 +143,13 @@ private:
 
 	static constexpr float gridScale = 5.0f;
 	Plane m_plane{m_shaderPrograms.plane, gridScale};
-	
+
 	PerspectiveCamera m_perspectiveCamera;
 	OrthographicCamera m_orthographicCamera;
 	Camera* m_activeCamera{};
 
 	CameraType m_cameraType = CameraType::perspective;
-	
+
 	std::vector<const BezierCurve*> m_bezierCurvesToBeDeleted{};
 	const BezierCurve::SelfDestructCallback m_bezierCurveSelfDestructCallback =
 		[this] (const BezierCurve* curve)
@@ -169,7 +170,7 @@ private:
 
 	bool m_addingGregorySurface = false;
 	bool m_addingIntersection = false;
-	
+
 	void setUpFramebuffer() const;
 	void clearFramebuffer(AnaglyphMode anaglyphMode) const;
 

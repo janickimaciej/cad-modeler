@@ -17,7 +17,7 @@ private:
 	std::size_t m_vertexCount{};
 	unsigned int m_VBO{};
 	unsigned int m_VAO{};
-	
+
 	void createVBO(const std::vector<glm::vec3>& vertices);
 	void createVAO();
 };

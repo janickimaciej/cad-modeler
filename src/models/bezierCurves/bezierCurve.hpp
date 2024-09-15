@@ -46,7 +46,7 @@ protected:
 
 	virtual void createCurveMesh() = 0;
 	void createPolylineMesh();
-	
+
 	virtual void updateGeometry();
 	void updatePos();
 	virtual void updateCurveMesh() = 0;
@@ -54,7 +54,7 @@ protected:
 
 	virtual void renderCurve() const = 0;
 	void renderPolyline() const;
-	
+
 	void registerForNotifications(const std::vector<Point*>& points);
 	void registerForNotifications(Point* point);
 	virtual void pointMoveNotification();
@@ -69,7 +69,7 @@ private:
 	const ShaderProgram& m_polylineShaderProgram;
 
 	BezierCurveGUI m_gui{*this};
-	
+
 	std::unique_ptr<PolylineMesh> m_polylineMesh{};
 	bool m_renderPolyline = false;
 

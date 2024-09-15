@@ -14,7 +14,7 @@ public:
 	~VectorsMesh();
 	void update(const std::array<glm::vec3, m_vertexCount>& vertices);
 	void render() const;
-	
+
 private:
 	unsigned int m_VBO{};
 	unsigned int m_VAO{};

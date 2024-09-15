@@ -26,7 +26,7 @@ public:
 
 private:
 	static int m_count;
-	
+
 	const ShaderProgram& m_pointShaderProgram;
 
 	std::unique_ptr<PolylineMesh> m_bezierPolylineMesh{};
@@ -49,7 +49,7 @@ private:
 	void renderBezierPolyline() const;
 
 	void deleteBezierPoint(int index);
-	
+
 	void registerForNotificationsBezier(const std::vector<Point*>& points);
 	void registerForNotificationsBezier(Point* point);
 	virtual void pointMoveNotification() override;

@@ -22,9 +22,13 @@ void AddBezierSurfacePanel::reset()
 
 void AddBezierSurfacePanel::update()
 {
+	ImGui::Spacing();
+
 	updatePatches();
 	updateSize();
 	updateWrapping();
+
+	ImGui::Spacing();
 
 	if (ImGui::Button(("Apply" + m_suffix).c_str()))
 	{
@@ -69,7 +73,7 @@ void AddBezierSurfacePanel::updateSize()
 {
 	static constexpr float stepPrecision = 0.1f;
 	static const std::string format = "%.2f";
-	
+
 	float* firstVariable = &m_sizeU;
 	float* secondVariable = &m_sizeV;
 	std::string firstLabel = "size U";

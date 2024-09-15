@@ -16,7 +16,7 @@ nlohmann::ordered_json BezierSurfaceC2Serializer::serialize(const BezierSurfaceC
 
 	json["size"]["x"] = surface.m_patchesU;
 	json["size"]["y"] = surface.m_patchesV;
-	
+
 	for (int patchV = 0; patchV < surface.m_patchesV; ++patchV)
 	{
 		for (int patchU = 0; patchU < surface.m_patchesU; ++patchU)

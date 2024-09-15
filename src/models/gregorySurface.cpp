@@ -169,19 +169,19 @@ std::array<glm::vec3, 48> GregorySurface::createVectors() const
 
 		vectors[16 * patch + 4] = m_points[patch][9];
 		vectors[16 * patch + 5] = m_points[patch][8];
-		
+
 		vectors[16 * patch + 6] = m_points[patch][15];
 		vectors[16 * patch + 7] = m_points[patch][14];
-		
+
 		vectors[16 * patch + 8] = m_points[patch][18];
 		vectors[16 * patch + 9] = m_points[patch][13];
-		
+
 		vectors[16 * patch + 10] = m_points[patch][17];
 		vectors[16 * patch + 11] = m_points[patch][12];
-		
+
 		vectors[16 * patch + 12] = m_points[patch][10];
 		vectors[16 * patch + 13] = m_points[patch][11];
-		
+
 		vectors[16 * patch + 14] = m_points[patch][4];
 		vectors[16 * patch + 15] = m_points[patch][5];
 	}
@@ -305,7 +305,7 @@ void GregorySurface::registerForNotifications(Point* point)
 					newPoint);
 			}
 		));
-	
+
 	m_pointDeletabilityLocks.push_back(point->getDeletabilityLock());
 }
 

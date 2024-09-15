@@ -156,7 +156,7 @@ void Window::buttonCallback(GLFWwindow* windowPtr, int button, int action, int)
 	if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS)
 	{
 		glm::vec2 cursorPos = window->cursorPos();
-		
+
 		bool toggle = glfwGetKey(windowPtr, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS;
 		if (toggle)
 		{

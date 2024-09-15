@@ -78,9 +78,9 @@ void LeftPanel::updateCamera()
 {
 	ImGui::Text("Camera");
 	ImGui::Spacing();
-	
+
 	ImGui::PushItemWidth(120);
-	
+
 	CameraType cameraType = m_scene.getCameraType();
 	CameraType prevCameraType = cameraType;
 	if (ImGui::BeginCombo("##cameraType", cameraTypeLabels[static_cast<int>(cameraType)].c_str()))
@@ -99,7 +99,7 @@ void LeftPanel::updateCamera()
 	{
 		m_scene.setCameraType(static_cast<CameraType>(cameraType));
 	}
-	
+
 	ImGui::PopItemWidth();
 
 	m_scene.updateActiveCameraGUI();
@@ -182,43 +182,43 @@ void LeftPanel::updateButtons()
 		m_scene.addPoint();
 	}
 
-	ImGui::Spacing();
+	separator();
 
 	if (ImGui::Button("Add torus"))
 	{
 		m_scene.addTorus();
 	}
 
-	ImGui::Spacing();
+	separator();
 
 	if (ImGui::Button("Add Bezier curve C0"))
 	{
 		m_scene.addBezierCurveC0();
 	}
 
-	ImGui::Spacing();
+	separator();
 
 	if (ImGui::Button("Add Bezier curve C2"))
 	{
 		m_scene.addBezierCurveC2();
 	}
 
-	ImGui::Spacing();
+	separator();
 
 	if (ImGui::Button("Add Bezier curve inter"))
 	{
 		m_scene.addBezierCurveInter();
 	}
 
-	ImGui::Spacing();
+	separator();
 
 	if (ImGui::Button("Add points to curve"))
 	{
 		m_scene.addSelectedPointsToCurve();
 	}
 
-	ImGui::Spacing();
-	
+	separator();
+
 	if (ImGui::Button("Add Bezier surface C0"))
 	{
 		resetPanels();
@@ -237,7 +237,7 @@ void LeftPanel::updateButtons()
 		m_addBezierSurfaceC0Panel.update();
 	}
 
-	ImGui::Spacing();
+	separator();
 
 	if (ImGui::Button("Add Bezier surface C2"))
 	{
@@ -257,7 +257,7 @@ void LeftPanel::updateButtons()
 		m_addBezierSurfaceC2Panel.update();
 	}
 
-	ImGui::Spacing();
+	separator();
 
 	if (ImGui::Button("Add Gregory surface") && (m_scene.getModelCount(ModelType::bezierSurfaceC0) +
 		m_scene.getModelCount(ModelType::bezierSurfaceC2) > 0))
@@ -279,7 +279,7 @@ void LeftPanel::updateButtons()
 		m_addGregorySurfacePanel.update();
 	}
 
-	ImGui::Spacing();
+	separator();
 
 	if (ImGui::Button("Add intersection") && (m_scene.getModelCount(ModelType::torus) +
 		m_scene.getModelCount(ModelType::bezierPatch) +
@@ -303,7 +303,7 @@ void LeftPanel::updateButtons()
 		m_addIntersectionPanel.update();
 	}
 
-	ImGui::Spacing();
+	separator();
 
 	if (ImGui::Button("Collapse 2 points"))
 	{

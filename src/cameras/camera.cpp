@@ -52,14 +52,14 @@ void Camera::addPitch(float pitchRad)
 	{
 		m_pitchRad = bound;
 	}
-	
-	updateViewMatrix();	
+
+	updateViewMatrix();
 }
 
 void Camera::addYaw(float yawRad)
 {
 	m_yawRad += yawRad;
-	
+
 	static constexpr float pi = glm::pi<float>();
 	while (m_yawRad < -pi)
 	{

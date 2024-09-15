@@ -10,7 +10,7 @@ class RightPanel
 {
 public:
 	static constexpr int width = 250;
-	
+
 	RightPanel(Scene& scene, const glm::ivec2& windowSize);
 	void update(GUIMode mode);
 

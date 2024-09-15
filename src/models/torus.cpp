@@ -159,7 +159,7 @@ void Torus::updateMesh()
 std::vector<glm::vec3> Torus::createVertices() const
 {
 	std::vector<glm::vec3> vertices{};
-	
+
 	float du = 1.0f / m_majorGrid;
 	float dv = 1.0f / m_minorGrid;
 	for (int iu = 0; iu < m_majorGrid; ++iu)

@@ -16,7 +16,7 @@ nlohmann::ordered_json BezierSurfaceC0Serializer::serialize(const BezierSurfaceC
 
 	json["size"]["x"] = surface.m_patchesU;
 	json["size"]["y"] = surface.m_patchesV;
-	
+
 	for (int patchV = 0; patchV < surface.m_patchesV; ++patchV)
 	{
 		for (int patchU = 0; patchU < surface.m_patchesU; ++patchU)
@@ -94,7 +94,7 @@ void BezierSurfaceC0Serializer::deserialize(const nlohmann::ordered_json& json, 
 			Point* point = scene.m_points[pointMap.at(pointJson["id"])].get();
 			surface->m_points[v][u] = point;
 			point->m_isDeletable = false;
-			
+
 			++dU;
 			if (dU == 4)
 			{

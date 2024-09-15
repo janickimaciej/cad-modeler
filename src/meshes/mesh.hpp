@@ -12,7 +12,7 @@ public:
 	~Mesh();
 	void update(const std::vector<glm::vec3>& vertices, const std::vector<unsigned int>& indices);
 	void render() const;
-	
+
 private:
 	std::size_t m_indexCount{};
 	unsigned int m_VBO{};

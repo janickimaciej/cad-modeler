@@ -22,40 +22,18 @@ void AddGregorySurfacePanel::reset()
 
 void AddGregorySurfacePanel::update()
 {
-	std::optional<int> clickedPatchIndex = std::nullopt;
+	ImGui::Spacing();
 
-	updateList(clickedPatchIndex);
-	updateButton(clickedPatchIndex);
-}
-
-void AddGregorySurfacePanel::updateList(std::optional<int>& clickedPatchIndex)
-{
-	ImGuiTreeNodeFlags globalFlags = ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen;
-
-	for (int i = 0; i < m_scene.getModelCount(ModelType::bezierPatch); ++i)
-	{
-		ImGuiTreeNodeFlags flags = globalFlags;
-		if (m_scene.isModelSelected(i, ModelType::bezierPatch))
-		{
-			flags |= ImGuiTreeNodeFlags_Selected;
-			clickedPatchIndex = i;
-		}
-		ImGui::TreeNodeEx((m_scene.getModelName(i, ModelType::bezierPatch) +
-			"##AddGregorySurfacePanelPatches" +
-			m_scene.getModelOriginalName(i, ModelType::bezierPatch)).c_str(), flags);
-		if (ImGui::IsItemClicked())
-		{
-			m_scene.selectModel(i, ModelType::bezierPatch);
-		}
-	}
-}
-
-void AddGregorySurfacePanel::updateButton(std::optional<int> clickedPatchIndex)
-{
 	if (ImGui::Button(("Add patch (" + std::to_string(m_patchCount) +
-		"/3)##AddGregorySurfacePanelApply").c_str()) && clickedPatchIndex.has_value())
+		"/3)##AddGregorySurfacePanelButton").c_str()))
 	{
-		m_patches[m_patchCount] = *clickedPatchIndex;
+		BezierPatch* patch = m_scene.getUniqueSelectedBezierPatch();
+		if (patch == nullptr)
+		{
+			return;
+		}
+
+		m_patches[m_patchCount] = patch;
 		++m_patchCount;
 		m_scene.deselectAllModels();
 		if (m_patchCount == 3)

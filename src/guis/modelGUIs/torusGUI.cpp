@@ -79,7 +79,7 @@ void TorusGUI::updateOrientation()
 	{
 		m_torus.setYawRad(glm::radians(yawDeg));
 	}
-	
+
 	float rollDeg = glm::degrees(m_torus.getRollRad());
 	float prevRollDeg = rollDeg;
 	ImGui::InputFloat(("roll" + suffix()).c_str(), &rollDeg, stepPrecision, stepPrecision,
@@ -128,7 +128,7 @@ void TorusGUI::updateRadii()
 {
 	static constexpr float stepPrecision = 0.02f;
 	static const std::string format = "%.2f";
-	
+
 	float majorRadius = m_torus.getMajorRadius();
 	float prevMajorRadius = majorRadius;
 	ImGui::InputFloat(("major radius" + suffix()).c_str(), &majorRadius, stepPrecision,
@@ -138,7 +138,7 @@ void TorusGUI::updateRadii()
 	{
 		m_torus.setMajorRadius(majorRadius);
 	}
-	
+
 	float minorRadius = m_torus.getMinorRadius();
 	float prevMinorRadius = minorRadius;
 	ImGui::InputFloat(("minor radius" + suffix()).c_str(), &minorRadius, stepPrecision,

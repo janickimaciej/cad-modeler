@@ -32,7 +32,7 @@ public:
 
 	virtual void render() const override;
 	virtual void updateGUI() override;
-	
+
 	virtual void setPos(const glm::vec3&) override;
 	virtual void setScreenPos(const glm::vec2&, const glm::mat4&, const glm::ivec2&) override;
 
@@ -65,7 +65,7 @@ protected:
 
 	std::size_t getBezierPointsU() const;
 	std::size_t getBezierPointsV() const;
-	
+
 	virtual std::vector<std::unique_ptr<Point>> createPoints(
 		const ShaderProgram& pointShaderProgram, const glm::vec3& pos, float sizeU,
 		float sizeV) = 0;
@@ -92,20 +92,20 @@ protected:
 
 private:
 	const ShaderProgram& m_gridShaderProgram;
-	
+
 	BezierSurfaceGUI m_gui{*this};
 
 	bool m_renderGrid = false;
 	int m_lineCount = 4;
 
 	std::vector<std::weak_ptr<DestroyCallback>> m_destroyNotifications{};
-	
+
 	std::vector<std::shared_ptr<Point::MoveCallback>> m_pointMoveNotifications{};
 	std::vector<std::shared_ptr<Point::RereferenceCallback>> m_pointRereferenceNotifications{};
 	std::vector<Point::DeletabilityLock> m_pointDeletabilityLocks{};
-	
+
 	virtual void updateShaders() const override;
-	
+
 	void registerForNotifications(Point* point);
 	void pointMoveNotification();
 	void pointRereferenceNotification(Point::RereferenceCallback* notification, Point* newPoint);

@@ -47,7 +47,7 @@ private:
 
 	GUIMode m_mode = GUIMode::none;
 	Scene& m_scene;
-	
+
 	void startRotating(GUIMode mode);
 	void startScaling(GUIMode mode);
 };

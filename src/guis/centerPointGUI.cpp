@@ -14,10 +14,10 @@ CenterPointGUI::CenterPointGUI(CenterPoint& centerPoint) :
 void CenterPointGUI::update()
 {
 	static const std::string suffix = "##centerPoint";
-	
+
 	static constexpr float stepPrecision = 0.1f;
 	static const std::string format = "%.2f";
-	
+
 	glm::vec3 pos = m_centerPoint.getPos();
 	glm::vec3 prevPos = pos;
 	ImGui::InputFloat(("x" + suffix).c_str(), &pos.x, stepPrecision, stepPrecision,

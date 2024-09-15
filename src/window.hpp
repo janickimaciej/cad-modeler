@@ -25,7 +25,7 @@ private:
 	glm::ivec2 m_size{};
 	Scene* m_scene{};
 	GUI* m_gui{};
-	
+
 	glm::vec2 m_lastCursorPos{};
 	bool m_dragging = false;
 	bool m_rotatingRequested = false;

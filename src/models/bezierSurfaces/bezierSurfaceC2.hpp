@@ -29,7 +29,7 @@ private:
 	static int m_count;
 
 	std::vector<std::vector<std::unique_ptr<Point>>> m_bezierPoints{};
-	
+
 	virtual std::vector<std::unique_ptr<Point>> createPoints(
 		const ShaderProgram& pointShaderProgram, const glm::vec3& pos, float sizeU,
 		float sizeV) override;

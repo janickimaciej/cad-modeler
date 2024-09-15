@@ -19,7 +19,7 @@ public:
 	glm::vec2 getScreenPos(const glm::mat4& cameraMatrix, const glm::ivec2& windowSize) const;
 	virtual void setScreenPos(const glm::vec2& screenPos, const glm::mat4& cameraMatrix,
 		const glm::ivec2& windowSize);
-	
+
 	float getPitchRad() const;
 	void setPitchRad(float pitchRad);
 	float getYawRad() const;
@@ -33,7 +33,7 @@ public:
 	std::string getOriginalName() const;
 	std::string getName() const;
 	void setName(const std::string& name);
-	
+
 	bool isSelected() const;
 	bool isDeletable() const;
 	bool isVirtual() const;

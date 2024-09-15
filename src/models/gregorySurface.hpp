@@ -28,7 +28,7 @@ public:
 
 	virtual void render() const override;
 	virtual void updateGUI() override;
-	
+
 	bool getRenderVectors() const;
 	void setRenderVectors(bool renderVectors);
 	int getLineCount() const;
@@ -39,7 +39,7 @@ private:
 
 	const ShaderProgram& m_surfaceShaderProgram;
 	const ShaderProgram& m_vectorsShaderProgram;
-	
+
 	std::unique_ptr<GregorySurfaceMesh> m_surfaceMesh{};
 	std::unique_ptr<VectorsMesh> m_vectorsMesh{};
 	GregorySurfaceGUI m_gui{*this};
@@ -59,7 +59,7 @@ private:
 	GregorySurface(const ShaderProgram& surfaceShaderProgram,
 		const ShaderProgram& vectorsShaderProgram, const std::array<BezierPatch*, 3>& patches,
 		const SelfDestructCallback& selfDestructCallback, const std::array<int, 6>& corners);
-	
+
 	void getBezierPoints(const std::array<BezierPatch*, 3>& patches,
 		const std::array<int, 6>& corners);
 	void createPoints();

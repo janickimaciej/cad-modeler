@@ -14,7 +14,7 @@ void ValueWindow::update()
 	ImGui::SetNextWindowSize({static_cast<float>(width()), static_cast<float>(height)},
 		ImGuiCond_Always);
 	ImGui::Begin(name().c_str(), nullptr, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoTitleBar);
-	
+
 	ImGui::PushItemWidth(static_cast<float>(width() - 17));
 	ImGui::SetKeyboardFocusHere();
 	input();

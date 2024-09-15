@@ -47,7 +47,7 @@ void BezierCurveInterSerializer::deserialize(const nlohmann::ordered_json& json,
 	{
 		curve->setName(json["name"]);
 	}
-	
+
 	scene.m_models.push_back(curve.get());
 	scene.m_bezierCurvesInter.push_back(std::move(curve));
 }

@@ -26,21 +26,21 @@ public:
 	virtual ~BezierPatch();
 	virtual void render() const override;
 	virtual void updateGUI() override;
-	
+
 	virtual void setPos(const glm::vec3&) override;
 	virtual void setScreenPos(const glm::vec2&, const glm::mat4&, const glm::ivec2&) override;
 	void updatePoints(const std::array<std::array<Point*, 4>, 4>& bezierPoints);
 
 	bool isInvalid() const;
 	void setInvalid();
-	
+
 	Point* getCornerPointIfOnEdge(int corner) const;
 	std::array<std::array<Point*, 4>, 2> getPointsBetweenCorners(int leftCorner,
 		int rightCorner) const;
 
 	std::shared_ptr<DestroyCallback> registerForDestroyNotification(
 		const DestroyCallback& callback);
-	
+
 	virtual glm::vec3 surface(float u, float v) const override;
 	virtual glm::vec3 surfaceDU(float u, float v) const override;
 	virtual glm::vec3 surfaceDV(float u, float v) const override;
@@ -66,7 +66,7 @@ private:
 	bool m_isOnPositiveVEdge{};
 
 	std::vector<std::weak_ptr<DestroyCallback>> m_destroyNotifications{};
-	
+
 	void createSurfaceMesh();
 	void updatePos();
 	void updateSurfaceMesh();

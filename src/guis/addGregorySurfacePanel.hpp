@@ -20,9 +20,6 @@ private:
 	Scene& m_scene;
 	Callback m_callback{};
 
-	std::array<int, 3> m_patches{};
+	std::array<BezierPatch*, 3> m_patches{};
 	int m_patchCount = 0;
-
-	void updateList(std::optional<int>& clickedPatchIndex);
-	void updateButton(std::optional<int> clickedPatchIndex);
 };

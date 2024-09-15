@@ -33,7 +33,7 @@ public:
 
 private:
 	static int m_count;
-	
+
 	const ShaderProgram& m_shaderProgram;
 	std::unique_ptr<PolylineMesh> m_mesh{};
 	std::array<const Intersectable*, 2> m_surfaces{};

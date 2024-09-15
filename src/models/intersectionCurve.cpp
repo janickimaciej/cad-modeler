@@ -52,7 +52,7 @@ std::vector<std::unique_ptr<IntersectionCurve>> IntersectionCurve::create(
 	{
 		return {};
 	}
-	
+
 	std::vector<std::array<glm::vec2, 2>> intersectionPoints = findIntersectionPoints(surfaces,
 		*newtonMethodStartingPoints);
 
@@ -233,7 +233,7 @@ std::vector<std::array<glm::vec2, 2>> IntersectionCurve::findIntersectionPoints(
 	{
 		return forwardPoints;
 	}
-	
+
 	points = startingPoints;
 	std::vector<std::array<glm::vec2, 2>> backwardsPoints{};
 
@@ -267,6 +267,14 @@ std::optional<std::array<glm::vec2, 2>> IntersectionCurve::newtonMethod(
 	static constexpr std::size_t maxIterations = static_cast<std::size_t>(1e4f);
 	static constexpr float d = 0.01f;
 
+	std::array<glm::vec3, 2> normal{};
+	for (std::size_t i = 0; i < 2; ++i)
+	{
+		normal[i] = glm::cross(surfaces[i]->surfaceDU(startingPoints[i]),
+			surfaces[i]->surfaceDV(startingPoints[i]));
+	}
+	glm::vec3 t = glm::normalize(glm::cross(normal[0], normal[1]));
+
 	glm::vec3 startingPoint = surfaces[0]->surface(startingPoints[0]);
 	glm::vec4 points = {startingPoints[0], startingPoints[1]};
 	for (std::size_t iteration = 0; iteration < maxIterations; ++iteration)
@@ -277,14 +285,6 @@ std::optional<std::array<glm::vec2, 2>> IntersectionCurve::newtonMethod(
 			surfaces[1]->surfaceDU(points.z, points.w)};
 		std::array<glm::vec3, 2> surfaceDV = {surfaces[0]->surfaceDV(points.x, points.y),
 			surfaces[1]->surfaceDV(points.z, points.w)};
-		
-		std::array<glm::vec3, 2> normal{};
-		for (std::size_t i = 0; i < 2; ++i)
-		{
-			normal[i] = glm::cross(surfaceDU[i], surfaceDV[i]);
-		}
-
-		glm::vec3 t = glm::normalize(glm::cross(normal[0], normal[1]));
 
 		glm::vec3 diff = surface[0] - startingPoint;
 		float tDiff = glm::dot(t, diff);

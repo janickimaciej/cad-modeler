@@ -18,7 +18,7 @@ void BezierSurfaceGUI::update()
 	{
 		m_surface.setRenderGrid(renderGrid);
 	}
-	
+
 	static constexpr int stepPrecision = 1;
 
 	int lineCount = m_surface.getLineCount();
