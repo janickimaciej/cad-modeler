@@ -45,6 +45,9 @@ public:
 	virtual glm::vec3 surfaceDU(float u, float v) const override;
 	virtual glm::vec3 surfaceDV(float u, float v) const override;
 
+	virtual bool uWrapped() const override;
+	virtual bool vWrapped() const override;
+
 private:
 	static int m_count;
 

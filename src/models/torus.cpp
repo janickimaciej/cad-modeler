@@ -75,13 +75,12 @@ void Torus::setMinorGrid(int minorGrid)
 	updateMesh();
 }
 
-glm::vec3 Torus::surface(float u, float v) const
+glm::vec3 Torus::surfaceLocal(float u, float v) const
 {
 	static constexpr float pi = glm::pi<float>();
 	float uScaled = 2 * pi * u;
 	float vScaled = 2 * pi * v;
 	float common = m_minorRadius * std::cos(vScaled) + m_majorRadius;
-
 	return glm::vec3
 	{
 		std::sin(uScaled) * common,
@@ -90,19 +89,25 @@ glm::vec3 Torus::surface(float u, float v) const
 	};
 }
 
+glm::vec3 Torus::surface(float u, float v) const
+{
+	return glm::vec3{m_modelMatrix * glm::vec4{surfaceLocal(u, v), 1}};
+}
+
 glm::vec3 Torus::surfaceDU(float u, float v) const
 {
 	static constexpr float pi = glm::pi<float>();
 	float uScaled = 2 * pi * u;
 	float vScaled = 2 * pi * v;
 	float common = m_minorRadius * std::cos(vScaled) + m_majorRadius;
-
-	return glm::vec3
+	glm::vec3 surfaceDULocal
 	{
 		2 * pi * std::cos(uScaled) * common,
 		0,
 		-2 * pi * std::sin(uScaled) * common
 	};
+
+	return glm::vec3{m_modelMatrix * glm::vec4{surfaceDULocal, 1}};
 }
 
 glm::vec3 Torus::surfaceDV(float u, float v) const
@@ -111,13 +116,24 @@ glm::vec3 Torus::surfaceDV(float u, float v) const
 	float uScaled = 2 * pi * u;
 	float vScaled = 2 * pi * v;
 	float common = -2 * pi * m_minorRadius * std::sin(vScaled);
-
-	return glm::vec3
+	glm::vec3 surfaceDVLocal
 	{
 		std::sin(uScaled) * common,
 		2 * pi * m_minorRadius * std::cos(vScaled),
 		std::cos(uScaled) * common
 	};
+
+	return glm::vec3{m_modelMatrix * glm::vec4{surfaceDVLocal, 1}};
+}
+
+bool Torus::uWrapped() const
+{
+	return true;
+}
+
+bool Torus::vWrapped() const
+{
+	return true;
 }
 
 int Torus::m_count = 0;
@@ -153,7 +169,7 @@ std::vector<glm::vec3> Torus::createVertices() const
 			float u = iu * du;
 			float v = iv * dv;
 
-			vertices.push_back(surface(u, v));
+			vertices.push_back(surfaceLocal(u, v));
 		}
 	}
 

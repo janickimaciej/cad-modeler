@@ -12,4 +12,7 @@ public:
 	glm::vec3 surface(const glm::vec2& pos) const;
 	glm::vec3 surfaceDU(const glm::vec2& pos) const;
 	glm::vec3 surfaceDV(const glm::vec2& pos) const;
+
+	virtual bool uWrapped() const = 0;
+	virtual bool vWrapped() const = 0;
 };

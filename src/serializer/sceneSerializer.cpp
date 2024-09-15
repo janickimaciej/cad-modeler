@@ -191,6 +191,7 @@ void SceneSerializer::clearScene(Scene& scene)
 	scene.m_bezierSurfacesC0.clear();
 	scene.m_bezierSurfacesC2.clear();
 	scene.m_gregorySurfaces.clear();
+	scene.m_intersectionCurves.clear();
 	scene.m_points.clear();
 	scene.m_bezierCurvesToBeDeleted.clear();
 }

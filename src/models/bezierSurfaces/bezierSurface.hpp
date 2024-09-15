@@ -29,6 +29,7 @@ public:
 	BezierSurface(const std::string& name, const ShaderProgram& bezierSurfaceGridShaderProgram,
 		int patchesU, int patchesV, BezierSurfaceWrapping wrapping);
 	virtual ~BezierSurface();
+
 	virtual void render() const override;
 	virtual void updateGUI() override;
 	
@@ -47,6 +48,9 @@ public:
 	virtual glm::vec3 surfaceDU(float u, float v) const override;
 	virtual glm::vec3 surfaceDV(float u, float v) const override;
 	void mapToPatch(float u, float v, int& patchU, int& patchV, float& localU, float& localV) const;
+
+	virtual bool uWrapped() const override;
+	virtual bool vWrapped() const override;
 
 protected:
 	std::unique_ptr<Mesh> m_gridMesh{};

@@ -69,7 +69,7 @@ void AddIntersectionPanel::updateList(std::optional<ModelType>& clickedType,
 void AddIntersectionPanel::updateButton(std::optional<ModelType> clickedType,
 	std::optional<int> clickedSurfaceIndex)
 {
-	if (ImGui::Button(("Add patch (" + std::to_string(m_surfaceCount) +
+	if (ImGui::Button(("Add surface (" + std::to_string(m_surfaceCount) +
 		"/2)##AddIntersectionPanelButton").c_str()) && clickedType.has_value())
 	{
 		m_types[m_surfaceCount] = *clickedType;

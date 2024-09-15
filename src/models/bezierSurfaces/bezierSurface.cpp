@@ -528,6 +528,16 @@ void BezierSurface::mapToPatch(float u, float v, int& patchU, int& patchV, float
 	localV = vScaled - patchV;
 }
 
+bool BezierSurface::uWrapped() const
+{
+	return m_wrapping == BezierSurfaceWrapping::u;
+}
+
+bool BezierSurface::vWrapped() const
+{
+	return m_wrapping == BezierSurfaceWrapping::v;
+}
+
 std::size_t BezierSurface::getBezierPointsU() const
 {
 	switch (m_wrapping)

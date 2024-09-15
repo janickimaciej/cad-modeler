@@ -1,19 +1,53 @@
 #include "models/intersectionCurve.hpp"
 
+#include <algorithm>
 #include <cstddef>
 #include <limits>
+#include <string>
 
 std::vector<std::unique_ptr<IntersectionCurve>> IntersectionCurve::create(
-	const std::array<const Intersectable*, 2>& surfaces, const glm::vec3& cursorPos)
+	const ShaderProgram& shaderProgram, const std::array<const Intersectable*, 2>& surfaces,
+	const glm::vec3& cursorPos)
 {
-	std::array<glm::vec2, 2> gradientMethodStartingPoints{};
-	for (std::size_t i = 0; i < 2; ++i)
-	{
-		gradientMethodStartingPoints[i] = closestSample(surfaces[i], cursorPos);
-	}
+	return create(shaderProgram, surfaces, closestSamples(surfaces, cursorPos));
+}
 
+std::vector<std::unique_ptr<IntersectionCurve>> IntersectionCurve::create(
+	const ShaderProgram& shaderProgram, const std::array<const Intersectable*, 2>& surfaces)
+{
+	return create(shaderProgram, surfaces, closestSamples(surfaces));
+}
+
+void IntersectionCurve::render() const
+{
+	updateShaders();
+	m_mesh->render();
+}
+
+void IntersectionCurve::updateGUI()
+{
+	m_gui.update();
+}
+
+void IntersectionCurve::setPos(const glm::vec3&)
+{ }
+
+void IntersectionCurve::setScreenPos(const glm::vec2&, const glm::mat4&, const glm::ivec2&)
+{ }
+
+int IntersectionCurve::pointCount() const
+{
+	return static_cast<int>(m_points.size());
+}
+
+int IntersectionCurve::m_count = 0;
+
+std::vector<std::unique_ptr<IntersectionCurve>> IntersectionCurve::create(
+	const ShaderProgram& shaderProgram, const std::array<const Intersectable*, 2>& surfaces,
+	const std::array<glm::vec2, 2>& startingPoints)
+{
 	std::optional<std::array<glm::vec2, 2>> newtonMethodStartingPoints = gradientMethod(surfaces,
-		gradientMethodStartingPoints);
+		startingPoints);
 	if (!newtonMethodStartingPoints.has_value())
 	{
 		return {};
@@ -22,44 +56,119 @@ std::vector<std::unique_ptr<IntersectionCurve>> IntersectionCurve::create(
 	std::vector<std::array<glm::vec2, 2>> intersectionPoints = findIntersectionPoints(surfaces,
 		*newtonMethodStartingPoints);
 
-	return {}; // TODO
+	std::vector<std::unique_ptr<IntersectionCurve>> curves{};
+	curves.push_back(std::unique_ptr<IntersectionCurve>(new IntersectionCurve{shaderProgram,
+		surfaces, intersectionPoints}));
+	return curves;
 }
 
-std::vector<std::unique_ptr<IntersectionCurve>> IntersectionCurve::create(
-	const std::array<const Intersectable*, 2>& surfaces)
+IntersectionCurve::IntersectionCurve(const ShaderProgram& shaderProgram,
+	const std::array<const Intersectable*, 2>& surfaces,
+	const std::vector<std::array<glm::vec2, 2>>& points) :
+	Model{{}, "Intersection curve " + std::to_string(m_count++)},
+	m_shaderProgram{shaderProgram},
+	m_surfaces{surfaces},
+	m_points{points}
 {
-	return {}; // TODO
+	createMesh();
+	updatePos();
 }
 
-glm::vec2 IntersectionCurve::closestSample(const Intersectable* surface, const glm::vec3& pos)
+void IntersectionCurve::createMesh()
+{
+	std::vector<glm::vec3> vertices{};
+	for (const std::array<glm::vec2, 2>& point : m_points)
+	{
+		vertices.push_back(m_surfaces[0]->surface(point[0]));
+	}
+	m_mesh = std::make_unique<PolylineMesh>(vertices);
+}
+
+void IntersectionCurve::updateShaders() const
+{
+	m_shaderProgram.use();
+	m_shaderProgram.setUniform("isDark", false);
+	m_shaderProgram.setUniform("isSelected", isSelected());
+}
+
+void IntersectionCurve::updatePos()
+{
+	glm::vec3 pos{};
+	for (const std::array<glm::vec2, 2>& point : m_points)
+	{
+		pos += m_surfaces[0]->surface(point[0]);
+	}
+	m_pos = pos / static_cast<float>(m_points.size());
+}
+
+std::array<glm::vec2, 2> IntersectionCurve::closestSamples(
+		const std::array<const Intersectable*, 2>& surfaces, const glm::vec3& pos)
 {
 	static constexpr int resolution = 10;
 	static constexpr float step = 1.0f / resolution;
 
-	float minDistanceSquared = std::numeric_limits<float>::max();
-	glm::vec2 closestPos{};
-	for (int iu = 0; iu <= resolution; ++iu)
+	std::array<glm::vec2, 2> closestPoints{};
+	for (int i = 0; i < 2; ++i)
 	{
-		for (int iv = 0; iv <= resolution; ++iv)
+		float minDistanceSquared = std::numeric_limits<float>::max();
+		for (int iu = 0; iu <= resolution; ++iu)
 		{
 			float u = iu * step;
-			float v = iv * step;
-			float distanceSquared = getDistanceSquared(surface->surface(u, v), pos);
-			if (distanceSquared < minDistanceSquared)
+			for (int iv = 0; iv <= resolution; ++iv)
 			{
-				minDistanceSquared = distanceSquared;
-				closestPos = {u, v};
+				float v = iv * step;
+				float distanceSquared = getDistanceSquared(surfaces[i]->surface(u, v), pos);
+				if (distanceSquared < minDistanceSquared)
+				{
+					minDistanceSquared = distanceSquared;
+					closestPoints[i] = {u, v};
+				}
 			}
 		}
 	}
-	return closestPos;
+	return closestPoints;
+}
+
+std::array<glm::vec2, 2> IntersectionCurve::closestSamples(
+	const std::array<const Intersectable*, 2>& surfaces)
+{
+	static constexpr int resolution = 10;
+	static constexpr float step = 1.0f / resolution;
+
+	std::array<glm::vec2, 2> closestPoints{};
+	float minDistanceSquared = std::numeric_limits<float>::max();
+	for (int iu1 = 0; iu1 <= resolution; ++iu1)
+	{
+		float u1 = iu1 * step;
+		for (int iv1 = 0; iv1 <= resolution; ++iv1)
+		{
+			float v1 = iv1 * step;
+			for (int iu2 = 0; iu2 <= resolution; ++iu2)
+			{
+				float u2 = iu2 * step;
+				for (int iv2 = 0; iv2 <= resolution; ++iv2)
+				{
+					float v2 = iv2 * step;
+					float distanceSquared = getDistanceSquared(surfaces[0]->surface(u1, v1),
+						surfaces[1]->surface(u2, v2));
+					if (distanceSquared < minDistanceSquared)
+					{
+						minDistanceSquared = distanceSquared;
+						closestPoints[0] = {u1, v1};
+						closestPoints[1] = {u2, v2};
+					}
+				}
+			}
+		}
+	}
+	return closestPoints;
 }
 
 std::optional<std::array<glm::vec2, 2>> IntersectionCurve::gradientMethod(
 	const std::array<const Intersectable*, 2>& surfaces,
 	const std::array<glm::vec2, 2>& startingPoints)
 {
-	static constexpr float error = 1e-5f;
+	static constexpr float error = 1e-8f;
 	static constexpr float stepSize = 0.01f;
 	static constexpr std::size_t maxIterations = static_cast<std::size_t>(1e4f);
 
@@ -90,28 +199,73 @@ std::vector<std::array<glm::vec2, 2>> IntersectionCurve::findIntersectionPoints(
 	const std::array<const Intersectable*, 2>& surfaces,
 	const std::array<glm::vec2, 2>& startingPoints)
 {
-	std::vector<std::array<glm::vec2, 2>> allPoints{};
+	static constexpr float eps = 1.5e-2f * 1.5e-2f;
+	static constexpr std::size_t maxPoints = static_cast<std::size_t>(1e4f);
+
+	std::vector<std::array<glm::vec2, 2>> forwardPoints{};
 	std::array<glm::vec2, 2> points = startingPoints;
-	for (int i = 0; i < 100; ++i)
+	bool findBackwards = false;
+	for (int i = 0; i < maxPoints; ++i)
 	{
-		allPoints.push_back(points);
+		if (i > 5 && getDistanceSquared(surfaces[0]->surface(points[0]),
+			surfaces[0]->surface(forwardPoints[0][0])) < eps)
+		{
+			forwardPoints.push_back(forwardPoints[0]);
+			return forwardPoints;
+		}
+
+		forwardPoints.push_back(points);
+		if (outsideDomain(points, surfaces))
+		{
+			findBackwards = true;
+			break;
+		}
+
 		std::optional<std::array<glm::vec2, 2>> newPoints = newtonMethod(surfaces, points);
 		if (!newPoints.has_value())
 		{
-			return allPoints;
+			break;
 		}
 		points = *newPoints;
 	}
-	return allPoints;
+
+	if (!findBackwards)
+	{
+		return forwardPoints;
+	}
+	
+	points = startingPoints;
+	std::vector<std::array<glm::vec2, 2>> backwardsPoints{};
+
+	for (int i = 0; i < maxPoints - forwardPoints.size(); ++i)
+	{
+		std::optional<std::array<glm::vec2, 2>> newPoints = newtonMethod(surfaces, points, true);
+		if (!newPoints.has_value())
+		{
+			break;
+		}
+		points = *newPoints;
+
+		backwardsPoints.push_back(points);
+		if (outsideDomain(points, surfaces))
+		{
+			break;
+		}
+	}
+
+	std::reverse(backwardsPoints.begin(), backwardsPoints.end());
+	backwardsPoints.insert(backwardsPoints.end(), forwardPoints.begin(), forwardPoints.end());
+
+	return backwardsPoints;
 }
 
 std::optional<std::array<glm::vec2, 2>> IntersectionCurve::newtonMethod(
 	const std::array<const Intersectable*, 2>& surfaces,
-	const std::array<glm::vec2, 2>& startingPoints)
+	const std::array<glm::vec2, 2>& startingPoints, bool backwards)
 {
-	static constexpr float error = 1e-5f;
+	static constexpr float error = 1e-8f;
 	static constexpr std::size_t maxIterations = static_cast<std::size_t>(1e4f);
-	static constexpr float d = 0.002f;
+	static constexpr float d = 0.01f;
 
 	glm::vec3 startingPoint = surfaces[0]->surface(startingPoints[0]);
 	glm::vec4 points = {startingPoints[0], startingPoints[1]};
@@ -139,7 +293,7 @@ std::optional<std::array<glm::vec2, 2>> IntersectionCurve::newtonMethod(
 			surface[0].x - surface[1].x,
 			surface[0].y - surface[1].y,
 			surface[0].z - surface[1].z,
-			tDiff - d
+			tDiff - (backwards ? -d : d)
 		};
 
 		if (glm::dot(rhs, rhs) < error)
@@ -166,4 +320,13 @@ float IntersectionCurve::getDistanceSquared(const glm::vec3& pos1, const glm::ve
 {
 	glm::vec3 diff = pos2 - pos1;
 	return glm::dot(diff, diff);
+}
+
+bool IntersectionCurve::outsideDomain(const std::array<glm::vec2, 2>& points,
+	const std::array<const Intersectable*, 2>& surfaces)
+{
+	return !surfaces[0]->uWrapped() && (points[0].x < 0 || points[0].x > 1) ||
+		!surfaces[0]->vWrapped() && (points[0].y < 0 || points[0].y > 1) ||
+		!surfaces[1]->uWrapped() && (points[1].x < 0 || points[1].x > 1) ||
+		!surfaces[1]->vWrapped() && (points[1].y < 0 || points[1].y > 1);
 }

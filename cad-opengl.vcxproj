@@ -41,6 +41,7 @@
     <ClCompile Include="src\cursor.cpp" />
     <ClCompile Include="src\guis\modelGUIs\bezierPatchGUI.cpp" />
     <ClCompile Include="src\guis\modelGUIs\gregorySurfaceGUI.cpp" />
+    <ClCompile Include="src\guis\modelGUIs\intersectionCurveGUI.cpp" />
     <ClCompile Include="src\guis\modelListPanel.cpp" />
     <ClCompile Include="src\guis\rightPanel.cpp" />
     <ClCompile Include="src\guis\valueWindows\deserializingWindow.cpp" />
@@ -127,6 +128,7 @@
     <ClInclude Include="src\guis\cursorGUI.hpp" />
     <ClInclude Include="src\guis\modelGUIs\bezierPatchGUI.hpp" />
     <ClInclude Include="src\guis\modelGUIs\gregorySurfaceGUI.hpp" />
+    <ClInclude Include="src\guis\modelGUIs\intersectionCurveGUI.hpp" />
     <ClInclude Include="src\guis\modelListPanel.hpp" />
     <ClInclude Include="src\guis\rightPanel.hpp" />
     <ClInclude Include="src\guis\valueWindows\deserializingWindow.hpp" />

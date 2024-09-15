@@ -169,6 +169,9 @@ int Scene::getModelCount(ModelType type) const
 
 		case ModelType::gregorySurface:
 			return static_cast<int>(m_gregorySurfaces.size());
+
+		case ModelType::intersectionCurve:
+			return static_cast<int>(m_intersectionCurves.size());
 	}
 	return {};
 }
@@ -216,6 +219,9 @@ bool Scene::isModelVirtual(int i, ModelType type) const
 
 		case ModelType::gregorySurface:
 			return m_gregorySurfaces[i]->isVirtual();
+
+		case ModelType::intersectionCurve:
+			return m_intersectionCurves[i]->isVirtual();
 	}
 	return {};
 }
@@ -253,6 +259,9 @@ bool Scene::isModelSelected(int i, ModelType type) const
 
 		case ModelType::gregorySurface:
 			return m_gregorySurfaces[i]->isSelected();
+
+		case ModelType::intersectionCurve:
+			return m_intersectionCurves[i]->isSelected();
 	}
 	return {};
 }
@@ -314,6 +323,12 @@ void Scene::selectModel(int i, ModelType type)
 		case ModelType::gregorySurface:
 			m_gregorySurfaces[i]->select();
 			m_selectedModels.push_back(m_gregorySurfaces[i].get());
+			break;
+
+		case ModelType::intersectionCurve:
+			m_intersectionCurves[i]->select();
+			m_selectedModels.push_back(m_intersectionCurves[i].get());
+			break;
 	}
 }
 
@@ -370,6 +385,11 @@ void Scene::deselectModel(int i, ModelType type)
 		case ModelType::gregorySurface:
 			m_gregorySurfaces[i]->deselect();
 			deselectedModel = m_gregorySurfaces[i].get();
+			break;
+			
+		case ModelType::intersectionCurve:
+			m_intersectionCurves[i]->deselect();
+			deselectedModel = m_intersectionCurves[i].get();
 			break;
 	}
 	std::erase_if
@@ -431,6 +451,7 @@ void Scene::deleteSelectedModels()
 	deleteSelectedModels(m_bezierSurfacesC0);
 	deleteSelectedModels(m_bezierSurfacesC2);
 	deleteSelectedModels(m_gregorySurfaces);
+	deleteSelectedModels(m_intersectionCurves);
 }
 
 bool Scene::selectUniqueModel(const glm::vec2& screenPos)
@@ -578,6 +599,9 @@ std::string Scene::getModelOriginalName(int i, ModelType type) const
 			
 		case ModelType::gregorySurface:
 			return m_gregorySurfaces[i]->getOriginalName();
+			
+		case ModelType::intersectionCurve:
+			return m_intersectionCurves[i]->getOriginalName();
 	}
 	return {};
 }
@@ -615,6 +639,9 @@ std::string Scene::getModelName(int i, ModelType type) const
 			
 		case ModelType::gregorySurface:
 			return m_gregorySurfaces[i]->getName();
+			
+		case ModelType::intersectionCurve:
+			return m_intersectionCurves[i]->getName();
 	}
 	return {};
 }
@@ -868,11 +895,12 @@ void Scene::addIntersection(const std::array<ModelType, 2>& types,
 	std::vector<std::unique_ptr<IntersectionCurve>> intersectionCurves{};
 	if (useCursor)
 	{
-		intersectionCurves = IntersectionCurve::create(surfaces, m_cursor.getPos());
+		intersectionCurves = IntersectionCurve::create(m_shaderPrograms.polyline, surfaces,
+			m_cursor.getPos());
 	}
 	else
 	{
-		intersectionCurves = IntersectionCurve::create(surfaces);
+		intersectionCurves = IntersectionCurve::create(m_shaderPrograms.polyline, surfaces);
 	}
 
 	for (const std::unique_ptr<IntersectionCurve>& curve : intersectionCurves)
@@ -941,6 +969,10 @@ void Scene::updateModelGUI(int i, ModelType type)
 			
 		case ModelType::gregorySurface:
 			m_gregorySurfaces[i]->updateGUI();
+			break;
+			
+		case ModelType::intersectionCurve:
+			m_intersectionCurves[i]->updateGUI();
 			break;
 	}
 }
