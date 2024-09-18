@@ -270,7 +270,6 @@ void LeftPanel::updateButtons()
 		else
 		{
 			m_mode = Mode::gregorySurface;
-			m_addGregorySurfacePanel.start();
 		}
 	}
 
@@ -294,7 +293,6 @@ void LeftPanel::updateButtons()
 		else
 		{
 			m_mode = Mode::intersection;
-			m_addIntersectionPanel.start();
 		}
 	}
 
@@ -309,6 +307,8 @@ void LeftPanel::updateButtons()
 	{
 		m_scene.collapse2Points();
 	}
+
+	separator();
 }
 
 void LeftPanel::resetPanels()

@@ -12,7 +12,6 @@ class AddGregorySurfacePanel
 
 public:
 	AddGregorySurfacePanel(Scene& scene, const Callback& callback);
-	void start();
 	void reset();
 	void update();
 

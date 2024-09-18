@@ -115,11 +115,6 @@ public:
 	float getProjectionPlane() const;
 	void setProjectionPlane(float projectionPlane);
 
-	void startAddingGregoryPatch();
-	void stopAddingGregoryPatch();
-	void startAddingIntersection();
-	void stopAddingIntersection();
-
 private:
 	ShaderPrograms m_shaderPrograms{};
 
@@ -167,9 +162,6 @@ private:
 	Framebuffer m_leftEyeFramebuffer;
 	Quad m_leftEyeQuad{};
 	bool m_anaglyphOn = false;
-
-	bool m_addingGregorySurface = false;
-	bool m_addingIntersection = false;
 
 	void setUpFramebuffer() const;
 	void clearFramebuffer(AnaglyphMode anaglyphMode) const;

@@ -9,6 +9,7 @@ ModelListPanel::ModelListPanel(Scene& scene) :
 void ModelListPanel::update(GUIMode mode)
 {
 	ImGui::Text("Model list");
+	ImGui::Spacing();
 	updateModelType();
 	updateModelList(mode);
 }
@@ -16,6 +17,7 @@ void ModelListPanel::update(GUIMode mode)
 void ModelListPanel::updateModelType()
 {
 	ImGui::PushItemWidth(170);
+	ImGui::SetNextWindowSize({170, 200});
 
 	if (ImGui::BeginCombo("##modelType", modelTypeLabels[static_cast<int>(m_modelType)].c_str()))
 	{

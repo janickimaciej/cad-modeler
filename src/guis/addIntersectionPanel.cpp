@@ -9,14 +9,8 @@ AddIntersectionPanel::AddIntersectionPanel(Scene& scene, const Callback& callbac
 	m_callback{callback}
 { }
 
-void AddIntersectionPanel::start()
-{
-	m_scene.startAddingIntersection();
-}
-
 void AddIntersectionPanel::reset()
 {
-	m_scene.stopAddingIntersection();
 	m_surfaceCount = 0;
 	m_useCursor = false;
 }

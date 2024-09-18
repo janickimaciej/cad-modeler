@@ -9,14 +9,8 @@ AddGregorySurfacePanel::AddGregorySurfacePanel(Scene& scene, const Callback& cal
 	m_callback{callback}
 { }
 
-void AddGregorySurfacePanel::start()
-{
-	m_scene.startAddingGregoryPatch();
-}
-
 void AddGregorySurfacePanel::reset()
 {
-	m_scene.stopAddingGregoryPatch();
 	m_patchCount = 0;
 }
 

@@ -268,11 +268,6 @@ bool Scene::isModelSelected(int i, ModelType type) const
 
 void Scene::selectModel(int i, ModelType type)
 {
-	if (m_addingGregorySurface || m_addingIntersection)
-	{
-		deselectAllModels();
-	}
-
 	switch (type)
 	{
 		case ModelType::all:
@@ -416,7 +411,7 @@ void Scene::toggleModel(int i, ModelType type)
 
 void Scene::deselectAllModels()
 {
-	for (Model* model : m_models)
+	for (Model* model : m_selectedModels)
 	{
 		model->deselect();
 	}
@@ -1048,30 +1043,6 @@ void Scene::setProjectionPlane(float projectionPlane)
 {
 	m_perspectiveCamera.setProjectionPlane(projectionPlane);
 	m_orthographicCamera.setProjectionPlane(projectionPlane);
-}
-
-void Scene::startAddingGregoryPatch()
-{
-	m_addingGregorySurface = true;
-	deselectAllModels();
-}
-
-void Scene::stopAddingGregoryPatch()
-{
-	m_addingGregorySurface = false;
-	deselectAllModels();
-}
-
-void Scene::startAddingIntersection()
-{
-	m_addingIntersection = true;
-	deselectAllModels();
-}
-
-void Scene::stopAddingIntersection()
-{
-	m_addingIntersection = false;
-	deselectAllModels();
 }
 
 void Scene::setUpFramebuffer() const
