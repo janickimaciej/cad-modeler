@@ -5,15 +5,14 @@
 #include <limits>
 #include <string>
 
-std::vector<std::unique_ptr<IntersectionCurve>> IntersectionCurve::create(
-	const ShaderProgram& shaderProgram, const std::array<const Intersectable*, 2>& surfaces,
-	const glm::vec3& cursorPos)
+std::unique_ptr<IntersectionCurve> IntersectionCurve::create(const ShaderProgram& shaderProgram,
+	const std::array<const Intersectable*, 2>& surfaces, const glm::vec3& cursorPos)
 {
 	return create(shaderProgram, surfaces, closestSamples(surfaces, cursorPos));
 }
 
-std::vector<std::unique_ptr<IntersectionCurve>> IntersectionCurve::create(
-	const ShaderProgram& shaderProgram, const std::array<const Intersectable*, 2>& surfaces)
+std::unique_ptr<IntersectionCurve> IntersectionCurve::create(const ShaderProgram& shaderProgram,
+	const std::array<const Intersectable*, 2>& surfaces)
 {
 	return create(shaderProgram, surfaces, closestSamples(surfaces));
 }
@@ -42,24 +41,22 @@ int IntersectionCurve::pointCount() const
 
 int IntersectionCurve::m_count = 0;
 
-std::vector<std::unique_ptr<IntersectionCurve>> IntersectionCurve::create(
-	const ShaderProgram& shaderProgram, const std::array<const Intersectable*, 2>& surfaces,
+std::unique_ptr<IntersectionCurve> IntersectionCurve::create(const ShaderProgram& shaderProgram,
+	const std::array<const Intersectable*, 2>& surfaces,
 	const std::array<glm::vec2, 2>& startingPoints)
 {
 	std::optional<std::array<glm::vec2, 2>> newtonMethodStartingPoints = gradientMethod(surfaces,
 		startingPoints);
 	if (!newtonMethodStartingPoints.has_value())
 	{
-		return {};
+		return nullptr;
 	}
 
 	std::vector<std::array<glm::vec2, 2>> intersectionPoints = findIntersectionPoints(surfaces,
 		*newtonMethodStartingPoints);
 
-	std::vector<std::unique_ptr<IntersectionCurve>> curves{};
-	curves.push_back(std::unique_ptr<IntersectionCurve>(new IntersectionCurve{shaderProgram,
-		surfaces, intersectionPoints}));
-	return curves;
+	return std::unique_ptr<IntersectionCurve>(new IntersectionCurve{shaderProgram, surfaces,
+		intersectionPoints});
 }
 
 IntersectionCurve::IntersectionCurve(const ShaderProgram& shaderProgram,
@@ -102,7 +99,7 @@ void IntersectionCurve::updatePos()
 }
 
 std::array<glm::vec2, 2> IntersectionCurve::closestSamples(
-		const std::array<const Intersectable*, 2>& surfaces, const glm::vec3& pos)
+	const std::array<const Intersectable*, 2>& surfaces, const glm::vec3& pos)
 {
 	static constexpr int resolution = 10;
 	static constexpr float step = 1.0f / resolution;
@@ -169,7 +166,7 @@ std::optional<std::array<glm::vec2, 2>> IntersectionCurve::gradientMethod(
 	const std::array<glm::vec2, 2>& startingPoints)
 {
 	static constexpr float error = 1e-8f;
-	static constexpr float stepSize = 0.01f;
+	static constexpr float stepSize = 0.001f;
 	static constexpr std::size_t maxIterations = static_cast<std::size_t>(1e4f);
 
 	std::array<glm::vec2, 2> points = startingPoints;
@@ -199,7 +196,8 @@ std::vector<std::array<glm::vec2, 2>> IntersectionCurve::findIntersectionPoints(
 	const std::array<const Intersectable*, 2>& surfaces,
 	const std::array<glm::vec2, 2>& startingPoints)
 {
-	static constexpr float eps = 1.5e-2f * 1.5e-2f;
+	static constexpr float eps = 1.5f * m_newtonMethodStep;
+	static constexpr float epsSquared = eps * eps;
 	static constexpr std::size_t maxPoints = static_cast<std::size_t>(1e4f);
 
 	std::vector<std::array<glm::vec2, 2>> forwardPoints{};
@@ -208,7 +206,7 @@ std::vector<std::array<glm::vec2, 2>> IntersectionCurve::findIntersectionPoints(
 	for (int i = 0; i < maxPoints; ++i)
 	{
 		if (i > 5 && getDistanceSquared(surfaces[0]->surface(points[0]),
-			surfaces[0]->surface(forwardPoints[0][0])) < eps)
+			surfaces[0]->surface(forwardPoints[0][0])) < epsSquared)
 		{
 			forwardPoints.push_back(forwardPoints[0]);
 			return forwardPoints;
@@ -265,7 +263,6 @@ std::optional<std::array<glm::vec2, 2>> IntersectionCurve::newtonMethod(
 {
 	static constexpr float error = 1e-8f;
 	static constexpr std::size_t maxIterations = static_cast<std::size_t>(1e4f);
-	static constexpr float d = 0.01f;
 
 	std::array<glm::vec3, 2> normal{};
 	for (std::size_t i = 0; i < 2; ++i)
@@ -293,7 +290,7 @@ std::optional<std::array<glm::vec2, 2>> IntersectionCurve::newtonMethod(
 			surface[0].x - surface[1].x,
 			surface[0].y - surface[1].y,
 			surface[0].z - surface[1].z,
-			tDiff - (backwards ? -d : d)
+			tDiff - (backwards ? -m_newtonMethodStep : m_newtonMethodStep)
 		};
 
 		if (glm::dot(rhs, rhs) < error)

@@ -16,11 +16,10 @@
 class IntersectionCurve : public Model
 {
 public:
-	static std::vector<std::unique_ptr<IntersectionCurve>> create(
-		const ShaderProgram& shaderProgram, const std::array<const Intersectable*, 2>& surfaces,
-		const glm::vec3& cursorPos);
-	static std::vector<std::unique_ptr<IntersectionCurve>> create(
-		const ShaderProgram& shaderProgram, const std::array<const Intersectable*, 2>& surfaces);
+	static std::unique_ptr<IntersectionCurve> create(const ShaderProgram& shaderProgram,
+		const std::array<const Intersectable*, 2>& surfaces, const glm::vec3& cursorPos);
+	static std::unique_ptr<IntersectionCurve> create(const ShaderProgram& shaderProgram,
+		const std::array<const Intersectable*, 2>& surfaces);
 	virtual ~IntersectionCurve() = default;
 
 	virtual void render() const override;
@@ -32,6 +31,8 @@ public:
 	int pointCount() const;
 
 private:
+	static constexpr float m_newtonMethodStep = 0.01f;
+
 	static int m_count;
 
 	const ShaderProgram& m_shaderProgram;
@@ -40,8 +41,8 @@ private:
 	std::vector<std::array<glm::vec2, 2>> m_points{};
 	IntersectionCurveGUI m_gui{*this};
 
-	static std::vector<std::unique_ptr<IntersectionCurve>> create(
-		const ShaderProgram& shaderProgram, const std::array<const Intersectable*, 2>& surfaces,
+	static std::unique_ptr<IntersectionCurve> create(const ShaderProgram& shaderProgram,
+		const std::array<const Intersectable*, 2>& surfaces,
 		const std::array<glm::vec2, 2>& startingPoints);
 	IntersectionCurve(const ShaderProgram& shaderProgram,
 		const std::array<const Intersectable*, 2>& surfaces,

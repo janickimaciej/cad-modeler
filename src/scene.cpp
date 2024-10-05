@@ -910,31 +910,29 @@ void Scene::addGregorySurface(const std::array<BezierPatch*, 3>& patches)
 
 	if (surface != nullptr)
 	{
+		m_models.push_back(surface.get());
 		m_gregorySurfaces.push_back(std::move(surface));
-		m_models.push_back(m_gregorySurfaces.back().get());
 	}
 }
 
 void Scene::addIntersection(const std::array<const Intersectable*, 2>& surfaces, bool useCursor)
 {
-	std::vector<std::unique_ptr<IntersectionCurve>> intersectionCurves{};
+	std::unique_ptr<IntersectionCurve> intersectionCurve{};
 	if (useCursor)
 	{
-		intersectionCurves = IntersectionCurve::create(m_shaderPrograms.polyline, surfaces,
+		intersectionCurve = IntersectionCurve::create(m_shaderPrograms.polyline, surfaces,
 			m_cursor.getPos());
 	}
 	else
 	{
-		intersectionCurves = IntersectionCurve::create(m_shaderPrograms.polyline, surfaces);
+		intersectionCurve = IntersectionCurve::create(m_shaderPrograms.polyline, surfaces);
 	}
 
-	for (const std::unique_ptr<IntersectionCurve>& curve : intersectionCurves)
+	if (intersectionCurve != nullptr)
 	{
-		m_models.push_back(curve.get());
+		m_models.push_back(intersectionCurve.get());
+		m_intersectionCurves.push_back(std::move(intersectionCurve));
 	}
-	m_intersectionCurves.insert(m_intersectionCurves.end(),
-		std::make_move_iterator(intersectionCurves.begin()),
-		std::make_move_iterator(intersectionCurves.end()));
 }
 
 void Scene::updateActiveCameraGUI()
