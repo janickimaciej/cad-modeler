@@ -14,9 +14,9 @@ nlohmann::ordered_json TorusSerializer::serialize(const Torus& torus, int& id)
 	json["position"]["y"] = torus.m_pos.y;
 	json["position"]["z"] = torus.m_pos.z;
 
-	json["rotation"]["x"] = glm::degrees(torus.m_pitchRad);
-	json["rotation"]["y"] = glm::degrees(torus.m_yawRad);
-	json["rotation"]["z"] = glm::degrees(torus.m_rollRad);
+	json["rotation"]["x"] = torus.m_pitchRad;
+	json["rotation"]["y"] = torus.m_yawRad;
+	json["rotation"]["z"] = torus.m_rollRad;
 
 	json["scale"]["x"] = torus.m_scale.x;
 	json["scale"]["y"] = torus.m_scale.y;

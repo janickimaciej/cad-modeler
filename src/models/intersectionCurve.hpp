@@ -15,6 +15,8 @@
 
 class IntersectionCurve : public Model
 {
+	using ParametersPoint = std::array<glm::vec2, 2>;
+
 public:
 	static std::unique_ptr<IntersectionCurve> create(const ShaderProgram& shaderProgram,
 		const std::array<const Intersectable*, 2>& surfaces, const glm::vec3& cursorPos);
@@ -38,34 +40,32 @@ private:
 	const ShaderProgram& m_shaderProgram;
 	std::unique_ptr<PolylineMesh> m_mesh{};
 	std::array<const Intersectable*, 2> m_surfaces{};
-	std::vector<std::array<glm::vec2, 2>> m_points{};
+	std::vector<ParametersPoint> m_points{};
 	IntersectionCurveGUI m_gui{*this};
 
 	static std::unique_ptr<IntersectionCurve> create(const ShaderProgram& shaderProgram,
 		const std::array<const Intersectable*, 2>& surfaces,
-		const std::array<glm::vec2, 2>& startingPoints);
+		const ParametersPoint& startingPoint);
 	IntersectionCurve(const ShaderProgram& shaderProgram,
 		const std::array<const Intersectable*, 2>& surfaces,
-		const std::vector<std::array<glm::vec2, 2>>& points);
+		const std::vector<ParametersPoint>& points);
 	void createMesh();
 	virtual void updateShaders() const override;
 	void updatePos();
 
-	static std::array<glm::vec2, 2> closestSamples(
+	static ParametersPoint closestSamples(
 		const std::array<const Intersectable*, 2>& surfaces, const glm::vec3& pos);
-	static std::array<glm::vec2, 2> closestSamples(
-		const std::array<const Intersectable*, 2>& surfaces);
-	static std::optional<std::array<glm::vec2, 2>> gradientMethod(
+	static ParametersPoint closestSamples(const std::array<const Intersectable*, 2>& surfaces);
+	static std::optional<ParametersPoint> gradientMethod(
+		const std::array<const Intersectable*, 2>& surfaces, const ParametersPoint& startingPoints);
+	static std::vector<ParametersPoint> findIntersectionPoints(
+		const std::array<const Intersectable*, 2>& surfaces, const ParametersPoint& startingPoint);
+	static std::optional<ParametersPoint> newtonMethod(
 		const std::array<const Intersectable*, 2>& surfaces,
-		const std::array<glm::vec2, 2>& startingPoints);
-	static std::vector<std::array<glm::vec2, 2>> findIntersectionPoints(
-		const std::array<const Intersectable*, 2>& surfaces,
-		const std::array<glm::vec2, 2>& startingPoints);
-	static std::optional<std::array<glm::vec2, 2>> newtonMethod(
-		const std::array<const Intersectable*, 2>& surfaces,
-		const std::array<glm::vec2, 2>& startingPoints, bool backwards = false);
+		const std::optional<ParametersPoint>& prevPoint, const ParametersPoint& startingPoint,
+		bool backwards = false);
 
 	static float getDistanceSquared(const glm::vec3& pos1, const glm::vec3& pos2);
-	static bool outsideDomain(const std::array<glm::vec2, 2>& points,
+	static bool outsideDomain(const ParametersPoint& point,
 		const std::array<const Intersectable*, 2>& surfaces);
 };
