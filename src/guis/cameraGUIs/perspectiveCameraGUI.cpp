@@ -13,7 +13,7 @@ PerspectiveCameraGUI::PerspectiveCameraGUI(PerspectiveCamera& camera) :
 
 void PerspectiveCameraGUI::update()
 {
-	static const std::string suffix = "##orthographicCamera";
+	static const std::string suffix = "##perspectiveCamera";
 
 	static constexpr int stepPrecision = 1;
 

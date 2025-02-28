@@ -38,4 +38,9 @@ private:
 	static void scrollCallback(GLFWwindow* windowPtr, double, double yOffset);
 	static void buttonCallback(GLFWwindow* windowPtr, int button, int action, int);
 	static void keyCallback(GLFWwindow* windowPtr, int key, int, int action, int);
+
+	static Window* getWindow(GLFWwindow* windowPtr);
+	static bool isButtonPressed(GLFWwindow* windowPtr, int button);
+	static bool isKeyPressed(GLFWwindow* windowPtr, int key);
+	static bool isCursorInGUI(const Window& window);
 };

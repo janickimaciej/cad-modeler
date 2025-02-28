@@ -97,7 +97,7 @@ unsigned int ShaderProgram::createShader(const std::string& shaderPath, GLenum s
 	glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
 	if (!success)
 	{
-		printCompilationError(shaderType, shader);
+		printCompilationError(shader, shaderType);
 	}
 	return shader;
 }

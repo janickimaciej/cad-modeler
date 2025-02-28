@@ -3,6 +3,7 @@
 #include "guis/leftPanel.hpp"
 #include "guis/rightPanel.hpp"
 
+#include <cmath>
 #include <string>
 
 Window::Window(const glm::ivec2& initialSize) :
@@ -80,7 +81,7 @@ void Window::resizeCallback(GLFWwindow* windowPtr, int width, int height)
 		return;
 	}
 
-	Window* window = static_cast<Window*>(glfwGetWindowUserPointer(windowPtr));
+	Window* window = getWindow(windowPtr);
 
 	window->m_size = {width, height};
 	window->m_scene->updateWindowSize();
@@ -89,46 +90,47 @@ void Window::resizeCallback(GLFWwindow* windowPtr, int width, int height)
 
 void Window::cursorMovementCallback(GLFWwindow* windowPtr, double x, double y)
 {
-	Window* window = static_cast<Window*>(glfwGetWindowUserPointer(windowPtr));
+	Window* window = getWindow(windowPtr);
 
 	glm::vec2 currentPos{static_cast<float>(x), static_cast<float>(y)};
 	glm::vec2 offset{currentPos - window->m_lastCursorPos};
 	window->m_lastCursorPos = currentPos;
 
-	if ((glfwGetKey(windowPtr, GLFW_KEY_LEFT_ALT) == GLFW_PRESS &&
-		glfwGetMouseButton(windowPtr, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS) ||
-		(glfwGetKey(windowPtr, GLFW_KEY_LEFT_ALT) == GLFW_RELEASE &&
-		glfwGetKey(windowPtr, GLFW_KEY_RIGHT_ALT) == GLFW_RELEASE &&
-		glfwGetKey(windowPtr, GLFW_KEY_LEFT_SHIFT) == GLFW_RELEASE &&
-		glfwGetKey(windowPtr, GLFW_KEY_RIGHT_SHIFT) == GLFW_RELEASE &&
-		glfwGetMouseButton(windowPtr, GLFW_MOUSE_BUTTON_MIDDLE) == GLFW_PRESS))
+	if ((isKeyPressed(windowPtr, GLFW_KEY_LEFT_ALT) &&
+		isButtonPressed(windowPtr, GLFW_MOUSE_BUTTON_LEFT))
+		||
+		(!isKeyPressed(windowPtr, GLFW_KEY_LEFT_ALT) &&
+		!isKeyPressed(windowPtr, GLFW_KEY_RIGHT_ALT) &&
+		!isKeyPressed(windowPtr, GLFW_KEY_LEFT_SHIFT) &&
+		!isKeyPressed(windowPtr, GLFW_KEY_RIGHT_SHIFT) &&
+		isButtonPressed(windowPtr, GLFW_MOUSE_BUTTON_MIDDLE)))
 	{
 		static constexpr float sensitivity = 0.002f;
 		window->m_scene->addPitchCamera(-sensitivity * offset.y);
 		window->m_scene->addYawCamera(sensitivity * offset.x);
 	}
 
-	if ((glfwGetKey(windowPtr, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS ||
-		glfwGetKey(windowPtr, GLFW_KEY_RIGHT_SHIFT) == GLFW_PRESS) &&
-		glfwGetMouseButton(windowPtr, GLFW_MOUSE_BUTTON_MIDDLE) == GLFW_PRESS)
+	if ((isKeyPressed(windowPtr, GLFW_KEY_LEFT_SHIFT) ||
+		isKeyPressed(windowPtr, GLFW_KEY_RIGHT_SHIFT)) &&
+		isButtonPressed(windowPtr, GLFW_MOUSE_BUTTON_MIDDLE))
 	{
 		static constexpr float sensitivity = 0.001f;
 		window->m_scene->moveXCamera(-sensitivity * offset.x);
 		window->m_scene->moveYCamera(sensitivity * offset.y);
 	}
 
-	if (glfwGetKey(windowPtr, GLFW_KEY_RIGHT_ALT) == GLFW_PRESS &&
-		glfwGetMouseButton(windowPtr, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)
+	if (isKeyPressed(windowPtr, GLFW_KEY_RIGHT_ALT) &&
+		isButtonPressed(windowPtr, GLFW_MOUSE_BUTTON_LEFT))
 	{
 		static constexpr float sensitivity = 1.005f;
 		window->m_scene->zoomCamera(std::pow(sensitivity, -offset.y));
 	}
 
-	if (glfwGetKey(windowPtr, GLFW_KEY_LEFT_ALT) == GLFW_RELEASE &&
-		glfwGetKey(windowPtr, GLFW_KEY_RIGHT_ALT) == GLFW_RELEASE &&
-		glfwGetKey(windowPtr, GLFW_KEY_LEFT_SHIFT) == GLFW_RELEASE &&
-		glfwGetKey(windowPtr, GLFW_KEY_RIGHT_SHIFT) == GLFW_RELEASE &&
-		glfwGetMouseButton(windowPtr, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS &&
+	if (!isKeyPressed(windowPtr, GLFW_KEY_LEFT_ALT) &&
+		!isKeyPressed(windowPtr, GLFW_KEY_RIGHT_ALT) &&
+		!isKeyPressed(windowPtr, GLFW_KEY_LEFT_SHIFT) &&
+		!isKeyPressed(windowPtr, GLFW_KEY_RIGHT_SHIFT) &&
+		isButtonPressed(windowPtr, GLFW_MOUSE_BUTTON_LEFT) &&
 		window->m_dragging)
 	{
 		window->m_scene->moveUniqueSelectedModel(currentPos);
@@ -137,10 +139,10 @@ void Window::cursorMovementCallback(GLFWwindow* windowPtr, double x, double y)
 
 void Window::scrollCallback(GLFWwindow* windowPtr, double, double yOffset)
 {
-	Window* window = static_cast<Window*>(glfwGetWindowUserPointer(windowPtr));
+	Window* window = getWindow(windowPtr);
 
 	glm::vec2 cursorPos = window->cursorPos();
-	if (cursorPos.x <= LeftPanel::width || cursorPos.x >= window->m_size.x - RightPanel::width)
+	if (isCursorInGUI(*window))
 	{
 		return;
 	}
@@ -151,18 +153,17 @@ void Window::scrollCallback(GLFWwindow* windowPtr, double, double yOffset)
 
 void Window::buttonCallback(GLFWwindow* windowPtr, int button, int action, int)
 {
-	Window* window = static_cast<Window*>(glfwGetWindowUserPointer(windowPtr));
+	Window* window = getWindow(windowPtr);
 
 	if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS)
 	{
 		glm::vec2 cursorPos = window->cursorPos();
-		if (cursorPos.x <= LeftPanel::width || cursorPos.x >= window->m_size.x - RightPanel::width)
+		if (isCursorInGUI(*window))
 		{
 			return;
 		}
 
-		bool toggle = glfwGetKey(windowPtr, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS;
-		if (toggle)
+		if (isKeyPressed(windowPtr, GLFW_KEY_LEFT_CONTROL))
 		{
 			window->m_scene->toggleModel(cursorPos);
 		}
@@ -183,7 +184,7 @@ void Window::buttonCallback(GLFWwindow* windowPtr, int button, int action, int)
 
 void Window::keyCallback(GLFWwindow* windowPtr, int key, int, int action, int)
 {
-	Window* window = static_cast<Window*>(glfwGetWindowUserPointer(windowPtr));
+	Window* window = getWindow(windowPtr);
 
 	if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
 	{
@@ -255,7 +256,7 @@ void Window::keyCallback(GLFWwindow* windowPtr, int key, int, int action, int)
 	}
 
 	if (key == GLFW_KEY_S && action == GLFW_PRESS &&
-		glfwGetKey(windowPtr, GLFW_KEY_LEFT_CONTROL) == GLFW_RELEASE)
+		!isKeyPressed(windowPtr, GLFW_KEY_LEFT_CONTROL))
 	{
 		window->m_scalingRequested = true;
 	}
@@ -265,14 +266,35 @@ void Window::keyCallback(GLFWwindow* windowPtr, int key, int, int action, int)
 	}
 
 	if (key == GLFW_KEY_S && action == GLFW_PRESS &&
-		glfwGetKey(windowPtr, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS)
+		isKeyPressed(windowPtr, GLFW_KEY_LEFT_CONTROL))
 	{
 		window->m_gui->startSerializing();
 	}
 
 	if (key == GLFW_KEY_L && action == GLFW_PRESS &&
-		glfwGetKey(windowPtr, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS)
+		isKeyPressed(windowPtr, GLFW_KEY_LEFT_CONTROL))
 	{
 		window->m_gui->startDeserializing();
 	}
+}
+
+Window* Window::getWindow(GLFWwindow* windowPtr)
+{
+	return static_cast<Window*>(glfwGetWindowUserPointer(windowPtr));
+}
+
+bool Window::isButtonPressed(GLFWwindow* windowPtr, int button)
+{
+	return glfwGetMouseButton(windowPtr, button) == GLFW_PRESS;
+}
+
+bool Window::isKeyPressed(GLFWwindow* windowPtr, int key)
+{
+	return glfwGetKey(windowPtr, key) == GLFW_PRESS;
+}
+
+bool Window::isCursorInGUI(const Window& window)
+{
+	glm::vec2 cursorPos = window.cursorPos();
+	return cursorPos.x <= LeftPanel::width || cursorPos.x >= window.m_size.x - RightPanel::width;
 }
