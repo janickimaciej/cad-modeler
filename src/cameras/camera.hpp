@@ -1,16 +1,16 @@
 #pragma once
 
-#include <glm/glm.hpp>
-
 #include "anaglyphMode.hpp"
-#include "guis/cameraGUIs/cameraGUI.hpp"
 #include "shaderPrograms.hpp"
+
+#include <glm/glm.hpp>
 
 class Camera
 {
 public:
 	Camera(float aspectRatio, float nearPlane, float farPlane,
 		const ShaderPrograms& shaderPrograms);
+	virtual ~Camera() = default;
 	void use(const glm::ivec2& windowSize) const;
 	void useLeftEye(const glm::ivec2& windowSize) const;
 	void useRightEye(const glm::ivec2& windowSize) const;

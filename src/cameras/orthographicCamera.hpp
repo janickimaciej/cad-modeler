@@ -1,6 +1,5 @@
 #pragma once
 
-#include "guis/cameraGUIs/cameraGUI.hpp"
 #include "guis/cameraGUIs/orthographicCameraGUI.hpp"
 #include "cameras/camera.hpp"
 #include "shaderPrograms.hpp"
@@ -10,6 +9,7 @@ class OrthographicCamera : public Camera
 public:
 	OrthographicCamera(float viewHeight, float aspectRatio, float nearPlane, float farPlane,
 		const ShaderPrograms& shaderPrograms);
+	virtual ~OrthographicCamera() = default;
 	virtual void updateGUI() override;
 	float getViewHeight() const;
 	void setViewHeight(float viewHeight);

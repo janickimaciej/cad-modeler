@@ -129,12 +129,12 @@ void ShaderProgram::deleteShaders(const std::vector<unsigned int>& shaders)
 
 std::string ShaderProgram::readShaderFile(const std::string& shaderPath)
 {
-	std::ifstream file{};
-	file.exceptions(std::ifstream::failbit | std::ifstream::badbit);
 	std::string shaderCode{};
 
 	try
 	{
+		std::ifstream file{};
+		file.exceptions(std::ifstream::failbit | std::ifstream::badbit);
 		std::stringstream stream{};
 		file.open(shaderPath);
 		stream << file.rdbuf();

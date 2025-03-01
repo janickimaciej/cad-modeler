@@ -2,6 +2,8 @@
 
 #include <glm/gtc/constants.hpp>
 
+#include <cmath>
+
 Camera::Camera(float aspectRatio, float nearPlane, float farPlane,
 	const ShaderPrograms& shaderPrograms) :
 	m_aspectRatio{aspectRatio},
