@@ -1,5 +1,9 @@
 #include "models/bezierSurfaces/bezierSurfaceC2.hpp"
 
+#include "meshes/indicesMesh.hpp"
+
+#include <glad/glad.h>
+
 #include <cmath>
 #include <cstddef>
 #include <string>
@@ -94,8 +98,8 @@ void BezierSurfaceC2::updateBezierPoints()
 
 void BezierSurfaceC2::createGridMesh()
 {
-	m_gridMesh = std::make_unique<Mesh>(BezierSurface::createVertices(m_points),
-		createGridIndices());
+	m_gridMesh = std::make_unique<IndicesMesh>(BezierSurface::createVertices(m_points),
+		createGridIndices(), GL_LINES);
 }
 
 void BezierSurfaceC2::updateGeometry()
@@ -106,7 +110,8 @@ void BezierSurfaceC2::updateGeometry()
 
 void BezierSurfaceC2::updateGridMesh()
 {
-	m_gridMesh->update(createVertices(m_points), createGridIndices());
+	m_gridMesh->update(createVertices(m_points));
+	m_gridMesh->update(createGridIndices());
 }
 
 std::array<std::array<Point*, 4>, 4> BezierSurfaceC2::getBezierPoints(std::size_t patchU,

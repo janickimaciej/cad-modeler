@@ -1,7 +1,7 @@
 #pragma once
 
 #include "guis/modelGUIs/bezierCurveGUI.hpp"
-#include "meshes/polylineMesh.hpp"
+#include "meshes/mesh.hpp"
 #include "models/model.hpp"
 #include "models/point.hpp"
 #include "shaderProgram.hpp"
@@ -70,7 +70,7 @@ private:
 
 	BezierCurveGUI m_gui{*this};
 
-	std::unique_ptr<PolylineMesh> m_polylineMesh{};
+	std::unique_ptr<Mesh> m_polylineMesh{};
 	bool m_renderPolyline = false;
 
 	std::vector<std::shared_ptr<Point::MoveCallback>> m_pointMoveNotifications{};

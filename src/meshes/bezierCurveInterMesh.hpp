@@ -21,5 +21,4 @@ private:
 	unsigned int m_VAO{};
 
 	void createVBO(const std::vector<BezierCurveInterSegmentData>& segments);
-	void createVAO();
 };

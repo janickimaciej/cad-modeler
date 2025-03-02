@@ -4,8 +4,8 @@
 
 BezierCurveInterMesh::BezierCurveInterMesh(const std::vector<BezierCurveInterSegmentData>& segments)
 {
+	glGenVertexArrays(1, &m_VAO);
 	createVBO(segments);
-	createVAO();
 }
 
 BezierCurveInterMesh::~BezierCurveInterMesh()
@@ -34,15 +34,8 @@ void BezierCurveInterMesh::render() const
 void BezierCurveInterMesh::createVBO(const std::vector<BezierCurveInterSegmentData>& segments)
 {
 	glGenBuffers(1, &m_VBO);
-	update(segments);
-}
-
-void BezierCurveInterMesh::createVAO()
-{
-	glGenVertexArrays(1, &m_VAO);
 
 	glBindVertexArray(m_VAO);
-
 	glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(BezierCurveInterSegmentData),
 		reinterpret_cast<void*>(offsetof(BezierCurveInterSegmentData, a)));
@@ -62,6 +55,7 @@ void BezierCurveInterMesh::createVAO()
 	glVertexAttribPointer(5, 1, GL_FLOAT, GL_FALSE, sizeof(BezierCurveInterSegmentData),
 		reinterpret_cast<void*>(offsetof(BezierCurveInterSegmentData, dt)));
 	glEnableVertexAttribArray(5);
-
 	glBindVertexArray(0);
+
+	update(segments);
 }

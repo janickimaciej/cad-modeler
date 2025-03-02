@@ -2,7 +2,7 @@
 
 #include "guis/modelGUIs/torusGUI.hpp"
 #include "intersectable.hpp"
-#include "meshes/mesh.hpp"
+#include "meshes/indicesMesh.hpp"
 #include "models/model.hpp"
 #include "shaderProgram.hpp"
 
@@ -42,7 +42,7 @@ private:
 	static int m_count;
 
 	const ShaderProgram& m_shaderProgram;
-	std::unique_ptr<Mesh> m_mesh{};
+	std::unique_ptr<IndicesMesh> m_mesh{};
 	TorusGUI m_gui{*this};
 
 	float m_majorRadius{};

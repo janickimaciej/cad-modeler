@@ -140,7 +140,7 @@ int Torus::m_count = 0;
 
 void Torus::createMesh()
 {
-	m_mesh = std::make_unique<Mesh>(createVertices(), createIndices());
+	m_mesh = std::make_unique<IndicesMesh>(createVertices(), createIndices(), GL_LINES);
 }
 
 void Torus::updateShaders() const
@@ -153,7 +153,8 @@ void Torus::updateShaders() const
 
 void Torus::updateMesh()
 {
-	m_mesh->update(createVertices(), createIndices());
+	m_mesh->update(createVertices());
+	m_mesh->update(createIndices());
 }
 
 std::vector<glm::vec3> Torus::createVertices() const

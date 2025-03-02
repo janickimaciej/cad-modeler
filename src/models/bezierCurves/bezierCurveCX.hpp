@@ -1,6 +1,6 @@
 #pragma once
 
-#include "meshes/bezierCurveMesh.hpp"
+#include "meshes/indicesMesh.hpp"
 #include "models/bezierCurves/bezierCurve.hpp"
 #include "models/point.hpp"
 #include "shaderProgram.hpp"
@@ -17,7 +17,7 @@ public:
 	virtual ~BezierCurveCX() = default;
 
 protected:
-	std::unique_ptr<BezierCurveMesh> m_curveMesh{};
+	std::unique_ptr<IndicesMesh> m_curveMesh{};
 
 	static std::vector<unsigned int> createCurveIndices(const std::vector<Point*>& points);
 

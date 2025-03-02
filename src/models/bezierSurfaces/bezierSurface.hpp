@@ -2,7 +2,7 @@
 
 #include "guis/modelGUIs/bezierSurfaceGUI.hpp"
 #include "intersectable.hpp"
-#include "meshes/mesh.hpp"
+#include "meshes/indicesMesh.hpp"
 #include "models/bezierSurfaces/bezierPatch.hpp"
 #include "models/bezierSurfaces/bezierSurfaceWrapping.hpp"
 #include "models/model.hpp"
@@ -53,7 +53,7 @@ public:
 	virtual bool vWrapped() const override;
 
 protected:
-	std::unique_ptr<Mesh> m_gridMesh{};
+	std::unique_ptr<IndicesMesh> m_gridMesh{};
 
 	std::vector<std::vector<BezierPatch*>> m_patches{};
 	const std::size_t m_patchesU{};

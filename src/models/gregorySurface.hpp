@@ -1,8 +1,7 @@
 #pragma once
 
 #include "guis/modelGUIs/gregorySurfaceGUI.hpp"
-#include "meshes/gregorySurfaceMesh.hpp"
-#include "meshes/vectorsMesh.hpp"
+#include "meshes/mesh.hpp"
 #include "models/bezierSurfaces/bezierPatch.hpp"
 #include "models/model.hpp"
 #include "models/point.hpp"
@@ -40,8 +39,8 @@ private:
 	const ShaderProgram& m_surfaceShaderProgram;
 	const ShaderProgram& m_vectorsShaderProgram;
 
-	std::unique_ptr<GregorySurfaceMesh> m_surfaceMesh{};
-	std::unique_ptr<VectorsMesh> m_vectorsMesh{};
+	std::unique_ptr<Mesh> m_surfaceMesh{};
+	std::unique_ptr<Mesh> m_vectorsMesh{};
 	GregorySurfaceGUI m_gui{*this};
 
 	std::array<std::array<std::array<Point*, 4>, 2>, 3> m_bezierPoints{};
@@ -63,7 +62,7 @@ private:
 	void getBezierPoints(const std::array<BezierPatch*, 3>& patches,
 		const std::array<int, 6>& corners);
 	void createPoints();
-	std::array<glm::vec3, 48> createVectors() const;
+	std::vector<glm::vec3> createVectors() const;
 	void createSurfaceMesh();
 	void createVectorsMesh();
 	void updateGeometry();

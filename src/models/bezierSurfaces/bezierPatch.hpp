@@ -2,7 +2,7 @@
 
 #include "guis/modelGUIs/bezierPatchGUI.hpp"
 #include "intersectable.hpp"
-#include "meshes/bezierPatchMesh.hpp"
+#include "meshes/mesh.hpp"
 #include "models/model.hpp"
 #include "models/point.hpp"
 #include "shaderProgram.hpp"
@@ -11,6 +11,7 @@
 
 #include <array>
 #include <memory>
+#include <vector>
 
 class BezierSurface;
 
@@ -52,7 +53,7 @@ private:
 	static int m_count;
 
 	const ShaderProgram& m_shaderProgram;
-	std::unique_ptr<BezierPatchMesh> m_mesh{};
+	std::unique_ptr<Mesh> m_mesh{};
 	BezierPatchGUI m_gui{*this};
 
 	std::array<std::array<Point*, 4>, 4> m_bezierPoints{};
@@ -70,7 +71,7 @@ private:
 	void createSurfaceMesh();
 	void updatePos();
 	void updateSurfaceMesh();
-	std::array<glm::vec3, 16> createVertices();
+	std::vector<glm::vec3> createVertices();
 
 	virtual void updateShaders() const override;
 

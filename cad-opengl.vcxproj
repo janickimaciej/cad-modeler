@@ -47,8 +47,8 @@
     <ClCompile Include="src\guis\valueWindows\deserializingWindow.cpp" />
     <ClCompile Include="src\guis\valueWindows\serializingWindow.cpp" />
     <ClCompile Include="src\intersectable.cpp" />
-    <ClCompile Include="src\meshes\gregorySurfaceMesh.cpp" />
-    <ClCompile Include="src\meshes\vectorsMesh.cpp" />
+    <ClCompile Include="src\meshes\mesh.cpp" />
+    <ClCompile Include="src\meshes\indicesMesh.cpp" />
     <ClCompile Include="src\models\bezierSurfaces\bezierPatch.cpp" />
     <ClCompile Include="src\models\gregorySurface.cpp" />
     <ClCompile Include="src\models\intersectionCurve.cpp" />
@@ -67,11 +67,7 @@
     <ClCompile Include="src\guis\valueWindows\valueWindow.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\meshes\bezierCurveInterMesh.cpp" />
-    <ClCompile Include="src\meshes\bezierCurveMesh.cpp" />
-    <ClCompile Include="src\meshes\bezierPatchMesh.cpp" />
-    <ClCompile Include="src\meshes\mesh.cpp" />
     <ClCompile Include="src\meshes\pointMesh.cpp" />
-    <ClCompile Include="src\meshes\polylineMesh.cpp" />
     <ClCompile Include="src\models\bezierCurves\bezierCurve.cpp" />
     <ClCompile Include="src\models\bezierCurves\bezierCurveC0.cpp" />
     <ClCompile Include="src\models\bezierCurves\bezierCurveC2.cpp" />
@@ -134,8 +130,8 @@
     <ClInclude Include="src\guis\valueWindows\deserializingWindow.hpp" />
     <ClInclude Include="src\guis\valueWindows\serializingWindow.hpp" />
     <ClInclude Include="src\intersectable.hpp" />
-    <ClInclude Include="src\meshes\gregorySurfaceMesh.hpp" />
-    <ClInclude Include="src\meshes\vectorsMesh.hpp" />
+    <ClInclude Include="src\meshes\mesh.hpp" />
+    <ClInclude Include="src\meshes\indicesMesh.hpp" />
     <ClInclude Include="src\models\bezierSurfaces\bezierPatch.hpp" />
     <ClInclude Include="src\models\gregorySurface.hpp" />
     <ClInclude Include="src\models\intersectionCurve.hpp" />
@@ -150,11 +146,7 @@
     <ClInclude Include="src\guis\valueWindows\scalingWindow.hpp" />
     <ClInclude Include="src\guis\valueWindows\valueWindow.hpp" />
     <ClInclude Include="src\meshes\bezierCurveInterMesh.hpp" />
-    <ClInclude Include="src\meshes\bezierCurveMesh.hpp" />
-    <ClInclude Include="src\meshes\bezierPatchMesh.hpp" />
-    <ClInclude Include="src\meshes\mesh.hpp" />
     <ClInclude Include="src\meshes\pointMesh.hpp" />
-    <ClInclude Include="src\meshes\polylineMesh.hpp" />
     <ClInclude Include="src\models\bezierCurves\bezierCurve.hpp" />
     <ClInclude Include="src\models\bezierCurves\bezierCurveC0.hpp" />
     <ClInclude Include="src\models\bezierCurves\bezierCurveC2.hpp" />

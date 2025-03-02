@@ -1,5 +1,9 @@
 #include "models/bezierCurves/bezierCurveC0.hpp"
 
+#include "meshes/indicesMesh.hpp"
+
+#include <glad/glad.h>
+
 #include <algorithm>
 #include <memory>
 #include <string>
@@ -31,11 +35,12 @@ int BezierCurveC0::m_count = 0;
 
 void BezierCurveC0::createCurveMesh()
 {
-	m_curveMesh = std::make_unique<BezierCurveMesh>(createVertices(m_points),
-		createCurveIndices(m_points));
+	m_curveMesh = std::make_unique<IndicesMesh>(createVertices(m_points),
+		createCurveIndices(m_points), GL_PATCHES, 4);
 }
 
 void BezierCurveC0::updateCurveMesh()
 {
-	m_curveMesh->update(createVertices(m_points), createCurveIndices(m_points));
+	m_curveMesh->update(createVertices(m_points));
+	m_curveMesh->update(createCurveIndices(m_points));
 }

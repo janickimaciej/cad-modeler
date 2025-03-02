@@ -1,6 +1,9 @@
 #include "models/gregorySurface.hpp"
 
+#include <glad/glad.h>
+
 #include <algorithm>
+#include <cstddef>
 #include <string>
 
 std::unique_ptr<GregorySurface> GregorySurface::create(const ShaderProgram& surfaceShaderProgram,
@@ -156,51 +159,51 @@ void GregorySurface::createPoints()
 	}
 }
 
-std::array<glm::vec3, 48> GregorySurface::createVectors() const
+std::vector<glm::vec3> GregorySurface::createVectors() const
 {
-	std::array<glm::vec3, 48> vectors{};
+	std::vector<glm::vec3> vectors{};
 	for (std::size_t patch = 0; patch < 3; ++patch)
 	{
-		vectors[16 * patch] = m_points[patch][1];
-		vectors[16 * patch + 1] = m_points[patch][6];
+		vectors.push_back(m_points[patch][1]);
+		vectors.push_back(m_points[patch][6]);
 
-		vectors[16 * patch + 2] = m_points[patch][2];
-		vectors[16 * patch + 3] = m_points[patch][7];
+		vectors.push_back(m_points[patch][2]);
+		vectors.push_back(m_points[patch][7]);
 
-		vectors[16 * patch + 4] = m_points[patch][9];
-		vectors[16 * patch + 5] = m_points[patch][8];
+		vectors.push_back(m_points[patch][9]);
+		vectors.push_back(m_points[patch][8]);
 
-		vectors[16 * patch + 6] = m_points[patch][15];
-		vectors[16 * patch + 7] = m_points[patch][14];
+		vectors.push_back(m_points[patch][15]);
+		vectors.push_back(m_points[patch][14]);
 
-		vectors[16 * patch + 8] = m_points[patch][18];
-		vectors[16 * patch + 9] = m_points[patch][13];
+		vectors.push_back(m_points[patch][18]);
+		vectors.push_back(m_points[patch][13]);
 
-		vectors[16 * patch + 10] = m_points[patch][17];
-		vectors[16 * patch + 11] = m_points[patch][12];
+		vectors.push_back(m_points[patch][17]);
+		vectors.push_back(m_points[patch][12]);
 
-		vectors[16 * patch + 12] = m_points[patch][10];
-		vectors[16 * patch + 13] = m_points[patch][11];
+		vectors.push_back(m_points[patch][10]);
+		vectors.push_back(m_points[patch][11]);
 
-		vectors[16 * patch + 14] = m_points[patch][4];
-		vectors[16 * patch + 15] = m_points[patch][5];
+		vectors.push_back(m_points[patch][4]);
+		vectors.push_back(m_points[patch][5]);
 	}
 	return vectors;
 }
 
 void GregorySurface::createSurfaceMesh()
 {
-	std::array<glm::vec3, 60> points{};
+	std::vector<glm::vec3> points{};
 	for (std::size_t patch = 0; patch < 3; ++patch)
 	{
-		std::copy(m_points[patch].begin(), m_points[patch].end(), points.begin() + 20 * patch);
+		points.insert(points.end(), m_points[patch].begin(), m_points[patch].end());
 	}
-	m_surfaceMesh = std::make_unique<GregorySurfaceMesh>(points);
+	m_surfaceMesh = std::make_unique<Mesh>(points, GL_PATCHES, 20);
 }
 
 void GregorySurface::createVectorsMesh()
 {
-	m_vectorsMesh = std::make_unique<VectorsMesh>(createVectors());
+	m_vectorsMesh = std::make_unique<Mesh>(createVectors(), GL_LINES);
 }
 
 void GregorySurface::updateGeometry()
@@ -226,10 +229,10 @@ void GregorySurface::updatePos()
 
 void GregorySurface::updateSurfaceMesh()
 {
-	std::array<glm::vec3, 60> points{};
+	std::vector<glm::vec3> points{};
 	for (std::size_t patch = 0; patch < 3; ++patch)
 	{
-		std::copy(m_points[patch].begin(), m_points[patch].end(), points.begin() + 20 * patch);
+		points.insert(points.end(), m_points[patch].begin(), m_points[patch].end());
 	}
 	m_surfaceMesh->update(points);
 }

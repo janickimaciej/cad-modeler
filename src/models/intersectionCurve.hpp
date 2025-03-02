@@ -2,7 +2,7 @@
 
 #include "guis/modelGUIs/intersectionCurveGUI.hpp"
 #include "intersectable.hpp"
-#include "meshes/polylineMesh.hpp"
+#include "meshes/mesh.hpp"
 #include "models/model.hpp"
 #include "shaderProgram.hpp"
 
@@ -38,7 +38,7 @@ private:
 	static int m_count;
 
 	const ShaderProgram& m_shaderProgram;
-	std::unique_ptr<PolylineMesh> m_mesh{};
+	std::unique_ptr<Mesh> m_mesh{};
 	std::array<const Intersectable*, 2> m_surfaces{};
 	std::vector<ParametersPoint> m_points{};
 	IntersectionCurveGUI m_gui{*this};

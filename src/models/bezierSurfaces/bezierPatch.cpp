@@ -2,6 +2,8 @@
 
 #include "models/bezierSurfaces/bezierSurface.hpp"
 
+#include <glad/glad.h>
+
 #include <string>
 
 BezierPatch::BezierPatch(const ShaderProgram& shaderProgram,
@@ -225,7 +227,7 @@ int BezierPatch::m_count = 0;
 
 void BezierPatch::createSurfaceMesh()
 {
-	m_mesh = std::make_unique<BezierPatchMesh>(createVertices());
+	m_mesh = std::make_unique<Mesh>(createVertices(), GL_PATCHES, 16);
 }
 
 void BezierPatch::updatePos()
@@ -246,14 +248,14 @@ void BezierPatch::updateSurfaceMesh()
 	m_mesh->update(createVertices());
 }
 
-std::array<glm::vec3, 16> BezierPatch::createVertices()
+std::vector<glm::vec3> BezierPatch::createVertices()
 {
-	std::array<glm::vec3, 16> vertices{};
+	std::vector<glm::vec3> vertices{};
 	for (std::size_t v = 0; v < 4; ++v)
 	{
 		for (std::size_t u = 0; u < 4; ++u)
 		{
-			vertices[4 * v + u] = m_bezierPoints[v][u]->getPos();
+			vertices.push_back(m_bezierPoints[v][u]->getPos());
 		}
 	}
 	return vertices;

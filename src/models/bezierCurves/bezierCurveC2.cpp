@@ -1,7 +1,9 @@
 #include "models/bezierCurves/bezierCurveC2.hpp"
 
+#include "meshes/indicesMesh.hpp"
 #include "models/bezierCurves/bezierCurve.hpp"
 
+#include <glad/glad.h>
 #include <glm/glm.hpp>
 
 #include <algorithm>
@@ -82,8 +84,8 @@ int BezierCurveC2::m_count = 0;
 void BezierCurveC2::createCurveMesh()
 {
 	std::vector<Point*> allBezierPoints = getAllBezierPoints();
-	m_curveMesh = std::make_unique<BezierCurveMesh>(createVertices(allBezierPoints),
-		createCurveIndices(allBezierPoints));
+	m_curveMesh = std::make_unique<IndicesMesh>(createVertices(allBezierPoints),
+		createCurveIndices(allBezierPoints), GL_PATCHES, 4);
 }
 
 std::vector<std::unique_ptr<Point>> BezierCurveC2::createBezierPoints()
@@ -104,7 +106,8 @@ std::vector<std::unique_ptr<Point>> BezierCurveC2::createBezierPoints()
 
 void BezierCurveC2::createBezierPolylineMesh()
 {
-	m_bezierPolylineMesh = std::make_unique<PolylineMesh>(createVertices(getAllBezierPoints()));
+	m_bezierPolylineMesh = std::make_unique<Mesh>(createVertices(getAllBezierPoints()),
+		GL_LINE_STRIP);
 }
 
 std::vector<Point*> BezierCurveC2::getAllBezierPoints() const
@@ -229,8 +232,8 @@ void BezierCurveC2::updateCurveMesh()
 	if (m_points.size() >= 4)
 	{
 		std::vector<Point*> allBezierPoints = getAllBezierPoints();
-		m_curveMesh->update(createVertices(allBezierPoints),
-			createCurveIndices(allBezierPoints));
+		m_curveMesh->update(createVertices(allBezierPoints));
+		m_curveMesh->update(createCurveIndices(allBezierPoints));
 	}
 }
 

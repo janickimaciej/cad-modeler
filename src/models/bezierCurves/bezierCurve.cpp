@@ -1,5 +1,7 @@
 #include "models/bezierCurves/bezierCurve.hpp"
 
+#include <glad/glad.h>
+
 #include <cstddef>
 
 BezierCurve::BezierCurve(const std::string& name, const ShaderProgram& curveShaderProgram,
@@ -97,7 +99,7 @@ void BezierCurve::updateShaders() const
 
 void BezierCurve::createPolylineMesh()
 {
-	m_polylineMesh = std::make_unique<PolylineMesh>(createVertices(m_points));
+	m_polylineMesh = std::make_unique<Mesh>(createVertices(m_points), GL_LINE_STRIP);
 }
 
 void BezierCurve::updateGeometry()

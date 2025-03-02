@@ -1,5 +1,7 @@
 #include "models/intersectionCurve.hpp"
 
+#include <glad/glad.h>
+
 #include <algorithm>
 #include <cstddef>
 #include <limits>
@@ -77,7 +79,7 @@ void IntersectionCurve::createMesh()
 	{
 		vertices.push_back(m_surfaces[0]->surface(point[0]));
 	}
-	m_mesh = std::make_unique<PolylineMesh>(vertices);
+	m_mesh = std::make_unique<Mesh>(vertices, GL_LINE_STRIP);
 }
 
 void IntersectionCurve::updateShaders() const

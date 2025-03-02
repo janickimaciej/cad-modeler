@@ -1,6 +1,6 @@
 #pragma once
 
-#include "meshes/polylineMesh.hpp"
+#include "meshes/mesh.hpp"
 #include "models/bezierCurves/bezierCurveCX.hpp"
 #include "models/point.hpp"
 #include "shaderProgram.hpp"
@@ -29,7 +29,7 @@ private:
 
 	const ShaderProgram& m_pointShaderProgram;
 
-	std::unique_ptr<PolylineMesh> m_bezierPolylineMesh{};
+	std::unique_ptr<Mesh> m_bezierPolylineMesh{};
 
 	std::vector<Point*> m_bezierPoints{};
 	std::vector<std::shared_ptr<Point::MoveCallback>> m_bezierPointMoveNotifications{};
