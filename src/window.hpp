@@ -31,16 +31,22 @@ private:
 	bool m_rotatingRequested = false;
 	bool m_scalingRequested = false;
 
-	glm::vec2 cursorPos() const;
+	void resizeCallback(int width, int height);
+	void cursorMovementCallback(double x, double y);
+	void scrollCallback(double yOffset);
+	void buttonCallback(int button, int action);
+	void keyCallback(int key, int action);
 
-	static void resizeCallback(GLFWwindow* windowPtr, int width, int height);
-	static void cursorMovementCallback(GLFWwindow* windowPtr, double x, double y);
-	static void scrollCallback(GLFWwindow* windowPtr, double, double yOffset);
-	static void buttonCallback(GLFWwindow* windowPtr, int button, int action, int);
-	static void keyCallback(GLFWwindow* windowPtr, int key, int, int action, int);
+	glm::vec2 getCursorPos() const;
+	bool isButtonPressed(int button);
+	bool isKeyPressed(int key);
+	bool isCursorInGUI();
+
+	static void resizeCallbackWrapper(GLFWwindow* windowPtr, int width, int height);
+	static void cursorMovementCallbackWrapper(GLFWwindow* windowPtr, double x, double y);
+	static void scrollCallbackWrapper(GLFWwindow* windowPtr, double, double yOffset);
+	static void buttonCallbackWrapper(GLFWwindow* windowPtr, int button, int action, int);
+	static void keyCallbackWrapper(GLFWwindow* windowPtr, int key, int, int action, int);
 
 	static Window* getWindow(GLFWwindow* windowPtr);
-	static bool isButtonPressed(GLFWwindow* windowPtr, int button);
-	static bool isKeyPressed(GLFWwindow* windowPtr, int key);
-	static bool isCursorInGUI(const Window& window);
 };

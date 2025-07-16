@@ -60,7 +60,7 @@ void Mesh::createVBO(const std::vector<glm::vec3>& vertices)
 
 	bindVAO();
 	glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), 0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), reinterpret_cast<void*>(0));
 	glEnableVertexAttribArray(0);
 	unbindVAO();
 
