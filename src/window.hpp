@@ -33,20 +33,21 @@ private:
 
 	void resizeCallback(int width, int height);
 	void cursorMovementCallback(double x, double y);
-	void scrollCallback(double yOffset);
-	void buttonCallback(int button, int action);
-	void keyCallback(int key, int action);
+	void scrollCallback(double, double yOffset);
+	void buttonCallback(int button, int action, int);
+	void keyCallback(int key, int, int action, int);
 
 	glm::vec2 getCursorPos() const;
 	bool isButtonPressed(int button);
 	bool isKeyPressed(int key);
 	bool isCursorInGUI();
 
-	static void resizeCallbackWrapper(GLFWwindow* windowPtr, int width, int height);
-	static void cursorMovementCallbackWrapper(GLFWwindow* windowPtr, double x, double y);
-	static void scrollCallbackWrapper(GLFWwindow* windowPtr, double, double yOffset);
-	static void buttonCallbackWrapper(GLFWwindow* windowPtr, int button, int action, int);
-	static void keyCallbackWrapper(GLFWwindow* windowPtr, int key, int, int action, int);
-
 	static Window* getWindow(GLFWwindow* windowPtr);
+
+	template <auto callback, typename... Args>
+	static void callbackWrapper(GLFWwindow* windowPtr, Args... args)
+	{
+		Window* window = static_cast<Window*>(glfwGetWindowUserPointer(windowPtr));
+		(window->*callback)(args...);
+	}
 };
