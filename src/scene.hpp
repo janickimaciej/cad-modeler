@@ -99,7 +99,7 @@ public:
 	void addBezierSurfaceC2(int patchesU, int patchesV, float sizeU, float sizeV,
 		BezierSurfaceWrapping wrapping);
 	void addGregorySurface(const std::array<BezierPatch*, 3>& patches);
-	void addIntersection(const std::array<const Intersectable*, 2>& surfaces, bool useCursor);
+	void addIntersectionCurve(const std::array<const Intersectable*, 2>& surfaces, bool useCursor);
 
 	void updateActiveCameraGUI();
 	void updateCursorGUI();

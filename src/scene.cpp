@@ -915,7 +915,8 @@ void Scene::addGregorySurface(const std::array<BezierPatch*, 3>& patches)
 	}
 }
 
-void Scene::addIntersection(const std::array<const Intersectable*, 2>& surfaces, bool useCursor)
+void Scene::addIntersectionCurve(const std::array<const Intersectable*, 2>& surfaces,
+	bool useCursor)
 {
 	std::unique_ptr<IntersectionCurve> intersectionCurve{};
 	if (useCursor)

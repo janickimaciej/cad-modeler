@@ -37,7 +37,7 @@ void AddIntersectionPanel::update()
 		m_scene.deselectAllModels();
 		if (m_surfaceCount == 2)
 		{
-			m_scene.addIntersection(m_surfaces, m_useCursor);
+			m_scene.addIntersectionCurve(m_surfaces, m_useCursor);
 			m_callback();
 		}
 	}

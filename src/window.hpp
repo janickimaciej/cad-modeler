@@ -42,12 +42,13 @@ private:
 	bool isKeyPressed(int key);
 	bool isCursorInGUI();
 
-	static Window* getWindow(GLFWwindow* windowPtr);
-
 	template <auto callback, typename... Args>
-	static void callbackWrapper(GLFWwindow* windowPtr, Args... args)
-	{
-		Window* window = static_cast<Window*>(glfwGetWindowUserPointer(windowPtr));
-		(window->*callback)(args...);
-	}
+	static void callbackWrapper(GLFWwindow* windowPtr, Args... args);
 };
+
+template <auto callback, typename... Args>
+void Window::callbackWrapper(GLFWwindow* windowPtr, Args... args)
+{
+	Window* window = static_cast<Window*>(glfwGetWindowUserPointer(windowPtr));
+	(window->*callback)(args...);
+}

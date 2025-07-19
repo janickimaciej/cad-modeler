@@ -30,6 +30,9 @@ public:
 private:
 	unsigned int m_id{};
 
+	ShaderProgram(const std::vector<std::string>& shaderPaths,
+		const std::vector<GLenum>& shaderTypes);
+
 	static unsigned int createShader(const std::string& shaderPath, GLenum shaderType);
 	static unsigned int createShaderProgram(const std::vector<unsigned int>& shaders);
 	static void deleteShaders(const std::vector<unsigned int>& shaders);

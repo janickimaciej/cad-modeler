@@ -47,7 +47,6 @@ public:
 	virtual glm::vec3 surface(float u, float v) const override;
 	virtual glm::vec3 surfaceDU(float u, float v) const override;
 	virtual glm::vec3 surfaceDV(float u, float v) const override;
-	void mapToPatch(float u, float v, int& patchU, int& patchV, float& localU, float& localV) const;
 
 	virtual bool uWrapped() const override;
 	virtual bool vWrapped() const override;
@@ -134,6 +133,8 @@ private:
 	std::vector<unsigned int> createGridIndicesNoWrapping() const;
 	std::vector<unsigned int> createGridIndicesUWrapping() const;
 	std::vector<unsigned int> createGridIndicesVWrapping() const;
+
+	void mapToPatch(float u, float v, int& patchU, int& patchV, float& localU, float& localV) const;
 
 	void notifyDestroy();
 	void clearExpiredNotifications();

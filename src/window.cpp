@@ -85,7 +85,6 @@ void Window::cursorMovementCallback(double x, double y)
 	m_lastCursorPos = currentPos;
 
 	if ((!isKeyPressed(GLFW_KEY_LEFT_SHIFT) &&
-		!isKeyPressed(GLFW_KEY_RIGHT_SHIFT) &&
 		isButtonPressed(GLFW_MOUSE_BUTTON_MIDDLE))
 		||
 		(isKeyPressed(GLFW_KEY_LEFT_ALT) &&
@@ -116,6 +115,7 @@ void Window::cursorMovementCallback(double x, double y)
 
 	if (!isKeyPressed(GLFW_KEY_LEFT_ALT) &&
 		!isKeyPressed(GLFW_KEY_RIGHT_ALT) &&
+		!isKeyPressed(GLFW_KEY_RIGHT_SHIFT) &&
 		isButtonPressed(GLFW_MOUSE_BUTTON_LEFT) &&
 		m_dragging)
 	{
@@ -139,7 +139,8 @@ void Window::buttonCallback(int button, int action, int)
 	glm::vec2 cursorPos = getCursorPos();
 
 	if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS &&
-		!isKeyPressed(GLFW_KEY_LEFT_ALT) && !isKeyPressed(GLFW_KEY_RIGHT_ALT) &&
+		!isKeyPressed(GLFW_KEY_LEFT_ALT) &&
+		!isKeyPressed(GLFW_KEY_RIGHT_ALT) &&
 		!isKeyPressed(GLFW_KEY_RIGHT_SHIFT))
 	{
 		if (isCursorInGUI())
@@ -282,9 +283,4 @@ bool Window::isCursorInGUI()
 {
 	glm::vec2 cursorPos = getCursorPos();
 	return cursorPos.x <= LeftPanel::width || cursorPos.x >= m_size.x - RightPanel::width;
-}
-
-Window* Window::getWindow(GLFWwindow* windowPtr)
-{
-	return static_cast<Window*>(glfwGetWindowUserPointer(windowPtr));
 }

@@ -80,6 +80,118 @@ void BezierSurface::setLineCount(int lineCount)
 	m_lineCount = lineCount;
 }
 
+std::shared_ptr<BezierSurface::DestroyCallback> BezierSurface::registerForDestroyNotification(
+	const DestroyCallback& callback)
+{
+	std::shared_ptr<DestroyCallback> notification = std::make_shared<DestroyCallback>(callback);
+	m_destroyNotifications.push_back(notification);
+	return notification;
+}
+
+glm::vec3 BezierSurface::surface(float u, float v) const
+{
+	int patchU{};
+	int patchV{};
+	float localU{};
+	float localV{};
+	mapToPatch(u, v, patchU, patchV, localU, localV);
+
+	return m_patches[patchV][patchU]->surface(localU, localV);
+}
+
+glm::vec3 BezierSurface::surfaceDU(float u, float v) const
+{
+	int patchU{};
+	int patchV{};
+	float localU{};
+	float localV{};
+	mapToPatch(u, v, patchU, patchV, localU, localV);
+
+	return static_cast<float>(m_patchesU) * m_patches[patchV][patchU]->surfaceDU(localU, localV);
+}
+
+glm::vec3 BezierSurface::surfaceDV(float u, float v) const
+{
+	int patchU{};
+	int patchV{};
+	float localU{};
+	float localV{};
+	mapToPatch(u, v, patchU, patchV, localU, localV);
+
+	return static_cast<float>(m_patchesV) * m_patches[patchV][patchU]->surfaceDV(localU, localV);
+}
+
+bool BezierSurface::uWrapped() const
+{
+	return m_wrapping == BezierSurfaceWrapping::u;
+}
+
+bool BezierSurface::vWrapped() const
+{
+	return m_wrapping == BezierSurfaceWrapping::v;
+}
+
+std::size_t BezierSurface::getBezierPointsU() const
+{
+	switch (m_wrapping)
+	{
+		case BezierSurfaceWrapping::none:
+			return 3 * m_patchesU + 1;
+
+		case BezierSurfaceWrapping::u:
+			return 3 * m_patchesU;
+
+		case BezierSurfaceWrapping::v:
+			return 3 * m_patchesU + 1;
+	}
+	return{};
+}
+
+std::size_t BezierSurface::getBezierPointsV() const
+{
+	switch (m_wrapping)
+	{
+		case BezierSurfaceWrapping::none:
+			return 3 * m_patchesV + 1;
+
+		case BezierSurfaceWrapping::u:
+			return 3 * m_patchesV + 1;
+
+		case BezierSurfaceWrapping::v:
+			return 3 * m_patchesV;
+	}
+	return{};
+}
+
+std::vector<std::unique_ptr<BezierPatch>> BezierSurface::createPatches(
+	const ShaderProgram& bezierSurfaceShaderProgram)
+{
+	std::vector<std::unique_ptr<BezierPatch>> patches{};
+	m_patches.resize(m_patchesV);
+	for (std::size_t patchV = 0; patchV < m_patchesV; ++patchV)
+	{
+		for (std::size_t patchU = 0; patchU < m_patchesU; ++patchU)
+		{
+			bool isOnNegativeUEdge = patchU == 0;
+			bool isOnPositiveUEdge = patchU == m_patchesU - 1;
+			bool isOnNegativeVEdge = patchV == 0;
+			bool isOnPositiveVEdge = patchV == m_patchesV - 1;
+			patches.push_back(std::make_unique<BezierPatch>(bezierSurfaceShaderProgram,
+				getBezierPoints(patchU, patchV), *this, isOnNegativeUEdge, isOnPositiveUEdge,
+				isOnNegativeVEdge, isOnPositiveVEdge));
+			m_patches[patchV].push_back(patches.back().get());
+		}
+	}
+	return patches;
+}
+
+void BezierSurface::updateGeometry()
+{
+	updatePos();
+	updatePatches();
+	updateGridMesh();
+}
+
 void BezierSurface::updatePos()
 {
 	glm::vec3 pos{};
@@ -176,6 +288,84 @@ std::vector<unsigned int> BezierSurface::createGridIndices() const
 			return createGridIndicesVWrapping();
 	}
 	return {};
+}
+
+void BezierSurface::updateShaders() const
+{
+	if (m_renderGrid)
+	{
+		m_gridShaderProgram.use();
+		m_gridShaderProgram.setUniform("modelMatrix", m_modelMatrix);
+		m_gridShaderProgram.setUniform("isDark", true);
+		m_gridShaderProgram.setUniform("isSelected", isSelected());
+	}
+}
+
+void BezierSurface::registerForNotifications(Point* point)
+{
+	m_pointMoveNotifications.push_back(point->registerForMoveNotification
+		(
+			[this] (void*)
+			{
+				pointMoveNotification();
+			}
+		));
+
+	m_pointRereferenceNotifications.push_back(point->registerForRereferenceNotification
+		(
+			[this] (void* notification, Point* newPoint)
+			{
+				pointRereferenceNotification(static_cast<Point::RereferenceCallback*>(notification),
+					newPoint);
+			}
+		));
+
+	m_pointDeletabilityLocks.push_back(point->getDeletabilityLock());
+}
+
+void BezierSurface::pointMoveNotification()
+{
+	updateGeometry();
+}
+
+void BezierSurface::pointRereferenceNotification(Point::RereferenceCallback* notification,
+	Point* newPoint)
+{
+	auto iterator = std::find_if
+	(
+		m_pointRereferenceNotifications.begin(), m_pointRereferenceNotifications.end(),
+		[notification] (const std::shared_ptr<Point::RereferenceCallback>& sharedNotification)
+		{
+			return sharedNotification.get() == notification;
+		}
+	);
+	std::size_t notificationIndex = iterator - m_pointRereferenceNotifications.begin();
+	std::size_t rowIndex = notificationIndex / m_points[0].size();
+	std::size_t pointIndex = notificationIndex % m_points[0].size();
+
+	m_points[rowIndex][pointIndex] = newPoint;
+
+	m_pointMoveNotifications[notificationIndex] = newPoint->registerForMoveNotification
+		(
+			[this] (void*)
+			{
+				pointMoveNotification();
+			}
+		);
+
+	m_pointRereferenceNotifications[notificationIndex] =
+		newPoint->registerForRereferenceNotification
+		(
+			[this] (void* notification, Point* newPoint)
+			{
+				pointRereferenceNotification(static_cast<Point::RereferenceCallback*>(notification),
+					newPoint);
+			}
+		);
+
+	m_pointDeletabilityLocks[notificationIndex] = newPoint->getDeletabilityLock();
+
+	updateGeometry();
 }
 
 std::vector<std::vector<glm::vec3>> BezierSurface::createBoorPointsNoWrapping(const glm::vec3& pos,
@@ -449,234 +639,6 @@ void BezierSurface::createBezierPointsVWrapping(
 	}
 }
 
-std::shared_ptr<BezierSurface::DestroyCallback> BezierSurface::registerForDestroyNotification(
-	const DestroyCallback& callback)
-{
-	std::shared_ptr<DestroyCallback> notification = std::make_shared<DestroyCallback>(callback);
-	m_destroyNotifications.push_back(notification);
-	return notification;
-}
-
-glm::vec3 BezierSurface::surface(float u, float v) const
-{
-	int patchU{};
-	int patchV{};
-	float localU{};
-	float localV{};
-	mapToPatch(u, v, patchU, patchV, localU, localV);
-
-	return m_patches[patchV][patchU]->surface(localU, localV);
-}
-
-glm::vec3 BezierSurface::surfaceDU(float u, float v) const
-{
-	int patchU{};
-	int patchV{};
-	float localU{};
-	float localV{};
-	mapToPatch(u, v, patchU, patchV, localU, localV);
-
-	return static_cast<float>(m_patchesU) * m_patches[patchV][patchU]->surfaceDU(localU, localV);
-}
-
-glm::vec3 BezierSurface::surfaceDV(float u, float v) const
-{
-	int patchU{};
-	int patchV{};
-	float localU{};
-	float localV{};
-	mapToPatch(u, v, patchU, patchV, localU, localV);
-
-	return static_cast<float>(m_patchesV) * m_patches[patchV][patchU]->surfaceDV(localU, localV);
-}
-
-void BezierSurface::mapToPatch(float u, float v, int& patchU, int& patchV, float& localU,
-	float& localV) const
-{
-	if (m_wrapping == BezierSurfaceWrapping::u && (u < 0 || u >= 1))
-	{
-		u -= std::floor(u);
-	}
-	if (m_wrapping == BezierSurfaceWrapping::v && (v < 0 || v >= 1))
-	{
-		v -= std::floor(v);
-	}
-
-	float uScaled = m_patchesU * u;
-	float vScaled = m_patchesV * v;
-
-	patchU = static_cast<int>(uScaled);
-	patchV = static_cast<int>(vScaled);
-	if (u < 0)
-	{
-		patchU = 0;
-	}
-	if (u >= 1)
-	{
-		patchU = static_cast<int>(m_patchesU) - 1;
-	}
-	if (v < 0)
-	{
-		patchV = 0;
-	}
-	if (v >= 1)
-	{
-		patchV = static_cast<int>(m_patchesV) - 1;
-	}
-
-	localU = uScaled - patchU;
-	localV = vScaled - patchV;
-}
-
-bool BezierSurface::uWrapped() const
-{
-	return m_wrapping == BezierSurfaceWrapping::u;
-}
-
-bool BezierSurface::vWrapped() const
-{
-	return m_wrapping == BezierSurfaceWrapping::v;
-}
-
-std::size_t BezierSurface::getBezierPointsU() const
-{
-	switch (m_wrapping)
-	{
-		case BezierSurfaceWrapping::none:
-			return 3 * m_patchesU + 1;
-
-		case BezierSurfaceWrapping::u:
-			return 3 * m_patchesU;
-
-		case BezierSurfaceWrapping::v:
-			return 3 * m_patchesU + 1;
-	}
-	return{};
-}
-
-std::size_t BezierSurface::getBezierPointsV() const
-{
-	switch (m_wrapping)
-	{
-		case BezierSurfaceWrapping::none:
-			return 3 * m_patchesV + 1;
-
-		case BezierSurfaceWrapping::u:
-			return 3 * m_patchesV + 1;
-
-		case BezierSurfaceWrapping::v:
-			return 3 * m_patchesV;
-	}
-	return{};
-}
-
-std::vector<std::unique_ptr<BezierPatch>> BezierSurface::createPatches(
-	const ShaderProgram& bezierSurfaceShaderProgram)
-{
-	std::vector<std::unique_ptr<BezierPatch>> patches{};
-	m_patches.resize(m_patchesV);
-	for (std::size_t patchV = 0; patchV < m_patchesV; ++patchV)
-	{
-		for (std::size_t patchU = 0; patchU < m_patchesU; ++patchU)
-		{
-			bool isOnNegativeUEdge = patchU == 0;
-			bool isOnPositiveUEdge = patchU == m_patchesU - 1;
-			bool isOnNegativeVEdge = patchV == 0;
-			bool isOnPositiveVEdge = patchV == m_patchesV - 1;
-			patches.push_back(std::make_unique<BezierPatch>(bezierSurfaceShaderProgram,
-				getBezierPoints(patchU, patchV), *this, isOnNegativeUEdge, isOnPositiveUEdge,
-				isOnNegativeVEdge, isOnPositiveVEdge));
-			m_patches[patchV].push_back(patches.back().get());
-		}
-	}
-	return patches;
-}
-
-void BezierSurface::updateGeometry()
-{
-	updatePos();
-	updatePatches();
-	updateGridMesh();
-}
-
-void BezierSurface::updateShaders() const
-{
-	if (m_renderGrid)
-	{
-		m_gridShaderProgram.use();
-		m_gridShaderProgram.setUniform("modelMatrix", m_modelMatrix);
-		m_gridShaderProgram.setUniform("isDark", true);
-		m_gridShaderProgram.setUniform("isSelected", isSelected());
-	}
-}
-
-void BezierSurface::registerForNotifications(Point* point)
-{
-	m_pointMoveNotifications.push_back(point->registerForMoveNotification
-		(
-			[this] (void*)
-			{
-				pointMoveNotification();
-			}
-		));
-
-	m_pointRereferenceNotifications.push_back(point->registerForRereferenceNotification
-		(
-			[this] (void* notification, Point* newPoint)
-			{
-				pointRereferenceNotification(static_cast<Point::RereferenceCallback*>(notification),
-					newPoint);
-			}
-		));
-
-	m_pointDeletabilityLocks.push_back(point->getDeletabilityLock());
-}
-
-void BezierSurface::pointMoveNotification()
-{
-	updateGeometry();
-}
-
-void BezierSurface::pointRereferenceNotification(Point::RereferenceCallback* notification,
-	Point* newPoint)
-{
-	auto iterator = std::find_if
-	(
-		m_pointRereferenceNotifications.begin(), m_pointRereferenceNotifications.end(),
-		[notification] (const std::shared_ptr<Point::RereferenceCallback>& sharedNotification)
-		{
-			return sharedNotification.get() == notification;
-		}
-	);
-	std::size_t notificationIndex = iterator - m_pointRereferenceNotifications.begin();
-	std::size_t rowIndex = notificationIndex / m_points[0].size();
-	std::size_t pointIndex = notificationIndex % m_points[0].size();
-
-	m_points[rowIndex][pointIndex] = newPoint;
-
-	m_pointMoveNotifications[notificationIndex] = newPoint->registerForMoveNotification
-		(
-			[this] (void*)
-			{
-				pointMoveNotification();
-			}
-		);
-
-	m_pointRereferenceNotifications[notificationIndex] =
-		newPoint->registerForRereferenceNotification
-		(
-			[this] (void* notification, Point* newPoint)
-			{
-				pointRereferenceNotification(static_cast<Point::RereferenceCallback*>(notification),
-					newPoint);
-			}
-		);
-
-	m_pointDeletabilityLocks[notificationIndex] = newPoint->getDeletabilityLock();
-
-	updateGeometry();
-}
-
 std::vector<unsigned int> BezierSurface::createGridIndicesNoWrapping() const
 {
 	std::vector<unsigned int> indices{};
@@ -741,6 +703,44 @@ std::vector<unsigned int> BezierSurface::createGridIndicesVWrapping() const
 		}
 	}
 	return indices;
+}
+
+void BezierSurface::mapToPatch(float u, float v, int& patchU, int& patchV, float& localU,
+	float& localV) const
+{
+	if (m_wrapping == BezierSurfaceWrapping::u && (u < 0 || u >= 1))
+	{
+		u -= std::floor(u);
+	}
+	if (m_wrapping == BezierSurfaceWrapping::v && (v < 0 || v >= 1))
+	{
+		v -= std::floor(v);
+	}
+
+	float uScaled = m_patchesU * u;
+	float vScaled = m_patchesV * v;
+
+	patchU = static_cast<int>(uScaled);
+	patchV = static_cast<int>(vScaled);
+	if (u < 0)
+	{
+		patchU = 0;
+	}
+	if (u >= 1)
+	{
+		patchU = static_cast<int>(m_patchesU) - 1;
+	}
+	if (v < 0)
+	{
+		patchV = 0;
+	}
+	if (v >= 1)
+	{
+		patchV = static_cast<int>(m_patchesV) - 1;
+	}
+
+	localU = uScaled - patchU;
+	localV = vScaled - patchV;
 }
 
 void BezierSurface::notifyDestroy()
