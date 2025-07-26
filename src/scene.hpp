@@ -71,7 +71,7 @@ public:
 	void deleteSelectedModels();
 	bool selectUniqueModel(const glm::vec2& screenPos);
 	void toggleModel(const glm::vec2& screenPos);
-	void moveUniqueSelectedModel(const glm::vec2& screenPos) const;
+	void moveUniqueSelectedModel(const glm::vec2& offset) const;
 	void collapse2Points();
 	BezierPatch* getUniqueSelectedBezierPatch() const;
 	const Intersectable* getUniqueSelectedIntersectable() const;

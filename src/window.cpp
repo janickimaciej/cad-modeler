@@ -119,7 +119,7 @@ void Window::cursorMovementCallback(double x, double y)
 		isButtonPressed(GLFW_MOUSE_BUTTON_LEFT) &&
 		m_dragging)
 	{
-		m_scene->moveUniqueSelectedModel(currentPos);
+		m_scene->moveUniqueSelectedModel(offset);
 	}
 }
 

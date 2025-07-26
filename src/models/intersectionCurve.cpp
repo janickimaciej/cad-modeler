@@ -10,13 +10,31 @@
 std::unique_ptr<IntersectionCurve> IntersectionCurve::create(const ShaderProgram& shaderProgram,
 	const std::array<const Intersectable*, 2>& surfaces, const glm::vec3& cursorPos)
 {
-	return create(shaderProgram, surfaces, closestSamples(surfaces, cursorPos));
+	PointPair closestSamples{};
+	if (surfaces[0] == surfaces[1])
+	{
+		closestSamples = findClosestSamples(surfaces[0], cursorPos);
+	}
+	else
+	{
+		closestSamples = findClosestSamples(surfaces, cursorPos);
+	}
+	return create(shaderProgram, surfaces, closestSamples);
 }
 
 std::unique_ptr<IntersectionCurve> IntersectionCurve::create(const ShaderProgram& shaderProgram,
 	const std::array<const Intersectable*, 2>& surfaces)
 {
-	return create(shaderProgram, surfaces, closestSamples(surfaces));
+	PointPair closestSamples{};
+	if (surfaces[0] == surfaces[1])
+	{
+		closestSamples = findClosestSamples(surfaces[0]);
+	}
+	else
+	{
+		closestSamples = findClosestSamples(surfaces);
+	}
+	return create(shaderProgram, surfaces, closestSamples);
 }
 
 void IntersectionCurve::render() const
@@ -44,16 +62,16 @@ int IntersectionCurve::pointCount() const
 int IntersectionCurve::m_count = 0;
 
 std::unique_ptr<IntersectionCurve> IntersectionCurve::create(const ShaderProgram& shaderProgram,
-	const std::array<const Intersectable*, 2>& surfaces, const ParametersPoint& startingPoint)
+	const std::array<const Intersectable*, 2>& surfaces, const PointPair& startingPoint)
 {
-	std::optional<ParametersPoint> newtonMethodStartingPoint = gradientMethod(surfaces,
+	std::optional<PointPair> newtonMethodStartingPoint = gradientMethod(surfaces,
 		startingPoint);
 	if (!newtonMethodStartingPoint.has_value())
 	{
 		return nullptr;
 	}
 
-	std::vector<ParametersPoint> intersectionPoints = findIntersectionPoints(surfaces,
+	std::vector<PointPair> intersectionPoints = findIntersectionPoints(surfaces,
 		*newtonMethodStartingPoint);
 
 	return std::unique_ptr<IntersectionCurve>(new IntersectionCurve{shaderProgram, surfaces,
@@ -62,7 +80,7 @@ std::unique_ptr<IntersectionCurve> IntersectionCurve::create(const ShaderProgram
 
 IntersectionCurve::IntersectionCurve(const ShaderProgram& shaderProgram,
 	const std::array<const Intersectable*, 2>& surfaces,
-	const std::vector<ParametersPoint>& points) :
+	const std::vector<PointPair>& points) :
 	Model{{}, "Intersection curve " + std::to_string(m_count++)},
 	m_shaderProgram{shaderProgram},
 	m_surfaces{surfaces},
@@ -75,7 +93,7 @@ IntersectionCurve::IntersectionCurve(const ShaderProgram& shaderProgram,
 void IntersectionCurve::createMesh()
 {
 	std::vector<glm::vec3> vertices{};
-	for (const ParametersPoint& point : m_points)
+	for (const PointPair& point : m_points)
 	{
 		vertices.push_back(m_surfaces[0]->surface(point[0]));
 	}
@@ -92,27 +110,30 @@ void IntersectionCurve::updateShaders() const
 void IntersectionCurve::updatePos()
 {
 	glm::vec3 pos{};
-	for (const ParametersPoint& point : m_points)
+	for (const PointPair& point : m_points)
 	{
 		pos += m_surfaces[0]->surface(point[0]);
 	}
 	m_pos = pos / static_cast<float>(m_points.size());
 }
 
-IntersectionCurve::ParametersPoint IntersectionCurve::closestSamples(
+IntersectionCurve::PointPair IntersectionCurve::findClosestSamples(
 	const std::array<const Intersectable*, 2>& surfaces, const glm::vec3& pos)
 {
-	static constexpr int resolution = 10;
+	static constexpr int resolution = 30;
 	static constexpr float step = 1.0f / resolution;
 
-	ParametersPoint closestPoints{};
+	PointPair closestPoints{};
+
 	for (int i = 0; i < 2; ++i)
 	{
+		int maxIU = surfaces[i]->uWrapped() ? resolution - 1 : resolution;
+		int maxIV = surfaces[i]->vWrapped() ? resolution - 1 : resolution;
 		float minDistanceSquared = std::numeric_limits<float>::max();
-		for (int iu = 0; iu <= resolution; ++iu)
+		for (int iu = 0; iu <= maxIU; ++iu)
 		{
 			float u = iu * step;
-			for (int iv = 0; iv <= resolution; ++iv)
+			for (int iv = 0; iv <= maxIV; ++iv)
 			{
 				float v = iv * step;
 				float distanceSquared = getDistanceSquared(surfaces[i]->surface(u, v), pos);
@@ -127,24 +148,29 @@ IntersectionCurve::ParametersPoint IntersectionCurve::closestSamples(
 	return closestPoints;
 }
 
-IntersectionCurve::ParametersPoint IntersectionCurve::closestSamples(
+IntersectionCurve::PointPair IntersectionCurve::findClosestSamples(
 	const std::array<const Intersectable*, 2>& surfaces)
 {
-	static constexpr int resolution = 10;
+	static constexpr int resolution = 30;
 	static constexpr float step = 1.0f / resolution;
 
-	ParametersPoint closestPoints{};
+	PointPair closestPoints{};
 	float minDistanceSquared = std::numeric_limits<float>::max();
-	for (int iu1 = 0; iu1 <= resolution; ++iu1)
+
+	int maxIU1 = surfaces[0]->uWrapped() ? resolution - 1 : resolution;
+	int maxIV1 = surfaces[0]->vWrapped() ? resolution - 1 : resolution;
+	int maxIU2 = surfaces[1]->uWrapped() ? resolution - 1 : resolution;
+	int maxIV2 = surfaces[1]->vWrapped() ? resolution - 1 : resolution;
+	for (int iu1 = 0; iu1 <= maxIU1; ++iu1)
 	{
 		float u1 = iu1 * step;
-		for (int iv1 = 0; iv1 <= resolution; ++iv1)
+		for (int iv1 = 0; iv1 <= maxIV1; ++iv1)
 		{
 			float v1 = iv1 * step;
-			for (int iu2 = 0; iu2 <= resolution; ++iu2)
+			for (int iu2 = 0; iu2 <= maxIU2; ++iu2)
 			{
 				float u2 = iu2 * step;
-				for (int iv2 = 0; iv2 <= resolution; ++iv2)
+				for (int iv2 = 0; iv2 <= maxIV2; ++iv2)
 				{
 					float v2 = iv2 * step;
 					float distanceSquared = getDistanceSquared(surfaces[0]->surface(u1, v1),
@@ -162,14 +188,109 @@ IntersectionCurve::ParametersPoint IntersectionCurve::closestSamples(
 	return closestPoints;
 }
 
-std::optional<IntersectionCurve::ParametersPoint> IntersectionCurve::gradientMethod(
-	const std::array<const Intersectable*, 2>& surfaces, const ParametersPoint& startingPoints)
+IntersectionCurve::PointPair IntersectionCurve::findClosestSamples(const Intersectable* surface,
+	const glm::vec3& pos)
 {
-	static constexpr float error = 1e-8f;
-	static constexpr float stepSize = 0.001f;
+	static constexpr int resolution = 30;
+	static constexpr float step = 1.0f / resolution;
+
+	PointPair closestPoints{};
+	float minDistanceSquared = std::numeric_limits<float>::max();
+	float secondMinDistanceSquared = std::numeric_limits<float>::max();
+
+	int maxIU = surface->uWrapped() ? resolution - 1 : resolution;
+	int maxIV = surface->vWrapped() ? resolution - 1 : resolution;
+	for (int iu = 0; iu <= maxIU; ++iu)
+	{
+		float u = iu * step;
+		for (int iv = 0; iv <= maxIV; ++iv)
+		{
+			float v = iv * step;
+			float distanceSquared = getDistanceSquared(surface->surface(u, v), pos);
+			if (distanceSquared < minDistanceSquared)
+			{
+				secondMinDistanceSquared = minDistanceSquared;
+				closestPoints[1] = closestPoints[0];
+				minDistanceSquared = distanceSquared;
+				closestPoints[0] = {u, v};
+			}
+			else if (distanceSquared < secondMinDistanceSquared)
+			{
+				secondMinDistanceSquared = distanceSquared;
+				closestPoints[1] = {u, v};
+			}
+		}
+	}
+	return closestPoints;
+}
+
+IntersectionCurve::PointPair IntersectionCurve::findClosestSamples(const Intersectable* surface)
+{
+	static constexpr int resolution = 30;
+	static constexpr float step = 1.0f / resolution;
+
+	PointPair closestPoints{};
+	float minLoss = std::numeric_limits<float>::max();
+
+	int maxIU = surface->uWrapped() ? resolution - 1 : resolution;
+	int maxIV = surface->vWrapped() ? resolution - 1 : resolution;
+	for (int iu1 = 0; iu1 <= maxIU; ++iu1)
+	{
+		float u1 = iu1 * step;
+		for (int iv1 = 0; iv1 <= maxIV; ++iv1)
+		{
+			float v1 = iv1 * step;
+			for (int iu2 = 0; iu2 <= maxIU; ++iu2)
+			{
+				float u2 = iu2 * step;
+				for (int iv2 = 0; iv2 <= maxIV; ++iv2)
+				{
+					float v2 = iv2 * step;
+
+					if (iv1 == iv2 && iu1 == iu2)
+					{
+						continue;
+					}
+
+					float distanceSquared = getDistanceSquared(surface->surface(u1, v1),
+						surface->surface(u2, v2));
+					float minParametersDistanceSquared = std::numeric_limits<float>::max();
+					int uWrap = surface->uWrapped() ? 1 : 0;
+					int vWrap = surface->vWrapped() ? 1 : 0;
+					for (int i = -uWrap; i <= uWrap; ++i)
+					{
+						for (int j = -vWrap; j <= vWrap; ++j)
+						{
+							float parametersDistanceSquared =
+								getDistanceSquared({u1, v1}, {u2 + i, v2 + j});
+							if (parametersDistanceSquared < minParametersDistanceSquared)
+							{
+								minParametersDistanceSquared = parametersDistanceSquared;
+							}
+						}
+					}
+					float loss = distanceSquared - minParametersDistanceSquared;
+					if (loss < minLoss)
+					{
+						minLoss = loss;
+						closestPoints[0] = {u1, v1};
+						closestPoints[1] = {u2, v2};
+					}
+				}
+			}
+		}
+	}
+	return closestPoints;
+}
+
+std::optional<IntersectionCurve::PointPair> IntersectionCurve::gradientMethod(
+	const std::array<const Intersectable*, 2>& surfaces, const PointPair& startingPoints)
+{
+	static constexpr float error = 1e-6f;
+	float stepSize = 0.0001f;
 	static constexpr std::size_t maxIterations = static_cast<std::size_t>(1e4f);
 
-	ParametersPoint points = startingPoints;
+	PointPair points = startingPoints;
 	for (std::size_t iteration = 0; iteration < maxIterations; ++iteration)
 	{
 		std::array<glm::vec3, 2> surfaceDU = {surfaces[0]->surfaceDU(points[0]),
@@ -188,19 +309,20 @@ std::optional<IntersectionCurve::ParametersPoint> IntersectionCurve::gradientMet
 		{
 			return points;
 		}
+		stepSize *= 0.9999f;
 	}
 	return std::nullopt;
 }
 
-std::vector<IntersectionCurve::ParametersPoint> IntersectionCurve::findIntersectionPoints(
-	const std::array<const Intersectable*, 2>& surfaces, const ParametersPoint& startingPoint)
+std::vector<IntersectionCurve::PointPair> IntersectionCurve::findIntersectionPoints(
+	const std::array<const Intersectable*, 2>& surfaces, const PointPair& startingPoint)
 {
 	static constexpr float eps = 1.5f * m_newtonMethodStep;
 	static constexpr float epsSquared = eps * eps;
 	static constexpr std::size_t maxPoints = static_cast<std::size_t>(1e4f);
 
-	std::vector<ParametersPoint> forwardPoints{};
-	ParametersPoint point = startingPoint;
+	std::vector<PointPair> forwardPoints{};
+	PointPair point = startingPoint;
 	bool findBackwards = false;
 	for (int i = 0; i < maxPoints; ++i)
 	{
@@ -218,13 +340,13 @@ std::vector<IntersectionCurve::ParametersPoint> IntersectionCurve::findIntersect
 			break;
 		}
 
-		std::optional<ParametersPoint> prevPoint = std::nullopt;
+		std::optional<PointPair> prevPoint = std::nullopt;
 		if (i > 0)
 		{
 			prevPoint = forwardPoints[forwardPoints.size() - 2];
 		}
 
-		std::optional<ParametersPoint> newPoint = newtonMethod(surfaces, prevPoint, point);
+		std::optional<PointPair> newPoint = newtonMethod(surfaces, prevPoint, point);
 		if (!newPoint.has_value())
 		{
 			return forwardPoints;
@@ -238,7 +360,7 @@ std::vector<IntersectionCurve::ParametersPoint> IntersectionCurve::findIntersect
 	}
 
 	point = startingPoint;
-	std::vector<ParametersPoint> backwardsPoints{};
+	std::vector<PointPair> backwardsPoints{};
 
 	for (int i = 0; i < maxPoints - forwardPoints.size(); ++i)
 	{
@@ -248,13 +370,13 @@ std::vector<IntersectionCurve::ParametersPoint> IntersectionCurve::findIntersect
 			break;
 		}
 
-		std::optional<ParametersPoint> prevPoint = std::nullopt;
+		std::optional<PointPair> prevPoint = std::nullopt;
 		if (i > 0)
 		{
 			prevPoint = backwardsPoints[backwardsPoints.size() - 2];
 		}
 
-		std::optional<ParametersPoint> newPoint = newtonMethod(surfaces, prevPoint, point, true);
+		std::optional<PointPair> newPoint = newtonMethod(surfaces, prevPoint, point, true);
 		if (!newPoint.has_value())
 		{
 			break;
@@ -269,10 +391,9 @@ std::vector<IntersectionCurve::ParametersPoint> IntersectionCurve::findIntersect
 	return backwardsPoints;
 }
 
-std::optional<IntersectionCurve::ParametersPoint> IntersectionCurve::newtonMethod(
-	const std::array<const Intersectable*, 2>& surfaces,
-	const std::optional<ParametersPoint>& prevPoint, const ParametersPoint& startingPoint,
-	bool backwards)
+std::optional<IntersectionCurve::PointPair> IntersectionCurve::newtonMethod(
+	const std::array<const Intersectable*, 2>& surfaces, const std::optional<PointPair>& prevPoint,
+	const PointPair& startingPoint, bool backwards)
 {
 	static constexpr float error = 1e-8f;
 	static constexpr std::size_t maxIterations = static_cast<std::size_t>(1e4f);
@@ -339,13 +460,19 @@ std::optional<IntersectionCurve::ParametersPoint> IntersectionCurve::newtonMetho
 	return std::nullopt;
 }
 
+float IntersectionCurve::getDistanceSquared(const glm::vec2& pos1, const glm::vec2& pos2)
+{
+	glm::vec2 diff = pos2 - pos1;
+	return glm::dot(diff, diff);
+}
+
 float IntersectionCurve::getDistanceSquared(const glm::vec3& pos1, const glm::vec3& pos2)
 {
 	glm::vec3 diff = pos2 - pos1;
 	return glm::dot(diff, diff);
 }
 
-bool IntersectionCurve::outsideDomain(const ParametersPoint& point,
+bool IntersectionCurve::outsideDomain(const PointPair& point,
 	const std::array<const Intersectable*, 2>& surfaces)
 {
 	return !surfaces[0]->uWrapped() && (point[0].x < 0 || point[0].x > 1) ||

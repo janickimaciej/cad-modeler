@@ -473,12 +473,14 @@ void Scene::toggleModel(const glm::vec2& screenPos)
 	toggleModel(*closestModel);
 }
 
-void Scene::moveUniqueSelectedModel(const glm::vec2& screenPos) const
+void Scene::moveUniqueSelectedModel(const glm::vec2& offset) const
 {
 	Model* selectedModel = getUniqueSelectedModel();
 	if (selectedModel != nullptr)
 	{
-		selectedModel->setScreenPos(screenPos, m_activeCamera->getMatrix(), m_windowSize);
+		glm::vec2 screenPos =
+			selectedModel->getScreenPos(m_activeCamera->getMatrix(), m_windowSize);
+		selectedModel->setScreenPos(screenPos + offset, m_activeCamera->getMatrix(), m_windowSize);
 	}
 }
 
