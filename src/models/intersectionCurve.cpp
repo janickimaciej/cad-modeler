@@ -6,10 +6,9 @@
 #include <cmath>
 #include <cstddef>
 #include <limits>
-#include <random>
 #include <string>
 
-std::vector<glm::vec3> IntersectionCurve::create(const ShaderProgram& shaderProgram,
+std::unique_ptr<IntersectionCurve> IntersectionCurve::create(const ShaderProgram& shaderProgram,
 	const std::array<const Intersectable*, 2>& surfaces, const glm::vec3& cursorPos)
 {
 	PointPair closestSamples{};
@@ -21,11 +20,10 @@ std::vector<glm::vec3> IntersectionCurve::create(const ShaderProgram& shaderProg
 	{
 		closestSamples = findClosestSamples(surfaces, cursorPos);
 	}
-	//return create(shaderProgram, surfaces, closestSamples);
-	return {surfaces[0]->surface(closestSamples[0]), surfaces[1]->surface(closestSamples[1])};
+	return create(shaderProgram, surfaces, closestSamples);
 }
 
-std::vector<glm::vec3> IntersectionCurve::create(const ShaderProgram& shaderProgram,
+std::unique_ptr<IntersectionCurve> IntersectionCurve::create(const ShaderProgram& shaderProgram,
 	const std::array<const Intersectable*, 2>& surfaces)
 {
 	PointPair closestSamples{};
@@ -37,8 +35,7 @@ std::vector<glm::vec3> IntersectionCurve::create(const ShaderProgram& shaderProg
 	{
 		closestSamples = findClosestSamples(surfaces);
 	}
-	//return create(shaderProgram, surfaces, closestSamples);
-	return {surfaces[0]->surface(closestSamples[0]), surfaces[1]->surface(closestSamples[1])};
+	return create(shaderProgram, surfaces, closestSamples);
 }
 
 void IntersectionCurve::render() const
@@ -122,192 +119,132 @@ void IntersectionCurve::updatePos()
 }
 
 IntersectionCurve::PointPair IntersectionCurve::findClosestSamples(
-	const std::array<const Intersectable*, 2>& surfaces, const glm::vec3& pos)
+	const std::array<const Intersectable*, 2>& surfaces, const glm::vec3& cursorPos)
 {
-	static constexpr int resolution = 20;
-	static constexpr float step = 1.0f / resolution;
-
-	PointPair closestPointPair{};
-
+	PointPair closestSamples{};
 	for (int i = 0; i < 2; ++i)
 	{
-		int maxIU = surfaces[i]->uWrapped() ? resolution - 1 : resolution;
-		int maxIV = surfaces[i]->vWrapped() ? resolution - 1 : resolution;
-		float minDistanceSquared = std::numeric_limits<float>::max();
-		for (int iu = 0; iu <= maxIU; ++iu)
-		{
-			float u = iu * step;
-			for (int iv = 0; iv <= maxIV; ++iv)
+		closestSamples[i] = simulatedAnnealing<glm::vec2>(
+			[surface = surfaces[i], cursorPos] (const glm::vec2& point)
 			{
-				float v = iv * step;
-				float distanceSquared = getDistanceSquared(surfaces[i]->surface(u, v), pos);
-				if (distanceSquared < minDistanceSquared)
-				{
-					minDistanceSquared = distanceSquared;
-					closestPointPair[i] = {u, v};
-				}
-			}
-		}
+				return getDistanceSquared(surface->surface(point), cursorPos);
+			},
+			[surface = surfaces[i]] (const glm::vec2& point)
+			{
+				return normalizeToDomain(surface, point);
+			},
+			1,
+			10000
+		);
 	}
-	return closestPointPair;
+
+	return closestSamples;
 }
 
 IntersectionCurve::PointPair IntersectionCurve::findClosestSamples(
 	const std::array<const Intersectable*, 2>& surfaces)
 {
-	glm::vec4 closestPointVec = simulatedAnnealing(
+	glm::vec4 closestSamples = simulatedAnnealing<glm::vec4>(
 		[surfaces] (const glm::vec4& point)
 		{
-			return intersectionLoss(surfaces,
-				{glm::vec2{point[0], point[1]}, glm::vec2{point[2], point[3]}});
+			PointPair pointPair = vec4ToPointPair(point);
+			return getDistanceSquared(surfaces[0]->surface(pointPair[0]),
+				surfaces[1]->surface(pointPair[1]));
 		},
 		[surfaces] (const glm::vec4& point)
 		{
-			return intersectionDomainCheck(surfaces,
-				{glm::vec2{point[0], point[1]}, glm::vec2{point[2], point[3]}});
+			std::optional<PointPair> newPointPair =
+				normalizeToDomain(surfaces, vec4ToPointPair(point));
+			return pointPairToVec4(newPointPair);
 		},
 		1,
 		10000
 	);
-	return {glm::vec2{closestPointVec[0], closestPointVec[1]},
-		glm::vec2{closestPointVec[2], closestPointVec[3]}};
+
+	return vec4ToPointPair(closestSamples);
 }
 
 IntersectionCurve::PointPair IntersectionCurve::findClosestSamples(const Intersectable* surface,
-	const glm::vec3& pos)
+	const glm::vec3& cursorPos)
 {
-	static constexpr int resolution = 20;
-	static constexpr float step = 1.0f / resolution;
+	PointPair closestSamples{};
 
-	PointPair closestPointPair{};
-	float minDistanceSquared = std::numeric_limits<float>::max();
-	float secondMinDistanceSquared = std::numeric_limits<float>::max();
-
-	int maxIU = surface->uWrapped() ? resolution - 1 : resolution;
-	int maxIV = surface->vWrapped() ? resolution - 1 : resolution;
-	for (int iu = 0; iu <= maxIU; ++iu)
-	{
-		float u = iu * step;
-		for (int iv = 0; iv <= maxIV; ++iv)
+	closestSamples[0] = simulatedAnnealing<glm::vec2>(
+		[surface, cursorPos] (const glm::vec2& point)
 		{
-			float v = iv * step;
-			float distanceSquared = getDistanceSquared(surface->surface(u, v), pos);
-			if (distanceSquared < minDistanceSquared)
+			return getDistanceSquared(surface->surface(point), cursorPos);
+		},
+		[surface] (const glm::vec2& point)
+		{
+			return normalizeToDomain(surface, point);
+		},
+		1,
+		10000
+	);
+
+	closestSamples[1] = simulatedAnnealing<glm::vec2>(
+		[surface, firstPoint = closestSamples[0]] (const glm::vec2& point)
+		{
+			float distanceSquared = getDistanceSquared(surface->surface(firstPoint),
+				surface->surface(point));
+			float parametersDistanceSquared = getParametersDistanceSquared({firstPoint, point},
+				surface->uWrapped(), surface->vWrapped());
+
+			return distanceSquared / parametersDistanceSquared;
+		},
+		[surface, firstPoint = closestSamples[0]]
+		(const glm::vec2& point) -> std::optional<glm::vec2>
+		{
+			static constexpr float eps = 1e-6f;
+			if (getParametersDistanceSquared({firstPoint, point}, surface->uWrapped(),
+				surface->vWrapped()) < eps)
 			{
-				secondMinDistanceSquared = minDistanceSquared;
-				closestPointPair[1] = closestPointPair[0];
-				minDistanceSquared = distanceSquared;
-				closestPointPair[0] = {u, v};
+				return std::nullopt;
 			}
-			else if (distanceSquared < secondMinDistanceSquared)
-			{
-				secondMinDistanceSquared = distanceSquared;
-				closestPointPair[1] = {u, v};
-			}
-		}
-	}
-	return closestPointPair;
+
+			return normalizeToDomain(surface, point);
+		},
+		1,
+		10000
+	);
+
+	return closestSamples;
 }
 
 IntersectionCurve::PointPair IntersectionCurve::findClosestSamples(const Intersectable* surface)
 {
-	glm::vec4 closestPointVec = simulatedAnnealing(
+	glm::vec4 closestSamples = simulatedAnnealing<glm::vec4>(
 		[surface] (const glm::vec4& point)
 		{
-			return selfIntersectionLoss(surface,
-				{glm::vec2{point[0], point[1]}, glm::vec2{point[2], point[3]}});
+			PointPair pointPair = vec4ToPointPair(point);
+
+			float distanceSquared = getDistanceSquared(surface->surface(pointPair[0]),
+				surface->surface(pointPair[1]));
+			float parametersDistanceSquared = getParametersDistanceSquared(pointPair,
+				surface->uWrapped(), surface->vWrapped());
+
+			return distanceSquared / parametersDistanceSquared;
 		},
-		[surface] (const glm::vec4& point)
+		[surface] (const glm::vec4& point) -> std::optional<glm::vec4>
 		{
-			return selfIntersectionDomainCheck(surface,
-				{glm::vec2{point[0], point[1]}, glm::vec2{point[2], point[3]}});
+			PointPair pointPair = vec4ToPointPair(point);
+
+			static constexpr float eps = 1e-6f;
+			if (getParametersDistanceSquared(pointPair, surface->uWrapped(),
+				surface->vWrapped()) < eps)
+			{
+				return std::nullopt;
+			}
+
+			std::optional<PointPair> newPointPair =
+				normalizeToDomain({surface, surface}, pointPair);
+			return pointPairToVec4(newPointPair);
 		},
 		1,
 		10000
 	);
-	return {glm::vec2{closestPointVec[0], closestPointVec[1]},
-		glm::vec2{closestPointVec[2], closestPointVec[3]}};
-}
 
-glm::vec4 IntersectionCurve::simulatedAnnealing(
-	const std::function<float(const glm::vec4&)>& function,
-	const std::function<bool(const glm::vec4&)>& pointCheck, float startingTemperature,
-	int iterations)
-{
-	std::mt19937 generator(0);
-	std::uniform_real_distribution<float> uniformDistribution(0, 1);
-	std::normal_distribution<float> normalDistribution(0, 1);
-
-	float temperature = startingTemperature;
-	float dTemperature = startingTemperature / iterations;
-	glm::vec4 point = {0.25f, 0.25f, 0.75f, 0.75f};
-	float value = function(point);
-
-	while (temperature > 0)
-	{
-		glm::vec4 newPoint{};
-		do
-		{
-			glm::vec4 normalizedStep{};
-			for (int i = 0; i < 4; ++i)
-			{
-				normalizedStep[i] = normalDistribution(generator);
-			}
-
-			newPoint = point + normalizedStep * temperature;
-		}
-		while (!pointCheck(newPoint));
-
-		float newValue = function(newPoint);
-		if (newValue < value)
-		{
-			point = newPoint;
-			value = newValue;
-		}
-		else
-		{
-			float probability = std::exp((value - newValue) / temperature);
-			if (probability > uniformDistribution(generator))
-			{
-				point = newPoint;
-				value = newValue;
-			}
-		}
-
-		temperature -= dTemperature;
-	}
-
-	return point;
-}
-
-float IntersectionCurve::intersectionLoss(const std::array<const Intersectable*, 2>& surfaces,
-	const PointPair& pointPair)
-{
-	return getDistanceSquared(surfaces[0]->surface(pointPair[0]),
-		surfaces[1]->surface(pointPair[1]));
-}
-
-float IntersectionCurve::selfIntersectionLoss(const Intersectable* surface,
-	const PointPair& pointPair)
-{
-	return getDistanceSquared(surface->surface(pointPair[0]), surface->surface(pointPair[1])) /
-		getParametersDistanceSquared(pointPair, surface->uWrapped(), surface->vWrapped());
-}
-
-bool IntersectionCurve::intersectionDomainCheck(const std::array<const Intersectable*, 2>& surfaces,
-	const PointPair& pointPair)
-{
-	return !outsideDomain(surfaces, pointPair);
-}
-
-bool IntersectionCurve::selfIntersectionDomainCheck(const Intersectable* surface,
-	const PointPair& pointPair)
-{
-	static constexpr float eps = 1e-6f;
-	float distanceSquared = getParametersDistanceSquared(pointPair, surface->uWrapped(),
-		surface->vWrapped());
-
-	return distanceSquared > eps && !outsideDomain({surface, surface}, pointPair);
+	return vec4ToPointPair(closestSamples);
 }
 
 std::optional<IntersectionCurve::PointPair> IntersectionCurve::gradientMethod(
@@ -489,12 +426,6 @@ std::optional<IntersectionCurve::PointPair> IntersectionCurve::newtonMethod(
 	return std::nullopt;
 }
 
-float IntersectionCurve::getDistanceSquared(const glm::vec2& pos1, const glm::vec2& pos2)
-{
-	glm::vec2 diff = pos2 - pos1;
-	return glm::dot(diff, diff);
-}
-
 float IntersectionCurve::getDistanceSquared(const glm::vec3& pos1, const glm::vec3& pos2)
 {
 	glm::vec3 diff = pos2 - pos1;
@@ -528,10 +459,82 @@ bool IntersectionCurve::outsideDomain(const std::array<const Intersectable*, 2>&
 	for (int i = 0; i < 2; ++i)
 	{
 		if (!surfaces[i]->uWrapped() && (pointPair[i].x < 0 || pointPair[i].x > 1) ||
-			!surfaces[i]->vWrapped() && (pointPair[i].y < 0 || pointPair[i].y > 1))
+		!surfaces[i]->vWrapped() && (pointPair[i].y < 0 || pointPair[i].y > 1))
 		{
 			return true;
 		}
 	}
 	return false;
+}
+
+std::optional<glm::vec2> IntersectionCurve::normalizeToDomain(const Intersectable* surface,
+	const glm::vec2& point)
+{
+	glm::vec2 newPoint = point;
+	if (surface->uWrapped())
+	{
+		while (newPoint.x < 0)
+		{
+			newPoint.x += 1;
+		}
+
+		while (newPoint.x > 1)
+		{
+			newPoint.x -= 1;
+		}
+	}
+	else if (newPoint.x < 0 || newPoint.x > 1)
+	{
+		return std::nullopt;
+	}
+
+	if (surface->vWrapped())
+	{
+		while (newPoint.y < 0)
+		{
+			newPoint.y += 1;
+		}
+
+		while (newPoint.y > 1)
+		{
+			newPoint.y -= 1;
+		}
+	}
+	else if (newPoint.y < 0 || newPoint.y > 1)
+	{
+		return std::nullopt;
+	}
+
+	return newPoint;
+}
+
+std::optional<IntersectionCurve::PointPair> IntersectionCurve::normalizeToDomain(
+	const std::array<const Intersectable*, 2>& surfaces, const PointPair& pointPair)
+{
+	std::array<std::optional<glm::vec2>, 2> newPoints{};
+	for (int i = 0; i < 2; ++i)
+	{
+		newPoints[i] = normalizeToDomain(surfaces[i], pointPair[i]);
+		if (!newPoints[i].has_value())
+		{
+			return std::nullopt;
+		}
+	}
+	return PointPair{*newPoints[0], *newPoints[1]};
+}
+
+IntersectionCurve::PointPair IntersectionCurve::vec4ToPointPair(const glm::vec4& vec)
+{
+	return {glm::vec2{vec[0], vec[1]}, glm::vec2{vec[2], vec[3]}};
+}
+
+std::optional<glm::vec4> IntersectionCurve::pointPairToVec4(
+	const std::optional<PointPair>& pointPair)
+{
+	if (!pointPair.has_value())
+	{
+		return std::nullopt;
+	}
+
+	return glm::vec4{(*pointPair)[0].x, (*pointPair)[0].y, (*pointPair)[1].x, (*pointPair)[1].y};
 }

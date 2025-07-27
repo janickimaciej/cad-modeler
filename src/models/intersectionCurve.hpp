@@ -12,6 +12,7 @@
 #include <functional>
 #include <memory>
 #include <optional>
+#include <random>
 #include <vector>
 
 class IntersectionCurve : public Model
@@ -19,9 +20,9 @@ class IntersectionCurve : public Model
 	using PointPair = std::array<glm::vec2, 2>;
 
 public:
-	static std::vector<glm::vec3> create(const ShaderProgram& shaderProgram,
+	static std::unique_ptr<IntersectionCurve> create(const ShaderProgram& shaderProgram,
 		const std::array<const Intersectable*, 2>& surfaces, const glm::vec3& cursorPos);
-	static std::vector<glm::vec3> create(const ShaderProgram& shaderProgram,
+	static std::unique_ptr<IntersectionCurve> create(const ShaderProgram& shaderProgram,
 		const std::array<const Intersectable*, 2>& surfaces);
 	virtual ~IntersectionCurve() = default;
 
@@ -54,20 +55,10 @@ private:
 	void updatePos();
 
 	static PointPair findClosestSamples(const std::array<const Intersectable*, 2>& surfaces,
-		const glm::vec3& pos);
+		const glm::vec3& cursorPos);
 	static PointPair findClosestSamples(const std::array<const Intersectable*, 2>& surfaces);
-	static PointPair findClosestSamples(const Intersectable* surface, const glm::vec3& pos);
+	static PointPair findClosestSamples(const Intersectable* surface, const glm::vec3& cursorPos);
 	static PointPair findClosestSamples(const Intersectable* surface);
-	static glm::vec4 simulatedAnnealing(const std::function<float(const glm::vec4&)>& function,
-		const std::function<bool(const glm::vec4&)>& pointCheck, float startingTemperature,
-		int iterations);
-	static float intersectionLoss(const std::array<const Intersectable*, 2>& surfaces,
-		const PointPair& pointPair);
-	static float selfIntersectionLoss(const Intersectable* surface, const PointPair& pointPair);
-	static bool intersectionDomainCheck(const std::array<const Intersectable*, 2>& surfaces,
-		const PointPair& pointPair);
-	static bool selfIntersectionDomainCheck(const Intersectable* surface,
-		const PointPair& pointPair);
 
 	static std::optional<PointPair> gradientMethod(
 		const std::array<const Intersectable*, 2>& surfaces, const PointPair& startingPointPair);
@@ -78,10 +69,87 @@ private:
 		const std::optional<PointPair>& prevPointPair, const PointPair& startingPointPair,
 		bool backwards = false);
 
-	static float getDistanceSquared(const glm::vec2& pos1, const glm::vec2& pos2);
 	static float getDistanceSquared(const glm::vec3& pos1, const glm::vec3& pos2);
 	static float getParametersDistanceSquared(const PointPair& pointPair, bool uWrapped,
 		bool vWrapped);
 	static bool outsideDomain(const std::array<const Intersectable*, 2>& surfaces,
 		const PointPair& pointPair);
+	static std::optional<glm::vec2> normalizeToDomain(const Intersectable* surface,
+		const glm::vec2& point);
+	static std::optional<PointPair> normalizeToDomain(
+		const std::array<const Intersectable*, 2>& surfaces, const PointPair& pointPair);
+	static PointPair vec4ToPointPair(const glm::vec4& vec);
+	static std::optional<glm::vec4> pointPairToVec4(const std::optional<PointPair>& pointPair);
+
+	template <typename Vec>
+	static Vec simulatedAnnealing(const std::function<float(const Vec&)>& function,
+		const std::function<std::optional<Vec>(const Vec&)>& pointCheck, float startingTemperature,
+		int iterations);
+
+	template <typename Vec>
+	static Vec randomVec(std::mt19937& generator);
 };
+
+template <typename Vec>
+Vec IntersectionCurve::simulatedAnnealing(const std::function<float(const Vec&)>& function,
+	const std::function<std::optional<Vec>(const Vec&)>& pointCheck, float startingTemperature,
+	int iterations)
+{
+	std::mt19937 generator{0};
+	std::uniform_real_distribution<float> uniformDistribution{0, 1};
+
+	float temperature = startingTemperature;
+	float dTemperature = startingTemperature / iterations;
+
+	std::optional<Vec> point = std::nullopt;
+	while (!point.has_value())
+	{
+		point = randomVec<Vec>(generator);
+		point = pointCheck(*point);
+	}
+
+	float value = function(*point);
+
+	while (temperature > 0)
+	{
+		std::optional<Vec> newPoint = std::nullopt;
+		while (!newPoint.has_value())
+		{
+			newPoint = *point + randomVec<Vec>(generator) * temperature;
+			newPoint = pointCheck(*newPoint);
+		}
+
+		float newValue = function(*newPoint);
+		if (newValue < value)
+		{
+			point = newPoint;
+			value = newValue;
+		}
+		else
+		{
+			float probability = std::exp((value - newValue) / temperature);
+			if (probability > uniformDistribution(generator))
+			{
+				point = newPoint;
+				value = newValue;
+			}
+		}
+
+		temperature -= dTemperature;
+	}
+
+	return *point;
+}
+
+template <typename Vec>
+Vec IntersectionCurve::randomVec(std::mt19937& generator)
+{
+	std::normal_distribution<float> normalDistribution{0, 1};
+
+	Vec vec{};
+	for (int i = 0; i < Vec::length(); ++i)
+	{
+		vec[i] = normalDistribution(generator);
+	}
+	return vec;
+}
