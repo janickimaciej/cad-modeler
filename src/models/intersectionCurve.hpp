@@ -9,6 +9,7 @@
 #include <glm/glm.hpp>
 
 #include <array>
+#include <functional>
 #include <memory>
 #include <optional>
 #include <vector>
@@ -40,14 +41,14 @@ private:
 	const ShaderProgram& m_shaderProgram;
 	std::unique_ptr<Mesh> m_mesh{};
 	std::array<const Intersectable*, 2> m_surfaces{};
-	std::vector<PointPair> m_points{};
+	std::vector<PointPair> m_pointPairs{};
 	IntersectionCurveGUI m_gui{*this};
 
 	static std::unique_ptr<IntersectionCurve> create(const ShaderProgram& shaderProgram,
-		const std::array<const Intersectable*, 2>& surfaces, const PointPair& startingPoint);
+		const std::array<const Intersectable*, 2>& surfaces, const PointPair& startingPointPair);
 	IntersectionCurve(const ShaderProgram& shaderProgram,
 		const std::array<const Intersectable*, 2>& surfaces,
-		const std::vector<PointPair>& points);
+		const std::vector<PointPair>& pointPair);
 	void createMesh();
 	virtual void updateShaders() const override;
 	void updatePos();
@@ -58,16 +59,25 @@ private:
 	static PointPair findClosestSamples(const Intersectable* surface, const glm::vec3& pos);
 	static PointPair findClosestSamples(const Intersectable* surface);
 	static std::optional<PointPair> gradientMethod(
-		const std::array<const Intersectable*, 2>& surfaces, const PointPair& startingPoints);
+		const std::array<const Intersectable*, 2>& surfaces, const PointPair& startingPointPair);
 	static std::vector<PointPair> findIntersectionPoints(
-		const std::array<const Intersectable*, 2>& surfaces, const PointPair& startingPoint);
+		const std::array<const Intersectable*, 2>& surfaces, const PointPair& startingPointPair);
 	static std::optional<PointPair> newtonMethod(
 		const std::array<const Intersectable*, 2>& surfaces,
-		const std::optional<PointPair>& prevPoint, const PointPair& startingPoint,
+		const std::optional<PointPair>& prevPointPair, const PointPair& startingPointPair,
 		bool backwards = false);
 
 	static float getDistanceSquared(const glm::vec2& pos1, const glm::vec2& pos2);
 	static float getDistanceSquared(const glm::vec3& pos1, const glm::vec3& pos2);
-	static bool outsideDomain(const PointPair& point,
+	static float getParametersDistanceSquared(const PointPair& pointPair, bool uWrapped,
+		bool vWrapped);
+	static bool outsideDomain(const PointPair& pointPair,
 		const std::array<const Intersectable*, 2>& surfaces);
+
+	static glm::vec4 simulatedAnnealing(const std::function<float(const glm::vec4&)>& function,
+		const std::function<bool(const glm::vec4&)>& pointCheck, float startingTemperature,
+		int iterations);
+	static bool selfIntersectionLoss(const Intersectable* surface, const PointPair& pointPair);
+	static bool selfIntersectionPointsCheck(const Intersectable* surface,
+		const PointPair& pointPair);
 };
