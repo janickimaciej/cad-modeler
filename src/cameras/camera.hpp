@@ -20,6 +20,7 @@ public:
 
 	void addPitch(float pitchRad);
 	void addYaw(float yawRad);
+	void setTargetPos(const glm::vec3& pos);
 	void moveX(float x);
 	void moveY(float y);
 	virtual void zoom(float zoom) = 0;

@@ -190,6 +190,11 @@ void Window::keyCallback(int key, int, int action, int)
 		m_gui->deleteSelectedModels();
 	}
 
+	if (key == GLFW_KEY_C && action == GLFW_PRESS)
+	{
+		m_scene->centerCamera();
+	}
+
 	if (key == GLFW_KEY_X && action == GLFW_PRESS)
 	{
 		if (m_rotatingRequested)

@@ -75,6 +75,13 @@ void Camera::addYaw(float yawRad)
 	updateViewMatrix();
 }
 
+void Camera::setTargetPos(const glm::vec3& pos)
+{
+	m_targetPos = pos;
+
+	updateViewMatrix();
+}
+
 void Camera::moveX(float x)
 {
 	m_targetPos += m_radius * glm::mat3{m_viewMatrixInverse} * glm::vec3{x, 0, 0};

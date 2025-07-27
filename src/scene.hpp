@@ -58,6 +58,7 @@ public:
 	void moveXCamera(float x);
 	void moveYCamera(float y);
 	void zoomCamera(float zoom);
+	void centerCamera();
 
 	int getModelCount(ModelType type = ModelType::all) const;
 	bool isAnyModelSelected() const;

@@ -136,6 +136,18 @@ void Scene::zoomCamera(float zoom)
 	m_orthographicCamera.zoom(zoom);
 }
 
+void Scene::centerCamera()
+{
+	if (!isAnyModelSelected())
+	{
+		return;
+	}
+
+	glm::vec3 pos = m_selectedModelsCenter.getPos();
+	m_perspectiveCamera.setTargetPos(pos);
+	m_orthographicCamera.setTargetPos(pos);
+}
+
 int Scene::getModelCount(ModelType type) const
 {
 	switch (type)
@@ -920,7 +932,7 @@ void Scene::addGregorySurface(const std::array<BezierPatch*, 3>& patches)
 void Scene::addIntersectionCurve(const std::array<const Intersectable*, 2>& surfaces,
 	bool useCursor)
 {
-	std::unique_ptr<IntersectionCurve> intersectionCurve{};
+	std::vector<glm::vec3> intersectionCurve{};
 	if (useCursor)
 	{
 		intersectionCurve = IntersectionCurve::create(m_shaderPrograms.polyline, surfaces,
@@ -931,11 +943,16 @@ void Scene::addIntersectionCurve(const std::array<const Intersectable*, 2>& surf
 		intersectionCurve = IntersectionCurve::create(m_shaderPrograms.polyline, surfaces);
 	}
 
-	if (intersectionCurve != nullptr)
-	{
-		m_models.push_back(intersectionCurve.get());
-		m_intersectionCurves.push_back(std::move(intersectionCurve));
-	}
+	std::unique_ptr<Point> point1 = std::make_unique<Point>(m_shaderPrograms.point,
+		intersectionCurve[0]);
+	std::unique_ptr<Point> point2 = std::make_unique<Point>(m_shaderPrograms.point,
+		intersectionCurve[1]);
+
+	m_models.push_back(point1.get());
+	m_points.push_back(std::move(point1));
+
+	m_models.push_back(point2.get());
+	m_points.push_back(std::move(point2));
 }
 
 void Scene::updateActiveCameraGUI()
