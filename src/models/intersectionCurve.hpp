@@ -35,6 +35,8 @@ public:
 	int pointCount() const;
 
 private:
+	static constexpr float m_startingTemperature = 0.5f;
+	static constexpr int m_simulatedAnnealingIterations = static_cast<int>(1e4f);
 	static constexpr float m_newtonMethodStep = 0.01f;
 
 	static int m_count;

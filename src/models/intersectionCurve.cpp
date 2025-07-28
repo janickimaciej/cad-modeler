@@ -132,8 +132,8 @@ IntersectionCurve::PointPair IntersectionCurve::findClosestSamples(
 			{
 				return normalizeToDomain(surface, point);
 			},
-			0.5f,
-			10000
+			m_startingTemperature,
+			m_simulatedAnnealingIterations
 		);
 	}
 
@@ -156,8 +156,8 @@ IntersectionCurve::PointPair IntersectionCurve::findClosestSamples(
 				normalizeToDomain(surfaces, vec4ToPointPair(point));
 			return pointPairToVec4(newPointPair);
 		},
-		0.5f,
-		10000
+		m_startingTemperature,
+		m_simulatedAnnealingIterations
 	);
 
 	return vec4ToPointPair(closestSamples);
@@ -177,8 +177,8 @@ IntersectionCurve::PointPair IntersectionCurve::findClosestSamples(const Interse
 		{
 			return normalizeToDomain(surface, point);
 		},
-		0.5f,
-		10000
+		m_startingTemperature,
+		m_simulatedAnnealingIterations
 	);
 
 	closestSamples[1] = simulatedAnnealing<glm::vec2>(
@@ -203,8 +203,8 @@ IntersectionCurve::PointPair IntersectionCurve::findClosestSamples(const Interse
 
 			return normalizeToDomain(surface, point);
 		},
-		0.5f,
-		10000
+		m_startingTemperature,
+		m_simulatedAnnealingIterations
 	);
 
 	return closestSamples;
@@ -239,8 +239,8 @@ IntersectionCurve::PointPair IntersectionCurve::findClosestSamples(const Interse
 				normalizeToDomain({surface, surface}, pointPair);
 			return pointPairToVec4(newPointPair);
 		},
-		0.5f,
-		10000
+		m_startingTemperature,
+		m_simulatedAnnealingIterations
 	);
 
 	return vec4ToPointPair(closestSamples);
@@ -250,29 +250,28 @@ std::optional<IntersectionCurve::PointPair> IntersectionCurve::gradientMethod(
 	const std::array<const Intersectable*, 2>& surfaces, const PointPair& startingPointPair)
 {
 	static constexpr float error = 1e-6f;
-	float stepSize = 0.0001f;
-	static constexpr std::size_t maxIterations = static_cast<std::size_t>(1e4f);
+	float stepSize = 0.0002f;
+	static constexpr std::size_t maxIterations = static_cast<std::size_t>(1e5f);
 
-	PointPair points = startingPointPair;
+	PointPair pointPair = startingPointPair;
 	for (std::size_t iteration = 0; iteration < maxIterations; ++iteration)
 	{
-		std::array<glm::vec3, 2> surfaceDU = {surfaces[0]->surfaceDU(points[0]),
-			surfaces[1]->surfaceDU(points[1])};
-		std::array<glm::vec3, 2> surfaceDV = {surfaces[0]->surfaceDV(points[0]),
-			surfaces[1]->surfaceDV(points[1])};
-		glm::vec3 diff = surfaces[0]->surface(points[0]) - surfaces[1]->surface(points[1]);
+		std::array<glm::vec3, 2> surfaceDU = {surfaces[0]->surfaceDU(pointPair[0]),
+			surfaces[1]->surfaceDU(pointPair[1])};
+		std::array<glm::vec3, 2> surfaceDV = {surfaces[0]->surfaceDV(pointPair[0]),
+			surfaces[1]->surfaceDV(pointPair[1])};
+		glm::vec3 diff = surfaces[0]->surface(pointPair[0]) - surfaces[1]->surface(pointPair[1]);
 
-		points[0].x -= stepSize * glm::dot(diff, surfaceDU[0]);
-		points[0].y -= stepSize * glm::dot(diff, surfaceDV[0]);
-		points[1].x += stepSize * glm::dot(diff, surfaceDU[1]);
-		points[1].y += stepSize * glm::dot(diff, surfaceDV[1]);
+		pointPair[0].x -= stepSize * glm::dot(diff, surfaceDU[0]);
+		pointPair[0].y -= stepSize * glm::dot(diff, surfaceDV[0]);
+		pointPair[1].x += stepSize * glm::dot(diff, surfaceDU[1]);
+		pointPair[1].y += stepSize * glm::dot(diff, surfaceDV[1]);
 
-		if (getDistanceSquared(surfaces[0]->surface(points[0]),
-			surfaces[1]->surface(points[1])) < error)
+		if (getDistanceSquared(surfaces[0]->surface(pointPair[0]),
+			surfaces[1]->surface(pointPair[1])) < error)
 		{
-			return points;
+			return pointPair;
 		}
-		stepSize *= 0.9999f;
 	}
 	return std::nullopt;
 }
@@ -282,21 +281,21 @@ std::vector<IntersectionCurve::PointPair> IntersectionCurve::findIntersectionPoi
 {
 	static constexpr float eps = 1.5f * m_newtonMethodStep;
 	static constexpr float epsSquared = eps * eps;
-	static constexpr std::size_t maxPoints = static_cast<std::size_t>(1e4f);
+	static constexpr std::size_t maxPointPairs = static_cast<std::size_t>(1e4f);
 
-	std::vector<PointPair> forwardPoints{};
+	std::vector<PointPair> forwardPointPairs{};
 	PointPair pointPair = startingPointPair;
 	bool findBackwards = false;
-	for (int i = 0; i < maxPoints; ++i)
+	for (int i = 0; i < maxPointPairs; ++i)
 	{
 		if (i > 5 && getDistanceSquared(surfaces[0]->surface(pointPair[0]),
-			surfaces[0]->surface(forwardPoints[0][0])) < epsSquared)
+			surfaces[0]->surface(forwardPointPairs[0][0])) < epsSquared)
 		{
-			forwardPoints.push_back(forwardPoints[0]);
-			return forwardPoints;
+			forwardPointPairs.push_back(forwardPointPairs[0]);
+			return forwardPointPairs;
 		}
 
-		forwardPoints.push_back(pointPair);
+		forwardPointPairs.push_back(pointPair);
 		if (outsideDomain(surfaces, pointPair))
 		{
 			findBackwards = true;
@@ -306,28 +305,28 @@ std::vector<IntersectionCurve::PointPair> IntersectionCurve::findIntersectionPoi
 		std::optional<PointPair> prevPointPair = std::nullopt;
 		if (i > 0)
 		{
-			prevPointPair = forwardPoints[forwardPoints.size() - 2];
+			prevPointPair = forwardPointPairs[forwardPointPairs.size() - 2];
 		}
 
 		std::optional<PointPair> newPointPair = newtonMethod(surfaces, prevPointPair, pointPair);
 		if (!newPointPair.has_value())
 		{
-			return forwardPoints;
+			return forwardPointPairs;
 		}
 		pointPair = *newPointPair;
 	}
 
 	if (!findBackwards)
 	{
-		return forwardPoints;
+		return forwardPointPairs;
 	}
 
 	pointPair = startingPointPair;
-	std::vector<PointPair> backwardsPoints{};
+	std::vector<PointPair> backwardsPointPairs{};
 
-	for (int i = 0; i < maxPoints - forwardPoints.size(); ++i)
+	for (int i = 0; i < maxPointPairs - forwardPointPairs.size(); ++i)
 	{
-		backwardsPoints.push_back(pointPair);
+		backwardsPointPairs.push_back(pointPair);
 		if (outsideDomain(surfaces, pointPair))
 		{
 			break;
@@ -336,7 +335,7 @@ std::vector<IntersectionCurve::PointPair> IntersectionCurve::findIntersectionPoi
 		std::optional<PointPair> prevPointPair = std::nullopt;
 		if (i > 0)
 		{
-			prevPointPair = backwardsPoints[backwardsPoints.size() - 2];
+			prevPointPair = backwardsPointPairs[backwardsPointPairs.size() - 2];
 		}
 
 		std::optional<PointPair> newPointPair = newtonMethod(surfaces, prevPointPair, pointPair,
@@ -348,11 +347,11 @@ std::vector<IntersectionCurve::PointPair> IntersectionCurve::findIntersectionPoi
 		pointPair = *newPointPair;
 	}
 
-	std::reverse(backwardsPoints.begin(), backwardsPoints.end());
-	backwardsPoints.pop_back();
-	backwardsPoints.insert(backwardsPoints.end(), forwardPoints.begin(), forwardPoints.end());
+	std::reverse(backwardsPointPairs.begin(), backwardsPointPairs.end());
+	backwardsPointPairs.pop_back();
+	backwardsPointPairs.insert(backwardsPointPairs.end(), forwardPointPairs.begin(), forwardPointPairs.end());
 
-	return backwardsPoints;
+	return backwardsPointPairs;
 }
 
 std::optional<IntersectionCurve::PointPair> IntersectionCurve::newtonMethod(
@@ -385,15 +384,15 @@ std::optional<IntersectionCurve::PointPair> IntersectionCurve::newtonMethod(
 		}
 	}
 
-	glm::vec4 points = {startingPointPair[0], startingPointPair[1]};
+	glm::vec4 pointPair = {startingPointPair[0], startingPointPair[1]};
 	for (std::size_t iteration = 0; iteration < maxIterations; ++iteration)
 	{
-		std::array<glm::vec3, 2> surface = {surfaces[0]->surface(points.x, points.y),
-			surfaces[1]->surface(points.z, points.w)};
-		std::array<glm::vec3, 2> surfaceDU = {surfaces[0]->surfaceDU(points.x, points.y),
-			surfaces[1]->surfaceDU(points.z, points.w)};
-		std::array<glm::vec3, 2> surfaceDV = {surfaces[0]->surfaceDV(points.x, points.y),
-			surfaces[1]->surfaceDV(points.z, points.w)};
+		std::array<glm::vec3, 2> surface = {surfaces[0]->surface(pointPair[0], pointPair[1]),
+			surfaces[1]->surface(pointPair[2], pointPair[3])};
+		std::array<glm::vec3, 2> surfaceDU = {surfaces[0]->surfaceDU(pointPair[0], pointPair[1]),
+			surfaces[1]->surfaceDU(pointPair[2], pointPair[3])};
+		std::array<glm::vec3, 2> surfaceDV = {surfaces[0]->surfaceDV(pointPair[0], pointPair[1]),
+			surfaces[1]->surfaceDV(pointPair[2], pointPair[3])};
 
 		glm::vec3 diff = surface[0] - startingScenePoint;
 		float tangentDiff = glm::dot(tangent, diff);
@@ -407,7 +406,7 @@ std::optional<IntersectionCurve::PointPair> IntersectionCurve::newtonMethod(
 
 		if (glm::dot(rhs, rhs) < error)
 		{
-			return {{glm::vec2{points[0], points[1]}, glm::vec2{points[2], points[3]}}};
+			return {{glm::vec2{pointPair[0], pointPair[1]}, glm::vec2{pointPair[2], pointPair[3]}}};
 		}
 		float tSurfaceDU = glm::dot(tangent, surfaceDU[0]);
 		float tSurfaceDV = glm::dot(tangent, surfaceDV[0]);
@@ -420,7 +419,7 @@ std::optional<IntersectionCurve::PointPair> IntersectionCurve::newtonMethod(
 		};
 
 		glm::mat4 jacobianInverse = glm::inverse(jacobian);
-		points -= jacobianInverse * rhs;
+		pointPair -= jacobianInverse * rhs;
 	}
 	return std::nullopt;
 }
