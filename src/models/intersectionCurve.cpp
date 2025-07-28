@@ -5,7 +5,6 @@
 #include <algorithm>
 #include <cmath>
 #include <cstddef>
-#include <limits>
 #include <string>
 
 std::unique_ptr<IntersectionCurve> IntersectionCurve::create(const ShaderProgram& shaderProgram,
@@ -133,7 +132,7 @@ IntersectionCurve::PointPair IntersectionCurve::findClosestSamples(
 			{
 				return normalizeToDomain(surface, point);
 			},
-			1,
+			0.5f,
 			10000
 		);
 	}
@@ -157,7 +156,7 @@ IntersectionCurve::PointPair IntersectionCurve::findClosestSamples(
 				normalizeToDomain(surfaces, vec4ToPointPair(point));
 			return pointPairToVec4(newPointPair);
 		},
-		1,
+		0.5f,
 		10000
 	);
 
@@ -178,7 +177,7 @@ IntersectionCurve::PointPair IntersectionCurve::findClosestSamples(const Interse
 		{
 			return normalizeToDomain(surface, point);
 		},
-		1,
+		0.5f,
 		10000
 	);
 
@@ -204,7 +203,7 @@ IntersectionCurve::PointPair IntersectionCurve::findClosestSamples(const Interse
 
 			return normalizeToDomain(surface, point);
 		},
-		1,
+		0.5f,
 		10000
 	);
 
@@ -240,7 +239,7 @@ IntersectionCurve::PointPair IntersectionCurve::findClosestSamples(const Interse
 				normalizeToDomain({surface, surface}, pointPair);
 			return pointPairToVec4(newPointPair);
 		},
-		1,
+		0.5f,
 		10000
 	);
 

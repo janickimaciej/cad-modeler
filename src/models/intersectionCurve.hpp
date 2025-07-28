@@ -5,11 +5,11 @@
 #include "meshes/mesh.hpp"
 #include "models/model.hpp"
 #include "shaderProgram.hpp"
-
 #include <glm/glm.hpp>
 
 #include <array>
 #include <functional>
+#include <limits>
 #include <memory>
 #include <optional>
 #include <random>
@@ -91,7 +91,7 @@ private:
 };
 
 template <typename Vec>
-Vec IntersectionCurve::simulatedAnnealing(const std::function<float(const Vec&)>& function,
+Vec IntersectionCurve::simulatedAnnealing(const std::function<float(const Vec&)>& lossFunction,
 	const std::function<std::optional<Vec>(const Vec&)>& pointCheck, float startingTemperature,
 	int iterations)
 {
@@ -101,28 +101,22 @@ Vec IntersectionCurve::simulatedAnnealing(const std::function<float(const Vec&)>
 	float temperature = startingTemperature;
 	float dTemperature = startingTemperature / iterations;
 
-	std::optional<Vec> point = std::nullopt;
-	while (!point.has_value())
-	{
-		point = randomVec<Vec>(generator);
-		point = pointCheck(*point);
-	}
-
-	float value = function(*point);
+	Vec point{0.5f};
+	float value = std::numeric_limits<float>::max();
 
 	while (temperature > 0)
 	{
 		std::optional<Vec> newPoint = std::nullopt;
 		while (!newPoint.has_value())
 		{
-			newPoint = *point + randomVec<Vec>(generator) * temperature;
+			newPoint = point + randomVec<Vec>(generator) * temperature;
 			newPoint = pointCheck(*newPoint);
 		}
 
-		float newValue = function(*newPoint);
+		float newValue = lossFunction(*newPoint);
 		if (newValue < value)
 		{
-			point = newPoint;
+			point = *newPoint;
 			value = newValue;
 		}
 		else
@@ -130,7 +124,7 @@ Vec IntersectionCurve::simulatedAnnealing(const std::function<float(const Vec&)>
 			float probability = std::exp((value - newValue) / temperature);
 			if (probability > uniformDistribution(generator))
 			{
-				point = newPoint;
+				point = *newPoint;
 				value = newValue;
 			}
 		}
@@ -138,7 +132,7 @@ Vec IntersectionCurve::simulatedAnnealing(const std::function<float(const Vec&)>
 		temperature -= dTemperature;
 	}
 
-	return *point;
+	return point;
 }
 
 template <typename Vec>
