@@ -11,7 +11,8 @@
 
 GUI::GUI(GLFWwindow* window, Scene& scene, const glm::ivec2& windowSize) :
 	m_leftPanel{scene, windowSize},
-	m_rightPanel{scene, windowSize},
+	m_topRightPanel{scene, windowSize},
+	m_bottomRightPanel{windowSize},
 	m_rotatingWindow{scene, windowSize},
 	m_scalingWindow{scene, windowSize},
 	m_renamingWindow{scene, windowSize},
@@ -69,7 +70,8 @@ void GUI::update()
 	}
 
 	m_leftPanel.update();
-	m_rightPanel.update(m_mode);
+	m_topRightPanel.update(m_mode);
+	m_bottomRightPanel.update();
 }
 
 void GUI::render()

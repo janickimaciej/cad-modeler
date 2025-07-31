@@ -1,8 +1,9 @@
 #pragma once
 
 #include "guis/guiMode.hpp"
+#include "guis/bottomRightPanel.hpp"
 #include "guis/leftPanel.hpp"
-#include "guis/rightPanel.hpp"
+#include "guis/topRightPanel.hpp"
 #include "guis/valueWindows/deserializingWindow.hpp"
 #include "guis/valueWindows/renamingWindow.hpp"
 #include "guis/valueWindows/rotatingWindow.hpp"
@@ -38,7 +39,8 @@ public:
 
 private:
 	LeftPanel m_leftPanel;
-	RightPanel m_rightPanel;
+	TopRightPanel m_topRightPanel;
+	BottomRightPanel m_bottomRightPanel;
 	RotatingWindow m_rotatingWindow;
 	ScalingWindow m_scalingWindow;
 	RenamingWindow m_renamingWindow;

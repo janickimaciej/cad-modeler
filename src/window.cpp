@@ -1,7 +1,7 @@
 #include "window.hpp"
 
 #include "guis/leftPanel.hpp"
-#include "guis/rightPanel.hpp"
+#include "guis/topRightPanel.hpp"
 
 #include <cmath>
 #include <string>
@@ -190,7 +190,8 @@ void Window::keyCallback(int key, int, int action, int)
 		m_gui->deleteSelectedModels();
 	}
 
-	if (key == GLFW_KEY_C && action == GLFW_PRESS)
+	if (key == GLFW_KEY_C && action == GLFW_PRESS &&
+		!isKeyPressed(GLFW_KEY_LEFT_CONTROL))
 	{
 		m_scene->centerCamera();
 	}
@@ -287,5 +288,5 @@ bool Window::isKeyPressed(int key)
 bool Window::isCursorInGUI()
 {
 	glm::vec2 cursorPos = getCursorPos();
-	return cursorPos.x <= LeftPanel::width || cursorPos.x >= m_size.x - RightPanel::width;
+	return cursorPos.x <= LeftPanel::width || cursorPos.x >= m_size.x - TopRightPanel::width;
 }
