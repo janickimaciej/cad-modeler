@@ -136,7 +136,7 @@ void Scene::zoomCamera(float zoom)
 	m_orthographicCamera.zoom(zoom);
 }
 
-void Scene::centerCamera()
+void Scene::moveCameraToSelectedModels()
 {
 	if (!isAnyModelSelected())
 	{
@@ -584,6 +584,32 @@ const Intersectable* Scene::getUniqueSelectedIntersectable() const
 	}
 
 	return nullptr;
+}
+
+bool Scene::isCursorAtPos(const glm::vec2& screenPos) const
+{
+	static constexpr float treshold = 30;
+	glm::vec2 cursorPos = m_cursor.getScreenPos(m_activeCamera->getMatrix(), m_windowSize);
+	glm::vec2 relativePos = cursorPos - screenPos;
+	float screenDistanceSquared = glm::dot(relativePos, relativePos);
+	return screenDistanceSquared < treshold * treshold;
+}
+
+void Scene::moveCursor(const glm::vec2& offset)
+{
+	glm::vec2 screenPos = m_cursor.getScreenPos(m_activeCamera->getMatrix(), m_windowSize);
+	m_cursor.setScreenPos(screenPos + offset, m_activeCamera->getMatrix(), m_windowSize);
+}
+
+void Scene::moveCursorToSelectedModels()
+{
+	if (!isAnyModelSelected())
+	{
+		return;
+	}
+
+	glm::vec3 pos = m_selectedModelsCenter.getPos();
+	m_cursor.setPos(pos);
 }
 
 void Scene::rotateXSelectedModels(float angleRad)

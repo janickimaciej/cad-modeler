@@ -58,7 +58,7 @@ public:
 	void moveXCamera(float x);
 	void moveYCamera(float y);
 	void zoomCamera(float zoom);
-	void centerCamera();
+	void moveCameraToSelectedModels();
 
 	int getModelCount(ModelType type = ModelType::all) const;
 	bool isAnyModelSelected() const;
@@ -76,6 +76,9 @@ public:
 	void collapse2Points();
 	BezierPatch* getUniqueSelectedBezierPatch() const;
 	const Intersectable* getUniqueSelectedIntersectable() const;
+	bool isCursorAtPos(const glm::vec2& screenPos) const;
+	void moveCursor(const glm::vec2& offset);
+	void moveCursorToSelectedModels();
 
 	void rotateXSelectedModels(float angleRad);
 	void rotateYSelectedModels(float angleRad);

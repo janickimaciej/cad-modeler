@@ -116,10 +116,16 @@ void Window::cursorMovementCallback(double x, double y)
 	if (!isKeyPressed(GLFW_KEY_LEFT_ALT) &&
 		!isKeyPressed(GLFW_KEY_RIGHT_ALT) &&
 		!isKeyPressed(GLFW_KEY_RIGHT_SHIFT) &&
-		isButtonPressed(GLFW_MOUSE_BUTTON_LEFT) &&
-		m_dragging)
+		isButtonPressed(GLFW_MOUSE_BUTTON_LEFT))
 	{
-		m_scene->moveUniqueSelectedModel(offset);
+		if (m_cursorDragging)
+		{
+			m_scene->moveCursor(offset);
+		}
+		else if (m_modelDragging)
+		{
+			m_scene->moveUniqueSelectedModel(offset);
+		}
 	}
 }
 
@@ -148,22 +154,25 @@ void Window::buttonCallback(int button, int action, int)
 			return;
 		}
 
-		if (isKeyPressed(GLFW_KEY_LEFT_CONTROL))
+		if (isKeyPressed(GLFW_KEY_RIGHT_CONTROL) &&
+			m_scene->isCursorAtPos(cursorPos))
+		{
+			m_cursorDragging = true;
+		}
+		else if (isKeyPressed(GLFW_KEY_LEFT_CONTROL))
 		{
 			m_scene->toggleModel(cursorPos);
 		}
-		else
+		else if (m_scene->selectUniqueModel(cursorPos))
 		{
-			if (m_scene->selectUniqueModel(cursorPos))
-			{
-				m_dragging = true;
-			}
+			m_modelDragging = true;
 		}
 	}
 
 	if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE)
 	{
-		m_dragging = false;
+		m_cursorDragging = false;
+		m_modelDragging = false;
 	}
 }
 
@@ -190,13 +199,20 @@ void Window::keyCallback(int key, int, int action, int)
 		m_gui->deleteSelectedModels();
 	}
 
+	if (key == GLFW_KEY_V && action == GLFW_PRESS &&
+		!isKeyPressed(GLFW_KEY_LEFT_CONTROL))
+	{
+		m_scene->moveCameraToSelectedModels();
+	}
+
 	if (key == GLFW_KEY_C && action == GLFW_PRESS &&
 		!isKeyPressed(GLFW_KEY_LEFT_CONTROL))
 	{
-		m_scene->centerCamera();
+		m_scene->moveCursorToSelectedModels();
 	}
 
-	if (key == GLFW_KEY_X && action == GLFW_PRESS)
+	if (key == GLFW_KEY_X && action == GLFW_PRESS &&
+		!isKeyPressed(GLFW_KEY_LEFT_CONTROL))
 	{
 		if (m_rotatingRequested)
 		{

@@ -27,7 +27,8 @@ private:
 	GUI* m_gui{};
 
 	glm::vec2 m_lastCursorPos{};
-	bool m_dragging = false;
+	bool m_cursorDragging = false;
+	bool m_modelDragging = false;
 	bool m_rotatingRequested = false;
 	bool m_scalingRequested = false;
 
