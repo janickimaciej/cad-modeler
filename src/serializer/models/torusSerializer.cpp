@@ -10,17 +10,19 @@ nlohmann::ordered_json TorusSerializer::serialize(const Torus& torus, int& id)
 	json["name"] = torus.getName();
 	json["id"] = id++;
 
-	json["position"]["x"] = torus.m_pos.x;
-	json["position"]["y"] = torus.m_pos.y;
-	json["position"]["z"] = torus.m_pos.z;
+	glm::vec3 pos = torus.getPos();
+	json["position"]["x"] = pos.x;
+	json["position"]["y"] = pos.y;
+	json["position"]["z"] = pos.z;
 
-	json["rotation"]["x"] = torus.m_pitchRad;
-	json["rotation"]["y"] = torus.m_yawRad;
-	json["rotation"]["z"] = torus.m_rollRad;
+	json["rotation"]["x"] = torus.getPitchRad();
+	json["rotation"]["y"] = torus.getYawRad();
+	json["rotation"]["z"] = torus.getRollRad();
 
-	json["scale"]["x"] = torus.m_scale.x;
-	json["scale"]["y"] = torus.m_scale.y;
-	json["scale"]["z"] = torus.m_scale.z;
+	glm::vec3 scale = torus.getScale();
+	json["scale"]["x"] = scale.x;
+	json["scale"]["y"] = scale.y;
+	json["scale"]["z"] = scale.z;
 
 	json["samples"]["x"] = torus.m_minorGrid;
 	json["samples"]["y"] = torus.m_majorGrid;

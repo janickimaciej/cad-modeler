@@ -191,21 +191,21 @@ void LeftPanel::updateButtons()
 
 	separator();
 
-	if (ImGui::Button("Add Bezier curve C0"))
+	if (ImGui::Button("Add C0 Bezier curve"))
 	{
 		m_scene.addBezierCurveC0();
 	}
 
 	separator();
 
-	if (ImGui::Button("Add Bezier curve C2"))
+	if (ImGui::Button("Add C2 Bezier curve"))
 	{
 		m_scene.addBezierCurveC2();
 	}
 
 	separator();
 
-	if (ImGui::Button("Add Bezier curve inter"))
+	if (ImGui::Button("Add interpolating curve"))
 	{
 		m_scene.addBezierCurveInter();
 	}
@@ -219,7 +219,7 @@ void LeftPanel::updateButtons()
 
 	separator();
 
-	if (ImGui::Button("Add Bezier surface C0"))
+	if (ImGui::Button("Add C0 Bezier surface"))
 	{
 		resetPanels();
 		if (m_mode == Mode::bezierSurfaceC0)
@@ -239,7 +239,7 @@ void LeftPanel::updateButtons()
 
 	separator();
 
-	if (ImGui::Button("Add Bezier surface C2"))
+	if (ImGui::Button("Add C2 Bezier surface"))
 	{
 		resetPanels();
 		if (m_mode == Mode::bezierSurfaceC2)
@@ -299,6 +299,13 @@ void LeftPanel::updateButtons()
 	if (m_mode == Mode::intersection)
 	{
 		m_addIntersectionPanel.update();
+	}
+
+	separator();
+
+	if (ImGui::Button("Convert inters. to interp. curve"))
+	{
+		m_scene.convertIntersectionCurveToInterpolatingCurve();
 	}
 
 	separator();

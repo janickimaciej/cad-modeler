@@ -9,7 +9,7 @@ Model::Model(const glm::vec3& pos, const std::string& name, bool isDeletable, bo
 	m_isDeletable{isDeletable},
 	m_isVirtual{isVirtual}
 {
-	updateMatrix();
+	updateModelMatrix();
 }
 
 glm::vec3 Model::getPos() const
@@ -20,7 +20,7 @@ glm::vec3 Model::getPos() const
 void Model::setPos(const glm::vec3& pos)
 {
 	m_pos = pos;
-	updateMatrix();
+	updateModelMatrix();
 }
 
 glm::vec2 Model::getScreenPos(const glm::mat4& cameraMatrix, const glm::ivec2& windowSize) const
@@ -49,7 +49,7 @@ void Model::setScreenPos(const glm::vec2& screenPos, const glm::mat4& cameraMatr
 	glm::vec4 worldPos = glm::inverse(cameraMatrix) * clipPos;
 	worldPos /= worldPos.w;
 	m_pos = glm::vec3{worldPos};
-	updateMatrix();
+	updateModelMatrix();
 }
 
 float Model::getYawRad() const
@@ -60,7 +60,7 @@ float Model::getYawRad() const
 void Model::setYawRad(float yawRad)
 {
 	m_yawRad = yawRad;
-	updateMatrix();
+	updateModelMatrix();
 }
 
 float Model::getPitchRad() const
@@ -71,7 +71,7 @@ float Model::getPitchRad() const
 void Model::setPitchRad(float pitchRad)
 {
 	m_pitchRad = pitchRad;
-	updateMatrix();
+	updateModelMatrix();
 }
 
 float Model::getRollRad() const
@@ -82,7 +82,7 @@ float Model::getRollRad() const
 void Model::setRollRad(float rollRad)
 {
 	m_rollRad = rollRad;
-	updateMatrix();
+	updateModelMatrix();
 }
 
 glm::vec3 Model::getScale() const
@@ -93,7 +93,7 @@ glm::vec3 Model::getScale() const
 void Model::setScale(const glm::vec3& scale)
 {
 	m_scale = scale;
-	updateMatrix();
+	updateModelMatrix();
 }
 
 std::string Model::getOriginalName() const
@@ -165,7 +165,17 @@ glm::mat4 Model::getRotationMatrix() const
 	return rotationRollMatrix * rotationYawMatrix * rotationPitchMatrix;
 }
 
-void Model::updateMatrix()
+glm::mat4 Model::getModelMatrix() const
+{
+	return m_modelMatrix;
+}
+
+void Model::setDeletable(bool deletable)
+{
+	m_isDeletable = deletable;
+}
+
+void Model::updateModelMatrix()
 {
 	glm::mat4 scaleMatrix
 	{

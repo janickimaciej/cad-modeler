@@ -91,7 +91,7 @@ glm::vec3 Torus::surfaceLocal(float u, float v) const
 
 glm::vec3 Torus::surface(float u, float v) const
 {
-	return glm::vec3{m_modelMatrix * glm::vec4{surfaceLocal(u, v), 1}};
+	return glm::vec3{getModelMatrix() * glm::vec4{surfaceLocal(u, v), 1}};
 }
 
 glm::vec3 Torus::surfaceDU(float u, float v) const
@@ -107,7 +107,7 @@ glm::vec3 Torus::surfaceDU(float u, float v) const
 		-2 * pi * std::sin(uScaled) * common
 	};
 
-	return glm::vec3{m_modelMatrix * glm::vec4{surfaceDULocal, 0}};
+	return glm::vec3{getModelMatrix() * glm::vec4{surfaceDULocal, 0}};
 }
 
 glm::vec3 Torus::surfaceDV(float u, float v) const
@@ -123,7 +123,7 @@ glm::vec3 Torus::surfaceDV(float u, float v) const
 		std::cos(uScaled) * common
 	};
 
-	return glm::vec3{m_modelMatrix * glm::vec4{surfaceDVLocal, 0}};
+	return glm::vec3{getModelMatrix() * glm::vec4{surfaceDVLocal, 0}};
 }
 
 bool Torus::uWrapped() const
@@ -146,7 +146,7 @@ void Torus::createMesh()
 void Torus::updateShaders() const
 {
 	m_shaderProgram.use();
-	m_shaderProgram.setUniform("modelMatrix", m_modelMatrix);
+	m_shaderProgram.setUniform("modelMatrix", getModelMatrix());
 	m_shaderProgram.setUniform("isDark", false);
 	m_shaderProgram.setUniform("isSelected", isSelected());
 }

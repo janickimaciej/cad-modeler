@@ -9,9 +9,10 @@ nlohmann::ordered_json PointSerializer::serialize(const Point& point, int& id)
 	json["name"] = point.getName();
 	json["id"] = id++;
 
-	json["position"]["x"] = point.m_pos.x;
-	json["position"]["y"] = point.m_pos.y;
-	json["position"]["z"] = point.m_pos.z;
+	glm::vec3 pos = point.getPos();
+	json["position"]["x"] = pos.x;
+	json["position"]["y"] = pos.y;
+	json["position"]["z"] = pos.z;
 
 	return json;
 }

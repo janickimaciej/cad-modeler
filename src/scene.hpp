@@ -104,6 +104,7 @@ public:
 		BezierSurfaceWrapping wrapping);
 	void addGregorySurface(const std::array<BezierPatch*, 3>& patches);
 	void addIntersectionCurve(const std::array<const Intersectable*, 2>& surfaces, bool useCursor);
+	void convertIntersectionCurveToInterpolatingCurve();
 
 	void updateActiveCameraGUI();
 	void updateCursorGUI();

@@ -99,7 +99,7 @@ void Point::tryMakeDeletable()
 {
 	if (m_deletabilityLockCounter == 0)
 	{
-		m_isDeletable = true;
+		setDeletable(true);
 	}
 }
 
@@ -122,7 +122,7 @@ int Point::m_virtualCount = 0;
 void Point::updateShaders() const
 {
 	m_shaderProgram.use();
-	m_shaderProgram.setUniform("posWorld", m_pos);
+	m_shaderProgram.setUniform("posWorld", getPos());
 	m_shaderProgram.setUniform("isDark", isVirtual());
 	m_shaderProgram.setUniform("isSelected", isSelected());
 }

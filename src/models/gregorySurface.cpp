@@ -35,6 +35,12 @@ void GregorySurface::updateGUI()
 	m_gui.update();
 }
 
+void GregorySurface::setPos(const glm::vec3&)
+{ }
+
+void GregorySurface::setScreenPos(const glm::vec2&, const glm::mat4&, const glm::ivec2&)
+{ }
+
 bool GregorySurface::getRenderVectors() const
 {
 	return m_renderVectors;
@@ -216,15 +222,15 @@ void GregorySurface::updateGeometry()
 
 void GregorySurface::updatePos()
 {
-	glm::vec3 pos{};
+	glm::vec3 posSum{};
 	for (const std::array<glm::vec3, 20>& patch : m_points)
 	{
 		for (const glm::vec3& point : patch)
 		{
-			pos += point;
+			posSum += point;
 		}
 	}
-	m_pos = pos / static_cast<float>(m_points.size());
+	Model::setPos(posSum / static_cast<float>(m_points.size() * m_points[0].size()));
 }
 
 void GregorySurface::updateSurfaceMesh()

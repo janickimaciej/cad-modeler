@@ -93,7 +93,7 @@ void BezierSurfaceC2Serializer::deserialize(const nlohmann::ordered_json& json, 
 			int v = (patchV + dV) % static_cast<int>(surface->m_pointsV);
 			Point* point = scene.m_points[pointMap.at(pointJson["id"])].get();
 			surface->m_points[v][u] = point;
-			point->m_isDeletable = false;
+			point->setDeletable(false);
 
 			++dU;
 			if (dU == 4)

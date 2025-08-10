@@ -59,6 +59,16 @@ int IntersectionCurve::pointCount() const
 	return static_cast<int>(m_pointPairs.size());
 }
 
+std::vector<glm::vec3> IntersectionCurve::getIntersectionPoints() const
+{
+	std::vector<glm::vec3> intersectionCurves{};
+	for (const PointPair& pointPair : m_pointPairs)
+	{
+		intersectionCurves.push_back(m_surfaces[0]->surface(pointPair[0]));
+	}
+	return intersectionCurves;
+}
+
 int IntersectionCurve::m_count = 0;
 
 std::unique_ptr<IntersectionCurve> IntersectionCurve::create(const ShaderProgram& shaderProgram,
@@ -109,12 +119,12 @@ void IntersectionCurve::updateShaders() const
 
 void IntersectionCurve::updatePos()
 {
-	glm::vec3 pos{};
+	glm::vec3 posSum{};
 	for (const PointPair& pointPair : m_pointPairs)
 	{
-		pos += m_surfaces[0]->surface(pointPair[0]);
+		posSum += m_surfaces[0]->surface(pointPair[0]);
 	}
-	m_pos = pos / static_cast<float>(m_pointPairs.size());
+	Model::setPos(posSum / static_cast<float>(m_pointPairs.size()));
 }
 
 IntersectionCurve::PointPair IntersectionCurve::findClosestSamples(

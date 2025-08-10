@@ -27,7 +27,7 @@ inline const std::array<std::string, modelTypeCount> modelTypeLabels
 	"Toruses",
 	"C0 Bezier curves",
 	"C2 Bezier curves",
-	"Inter. Bezier curves",
+	"Interpolating curves",
 	"Bezier patches",
 	"C0 Bezier surfaces",
 	"C2 Bezier surfaces",

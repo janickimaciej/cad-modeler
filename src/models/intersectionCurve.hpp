@@ -33,6 +33,7 @@ public:
 	virtual void setScreenPos(const glm::vec2&, const glm::mat4&, const glm::ivec2&) override;
 
 	int pointCount() const;
+	std::vector<glm::vec3> getIntersectionPoints() const;
 
 private:
 	static constexpr float m_startingTemperature = 0.5f;

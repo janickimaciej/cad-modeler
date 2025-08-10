@@ -976,6 +976,46 @@ void Scene::addIntersectionCurve(const std::array<const Intersectable*, 2>& surf
 	}
 }
 
+void Scene::convertIntersectionCurveToInterpolatingCurve()
+{
+	if (m_selectedModels.size() == 1)
+	{
+		auto selectedIntersectionCurve = std::find_if
+		(
+			m_intersectionCurves.begin(), m_intersectionCurves.end(),
+			[] (const std::unique_ptr<IntersectionCurve>& curve)
+			{
+				return curve->isSelected();
+			}
+		);
+
+		if (selectedIntersectionCurve == m_intersectionCurves.end())
+		{
+			return;
+		}
+
+		std::vector<glm::vec3> intersectionPoints =
+			(*selectedIntersectionCurve)->getIntersectionPoints();
+
+		std::vector<Point*> points{};
+		for (int i = 0; i < intersectionPoints.size(); i += 10)
+		{
+			std::unique_ptr<Point> point = std::make_unique<Point>(m_shaderPrograms.point,
+				intersectionPoints[i]);
+			points.push_back(point.get());
+			m_models.push_back(point.get());
+			m_points.push_back(std::move(point));
+		}
+		points.push_back(points[0]);
+
+		std::unique_ptr<BezierCurveInter> curve = std::make_unique<BezierCurveInter>(
+			m_shaderPrograms.bezierCurveInter, m_shaderPrograms.polyline, points,
+			m_bezierCurveSelfDestructCallback);
+		m_models.push_back(curve.get());
+		m_bezierCurvesInter.push_back(std::move(curve));
+	}
+}
+
 void Scene::updateActiveCameraGUI()
 {
 	m_activeCamera->updateGUI();

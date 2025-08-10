@@ -43,23 +43,25 @@ public:
 	glm::mat4 getRotationMatrix() const;
 
 protected:
-	glm::mat4 m_modelMatrix{};
+	glm::mat4 getModelMatrix() const;
+	virtual void updateShaders() const = 0;
 
+	void setDeletable(bool deletable);
+
+private:
+	const std::string m_originalName{};
+	std::string m_name{};
+
+	glm::mat4 m_modelMatrix{};
 	glm::vec3 m_pos{};
 	float m_pitchRad = 0;
 	float m_yawRad = 0;
 	float m_rollRad = 0;
 	glm::vec3 m_scale = {1, 1, 1};
 
-	bool m_isDeletable{};
-
-	void updateMatrix();
-	virtual void updateShaders() const = 0;
-
-private:
-	const std::string m_originalName{};
-	std::string m_name{};
-
 	bool m_isSelected = false;
 	bool m_isVirtual{};
+	bool m_isDeletable{};
+
+	void updateModelMatrix();
 };

@@ -232,15 +232,15 @@ void BezierPatch::createSurfaceMesh()
 
 void BezierPatch::updatePos()
 {
-	glm::vec3 pos{};
+	glm::vec3 posSum{};
 	for (const std::array<Point*, 4>& row : m_bezierPoints)
 	{
 		for (Point* point : row)
 		{
-			pos += point->getPos();
+			posSum += point->getPos();
 		}
 	}
-	m_pos = pos / 16.0f;
+	Model::setPos(posSum / static_cast<float>(m_bezierPoints.size() * m_bezierPoints[0].size()));
 }
 
 void BezierPatch::updateSurfaceMesh()

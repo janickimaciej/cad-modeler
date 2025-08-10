@@ -111,12 +111,12 @@ void BezierCurve::updateGeometry()
 
 void BezierCurve::updatePos()
 {
-	glm::vec3 pos{};
+	glm::vec3 posSum{};
 	for (Point* point : m_points)
 	{
-		pos += point->getPos();
+		posSum += point->getPos();
 	}
-	m_pos = pos / static_cast<float>(m_points.size());
+	Model::setPos(posSum / static_cast<float>(m_points.size()));
 }
 
 void BezierCurve::updatePolylineMesh()

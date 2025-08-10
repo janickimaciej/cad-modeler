@@ -194,15 +194,15 @@ void BezierSurface::updateGeometry()
 
 void BezierSurface::updatePos()
 {
-	glm::vec3 pos{};
+	glm::vec3 posSum{};
 	for (const std::vector<Point*>& row : m_points)
 	{
 		for (const Point* point : row)
 		{
-			pos += point->getPos();
+			posSum += point->getPos();
 		}
 	}
-	m_pos = pos / static_cast<float>(m_points[0].size() * m_points.size());
+	Model::setPos(posSum / static_cast<float>(m_points.size() * m_points[0].size()));
 }
 
 void BezierSurface::updatePatches()
@@ -295,7 +295,7 @@ void BezierSurface::updateShaders() const
 	if (m_renderGrid)
 	{
 		m_gridShaderProgram.use();
-		m_gridShaderProgram.setUniform("modelMatrix", m_modelMatrix);
+		m_gridShaderProgram.setUniform("modelMatrix", getModelMatrix());
 		m_gridShaderProgram.setUniform("isDark", true);
 		m_gridShaderProgram.setUniform("isSelected", isSelected());
 	}

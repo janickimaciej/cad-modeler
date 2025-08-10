@@ -28,6 +28,9 @@ public:
 	virtual void render() const override;
 	virtual void updateGUI() override;
 
+	virtual void setPos(const glm::vec3&) override;
+	virtual void setScreenPos(const glm::vec2&, const glm::mat4&, const glm::ivec2&) override;
+
 	bool getRenderVectors() const;
 	void setRenderVectors(bool renderVectors);
 	int getLineCount() const;
