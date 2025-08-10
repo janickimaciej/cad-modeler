@@ -12,8 +12,8 @@ struct ShaderPrograms
 	ShaderProgram plane{path("planeVS"), path("planeFS")};
 	ShaderProgram bezierCurve{path("bezierCurveVS"), path("bezierCurveTCS"), path("bezierCurveTES"),
 		path("FS")};
-	ShaderProgram bezierCurveInter{path("bezierCurveInterVS"), path("bezierCurveInterTCS"),
-		path("bezierCurveInterTES"), path("FS")};
+	ShaderProgram interpolatingBezierCurve{path("interpolatingBezierCurveVS"),
+		path("interpolatingBezierCurveTCS"), path("interpolatingBezierCurveTES"), path("FS")};
 	ShaderProgram polyline{path("VS"), path("FS")};
 	ShaderProgram bezierSurface{path("surfaceVS"), path("bezierSurfaceTCS"),
 		path("bezierSurfaceTES"), path("FS")};

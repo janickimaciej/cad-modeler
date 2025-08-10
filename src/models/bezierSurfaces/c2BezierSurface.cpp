@@ -1,4 +1,4 @@
-#include "models/bezierSurfaces/bezierSurfaceC2.hpp"
+#include "models/bezierSurfaces/c2BezierSurface.hpp"
 
 #include "meshes/indicesMesh.hpp"
 
@@ -8,7 +8,7 @@
 #include <cstddef>
 #include <string>
 
-BezierSurfaceC2::BezierSurfaceC2(const ShaderProgram& bezierSurfaceShaderProgram,
+C2BezierSurface::C2BezierSurface(const ShaderProgram& bezierSurfaceShaderProgram,
 	const ShaderProgram& bezierSurfaceGridShaderProgram, const ShaderProgram& pointShaderProgram,
 	int patchesU, int patchesV, const glm::vec3& pos, float sizeU, float sizeV,
 	BezierSurfaceWrapping wrapping, std::vector<std::unique_ptr<Point>>& points,
@@ -43,9 +43,9 @@ BezierSurfaceC2::BezierSurfaceC2(const ShaderProgram& bezierSurfaceShaderProgram
 	registerForNotifications();
 }
 
-int BezierSurfaceC2::m_count = 0;
+int C2BezierSurface::m_count = 0;
 
-std::vector<std::unique_ptr<Point>> BezierSurfaceC2::createPoints(
+std::vector<std::unique_ptr<Point>> C2BezierSurface::createPoints(
 	const ShaderProgram& pointShaderProgram, const glm::vec3& pos, float sizeU, float sizeV)
 {
 	std::vector<std::vector<glm::vec3>> boorPoints = createBoorPoints(pos, sizeU, sizeV);
@@ -62,7 +62,7 @@ std::vector<std::unique_ptr<Point>> BezierSurfaceC2::createPoints(
 	return points;
 }
 
-void BezierSurfaceC2::createBezierPoints(const ShaderProgram& pointShaderProgram)
+void C2BezierSurface::createBezierPoints(const ShaderProgram& pointShaderProgram)
 {
 	m_bezierPoints.resize(getBezierPointsV());
 	for (std::vector<std::unique_ptr<Point>>& row : m_bezierPoints)
@@ -74,7 +74,7 @@ void BezierSurfaceC2::createBezierPoints(const ShaderProgram& pointShaderProgram
 	}
 }
 
-void BezierSurfaceC2::updateBezierPoints()
+void C2BezierSurface::updateBezierPoints()
 {
 	std::vector<std::vector<glm::vec3>> boorPoints(m_points.size());
 	for (int v = 0; v < m_points.size(); ++v)
@@ -96,25 +96,25 @@ void BezierSurfaceC2::updateBezierPoints()
 	}
 }
 
-void BezierSurfaceC2::createGridMesh()
+void C2BezierSurface::createGridMesh()
 {
 	m_gridMesh = std::make_unique<IndicesMesh>(BezierSurface::createVertices(m_points),
 		createGridIndices(), GL_LINES);
 }
 
-void BezierSurfaceC2::updateGeometry()
+void C2BezierSurface::updateGeometry()
 {
 	updateBezierPoints();
 	BezierSurface::updateGeometry();
 }
 
-void BezierSurfaceC2::updateGridMesh()
+void C2BezierSurface::updateGridMesh()
 {
 	m_gridMesh->update(createVertices(m_points));
 	m_gridMesh->update(createGridIndices());
 }
 
-std::array<std::array<Point*, 4>, 4> BezierSurfaceC2::getBezierPoints(std::size_t patchU,
+std::array<std::array<Point*, 4>, 4> C2BezierSurface::getBezierPoints(std::size_t patchU,
 	std::size_t patchV) const
 {
 	std::array<std::array<Point*, 4>, 4> points{};

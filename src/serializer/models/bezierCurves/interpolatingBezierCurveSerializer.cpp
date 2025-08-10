@@ -1,13 +1,13 @@
-#include "serializer/models/bezierCurves/bezierCurveC0Serializer.hpp"
+#include "serializer/models/bezierCurves/interpolatingBezierCurveSerializer.hpp"
 
 #include <glm/glm.hpp>
 
-nlohmann::ordered_json BezierCurveC0Serializer::serialize(const BezierCurveC0& curve,
-	const std::vector<Point*>& points, int& id)
+nlohmann::ordered_json InterpolatingBezierCurveSerializer::serialize(
+	const InterpolatingBezierCurve& curve, const std::vector<Point*>& points, int& id)
 {
 	nlohmann::ordered_json json{};
 
-	json["objectType"] = "bezierC0";
+	json["objectType"] = "interpolatedC2";
 	json["name"] = curve.getName();
 	json["id"] = id++;
 
@@ -29,8 +29,8 @@ nlohmann::ordered_json BezierCurveC0Serializer::serialize(const BezierCurveC0& c
 	return json;
 }
 
-void BezierCurveC0Serializer::deserialize(const nlohmann::ordered_json& json, Scene& scene,
-	const std::unordered_map<int, int>& pointMap)
+void InterpolatingBezierCurveSerializer::deserialize(const nlohmann::ordered_json& json,
+	Scene& scene, const std::unordered_map<int, int>& pointMap)
 {
 	std::vector<Point*> points{};
 	for (const nlohmann::ordered_json& pointJson : json["controlPoints"])
@@ -39,8 +39,8 @@ void BezierCurveC0Serializer::deserialize(const nlohmann::ordered_json& json, Sc
 		points.push_back(scene.m_points[pointMap.at(id)].get());
 	}
 
-	std::unique_ptr<BezierCurveC0> curve = std::make_unique<BezierCurveC0>(
-		scene.m_shaderPrograms.bezierCurve, scene.m_shaderPrograms.polyline,
+	std::unique_ptr<InterpolatingBezierCurve> curve = std::make_unique<InterpolatingBezierCurve>(
+		scene.m_shaderPrograms.interpolatingBezierCurve, scene.m_shaderPrograms.polyline,
 		points, scene.m_bezierCurveSelfDestructCallback);
 
 	if (json.contains("name"))
@@ -49,5 +49,5 @@ void BezierCurveC0Serializer::deserialize(const nlohmann::ordered_json& json, Sc
 	}
 
 	scene.m_models.push_back(curve.get());
-	scene.m_bezierCurvesC0.push_back(std::move(curve));
+	scene.m_interpolatingBezierCurves.push_back(std::move(curve));
 }

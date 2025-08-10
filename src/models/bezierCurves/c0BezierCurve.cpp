@@ -1,4 +1,4 @@
-#include "models/bezierCurves/bezierCurveC0.hpp"
+#include "models/bezierCurves/c0BezierCurve.hpp"
 
 #include "meshes/indicesMesh.hpp"
 
@@ -8,17 +8,17 @@
 #include <memory>
 #include <string>
 
-BezierCurveC0::BezierCurveC0(const ShaderProgram& curveShaderProgram,
+C0BezierCurve::C0BezierCurve(const ShaderProgram& curveShaderProgram,
 	const ShaderProgram& polylineShaderProgram, const std::vector<Point*>& points,
 	const SelfDestructCallback& selfDestructCallback) :
-	BezierCurveCX{"C0 Bezier curve " + std::to_string(m_count++), curveShaderProgram,
+	CXBezierCurve{"C0 Bezier curve " + std::to_string(m_count++), curveShaderProgram,
 		polylineShaderProgram, points, selfDestructCallback}
 {
 	createCurveMesh();
 	registerForNotifications(m_points);
 }
 
-void BezierCurveC0::addPoints(const std::vector<Point*>& points)
+void C0BezierCurve::addPoints(const std::vector<Point*>& points)
 {
 	for (Point* point : points)
 	{
@@ -31,15 +31,15 @@ void BezierCurveC0::addPoints(const std::vector<Point*>& points)
 	updateGeometry();
 }
 
-int BezierCurveC0::m_count = 0;
+int C0BezierCurve::m_count = 0;
 
-void BezierCurveC0::createCurveMesh()
+void C0BezierCurve::createCurveMesh()
 {
 	m_curveMesh = std::make_unique<IndicesMesh>(createVertices(m_points),
 		createCurveIndices(m_points), GL_PATCHES, 4);
 }
 
-void BezierCurveC0::updateCurveMesh()
+void C0BezierCurve::updateCurveMesh()
 {
 	m_curveMesh->update(createVertices(m_points));
 	m_curveMesh->update(createCurveIndices(m_points));

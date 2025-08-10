@@ -161,23 +161,23 @@ int Scene::getModelCount(ModelType type) const
 		case ModelType::torus:
 			return static_cast<int>(m_toruses.size());
 
-		case ModelType::bezierCurveC0:
-			return static_cast<int>(m_bezierCurvesC0.size());
+		case ModelType::c0BezierCurve:
+			return static_cast<int>(m_c0BezierCurves.size());
 
-		case ModelType::bezierCurveC2:
-			return static_cast<int>(m_bezierCurvesC2.size());
+		case ModelType::c2BezierCurve:
+			return static_cast<int>(m_c2BezierCurves.size());
 
-		case ModelType::bezierCurveInter:
-			return static_cast<int>(m_bezierCurvesInter.size());
+		case ModelType::interpolatingBezierCurve:
+			return static_cast<int>(m_interpolatingBezierCurves.size());
 
 		case ModelType::bezierPatch:
 			return static_cast<int>(m_bezierPatches.size());
 
-		case ModelType::bezierSurfaceC0:
-			return static_cast<int>(m_bezierSurfacesC0.size());
+		case ModelType::c0BezierSurface:
+			return static_cast<int>(m_c0BezierSurfaces.size());
 
-		case ModelType::bezierSurfaceC2:
-			return static_cast<int>(m_bezierSurfacesC2.size());
+		case ModelType::c2BezierSurface:
+			return static_cast<int>(m_c2BezierSurfaces.size());
 
 		case ModelType::gregorySurface:
 			return static_cast<int>(m_gregorySurfaces.size());
@@ -211,23 +211,23 @@ bool Scene::isModelVirtual(int i, ModelType type) const
 		case ModelType::torus:
 			return m_toruses[i]->isVirtual();
 
-		case ModelType::bezierCurveC0:
-			return m_bezierCurvesC0[i]->isVirtual();
+		case ModelType::c0BezierCurve:
+			return m_c0BezierCurves[i]->isVirtual();
 
-		case ModelType::bezierCurveC2:
-			return m_bezierCurvesC2[i]->isVirtual();
+		case ModelType::c2BezierCurve:
+			return m_c2BezierCurves[i]->isVirtual();
 
-		case ModelType::bezierCurveInter:
-			return m_bezierCurvesInter[i]->isVirtual();
+		case ModelType::interpolatingBezierCurve:
+			return m_interpolatingBezierCurves[i]->isVirtual();
 
 		case ModelType::bezierPatch:
 			return m_bezierPatches[i]->isVirtual();
 
-		case ModelType::bezierSurfaceC0:
-			return m_bezierSurfacesC0[i]->isVirtual();
+		case ModelType::c0BezierSurface:
+			return m_c0BezierSurfaces[i]->isVirtual();
 
-		case ModelType::bezierSurfaceC2:
-			return m_bezierSurfacesC2[i]->isVirtual();
+		case ModelType::c2BezierSurface:
+			return m_c2BezierSurfaces[i]->isVirtual();
 
 		case ModelType::gregorySurface:
 			return m_gregorySurfaces[i]->isVirtual();
@@ -251,23 +251,23 @@ bool Scene::isModelSelected(int i, ModelType type) const
 		case ModelType::torus:
 			return m_toruses[i]->isSelected();
 
-		case ModelType::bezierCurveC0:
-			return m_bezierCurvesC0[i]->isSelected();
+		case ModelType::c0BezierCurve:
+			return m_c0BezierCurves[i]->isSelected();
 
-		case ModelType::bezierCurveC2:
-			return m_bezierCurvesC2[i]->isSelected();
+		case ModelType::c2BezierCurve:
+			return m_c2BezierCurves[i]->isSelected();
 
-		case ModelType::bezierCurveInter:
-			return m_bezierCurvesInter[i]->isSelected();
+		case ModelType::interpolatingBezierCurve:
+			return m_interpolatingBezierCurves[i]->isSelected();
 
 		case ModelType::bezierPatch:
 			return m_bezierPatches[i]->isSelected();
 
-		case ModelType::bezierSurfaceC0:
-			return m_bezierSurfacesC0[i]->isSelected();
+		case ModelType::c0BezierSurface:
+			return m_c0BezierSurfaces[i]->isSelected();
 
-		case ModelType::bezierSurfaceC2:
-			return m_bezierSurfacesC2[i]->isSelected();
+		case ModelType::c2BezierSurface:
+			return m_c2BezierSurfaces[i]->isSelected();
 
 		case ModelType::gregorySurface:
 			return m_gregorySurfaces[i]->isSelected();
@@ -297,19 +297,19 @@ void Scene::selectModel(int i, ModelType type)
 			m_selectedModels.push_back(m_toruses[i].get());
 			break;
 
-		case ModelType::bezierCurveC0:
-			m_bezierCurvesC0[i]->select();
-			m_selectedModels.push_back(m_bezierCurvesC0[i].get());
+		case ModelType::c0BezierCurve:
+			m_c0BezierCurves[i]->select();
+			m_selectedModels.push_back(m_c0BezierCurves[i].get());
 			break;
 
-		case ModelType::bezierCurveC2:
-			m_bezierCurvesC2[i]->select();
-			m_selectedModels.push_back(m_bezierCurvesC2[i].get());
+		case ModelType::c2BezierCurve:
+			m_c2BezierCurves[i]->select();
+			m_selectedModels.push_back(m_c2BezierCurves[i].get());
 			break;
 
-		case ModelType::bezierCurveInter:
-			m_bezierCurvesInter[i]->select();
-			m_selectedModels.push_back(m_bezierCurvesInter[i].get());
+		case ModelType::interpolatingBezierCurve:
+			m_interpolatingBezierCurves[i]->select();
+			m_selectedModels.push_back(m_interpolatingBezierCurves[i].get());
 			break;
 
 		case ModelType::bezierPatch:
@@ -317,14 +317,14 @@ void Scene::selectModel(int i, ModelType type)
 			m_selectedModels.push_back(m_bezierPatches[i].get());
 			break;
 
-		case ModelType::bezierSurfaceC0:
-			m_bezierSurfacesC0[i]->select();
-			m_selectedModels.push_back(m_bezierSurfacesC0[i].get());
+		case ModelType::c0BezierSurface:
+			m_c0BezierSurfaces[i]->select();
+			m_selectedModels.push_back(m_c0BezierSurfaces[i].get());
 			break;
 
-		case ModelType::bezierSurfaceC2:
-			m_bezierSurfacesC2[i]->select();
-			m_selectedModels.push_back(m_bezierSurfacesC2[i].get());
+		case ModelType::c2BezierSurface:
+			m_c2BezierSurfaces[i]->select();
+			m_selectedModels.push_back(m_c2BezierSurfaces[i].get());
 			break;
 
 		case ModelType::gregorySurface:
@@ -359,19 +359,19 @@ void Scene::deselectModel(int i, ModelType type)
 			deselectedModel = m_toruses[i].get();
 			break;
 
-		case ModelType::bezierCurveC0:
-			m_bezierCurvesC0[i]->deselect();
-			deselectedModel = m_bezierCurvesC0[i].get();
+		case ModelType::c0BezierCurve:
+			m_c0BezierCurves[i]->deselect();
+			deselectedModel = m_c0BezierCurves[i].get();
 			break;
 
-		case ModelType::bezierCurveC2:
-			m_bezierCurvesC2[i]->deselect();
-			deselectedModel = m_bezierCurvesC2[i].get();
+		case ModelType::c2BezierCurve:
+			m_c2BezierCurves[i]->deselect();
+			deselectedModel = m_c2BezierCurves[i].get();
 			break;
 
-		case ModelType::bezierCurveInter:
-			m_bezierCurvesInter[i]->deselect();
-			deselectedModel = m_bezierCurvesInter[i].get();
+		case ModelType::interpolatingBezierCurve:
+			m_interpolatingBezierCurves[i]->deselect();
+			deselectedModel = m_interpolatingBezierCurves[i].get();
 			break;
 
 		case ModelType::bezierPatch:
@@ -379,14 +379,14 @@ void Scene::deselectModel(int i, ModelType type)
 			deselectedModel = m_bezierPatches[i].get();
 			break;
 
-		case ModelType::bezierSurfaceC0:
-			m_bezierSurfacesC0[i]->deselect();
-			deselectedModel = m_bezierSurfacesC0[i].get();
+		case ModelType::c0BezierSurface:
+			m_c0BezierSurfaces[i]->deselect();
+			deselectedModel = m_c0BezierSurfaces[i].get();
 			break;
 
-		case ModelType::bezierSurfaceC2:
-			m_bezierSurfacesC2[i]->deselect();
-			deselectedModel = m_bezierSurfacesC2[i].get();
+		case ModelType::c2BezierSurface:
+			m_c2BezierSurfaces[i]->deselect();
+			deselectedModel = m_c2BezierSurfaces[i].get();
 			break;
 
 		case ModelType::gregorySurface:
@@ -451,12 +451,12 @@ void Scene::deleteSelectedModels()
 
 	deleteSelectedModels(m_points);
 	deleteSelectedModels(m_toruses);
-	deleteSelectedModels(m_bezierCurvesC0);
-	deleteSelectedModels(m_bezierCurvesC2);
-	deleteSelectedModels(m_bezierCurvesInter);
+	deleteSelectedModels(m_c0BezierCurves);
+	deleteSelectedModels(m_c2BezierCurves);
+	deleteSelectedModels(m_interpolatingBezierCurves);
 	deleteSelectedModels(m_bezierPatches);
-	deleteSelectedModels(m_bezierSurfacesC0);
-	deleteSelectedModels(m_bezierSurfacesC2);
+	deleteSelectedModels(m_c0BezierSurfaces);
+	deleteSelectedModels(m_c2BezierSurfaces);
 	deleteSelectedModels(m_gregorySurfaces);
 	deleteSelectedModels(m_intersectionCurves);
 }
@@ -567,7 +567,7 @@ const Intersectable* Scene::getUniqueSelectedIntersectable() const
 		}
 	}
 
-	for (const std::unique_ptr<BezierSurfaceC0>& surface : m_bezierSurfacesC0)
+	for (const std::unique_ptr<C0BezierSurface>& surface : m_c0BezierSurfaces)
 	{
 		if (surface->isSelected())
 		{
@@ -575,7 +575,7 @@ const Intersectable* Scene::getUniqueSelectedIntersectable() const
 		}
 	}
 
-	for (const std::unique_ptr<BezierSurfaceC2>& surface : m_bezierSurfacesC2)
+	for (const std::unique_ptr<C2BezierSurface>& surface : m_c2BezierSurfaces)
 	{
 		if (surface->isSelected())
 		{
@@ -674,23 +674,23 @@ std::string Scene::getModelOriginalName(int i, ModelType type) const
 		case ModelType::torus:
 			return m_toruses[i]->getOriginalName();
 
-		case ModelType::bezierCurveC0:
-			return m_bezierCurvesC0[i]->getOriginalName();
+		case ModelType::c0BezierCurve:
+			return m_c0BezierCurves[i]->getOriginalName();
 
-		case ModelType::bezierCurveC2:
-			return m_bezierCurvesC2[i]->getOriginalName();
+		case ModelType::c2BezierCurve:
+			return m_c2BezierCurves[i]->getOriginalName();
 
-		case ModelType::bezierCurveInter:
-			return m_bezierCurvesInter[i]->getOriginalName();
+		case ModelType::interpolatingBezierCurve:
+			return m_interpolatingBezierCurves[i]->getOriginalName();
 
 		case ModelType::bezierPatch:
 			return m_bezierPatches[i]->getOriginalName();
 
-		case ModelType::bezierSurfaceC0:
-			return m_bezierSurfacesC0[i]->getOriginalName();
+		case ModelType::c0BezierSurface:
+			return m_c0BezierSurfaces[i]->getOriginalName();
 
-		case ModelType::bezierSurfaceC2:
-			return m_bezierSurfacesC2[i]->getOriginalName();
+		case ModelType::c2BezierSurface:
+			return m_c2BezierSurfaces[i]->getOriginalName();
 
 		case ModelType::gregorySurface:
 			return m_gregorySurfaces[i]->getOriginalName();
@@ -714,23 +714,23 @@ std::string Scene::getModelName(int i, ModelType type) const
 		case ModelType::torus:
 			return m_toruses[i]->getName();
 
-		case ModelType::bezierCurveC0:
-			return m_bezierCurvesC0[i]->getName();
+		case ModelType::c0BezierCurve:
+			return m_c0BezierCurves[i]->getName();
 
-		case ModelType::bezierCurveC2:
-			return m_bezierCurvesC2[i]->getName();
+		case ModelType::c2BezierCurve:
+			return m_c2BezierCurves[i]->getName();
 
-		case ModelType::bezierCurveInter:
-			return m_bezierCurvesInter[i]->getName();
+		case ModelType::interpolatingBezierCurve:
+			return m_interpolatingBezierCurves[i]->getName();
 
 		case ModelType::bezierPatch:
 			return m_bezierPatches[i]->getName();
 
-		case ModelType::bezierSurfaceC0:
-			return m_bezierSurfacesC0[i]->getName();
+		case ModelType::c0BezierSurface:
+			return m_c0BezierSurfaces[i]->getName();
 
-		case ModelType::bezierSurfaceC2:
-			return m_bezierSurfacesC2[i]->getName();
+		case ModelType::c2BezierSurface:
+			return m_c2BezierSurfaces[i]->getName();
 
 		case ModelType::gregorySurface:
 			return m_gregorySurfaces[i]->getName();
@@ -748,48 +748,48 @@ void Scene::addPoint()
 
 	if (m_selectedModels.size() == 1)
 	{
-		auto selectedBezierCurveC0 = std::find_if
+		auto selectedC0BezierCurve = std::find_if
 		(
-			m_bezierCurvesC0.begin(), m_bezierCurvesC0.end(),
-			[] (const std::unique_ptr<BezierCurveC0>& curve)
+			m_c0BezierCurves.begin(), m_c0BezierCurves.end(),
+			[] (const std::unique_ptr<C0BezierCurve>& curve)
 			{
 				return curve->isSelected();
 			}
 		);
 
-		if (selectedBezierCurveC0 != m_bezierCurvesC0.end())
+		if (selectedC0BezierCurve != m_c0BezierCurves.end())
 		{
-			(*selectedBezierCurveC0)->addPoints({point.get()});
+			(*selectedC0BezierCurve)->addPoints({point.get()});
 		}
 
-		auto selectedBezierCurveC2 = std::find_if
+		auto selectedC2BezierCurve = std::find_if
 		(
-			m_bezierCurvesC2.begin(), m_bezierCurvesC2.end(),
-			[] (const std::unique_ptr<BezierCurveC2>& curve)
+			m_c2BezierCurves.begin(), m_c2BezierCurves.end(),
+			[] (const std::unique_ptr<C2BezierCurve>& curve)
 			{
 				return curve->isSelected();
 			}
 		);
 
-		if (selectedBezierCurveC2 != m_bezierCurvesC2.end())
+		if (selectedC2BezierCurve != m_c2BezierCurves.end())
 		{
 			std::vector<std::unique_ptr<Point>> newPoints{};
-			(*selectedBezierCurveC2)->addPoints({point.get()}, newPoints);
+			(*selectedC2BezierCurve)->addPoints({point.get()}, newPoints);
 			addPoints(std::move(newPoints));
 		}
 
-		auto selectedBezierCurveInter = std::find_if
+		auto selectedInterpolatingBezierCurve = std::find_if
 		(
-			m_bezierCurvesInter.begin(), m_bezierCurvesInter.end(),
-			[] (const std::unique_ptr<BezierCurveInter>& curve)
+			m_interpolatingBezierCurves.begin(), m_interpolatingBezierCurves.end(),
+			[] (const std::unique_ptr<InterpolatingBezierCurve>& curve)
 			{
 				return curve->isSelected();
 			}
 		);
 
-		if (selectedBezierCurveInter != m_bezierCurvesInter.end())
+		if (selectedInterpolatingBezierCurve != m_interpolatingBezierCurves.end())
 		{
-			(*selectedBezierCurveInter)->addPoints({point.get()});
+			(*selectedInterpolatingBezierCurve)->addPoints({point.get()});
 		}
 	}
 
@@ -805,7 +805,7 @@ void Scene::addTorus()
 	m_toruses.push_back(std::move(torus));
 }
 
-void Scene::addBezierCurveC0()
+void Scene::addC0BezierCurve()
 {
 	std::vector<Point*> nonVirtualSelectedPoints = getNonVirtualSelectedPoints();
 	if (m_selectedModels.size() != nonVirtualSelectedPoints.size() ||
@@ -814,14 +814,14 @@ void Scene::addBezierCurveC0()
 		return;
 	}
 
-	std::unique_ptr<BezierCurveC0> curve = std::make_unique<BezierCurveC0>(
+	std::unique_ptr<C0BezierCurve> curve = std::make_unique<C0BezierCurve>(
 		m_shaderPrograms.bezierCurve, m_shaderPrograms.polyline,
 		nonVirtualSelectedPoints, m_bezierCurveSelfDestructCallback);
 	m_models.push_back(curve.get());
-	m_bezierCurvesC0.push_back(std::move(curve));
+	m_c0BezierCurves.push_back(std::move(curve));
 }
 
-void Scene::addBezierCurveC2()
+void Scene::addC2BezierCurve()
 {
 	std::vector<Point*> nonVirtualSelectedPoints = getNonVirtualSelectedPoints();
 	if (m_selectedModels.size() != nonVirtualSelectedPoints.size() ||
@@ -831,15 +831,15 @@ void Scene::addBezierCurveC2()
 	}
 
 	std::vector<std::unique_ptr<Point>> newPoints{};
-	std::unique_ptr<BezierCurveC2> curve = std::make_unique<BezierCurveC2>(
+	std::unique_ptr<C2BezierCurve> curve = std::make_unique<C2BezierCurve>(
 		m_shaderPrograms.bezierCurve, m_shaderPrograms.polyline, m_shaderPrograms.point,
 		nonVirtualSelectedPoints, m_bezierCurveSelfDestructCallback, newPoints);
 	m_models.push_back(curve.get());
-	m_bezierCurvesC2.push_back(std::move(curve));
+	m_c2BezierCurves.push_back(std::move(curve));
 	addPoints(std::move(newPoints));
 }
 
-void Scene::addBezierCurveInter()
+void Scene::addInterpolatingBezierCurve()
 {
 	std::vector<Point*> nonVirtualSelectedPoints = getNonVirtualSelectedPoints();
 	if (m_selectedModels.size() != nonVirtualSelectedPoints.size() ||
@@ -848,98 +848,98 @@ void Scene::addBezierCurveInter()
 		return;
 	}
 
-	std::unique_ptr<BezierCurveInter> curve = std::make_unique<BezierCurveInter>(
-		m_shaderPrograms.bezierCurveInter, m_shaderPrograms.polyline,
+	std::unique_ptr<InterpolatingBezierCurve> curve = std::make_unique<InterpolatingBezierCurve>(
+		m_shaderPrograms.interpolatingBezierCurve, m_shaderPrograms.polyline,
 		nonVirtualSelectedPoints, m_bezierCurveSelfDestructCallback);
 	m_models.push_back(curve.get());
-	m_bezierCurvesInter.push_back(std::move(curve));
+	m_interpolatingBezierCurves.push_back(std::move(curve));
 }
 
 void Scene::addSelectedPointsToCurve()
 {
-	auto selectedBezierCurveC0 = std::find_if
+	auto selectedC0BezierCurve = std::find_if
 	(
-		m_bezierCurvesC0.begin(), m_bezierCurvesC0.end(),
-		[] (const std::unique_ptr<BezierCurveC0>& curve)
+		m_c0BezierCurves.begin(), m_c0BezierCurves.end(),
+		[] (const std::unique_ptr<C0BezierCurve>& curve)
 		{
 			return curve->isSelected();
 		}
 	);
-	if (selectedBezierCurveC0 != m_bezierCurvesC0.end())
+	if (selectedC0BezierCurve != m_c0BezierCurves.end())
 	{
 		std::vector<Point*> nonVirtualSelectedPoints = getNonVirtualSelectedPoints();
 		if (m_selectedModels.size() == nonVirtualSelectedPoints.size() + 1 &&
 			nonVirtualSelectedPoints.size() != 0)
 		{
-			(*selectedBezierCurveC0)->addPoints(nonVirtualSelectedPoints);
+			(*selectedC0BezierCurve)->addPoints(nonVirtualSelectedPoints);
 		}
 	}
 
-	auto selectedBezierCurveC2 = std::find_if
+	auto selectedC2BezierCurve = std::find_if
 	(
-		m_bezierCurvesC2.begin(), m_bezierCurvesC2.end(),
-		[] (const std::unique_ptr<BezierCurveC2>& curve)
+		m_c2BezierCurves.begin(), m_c2BezierCurves.end(),
+		[] (const std::unique_ptr<C2BezierCurve>& curve)
 		{
 			return curve->isSelected();
 		}
 	);
-	if (selectedBezierCurveC2 != m_bezierCurvesC2.end())
+	if (selectedC2BezierCurve != m_c2BezierCurves.end())
 	{
 		std::vector<Point*> nonVirtualSelectedPoints = getNonVirtualSelectedPoints();
 		if (m_selectedModels.size() == nonVirtualSelectedPoints.size() + 1 &&
 			nonVirtualSelectedPoints.size() != 0)
 		{
 			std::vector<std::unique_ptr<Point>> newPoints{};
-			(*selectedBezierCurveC2)->addPoints(nonVirtualSelectedPoints, newPoints);
+			(*selectedC2BezierCurve)->addPoints(nonVirtualSelectedPoints, newPoints);
 			addPoints(std::move(newPoints));
 		}
 	}
 
-	auto selectedBezierCurveInter = std::find_if
+	auto selectedInterpolatingBezierCurve = std::find_if
 	(
-		m_bezierCurvesInter.begin(), m_bezierCurvesInter.end(),
-		[] (const std::unique_ptr<BezierCurveInter>& curve)
+		m_interpolatingBezierCurves.begin(), m_interpolatingBezierCurves.end(),
+		[] (const std::unique_ptr<InterpolatingBezierCurve>& curve)
 		{
 			return curve->isSelected();
 		}
 	);
-	if (selectedBezierCurveInter != m_bezierCurvesInter.end())
+	if (selectedInterpolatingBezierCurve != m_interpolatingBezierCurves.end())
 	{
 		std::vector<Point*> nonVirtualSelectedPoints = getNonVirtualSelectedPoints();
 		if (m_selectedModels.size() == nonVirtualSelectedPoints.size() + 1 &&
 			nonVirtualSelectedPoints.size() != 0)
 		{
-			(*selectedBezierCurveInter)->addPoints(nonVirtualSelectedPoints);
+			(*selectedInterpolatingBezierCurve)->addPoints(nonVirtualSelectedPoints);
 		}
 	}
 }
 
-void Scene::addBezierSurfaceC0(int patchesU, int patchesV, float sizeU, float sizeV,
+void Scene::addC0BezierSurface(int patchesU, int patchesV, float sizeU, float sizeV,
 	BezierSurfaceWrapping wrapping)
 {
 	std::vector<std::unique_ptr<Point>> newPoints{};
 	std::vector<std::unique_ptr<BezierPatch>> newPatches{};
-	std::unique_ptr<BezierSurfaceC0> surface = std::make_unique<BezierSurfaceC0>(
+	std::unique_ptr<C0BezierSurface> surface = std::make_unique<C0BezierSurface>(
 		m_shaderPrograms.bezierSurface, m_shaderPrograms.mesh, m_shaderPrograms.point, patchesU,
 		patchesV, m_cursor.getPos(), sizeU, sizeV, wrapping, newPoints, newPatches);
 	addPoints(std::move(newPoints));
 	addBezierPatches(std::move(newPatches));
 	m_models.push_back(surface.get());
-	m_bezierSurfacesC0.push_back(std::move(surface));
+	m_c0BezierSurfaces.push_back(std::move(surface));
 }
 
-void Scene::addBezierSurfaceC2(int patchesU, int patchesV, float sizeU, float sizeV,
+void Scene::addC2BezierSurface(int patchesU, int patchesV, float sizeU, float sizeV,
 	BezierSurfaceWrapping wrapping)
 {
 	std::vector<std::unique_ptr<Point>> newPoints{};
 	std::vector<std::unique_ptr<BezierPatch>> newPatches{};
-	std::unique_ptr<BezierSurfaceC2> surface = std::make_unique<BezierSurfaceC2>(
+	std::unique_ptr<C2BezierSurface> surface = std::make_unique<C2BezierSurface>(
 		m_shaderPrograms.bezierSurface, m_shaderPrograms.mesh, m_shaderPrograms.point, patchesU,
 		patchesV, m_cursor.getPos(), sizeU, sizeV, wrapping, newPoints, newPatches);
 	addPoints(std::move(newPoints));
 	addBezierPatches(std::move(newPatches));
 	m_models.push_back(surface.get());
-	m_bezierSurfacesC2.push_back(std::move(surface));
+	m_c2BezierSurfaces.push_back(std::move(surface));
 }
 
 void Scene::addGregorySurface(const std::array<BezierPatch*, 3>& patches)
@@ -1008,11 +1008,11 @@ void Scene::convertIntersectionCurveToInterpolatingCurve()
 		}
 		points.push_back(points[0]);
 
-		std::unique_ptr<BezierCurveInter> curve = std::make_unique<BezierCurveInter>(
-			m_shaderPrograms.bezierCurveInter, m_shaderPrograms.polyline, points,
+		std::unique_ptr<InterpolatingBezierCurve> curve = std::make_unique<InterpolatingBezierCurve>(
+			m_shaderPrograms.interpolatingBezierCurve, m_shaderPrograms.polyline, points,
 			m_bezierCurveSelfDestructCallback);
 		m_models.push_back(curve.get());
-		m_bezierCurvesInter.push_back(std::move(curve));
+		m_interpolatingBezierCurves.push_back(std::move(curve));
 	}
 }
 
@@ -1047,28 +1047,28 @@ void Scene::updateModelGUI(int i, ModelType type)
 			m_toruses[i]->updateGUI();
 			break;
 
-		case ModelType::bezierCurveC0:
-			m_bezierCurvesC0[i]->updateGUI();
+		case ModelType::c0BezierCurve:
+			m_c0BezierCurves[i]->updateGUI();
 			break;
 
-		case ModelType::bezierCurveC2:
-			m_bezierCurvesC2[i]->updateGUI();
+		case ModelType::c2BezierCurve:
+			m_c2BezierCurves[i]->updateGUI();
 			break;
 
-		case ModelType::bezierCurveInter:
-			m_bezierCurvesInter[i]->updateGUI();
+		case ModelType::interpolatingBezierCurve:
+			m_interpolatingBezierCurves[i]->updateGUI();
 			break;
 
 		case ModelType::bezierPatch:
 			m_bezierPatches[i]->updateGUI();
 			break;
 
-		case ModelType::bezierSurfaceC0:
-			m_bezierSurfacesC0[i]->updateGUI();
+		case ModelType::c0BezierSurface:
+			m_c0BezierSurfaces[i]->updateGUI();
 			break;
 
-		case ModelType::bezierSurfaceC2:
-			m_bezierSurfacesC2[i]->updateGUI();
+		case ModelType::c2BezierSurface:
+			m_c2BezierSurfaces[i]->updateGUI();
 			break;
 
 		case ModelType::gregorySurface:
@@ -1267,26 +1267,26 @@ void Scene::deleteEmptyBezierCurves()
 
 		std::erase_if
 		(
-			m_bezierCurvesC0,
-			[curve] (const std::unique_ptr<BezierCurveC0>& curveC0)
+			m_c0BezierCurves,
+			[curve] (const std::unique_ptr<C0BezierCurve>& c0Curve)
 			{
-				return curveC0.get() == curve;
+				return c0Curve.get() == curve;
 			}
 		);
 		std::erase_if
 		(
-			m_bezierCurvesC2,
-			[curve] (const std::unique_ptr<BezierCurveC2>& curveC2)
+			m_c2BezierCurves,
+			[curve] (const std::unique_ptr<C2BezierCurve>& c2Curve)
 			{
-				return curveC2.get() == curve;
+				return c2Curve.get() == curve;
 			}
 		);
 		std::erase_if
 		(
-			m_bezierCurvesInter,
-			[curve] (const std::unique_ptr<BezierCurveInter>& curveInter)
+			m_interpolatingBezierCurves,
+			[curve] (const std::unique_ptr<InterpolatingBezierCurve>& interpolatingCurve)
 			{
-				return curveInter.get() == curve;
+				return interpolatingCurve.get() == curve;
 			}
 		);
 	}

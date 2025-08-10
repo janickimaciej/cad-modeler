@@ -359,7 +359,8 @@ std::vector<IntersectionCurve::PointPair> IntersectionCurve::findIntersectionPoi
 
 	std::reverse(backwardsPointPairs.begin(), backwardsPointPairs.end());
 	backwardsPointPairs.pop_back();
-	backwardsPointPairs.insert(backwardsPointPairs.end(), forwardPointPairs.begin(), forwardPointPairs.end());
+	backwardsPointPairs.insert(backwardsPointPairs.end(), forwardPointPairs.begin(),
+		forwardPointPairs.end());
 
 	return backwardsPointPairs;
 }

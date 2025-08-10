@@ -8,13 +8,13 @@
 #include <string>
 #include <vector>
 
-class BezierCurveCX : public BezierCurve
+class CXBezierCurve : public BezierCurve
 {
 public:
-	BezierCurveCX(const std::string& name, const ShaderProgram& curveShaderProgram,
+	CXBezierCurve(const std::string& name, const ShaderProgram& curveShaderProgram,
 		const ShaderProgram& polylineShaderProgram, const std::vector<Point*>& points,
 		const SelfDestructCallback& selfDestructCallback);
-	virtual ~BezierCurveCX() = default;
+	virtual ~CXBezierCurve() = default;
 
 protected:
 	std::unique_ptr<IndicesMesh> m_curveMesh{};

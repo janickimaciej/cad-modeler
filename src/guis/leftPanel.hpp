@@ -12,8 +12,8 @@ class LeftPanel
 	enum class Mode
 	{
 		none,
-		bezierSurfaceC0,
-		bezierSurfaceC2,
+		c0BezierSurface,
+		c2BezierSurface,
 		gregorySurface,
 		intersection
 	};
@@ -29,8 +29,8 @@ private:
 	const glm::ivec2& m_windowSize;
 
 	Mode m_mode = Mode::none;
-	AddBezierSurfacePanel m_addBezierSurfaceC0Panel;
-	AddBezierSurfacePanel m_addBezierSurfaceC2Panel;
+	AddBezierSurfacePanel m_addC0BezierSurfacePanel;
+	AddBezierSurfacePanel m_addC2BezierSurfacePanel;
 	AddGregorySurfacePanel m_addGregorySurfacePanel;
 	AddIntersectionPanel m_addIntersectionPanel;
 

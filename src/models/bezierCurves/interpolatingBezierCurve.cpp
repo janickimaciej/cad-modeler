@@ -1,4 +1,4 @@
-#include "models/bezierCurves/bezierCurveInter.hpp"
+#include "models/bezierCurves/interpolatingBezierCurve.hpp"
 
 #include <glm/glm.hpp>
 
@@ -7,7 +7,7 @@
 #include <memory>
 #include <string>
 
-BezierCurveInter::BezierCurveInter(const ShaderProgram& curveShaderProgram,
+InterpolatingBezierCurve::InterpolatingBezierCurve(const ShaderProgram& curveShaderProgram,
 	const ShaderProgram& polylineShaderProgram, const std::vector<Point*>& points,
 	const SelfDestructCallback& selfDestructCallback) :
 	BezierCurve{"Interpolating Bezier curve " + std::to_string(m_count++), curveShaderProgram,
@@ -17,7 +17,7 @@ BezierCurveInter::BezierCurveInter(const ShaderProgram& curveShaderProgram,
 	registerForNotifications(m_points);
 }
 
-void BezierCurveInter::addPoints(const std::vector<Point*>& points)
+void InterpolatingBezierCurve::addPoints(const std::vector<Point*>& points)
 {
 	for (Point* point : points)
 	{
@@ -30,19 +30,19 @@ void BezierCurveInter::addPoints(const std::vector<Point*>& points)
 	updateGeometry();
 }
 
-int BezierCurveInter::m_count = 0;
+int InterpolatingBezierCurve::m_count = 0;
 
-void BezierCurveInter::createCurveMesh()
+void InterpolatingBezierCurve::createCurveMesh()
 {
-	m_curveMesh = std::make_unique<BezierCurveInterMesh>(createCurveSegments());
+	m_curveMesh = std::make_unique<InterpolatingBezierCurveMesh>(createCurveSegments());
 }
 
-void BezierCurveInter::updateCurveMesh()
+void InterpolatingBezierCurve::updateCurveMesh()
 {
 	m_curveMesh->update(createCurveSegments());
 }
 
-void BezierCurveInter::renderCurve() const
+void InterpolatingBezierCurve::renderCurve() const
 {
 	if (m_points.size() >= 3)
 	{
@@ -51,9 +51,10 @@ void BezierCurveInter::renderCurve() const
 	}
 }
 
-std::vector<BezierCurveInterSegmentData> BezierCurveInter::createCurveSegments() const
+std::vector<InterpolatingBezierCurveSegmentData>
+InterpolatingBezierCurve::createCurveSegments() const
 {
-	std::vector<BezierCurveInterSegmentData> segments{};
+	std::vector<InterpolatingBezierCurveSegmentData> segments{};
 	if (m_points.size() >= 3)
 	{
 		std::size_t n = m_points.size() - 1;

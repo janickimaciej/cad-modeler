@@ -1,12 +1,12 @@
-#include "models/bezierCurves/bezierCurveCX.hpp"
+#include "models/bezierCurves/cxBezierCurve.hpp"
 
-BezierCurveCX::BezierCurveCX(const std::string& name, const ShaderProgram& curveShaderProgram,
+CXBezierCurve::CXBezierCurve(const std::string& name, const ShaderProgram& curveShaderProgram,
 	const ShaderProgram& polylineShaderProgram, const std::vector<Point*>& points,
 	const SelfDestructCallback& selfDestructCallback) :
 	BezierCurve{name, curveShaderProgram, polylineShaderProgram, points, selfDestructCallback}
 { }
 
-std::vector<unsigned int> BezierCurveCX::createCurveIndices(const std::vector<Point*>& points)
+std::vector<unsigned int> CXBezierCurve::createCurveIndices(const std::vector<Point*>& points)
 {
 	std::vector<unsigned int> indices{};
 	int patchCount = (static_cast<int>(points.size()) - 1) / 3;
@@ -20,7 +20,7 @@ std::vector<unsigned int> BezierCurveCX::createCurveIndices(const std::vector<Po
 	return indices;
 }
 
-void BezierCurveCX::renderCurve() const
+void CXBezierCurve::renderCurve() const
 {
 	if (m_points.size() >= 4)
 	{

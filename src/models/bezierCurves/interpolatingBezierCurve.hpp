@@ -1,29 +1,29 @@
 #pragma once
 
-#include "meshes/bezierCurveInterMesh.hpp"
+#include "meshes/interpolatingBezierCurveMesh.hpp"
 #include "models/bezierCurves/bezierCurve.hpp"
-#include "models/bezierCurves/bezierCurveInterSegmentData.hpp"
+#include "models/bezierCurves/interpolatingBezierCurveSegmentData.hpp"
 #include "models/point.hpp"
 #include "shaderProgram.hpp"
 
 #include <vector>
 
-class BezierCurveInter : public BezierCurve
+class InterpolatingBezierCurve : public BezierCurve
 {
-	friend class BezierCurveInterSerializer;
+	friend class InterpolatingBezierCurveSerializer;
 
 public:
-	BezierCurveInter(const ShaderProgram& curveShaderProgram,
+	InterpolatingBezierCurve(const ShaderProgram& curveShaderProgram,
 		const ShaderProgram& polylineShaderProgram, const std::vector<Point*>& points,
 		const SelfDestructCallback& selfDestructCallback);
-	virtual ~BezierCurveInter() = default;
+	virtual ~InterpolatingBezierCurve() = default;
 
 	void addPoints(const std::vector<Point*>& points);
 
 private:
 	static int m_count;
 
-	std::unique_ptr<BezierCurveInterMesh> m_curveMesh{};
+	std::unique_ptr<InterpolatingBezierCurveMesh> m_curveMesh{};
 
 	virtual void createCurveMesh() override;
 
@@ -31,5 +31,5 @@ private:
 
 	virtual void renderCurve() const override;
 
-	std::vector<BezierCurveInterSegmentData> createCurveSegments() const;
+	std::vector<InterpolatingBezierCurveSegmentData> createCurveSegments() const;
 };

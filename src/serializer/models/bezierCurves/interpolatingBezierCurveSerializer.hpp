@@ -1,6 +1,6 @@
 #pragma once
 
-#include "models/bezierCurves/bezierCurveC2.hpp"
+#include "models/bezierCurves/interpolatingBezierCurve.hpp"
 #include "models/point.hpp"
 #include "scene.hpp"
 
@@ -10,10 +10,10 @@
 #include <unordered_map>
 #include <vector>
 
-class BezierCurveC2Serializer
+class InterpolatingBezierCurveSerializer
 {
 public:
-	static nlohmann::ordered_json serialize(const BezierCurveC2& curve,
+	static nlohmann::ordered_json serialize(const InterpolatingBezierCurve& curve,
 		const std::vector<Point*>& points, int& id);
 	static void deserialize(const nlohmann::ordered_json& json, Scene& scene,
 		const std::unordered_map<int, int>& pointMap);

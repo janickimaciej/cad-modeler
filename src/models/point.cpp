@@ -66,7 +66,8 @@ void Point::setScreenPos(const glm::vec2& screenPos, const glm::mat4& cameraMatr
 	notifyMove();
 }
 
-std::shared_ptr<Point::MoveCallback> Point::registerForMoveNotification(const MoveCallback& callback)
+std::shared_ptr<Point::MoveCallback> Point::registerForMoveNotification(
+	const MoveCallback& callback)
 {
 	std::shared_ptr<MoveCallback> notification = std::make_shared<MoveCallback>(callback);
 	m_moveNotifications.push_back(notification);

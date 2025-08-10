@@ -1,23 +1,23 @@
 #pragma once
 
 #include "meshes/mesh.hpp"
-#include "models/bezierCurves/bezierCurveCX.hpp"
+#include "models/bezierCurves/cxBezierCurve.hpp"
 #include "models/point.hpp"
 #include "shaderProgram.hpp"
 
 #include <memory>
 #include <vector>
 
-class BezierCurveC2 : public BezierCurveCX
+class C2BezierCurve : public CXBezierCurve
 {
-	friend class BezierCurveC2Serializer;
+	friend class C2BezierCurveSerializer;
 
 public:
-	BezierCurveC2(const ShaderProgram& curveShaderProgram,
+	C2BezierCurve(const ShaderProgram& curveShaderProgram,
 		const ShaderProgram& polylineShaderProgram, const ShaderProgram& pointShaderProgram,
 		const std::vector<Point*>& points, const SelfDestructCallback& selfDestructCallback,
 		std::vector<std::unique_ptr<Point>>& bezierPoints);
-	virtual ~BezierCurveC2() = default;
+	virtual ~C2BezierCurve() = default;
 	virtual void render() const override;
 
 	void addPoints(const std::vector<Point*>& points,

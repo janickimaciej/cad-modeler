@@ -8,13 +8,13 @@
 #include "centerPoint.hpp"
 #include "cursor.hpp"
 #include "framebuffer.hpp"
-#include "models/bezierCurves/bezierCurveC0.hpp"
-#include "models/bezierCurves/bezierCurveC2.hpp"
-#include "models/bezierCurves/bezierCurveInter.hpp"
+#include "models/bezierCurves/c0BezierCurve.hpp"
+#include "models/bezierCurves/c2BezierCurve.hpp"
+#include "models/bezierCurves/interpolatingBezierCurve.hpp"
 #include "models/bezierSurfaces/bezierPatch.hpp"
-#include "models/bezierSurfaces/bezierSurfaceC0.hpp"
-#include "models/bezierSurfaces/bezierSurfaceC2.hpp"
 #include "models/bezierSurfaces/bezierSurfaceWrapping.hpp"
+#include "models/bezierSurfaces/c0BezierSurface.hpp"
+#include "models/bezierSurfaces/c2BezierSurface.hpp"
 #include "models/gregorySurface.hpp"
 #include "models/intersectionCurve.hpp"
 #include "models/model.hpp"
@@ -35,11 +35,11 @@
 
 class Scene
 {
-	friend class BezierCurveC0Serializer;
-	friend class BezierCurveC2Serializer;
-	friend class BezierCurveInterSerializer;
-	friend class BezierSurfaceC0Serializer;
-	friend class BezierSurfaceC2Serializer;
+	friend class C0BezierCurveSerializer;
+	friend class C2BezierCurveSerializer;
+	friend class InterpolatingBezierCurveSerializer;
+	friend class C0BezierSurfaceSerializer;
+	friend class C2BezierSurfaceSerializer;
 	friend class PointSerializer;
 	friend class SceneSerializer;
 	friend class TorusSerializer;
@@ -94,13 +94,13 @@ public:
 
 	void addPoint();
 	void addTorus();
-	void addBezierCurveC0();
-	void addBezierCurveC2();
-	void addBezierCurveInter();
+	void addC0BezierCurve();
+	void addC2BezierCurve();
+	void addInterpolatingBezierCurve();
 	void addSelectedPointsToCurve();
-	void addBezierSurfaceC0(int patchesU, int patchesV, float sizeU, float sizeV,
+	void addC0BezierSurface(int patchesU, int patchesV, float sizeU, float sizeV,
 		BezierSurfaceWrapping wrapping);
-	void addBezierSurfaceC2(int patchesU, int patchesV, float sizeU, float sizeV,
+	void addC2BezierSurface(int patchesU, int patchesV, float sizeU, float sizeV,
 		BezierSurfaceWrapping wrapping);
 	void addGregorySurface(const std::array<BezierPatch*, 3>& patches);
 	void addIntersectionCurve(const std::array<const Intersectable*, 2>& surfaces, bool useCursor);
@@ -129,12 +129,12 @@ private:
 	std::vector<Model*> m_selectedModels{};
 	std::vector<std::unique_ptr<Point>> m_points{};
 	std::vector<std::unique_ptr<Torus>> m_toruses{};
-	std::vector<std::unique_ptr<BezierCurveC0>> m_bezierCurvesC0{};
-	std::vector<std::unique_ptr<BezierCurveC2>> m_bezierCurvesC2{};
-	std::vector<std::unique_ptr<BezierCurveInter>> m_bezierCurvesInter{};
+	std::vector<std::unique_ptr<C0BezierCurve>> m_c0BezierCurves{};
+	std::vector<std::unique_ptr<C2BezierCurve>> m_c2BezierCurves{};
+	std::vector<std::unique_ptr<InterpolatingBezierCurve>> m_interpolatingBezierCurves{};
 	std::vector<std::unique_ptr<BezierPatch>> m_bezierPatches{};
-	std::vector<std::unique_ptr<BezierSurfaceC0>> m_bezierSurfacesC0{};
-	std::vector<std::unique_ptr<BezierSurfaceC2>> m_bezierSurfacesC2{};
+	std::vector<std::unique_ptr<C0BezierSurface>> m_c0BezierSurfaces{};
+	std::vector<std::unique_ptr<C2BezierSurface>> m_c2BezierSurfaces{};
 	std::vector<std::unique_ptr<GregorySurface>> m_gregorySurfaces{};
 	std::vector<std::unique_ptr<IntersectionCurve>> m_intersectionCurves{};
 

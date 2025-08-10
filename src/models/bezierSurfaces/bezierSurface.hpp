@@ -20,8 +20,8 @@
 
 class BezierSurface : public Model, public Intersectable
 {
-	friend class BezierSurfaceC0Serializer;
-	friend class BezierSurfaceC2Serializer;
+	friend class C0BezierSurfaceSerializer;
+	friend class C2BezierSurfaceSerializer;
 
 public:
 	using DestroyCallback = std::function<void()>;

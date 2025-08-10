@@ -1,10 +1,10 @@
 #pragma once
 
-#include "models/bezierCurves/bezierCurveC0.hpp"
-#include "models/bezierCurves/bezierCurveC2.hpp"
-#include "models/bezierCurves/bezierCurveInter.hpp"
-#include "models/bezierSurfaces/bezierSurfaceC0.hpp"
-#include "models/bezierSurfaces/bezierSurfaceC2.hpp"
+#include "models/bezierCurves/c0BezierCurve.hpp"
+#include "models/bezierCurves/c2BezierCurve.hpp"
+#include "models/bezierCurves/interpolatingBezierCurve.hpp"
+#include "models/bezierSurfaces/c0BezierSurface.hpp"
+#include "models/bezierSurfaces/c2BezierSurface.hpp"
 #include "models/point.hpp"
 #include "models/torus.hpp"
 #include "scene.hpp"
@@ -26,20 +26,20 @@ private:
 		int& id);
 	void serializeToruses(nlohmann::ordered_json& geometryJson,
 		const std::vector<std::unique_ptr<Torus>>& toruses, int& id);
-	void serializeBezierCurvesC0(nlohmann::ordered_json& geometryJson,
-		const std::vector<std::unique_ptr<BezierCurveC0>>& curves,
+	void serializeC0BezierCurves(nlohmann::ordered_json& geometryJson,
+		const std::vector<std::unique_ptr<C0BezierCurve>>& curves,
 		const std::vector<Point*>& points, int& id);
-	void serializeBezierCurvesC2(nlohmann::ordered_json& geometryJson,
-		const std::vector<std::unique_ptr<BezierCurveC2>>& curves,
+	void serializeC2BezierCurves(nlohmann::ordered_json& geometryJson,
+		const std::vector<std::unique_ptr<C2BezierCurve>>& curves,
 		const std::vector<Point*>& points, int& id);
-	void serializeBezierCurvesInter(nlohmann::ordered_json& geometryJson,
-		const std::vector<std::unique_ptr<BezierCurveInter>>& curves,
+	void serializeInterpolatingBezierCurves(nlohmann::ordered_json& geometryJson,
+		const std::vector<std::unique_ptr<InterpolatingBezierCurve>>& curves,
 		const std::vector<Point*>& points, int& id);
-	void serializeBezierSurfacesC0(nlohmann::ordered_json& geometryJson,
-		const std::vector<std::unique_ptr<BezierSurfaceC0>>& surfaces,
+	void serializeC0BezierSurfaces(nlohmann::ordered_json& geometryJson,
+		const std::vector<std::unique_ptr<C0BezierSurface>>& surfaces,
 		const std::vector<Point*>& points, int& id);
-	void serializeBezierSurfacesC2(nlohmann::ordered_json& geometryJson,
-		const std::vector<std::unique_ptr<BezierSurfaceC2>>& surfaces,
+	void serializeC2BezierSurfaces(nlohmann::ordered_json& geometryJson,
+		const std::vector<std::unique_ptr<C2BezierSurface>>& surfaces,
 		const std::vector<Point*>& points, int& id);
 
 	std::vector<Point*> getNonVirtualPoints(const Scene& scene);

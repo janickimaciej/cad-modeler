@@ -1,13 +1,13 @@
-#include "serializer/models/bezierSurfaces/bezierSurfaceC0Serializer.hpp"
+#include "serializer/models/bezierSurfaces/c2BezierSurfaceSerializer.hpp"
 
 #include "models/bezierSurfaces/bezierSurfaceWrapping.hpp"
 
-nlohmann::ordered_json BezierSurfaceC0Serializer::serialize(const BezierSurfaceC0& surface,
+nlohmann::ordered_json C2BezierSurfaceSerializer::serialize(const C2BezierSurface& surface,
 	const std::vector<Point*>& points, int& id)
 {
 	nlohmann::ordered_json json{};
 
-	json["objectType"] = "bezierSurfaceC0";
+	json["objectType"] = "bezierSurfaceC2";
 	json["name"] = surface.getName();
 	json["id"] = id++;
 
@@ -22,8 +22,8 @@ nlohmann::ordered_json BezierSurfaceC0Serializer::serialize(const BezierSurfaceC
 		for (int patchU = 0; patchU < surface.m_patchesU; ++patchU)
 		{
 			nlohmann::ordered_json patchJson{};
-			patchJson["objectType"] = "bezierPatchC0";
-			patchJson["name"] = "Patch C0";
+			patchJson["objectType"] = "bezierPatchC2";
+			patchJson["name"] = "Patch C2";
 			patchJson["id"] = id++;
 			patchJson["samples"]["x"] = 4;
 			patchJson["samples"]["y"] = 4;
@@ -32,8 +32,8 @@ nlohmann::ordered_json BezierSurfaceC0Serializer::serialize(const BezierSurfaceC
 				for (int dU = 0; dU < 4; ++dU)
 				{
 					nlohmann::ordered_json pointJson{};
-					int u = (3 * patchU + dU) % static_cast<int>(surface.m_pointsU);
-					int v = (3 * patchV + dV) % static_cast<int>(surface.m_pointsV);
+					int u = (patchU + dU) % static_cast<int>(surface.m_pointsU);
+					int v = (patchV + dV) % static_cast<int>(surface.m_pointsV);
 					auto pointIterator = std::find_if
 					(
 						points.begin(), points.end(),
@@ -53,7 +53,7 @@ nlohmann::ordered_json BezierSurfaceC0Serializer::serialize(const BezierSurfaceC
 	return json;
 }
 
-void BezierSurfaceC0Serializer::deserialize(const nlohmann::ordered_json& json, Scene& scene,
+void C2BezierSurfaceSerializer::deserialize(const nlohmann::ordered_json& json, Scene& scene,
 	const std::unordered_map<int, int>& pointMap)
 {
 	BezierSurfaceWrapping wrapping = BezierSurfaceWrapping::none;
@@ -71,7 +71,7 @@ void BezierSurfaceC0Serializer::deserialize(const nlohmann::ordered_json& json, 
 
 	std::vector<std::unique_ptr<Point>> points{};
 	std::vector<std::unique_ptr<BezierPatch>> patches{};
-	std::unique_ptr<BezierSurfaceC0> surface = std::make_unique<BezierSurfaceC0>(
+	std::unique_ptr<C2BezierSurface> surface = std::make_unique<C2BezierSurface>(
 		scene.m_shaderPrograms.bezierSurface, scene.m_shaderPrograms.mesh,
 		scene.m_shaderPrograms.point, patchesU, patchesV, glm::vec3{}, 1.0f, 1.0f, wrapping,
 		points, patches);
@@ -89,8 +89,8 @@ void BezierSurfaceC0Serializer::deserialize(const nlohmann::ordered_json& json, 
 		int dV = 0;
 		for (const nlohmann::ordered_json& pointJson : patchJson["controlPoints"])
 		{
-			int u = (3 * patchU + dU) % static_cast<int>(surface->m_pointsU);
-			int v = (3 * patchV + dV) % static_cast<int>(surface->m_pointsV);
+			int u = (patchU + dU) % static_cast<int>(surface->m_pointsU);
+			int v = (patchV + dV) % static_cast<int>(surface->m_pointsV);
 			Point* point = scene.m_points[pointMap.at(pointJson["id"])].get();
 			surface->m_points[v][u] = point;
 			point->setDeletable(false);
@@ -119,5 +119,5 @@ void BezierSurfaceC0Serializer::deserialize(const nlohmann::ordered_json& json, 
 	}
 
 	scene.m_models.push_back(surface.get());
-	scene.m_bezierSurfacesC0.push_back(std::move(surface));
+	scene.m_c2BezierSurfaces.push_back(std::move(surface));
 }

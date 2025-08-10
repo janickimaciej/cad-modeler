@@ -4,7 +4,7 @@
 
 #include <vector>
 
-struct BezierCurveInterSegmentData
+struct InterpolatingBezierCurveSegmentData
 {
 	glm::vec3 a{};
 	glm::vec3 b{};

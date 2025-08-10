@@ -10,12 +10,12 @@ enum class ModelType
 	all,
 	point,
 	torus,
-	bezierCurveC0,
-	bezierCurveC2,
-	bezierCurveInter,
+	c0BezierCurve,
+	c2BezierCurve,
+	interpolatingBezierCurve,
 	bezierPatch,
-	bezierSurfaceC0,
-	bezierSurfaceC2,
+	c0BezierSurface,
+	c2BezierSurface,
 	gregorySurface,
 	intersectionCurve
 };

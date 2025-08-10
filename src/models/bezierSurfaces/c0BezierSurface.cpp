@@ -1,4 +1,4 @@
-#include "models/bezierSurfaces/bezierSurfaceC0.hpp"
+#include "models/bezierSurfaces/c0BezierSurface.hpp"
 
 #include "meshes/indicesMesh.hpp"
 
@@ -6,7 +6,7 @@
 
 #include <string>
 
-BezierSurfaceC0::BezierSurfaceC0(const ShaderProgram& bezierSurfaceShaderProgram,
+C0BezierSurface::C0BezierSurface(const ShaderProgram& bezierSurfaceShaderProgram,
 	const ShaderProgram& bezierSurfaceGridShaderProgram, const ShaderProgram& pointShaderProgram,
 	int patchesU, int patchesV, const glm::vec3& pos, float sizeU, float sizeV,
 	BezierSurfaceWrapping wrapping, std::vector<std::unique_ptr<Point>>& points,
@@ -24,9 +24,9 @@ BezierSurfaceC0::BezierSurfaceC0(const ShaderProgram& bezierSurfaceShaderProgram
 	registerForNotifications();
 }
 
-int BezierSurfaceC0::m_count = 0;
+int C0BezierSurface::m_count = 0;
 
-std::vector<std::unique_ptr<Point>> BezierSurfaceC0::createPoints(
+std::vector<std::unique_ptr<Point>> C0BezierSurface::createPoints(
 	const ShaderProgram& pointShaderProgram, const glm::vec3& pos, float sizeU, float sizeV)
 {
 	std::vector<std::vector<glm::vec3>> boorPoints = createBoorPoints(pos, sizeU, sizeV);
@@ -45,19 +45,19 @@ std::vector<std::unique_ptr<Point>> BezierSurfaceC0::createPoints(
 	return points;
 }
 
-void BezierSurfaceC0::createGridMesh()
+void C0BezierSurface::createGridMesh()
 {
 	m_gridMesh = std::make_unique<IndicesMesh>(createVertices(m_points), createGridIndices(),
 		GL_LINES);
 }
 
-void BezierSurfaceC0::updateGridMesh()
+void C0BezierSurface::updateGridMesh()
 {
 	m_gridMesh->update(createVertices(m_points));
 	m_gridMesh->update(createGridIndices());
 }
 
-std::array<std::array<Point*, 4>, 4> BezierSurfaceC0::getBezierPoints(std::size_t patchU,
+std::array<std::array<Point*, 4>, 4> C0BezierSurface::getBezierPoints(std::size_t patchU,
 	std::size_t patchV) const
 {
 	std::array<std::array<Point*, 4>, 4> points{};

@@ -1,10 +1,10 @@
 #include "serializer/sceneSerializer.hpp"
 
-#include "serializer/models/bezierCurves/bezierCurveC0Serializer.hpp"
-#include "serializer/models/bezierCurves/bezierCurveC2Serializer.hpp"
-#include "serializer/models/bezierCurves/bezierCurveInterSerializer.hpp"
-#include "serializer/models/bezierSurfaces/bezierSurfaceC0Serializer.hpp"
-#include "serializer/models/bezierSurfaces/bezierSurfaceC2Serializer.hpp"
+#include "serializer/models/bezierCurves/c0BezierCurveSerializer.hpp"
+#include "serializer/models/bezierCurves/c2BezierCurveSerializer.hpp"
+#include "serializer/models/bezierCurves/interpolatingBezierCurveSerializer.hpp"
+#include "serializer/models/bezierSurfaces/c0BezierSurfaceSerializer.hpp"
+#include "serializer/models/bezierSurfaces/c2BezierSurfaceSerializer.hpp"
 #include "serializer/models/pointSerializer.hpp"
 #include "serializer/models/torusSerializer.hpp"
 
@@ -25,11 +25,12 @@ void SceneSerializer::serialize(Scene& scene, const std::string& path)
 
 	nlohmann::ordered_json geometryJson = nlohmann::ordered_json::array();
 	serializeToruses(geometryJson, scene.m_toruses, id);
-	serializeBezierCurvesC0(geometryJson, scene.m_bezierCurvesC0, nonVirtualPoints, id);
-	serializeBezierCurvesC2(geometryJson, scene.m_bezierCurvesC2, nonVirtualPoints, id);
-	serializeBezierCurvesInter(geometryJson, scene.m_bezierCurvesInter, nonVirtualPoints, id);
-	serializeBezierSurfacesC0(geometryJson, scene.m_bezierSurfacesC0, nonVirtualPoints, id);
-	serializeBezierSurfacesC2(geometryJson, scene.m_bezierSurfacesC2, nonVirtualPoints, id);
+	serializeC0BezierCurves(geometryJson, scene.m_c0BezierCurves, nonVirtualPoints, id);
+	serializeC2BezierCurves(geometryJson, scene.m_c2BezierCurves, nonVirtualPoints, id);
+	serializeInterpolatingBezierCurves(geometryJson, scene.m_interpolatingBezierCurves,
+		nonVirtualPoints, id);
+	serializeC0BezierSurfaces(geometryJson, scene.m_c0BezierSurfaces, nonVirtualPoints, id);
+	serializeC2BezierSurfaces(geometryJson, scene.m_c2BezierSurfaces, nonVirtualPoints, id);
 	sceneJson["geometry"] = geometryJson;
 
 	std::ofstream file(path);
@@ -66,23 +67,23 @@ void SceneSerializer::deserialize(Scene& scene, const std::string& path)
 		}
 		else if (modelType == "bezierC0")
 		{
-			BezierCurveC0Serializer::deserialize(modelJson, scene, pointMap);
+			C0BezierCurveSerializer::deserialize(modelJson, scene, pointMap);
 		}
 		else if (modelType == "bezierC2")
 		{
-			BezierCurveC2Serializer::deserialize(modelJson, scene, pointMap);
+			C2BezierCurveSerializer::deserialize(modelJson, scene, pointMap);
 		}
 		else if (modelType == "interpolatedC2")
 		{
-			BezierCurveInterSerializer::deserialize(modelJson, scene, pointMap);
+			InterpolatingBezierCurveSerializer::deserialize(modelJson, scene, pointMap);
 		}
 		else if (modelType == "bezierSurfaceC0")
 		{
-			BezierSurfaceC0Serializer::deserialize(modelJson, scene, pointMap);
+			C0BezierSurfaceSerializer::deserialize(modelJson, scene, pointMap);
 		}
 		else if (modelType == "bezierSurfaceC2")
 		{
-			BezierSurfaceC2Serializer::deserialize(modelJson, scene, pointMap);
+			C2BezierSurfaceSerializer::deserialize(modelJson, scene, pointMap);
 		}
 	}
 }
@@ -107,62 +108,62 @@ void SceneSerializer::serializeToruses(nlohmann::ordered_json& geometryJson,
 	}
 }
 
-void SceneSerializer::serializeBezierCurvesC0(nlohmann::ordered_json& geometryJson,
-	const std::vector<std::unique_ptr<BezierCurveC0>>& curves, const std::vector<Point*>& points,
+void SceneSerializer::serializeC0BezierCurves(nlohmann::ordered_json& geometryJson,
+	const std::vector<std::unique_ptr<C0BezierCurve>>& curves, const std::vector<Point*>& points,
 	int& id)
 {
-	for (const std::unique_ptr<BezierCurveC0>& curve : curves)
+	for (const std::unique_ptr<C0BezierCurve>& curve : curves)
 	{
 		nlohmann::ordered_json curveJson =
-			BezierCurveC0Serializer::serialize(*curve, points, id);
+			C0BezierCurveSerializer::serialize(*curve, points, id);
 		geometryJson.push_back(curveJson);
 	}
 }
 
-void SceneSerializer::serializeBezierCurvesC2(nlohmann::ordered_json& geometryJson,
-	const std::vector<std::unique_ptr<BezierCurveC2>>& curves, const std::vector<Point*>& points,
+void SceneSerializer::serializeC2BezierCurves(nlohmann::ordered_json& geometryJson,
+	const std::vector<std::unique_ptr<C2BezierCurve>>& curves, const std::vector<Point*>& points,
 	int& id)
 {
-	for (const std::unique_ptr<BezierCurveC2>& curve : curves)
+	for (const std::unique_ptr<C2BezierCurve>& curve : curves)
 	{
 		nlohmann::ordered_json curveJson =
-			BezierCurveC2Serializer::serialize(*curve, points, id);
+			C2BezierCurveSerializer::serialize(*curve, points, id);
 		geometryJson.push_back(curveJson);
 	}
 }
 
-void SceneSerializer::serializeBezierCurvesInter(nlohmann::ordered_json& geometryJson,
-	const std::vector<std::unique_ptr<BezierCurveInter>>& curves, const std::vector<Point*>& points,
-	int& id)
-{
-	for (const std::unique_ptr<BezierCurveInter>& curve : curves)
-	{
-		nlohmann::ordered_json curveJson =
-			BezierCurveInterSerializer::serialize(*curve, points, id);
-		geometryJson.push_back(curveJson);
-	}
-}
-
-void SceneSerializer::serializeBezierSurfacesC0(nlohmann::ordered_json& geometryJson,
-	const std::vector<std::unique_ptr<BezierSurfaceC0>>& surfaces,
+void SceneSerializer::serializeInterpolatingBezierCurves(nlohmann::ordered_json& geometryJson,
+	const std::vector<std::unique_ptr<InterpolatingBezierCurve>>& curves,
 	const std::vector<Point*>& points, int& id)
 {
-	for (const std::unique_ptr<BezierSurfaceC0>& surface : surfaces)
+	for (const std::unique_ptr<InterpolatingBezierCurve>& curve : curves)
 	{
 		nlohmann::ordered_json curveJson =
-			BezierSurfaceC0Serializer::serialize(*surface, points, id);
+			InterpolatingBezierCurveSerializer::serialize(*curve, points, id);
 		geometryJson.push_back(curveJson);
 	}
 }
 
-void SceneSerializer::serializeBezierSurfacesC2(nlohmann::ordered_json& geometryJson,
-	const std::vector<std::unique_ptr<BezierSurfaceC2>>& surfaces,
+void SceneSerializer::serializeC0BezierSurfaces(nlohmann::ordered_json& geometryJson,
+	const std::vector<std::unique_ptr<C0BezierSurface>>& surfaces,
 	const std::vector<Point*>& points, int& id)
 {
-	for (const std::unique_ptr<BezierSurfaceC2>& surface : surfaces)
+	for (const std::unique_ptr<C0BezierSurface>& surface : surfaces)
 	{
 		nlohmann::ordered_json curveJson =
-			BezierSurfaceC2Serializer::serialize(*surface, points, id);
+			C0BezierSurfaceSerializer::serialize(*surface, points, id);
+		geometryJson.push_back(curveJson);
+	}
+}
+
+void SceneSerializer::serializeC2BezierSurfaces(nlohmann::ordered_json& geometryJson,
+	const std::vector<std::unique_ptr<C2BezierSurface>>& surfaces,
+	const std::vector<Point*>& points, int& id)
+{
+	for (const std::unique_ptr<C2BezierSurface>& surface : surfaces)
+	{
+		nlohmann::ordered_json curveJson =
+			C2BezierSurfaceSerializer::serialize(*surface, points, id);
 		geometryJson.push_back(curveJson);
 	}
 }
@@ -185,11 +186,11 @@ void SceneSerializer::clearScene(Scene& scene)
 	scene.deselectAllModels();
 	scene.m_models.clear();
 	scene.m_toruses.clear();
-	scene.m_bezierCurvesC0.clear();
-	scene.m_bezierCurvesC2.clear();
-	scene.m_bezierCurvesInter.clear();
-	scene.m_bezierSurfacesC0.clear();
-	scene.m_bezierSurfacesC2.clear();
+	scene.m_c0BezierCurves.clear();
+	scene.m_c2BezierCurves.clear();
+	scene.m_interpolatingBezierCurves.clear();
+	scene.m_c0BezierSurfaces.clear();
+	scene.m_c2BezierSurfaces.clear();
 	scene.m_gregorySurfaces.clear();
 	scene.m_intersectionCurves.clear();
 	scene.m_points.clear();
