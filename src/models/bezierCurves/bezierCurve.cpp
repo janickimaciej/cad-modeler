@@ -35,9 +35,6 @@ void BezierCurve::updateGUI()
 void BezierCurve::setPos(const glm::vec3&)
 { }
 
-void BezierCurve::setScreenPos(const glm::vec2&, const glm::mat4&, const glm::ivec2&)
-{ }
-
 int BezierCurve::pointCount() const
 {
 	return static_cast<int>(m_points.size());

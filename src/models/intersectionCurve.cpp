@@ -51,9 +51,6 @@ void IntersectionCurve::updateGUI()
 void IntersectionCurve::setPos(const glm::vec3&)
 { }
 
-void IntersectionCurve::setScreenPos(const glm::vec2&, const glm::mat4&, const glm::ivec2&)
-{ }
-
 int IntersectionCurve::pointCount() const
 {
 	return static_cast<int>(m_pointPairs.size());

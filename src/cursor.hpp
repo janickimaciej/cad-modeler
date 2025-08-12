@@ -1,5 +1,6 @@
 #pragma once
 
+#include "cameras/camera.hpp"
 #include "guis/cursorGUI.hpp"
 #include "meshes/pointMesh.hpp"
 #include "shaderProgram.hpp"
@@ -12,13 +13,10 @@ public:
 	Cursor(const ShaderProgram& shaderProgram);
 
 	void render() const;
-	void updateGUI(const glm::mat4& cameraMatrix, const glm::ivec2& windowSize);
+	void updateGUI(const Camera& camera);
 
 	glm::vec3 getPos() const;
 	void setPos(const glm::vec3& pos);
-	glm::vec2 getScreenPos(const glm::mat4& cameraMatrix, const glm::ivec2& windowSize) const;
-	void setScreenPos(const glm::vec2& screenPos, const glm::mat4& cameraMatrix,
-		const glm::ivec2& windowSize);
 
 private:
 	const ShaderProgram& m_shaderProgram;

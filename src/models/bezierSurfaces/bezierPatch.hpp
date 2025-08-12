@@ -29,7 +29,6 @@ public:
 	virtual void updateGUI() override;
 
 	virtual void setPos(const glm::vec3&) override;
-	virtual void setScreenPos(const glm::vec2&, const glm::mat4&, const glm::ivec2&) override;
 	void updatePoints(const std::array<std::array<Point*, 4>, 4>& bezierPoints);
 
 	bool isInvalid() const;

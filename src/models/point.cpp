@@ -59,13 +59,6 @@ void Point::setPos(const glm::vec3& pos)
 	notifyMove();
 }
 
-void Point::setScreenPos(const glm::vec2& screenPos, const glm::mat4& cameraMatrix,
-	const glm::ivec2& windowSize)
-{
-	Model::setScreenPos(screenPos, cameraMatrix, windowSize);
-	notifyMove();
-}
-
 std::shared_ptr<Point::MoveCallback> Point::registerForMoveNotification(
 	const MoveCallback& callback)
 {

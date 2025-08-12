@@ -7,7 +7,7 @@
 class PerspectiveCamera : public Camera
 {
 public:
-	PerspectiveCamera(float fovYDeg, float aspectRatio, float nearPlane, float farPlane,
+	PerspectiveCamera(const glm::ivec2& windowSize, float fovYDeg, float nearPlane, float farPlane,
 		const ShaderPrograms& shaderPrograms);
 	virtual ~PerspectiveCamera() = default;
 	virtual void updateGUI() override;

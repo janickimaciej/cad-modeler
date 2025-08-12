@@ -74,7 +74,7 @@ void Window::resizeCallback(int width, int height)
 	}
 
 	m_size = {width, height};
-	m_scene->updateWindowSize();
+	m_scene->updateWindowSize(m_size);
 	glViewport(0, 0, width, height);
 }
 
@@ -154,10 +154,12 @@ void Window::buttonCallback(int button, int action, int)
 			return;
 		}
 
-		if (isKeyPressed(GLFW_KEY_RIGHT_CONTROL) &&
-			m_scene->isCursorAtPos(cursorPos))
+		if (isKeyPressed(GLFW_KEY_RIGHT_CONTROL))
 		{
-			m_cursorDragging = true;
+			if (m_scene->isCursorAtPos(cursorPos))
+			{
+				m_cursorDragging = true;
+			}
 		}
 		else if (isKeyPressed(GLFW_KEY_LEFT_CONTROL))
 		{

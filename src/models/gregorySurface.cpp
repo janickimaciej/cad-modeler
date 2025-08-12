@@ -38,9 +38,6 @@ void GregorySurface::updateGUI()
 void GregorySurface::setPos(const glm::vec3&)
 { }
 
-void GregorySurface::setScreenPos(const glm::vec2&, const glm::mat4&, const glm::ivec2&)
-{ }
-
 bool GregorySurface::getRenderVectors() const
 {
 	return m_renderVectors;

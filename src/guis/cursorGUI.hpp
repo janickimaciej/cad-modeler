@@ -1,6 +1,6 @@
 #pragma once
 
-#include <glm/glm.hpp>
+#include "cameras/camera.hpp"
 
 #include <string>
 
@@ -10,12 +10,12 @@ class CursorGUI
 {
 public:
 	CursorGUI(Cursor& cursor);
-	void update(const glm::mat4& cameraMatrix, const glm::ivec2& windowSize);
+	void update(const Camera& camera);
 
 private:
 	Cursor& m_cursor;
 	static const std::string m_suffix;
 
 	void updatePos();
-	void updateScreenPos(const glm::mat4& cameraMatrix, const glm::ivec2& windowSize);
+	void updateScreenPos(const Camera& camera);
 };

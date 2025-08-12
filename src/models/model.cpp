@@ -23,35 +23,6 @@ void Model::setPos(const glm::vec3& pos)
 	updateModelMatrix();
 }
 
-glm::vec2 Model::getScreenPos(const glm::mat4& cameraMatrix, const glm::ivec2& windowSize) const
-{
-	glm::vec4 clipPos = cameraMatrix * glm::vec4{m_pos, 1};
-	clipPos /= clipPos.w;
-	return glm::vec2
-	{
-		(clipPos.x + 1) / 2 * windowSize.x,
-		(-clipPos.y + 1) / 2 * windowSize.y
-	};
-}
-
-void Model::setScreenPos(const glm::vec2& screenPos, const glm::mat4& cameraMatrix,
-	const glm::ivec2& windowSize)
-{
-	glm::vec4 prevClipPos = cameraMatrix * glm::vec4{m_pos, 1};
-	prevClipPos /= prevClipPos.w;
-	glm::vec4 clipPos
-	{
-		screenPos.x / windowSize.x * 2 - 1,
-		-screenPos.y / windowSize.y * 2 + 1,
-		prevClipPos.z,
-		1
-	};
-	glm::vec4 worldPos = glm::inverse(cameraMatrix) * clipPos;
-	worldPos /= worldPos.w;
-	m_pos = glm::vec3{worldPos};
-	updateModelMatrix();
-}
-
 float Model::getYawRad() const
 {
 	return m_yawRad;

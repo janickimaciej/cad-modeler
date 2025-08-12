@@ -48,7 +48,7 @@ public:
 	Scene(const glm::ivec2& windowSize);
 	void update();
 	void render() const;
-	void updateWindowSize();
+	void updateWindowSize(const glm::ivec2& windowSize);
 
 	CameraType getCameraType() const;
 	void setCameraType(CameraType cameraType);
@@ -123,8 +123,6 @@ public:
 private:
 	ShaderPrograms m_shaderPrograms{};
 
-	const glm::ivec2& m_windowSize{};
-
 	std::vector<Model*> m_models{};
 	std::vector<Model*> m_selectedModels{};
 	std::vector<std::unique_ptr<Point>> m_points{};
@@ -171,7 +169,6 @@ private:
 	void setUpFramebuffer() const;
 	void clearFramebuffer(AnaglyphMode anaglyphMode) const;
 
-	void setAspectRatio(float aspectRatio);
 	void renderModels() const;
 	void renderCursor() const;
 	void renderSelectedModelsCenter() const;

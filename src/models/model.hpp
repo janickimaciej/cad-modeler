@@ -16,9 +16,6 @@ public:
 
 	glm::vec3 getPos() const;
 	virtual void setPos(const glm::vec3& pos);
-	glm::vec2 getScreenPos(const glm::mat4& cameraMatrix, const glm::ivec2& windowSize) const;
-	virtual void setScreenPos(const glm::vec2& screenPos, const glm::mat4& cameraMatrix,
-		const glm::ivec2& windowSize);
 
 	float getPitchRad() const;
 	void setPitchRad(float pitchRad);

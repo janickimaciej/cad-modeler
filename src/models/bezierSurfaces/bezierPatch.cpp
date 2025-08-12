@@ -47,9 +47,6 @@ void BezierPatch::updateGUI()
 void BezierPatch::setPos(const glm::vec3&)
 { }
 
-void BezierPatch::setScreenPos(const glm::vec2&, const glm::mat4&, const glm::ivec2&)
-{ }
-
 void BezierPatch::updatePoints(const std::array<std::array<Point*, 4>, 4>& bezierPoints)
 {
 	m_bezierPoints = bezierPoints;

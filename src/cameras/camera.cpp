@@ -4,9 +4,9 @@
 
 #include <cmath>
 
-Camera::Camera(float aspectRatio, float nearPlane, float farPlane,
+Camera::Camera(const glm::ivec2& windowSize, float nearPlane, float farPlane,
 	const ShaderPrograms& shaderPrograms) :
-	m_aspectRatio{aspectRatio},
+	m_windowSize{windowSize},
 	m_nearPlane{nearPlane},
 	m_farPlane{farPlane},
 	m_shaderPrograms{shaderPrograms}
@@ -14,19 +14,19 @@ Camera::Camera(float aspectRatio, float nearPlane, float farPlane,
 	updateViewMatrix();
 }
 
-void Camera::use(const glm::ivec2& windowSize) const
+void Camera::use() const
 {
-	updateShaders(windowSize);
+	updateShaders();
 }
 
-void Camera::useLeftEye(const glm::ivec2& windowSize) const
+void Camera::useLeftEye() const
 {
-	updateShadersLeftEye(windowSize);
+	updateShadersLeftEye();
 }
 
-void Camera::useRightEye(const glm::ivec2& windowSize) const
+void Camera::useRightEye() const
 {
-	updateShadersRightEye(windowSize);
+	updateShadersRightEye();
 }
 
 glm::mat4 Camera::getMatrix() const
@@ -34,10 +34,8 @@ glm::mat4 Camera::getMatrix() const
 	return m_projectionMatrix * glm::inverse(m_viewMatrixInverse);
 }
 
-void Camera::setAspectRatio(float aspectRatio)
+void Camera::updateWindowSize()
 {
-	m_aspectRatio = aspectRatio;
-
 	updateProjectionMatrix();
 }
 
@@ -94,6 +92,34 @@ void Camera::moveY(float y)
 	m_targetPos += m_radius * glm::mat3{m_viewMatrixInverse} * glm::vec3{0, y, 0};
 
 	updateViewMatrix();
+}
+
+glm::vec2 Camera::posToScreenPos(const glm::vec3& pos) const
+{
+	glm::vec4 clipPos = getMatrix() * glm::vec4{pos, 1};
+	clipPos /= clipPos.w;
+	return glm::vec2
+	{
+		(clipPos.x + 1) / 2 * m_windowSize.x,
+		(-clipPos.y + 1) / 2 * m_windowSize.y
+	};
+}
+
+glm::vec3 Camera::screenPosToPos(const glm::vec3& prevPos, const glm::vec2& screenPos) const
+{
+	glm::mat4 cameraMatrix = getMatrix();
+	glm::vec4 prevClipPos = cameraMatrix * glm::vec4{prevPos, 1};
+	prevClipPos /= prevClipPos.w;
+	glm::vec4 clipPos
+	{
+		screenPos.x / m_windowSize.x * 2 - 1,
+		-screenPos.y / m_windowSize.y * 2 + 1,
+		prevClipPos.z,
+		1
+	};
+	glm::vec4 worldPos = glm::inverse(cameraMatrix) * clipPos;
+	worldPos /= worldPos.w;
+	return glm::vec3{worldPos};
 }
 
 float Camera::getEyesDistance() const
@@ -178,28 +204,27 @@ void Camera::updateViewMatrix()
 	};
 }
 
-void Camera::updateShaders(const glm::ivec2& windowSize) const
+void Camera::updateShaders() const
 {
 	glm::mat4 projectionViewMatrix = m_projectionMatrix * glm::inverse(m_viewMatrixInverse);
-	updateShaders(windowSize, projectionViewMatrix, AnaglyphMode::none);
+	updateShaders(projectionViewMatrix, AnaglyphMode::none);
 }
 
-void Camera::updateShadersLeftEye(const glm::ivec2& windowSize) const
+void Camera::updateShadersLeftEye() const
 {
 	glm::mat4 projectionViewMatrix =
 		m_leftEyeProjectionMatrix * glm::inverse(m_leftEyeViewMatrixInverse);
-	updateShaders(windowSize, projectionViewMatrix, AnaglyphMode::leftEye);
+	updateShaders(projectionViewMatrix, AnaglyphMode::leftEye);
 }
 
-void Camera::updateShadersRightEye(const glm::ivec2& windowSize) const
+void Camera::updateShadersRightEye() const
 {
 	glm::mat4 projectionViewMatrix =
 		m_rightEyeProjectionMatrix * glm::inverse(m_rightEyeViewMatrixInverse);
-	updateShaders(windowSize, projectionViewMatrix, AnaglyphMode::rightEye);
+	updateShaders(projectionViewMatrix, AnaglyphMode::rightEye);
 }
 
-void Camera::updateShaders(const glm::ivec2& windowSize,
-	const glm::mat4& projectionViewMatrix, AnaglyphMode anaglyphMode) const
+void Camera::updateShaders(const glm::mat4& projectionViewMatrix, AnaglyphMode anaglyphMode) const
 {
 	glm::mat4 projectionViewMatrixInverse = glm::inverse(projectionViewMatrix);
 
@@ -222,13 +247,13 @@ void Camera::updateShaders(const glm::ivec2& windowSize,
 
 	m_shaderPrograms.bezierCurve.use();
 	m_shaderPrograms.bezierCurve.setUniform("projectionViewMatrix", projectionViewMatrix);
-	m_shaderPrograms.bezierCurve.setUniform("windowSize", windowSize);
+	m_shaderPrograms.bezierCurve.setUniform("windowSize", m_windowSize);
 	m_shaderPrograms.bezierCurve.setUniform("anaglyphMode", static_cast<int>(anaglyphMode));
 
 	m_shaderPrograms.interpolatingBezierCurve.use();
 	m_shaderPrograms.interpolatingBezierCurve.setUniform("projectionViewMatrix",
 		projectionViewMatrix);
-	m_shaderPrograms.interpolatingBezierCurve.setUniform("windowSize", windowSize);
+	m_shaderPrograms.interpolatingBezierCurve.setUniform("windowSize", m_windowSize);
 	m_shaderPrograms.interpolatingBezierCurve.setUniform("anaglyphMode",
 		static_cast<int>(anaglyphMode));
 

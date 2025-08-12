@@ -7,8 +7,8 @@
 class OrthographicCamera : public Camera
 {
 public:
-	OrthographicCamera(float viewHeight, float aspectRatio, float nearPlane, float farPlane,
-		const ShaderPrograms& shaderPrograms);
+	OrthographicCamera(const glm::ivec2& windowSize, float viewHeight, float nearPlane,
+		float farPlane, const ShaderPrograms& shaderPrograms);
 	virtual ~OrthographicCamera() = default;
 	virtual void updateGUI() override;
 	float getViewHeight() const;

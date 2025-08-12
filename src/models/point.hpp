@@ -45,8 +45,6 @@ public:
 	virtual void updateGUI() override;
 
 	virtual void setPos(const glm::vec3& pos) override;
-	virtual void setScreenPos(const glm::vec2& screenPos, const glm::mat4& cameraMatrix,
-		const glm::ivec2& windowSize) override;
 
 	std::shared_ptr<MoveCallback> registerForMoveNotification(const MoveCallback& callback);
 	std::shared_ptr<DestroyCallback> registerForDestroyNotification(

@@ -2,16 +2,17 @@
 
 #include "cursor.hpp"
 
+#include <glm/glm.hpp>
 #include <imgui/imgui.h>
 
 CursorGUI::CursorGUI(Cursor& cursor) :
 	m_cursor{cursor}
 { }
 
-void CursorGUI::update(const glm::mat4& cameraMatrix, const glm::ivec2& windowSize)
+void CursorGUI::update(const Camera& camera)
 {
 	updatePos();
-	updateScreenPos(cameraMatrix, windowSize);
+	updateScreenPos(camera);
 }
 
 const std::string CursorGUI::m_suffix = "##cursor";
@@ -35,12 +36,13 @@ void CursorGUI::updatePos()
 	}
 }
 
-void CursorGUI::updateScreenPos(const glm::mat4& cameraMatrix, const glm::ivec2& windowSize)
+void CursorGUI::updateScreenPos(const Camera& camera)
 {
 	static constexpr float stepPrecision = 5.0f;
 	static const std::string format = "%.0f";
 
-	glm::vec2 screenPos = m_cursor.getScreenPos(cameraMatrix, windowSize);
+	glm::vec3 prevPos = m_cursor.getPos();
+	glm::vec2 screenPos = camera.posToScreenPos(prevPos);
 	glm::vec2 prevScreenPos = screenPos;
 	ImGui::InputFloat(("screen x" + m_suffix).c_str(), &screenPos.x, stepPrecision, stepPrecision,
 		format.c_str());
@@ -48,6 +50,7 @@ void CursorGUI::updateScreenPos(const glm::mat4& cameraMatrix, const glm::ivec2&
 		format.c_str());
 	if (screenPos != prevScreenPos)
 	{
-		m_cursor.setScreenPos(screenPos, cameraMatrix, windowSize);
+		glm::vec3 pos = camera.screenPosToPos(prevPos, screenPos);
+		m_cursor.setPos(pos);
 	}
 }

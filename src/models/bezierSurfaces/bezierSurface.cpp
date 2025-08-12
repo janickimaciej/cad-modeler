@@ -57,9 +57,6 @@ void BezierSurface::updateGUI()
 void BezierSurface::setPos(const glm::vec3&)
 { }
 
-void BezierSurface::setScreenPos(const glm::vec2&, const glm::mat4&, const glm::ivec2&)
-{ }
-
 bool BezierSurface::getRenderGrid() const
 {
 	return m_renderGrid;

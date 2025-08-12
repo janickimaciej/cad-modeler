@@ -10,11 +10,8 @@ static constexpr float nearPlane = 0.1f;
 static constexpr float farPlane = 1000.0f;
 
 Scene::Scene(const glm::ivec2& windowSize) :
-	m_windowSize{windowSize},
-	m_perspectiveCamera{fovYDeg, static_cast<float>(windowSize.x) / windowSize.y, nearPlane,
-		farPlane, m_shaderPrograms},
-	m_orthographicCamera{viewHeight, static_cast<float>(windowSize.x) / windowSize.y, nearPlane,
-		farPlane, m_shaderPrograms},
+	m_perspectiveCamera{windowSize, fovYDeg, nearPlane, farPlane, m_shaderPrograms},
+	m_orthographicCamera{windowSize, viewHeight, nearPlane, farPlane, m_shaderPrograms},
 	m_leftEyeFramebuffer{windowSize}
 {
 	auto firstModelIter = m_models.begin();
@@ -44,7 +41,7 @@ void Scene::render() const
 		m_leftEyeFramebuffer.bind();
 		clearFramebuffer(AnaglyphMode::leftEye);
 
-		m_activeCamera->useLeftEye(m_windowSize);
+		m_activeCamera->useLeftEye();
 		renderModels();
 		renderCursor();
 		renderSelectedModelsCenter();
@@ -53,7 +50,7 @@ void Scene::render() const
 		m_leftEyeFramebuffer.unbind();
 		clearFramebuffer(AnaglyphMode::rightEye);
 
-		m_activeCamera->useRightEye(m_windowSize);
+		m_activeCamera->useRightEye();
 		renderModels();
 		renderCursor();
 		renderSelectedModelsCenter();
@@ -71,7 +68,7 @@ void Scene::render() const
 	{
 		clearFramebuffer(AnaglyphMode::none);
 
-		m_activeCamera->use(m_windowSize);
+		m_activeCamera->use();
 		renderModels();
 		renderCursor();
 		renderSelectedModelsCenter();
@@ -79,10 +76,11 @@ void Scene::render() const
 	}
 }
 
-void Scene::updateWindowSize()
+void Scene::updateWindowSize(const glm::ivec2& windowSize)
 {
-	setAspectRatio(static_cast<float>(m_windowSize.x) / m_windowSize.y);
-	m_leftEyeFramebuffer.resize(m_windowSize);
+	m_perspectiveCamera.updateWindowSize();
+	m_orthographicCamera.updateWindowSize();
+	m_leftEyeFramebuffer.resize(windowSize);
 }
 
 CameraType Scene::getCameraType() const
@@ -490,9 +488,10 @@ void Scene::moveUniqueSelectedModel(const glm::vec2& offset) const
 	Model* selectedModel = getUniqueSelectedModel();
 	if (selectedModel != nullptr)
 	{
-		glm::vec2 screenPos =
-			selectedModel->getScreenPos(m_activeCamera->getMatrix(), m_windowSize);
-		selectedModel->setScreenPos(screenPos + offset, m_activeCamera->getMatrix(), m_windowSize);
+		glm::vec3 pos = selectedModel->getPos();
+		glm::vec2 screenPos = m_activeCamera->posToScreenPos(pos);
+		glm::vec3 newPos = m_activeCamera->screenPosToPos(pos, screenPos + offset);
+		selectedModel->setPos(newPos);
 	}
 }
 
@@ -589,16 +588,18 @@ const Intersectable* Scene::getUniqueSelectedIntersectable() const
 bool Scene::isCursorAtPos(const glm::vec2& screenPos) const
 {
 	static constexpr float treshold = 30;
-	glm::vec2 cursorPos = m_cursor.getScreenPos(m_activeCamera->getMatrix(), m_windowSize);
-	glm::vec2 relativePos = cursorPos - screenPos;
-	float screenDistanceSquared = glm::dot(relativePos, relativePos);
+	glm::vec2 cursorScreenPos = m_activeCamera->posToScreenPos(m_cursor.getPos());
+	glm::vec2 relativeScreenPos = cursorScreenPos - screenPos;
+	float screenDistanceSquared = glm::dot(relativeScreenPos, relativeScreenPos);
 	return screenDistanceSquared < treshold * treshold;
 }
 
 void Scene::moveCursor(const glm::vec2& offset)
 {
-	glm::vec2 screenPos = m_cursor.getScreenPos(m_activeCamera->getMatrix(), m_windowSize);
-	m_cursor.setScreenPos(screenPos + offset, m_activeCamera->getMatrix(), m_windowSize);
+	glm::vec3 pos = m_cursor.getPos();
+	glm::vec2 screenPos = m_activeCamera->posToScreenPos(pos);
+	glm::vec3 newPos = m_activeCamera->screenPosToPos(pos, screenPos + offset);
+	m_cursor.setPos(newPos);
 }
 
 void Scene::moveCursorToSelectedModels()
@@ -1023,7 +1024,7 @@ void Scene::updateActiveCameraGUI()
 
 void Scene::updateCursorGUI()
 {
-	m_cursor.updateGUI(m_activeCamera->getMatrix(), m_windowSize);
+	m_cursor.updateGUI(*m_activeCamera);
 }
 
 void Scene::updateSelectedModelsCenterGUI()
@@ -1153,12 +1154,6 @@ void Scene::clearFramebuffer(AnaglyphMode anaglyphMode) const
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 
-void Scene::setAspectRatio(float aspectRatio)
-{
-	m_perspectiveCamera.setAspectRatio(aspectRatio);
-	m_orthographicCamera.setAspectRatio(aspectRatio);
-}
-
 void Scene::renderModels() const
 {
 	for (const Model* model : m_models)
@@ -1199,10 +1194,9 @@ std::optional<int> Scene::getClosestModel(const glm::vec2& screenPos) const
 	std::optional<int> index = std::nullopt;
 	static constexpr float treshold = 30;
 	float minScreenDistanceSquared = treshold * treshold;
-	glm::mat4 cameraMatrix = m_activeCamera->getMatrix();
 	for (int i = 0; i < m_models.size(); ++i)
 	{
-		glm::vec2 modelScreenPos = m_models[i]->getScreenPos(cameraMatrix, m_windowSize);
+		glm::vec2 modelScreenPos = m_activeCamera->posToScreenPos(m_models[i]->getPos());
 		glm::vec2 relativePos = modelScreenPos - screenPos;
 		float screenDistanceSquared = glm::dot(relativePos, relativePos);
 		if (screenDistanceSquared < minScreenDistanceSquared)

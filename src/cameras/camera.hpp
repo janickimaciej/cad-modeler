@@ -8,15 +8,15 @@
 class Camera
 {
 public:
-	Camera(float aspectRatio, float nearPlane, float farPlane,
+	Camera(const glm::ivec2& windowSize, float nearPlane, float farPlane,
 		const ShaderPrograms& shaderPrograms);
 	virtual ~Camera() = default;
-	void use(const glm::ivec2& windowSize) const;
-	void useLeftEye(const glm::ivec2& windowSize) const;
-	void useRightEye(const glm::ivec2& windowSize) const;
+	void use() const;
+	void useLeftEye() const;
+	void useRightEye() const;
 	virtual void updateGUI() = 0;
 	glm::mat4 getMatrix() const;
-	void setAspectRatio(float aspectRatio);
+	void updateWindowSize();
 
 	void addPitch(float pitchRad);
 	void addYaw(float yawRad);
@@ -24,6 +24,9 @@ public:
 	void moveX(float x);
 	void moveY(float y);
 	virtual void zoom(float zoom) = 0;
+
+	glm::vec2 posToScreenPos(const glm::vec3& pos) const;
+	glm::vec3 screenPosToPos(const glm::vec3& prevPos, const glm::vec2& screenPos) const;
 
 	float getEyesDistance() const;
 	void setEyesDistance(float eyesDistance);
@@ -33,7 +36,7 @@ public:
 	void setProjectionPlane(float projectionPlane);
 
 protected:
-	float m_aspectRatio{};
+	const glm::ivec2& m_windowSize{};
 	float m_nearPlane{};
 	float m_farPlane{};
 	float m_radius = 3;
@@ -52,9 +55,9 @@ protected:
 
 	void updateViewMatrix();
 	virtual void updateProjectionMatrix() = 0;
-	void updateShaders(const glm::ivec2& windowSize) const;
-	void updateShadersLeftEye(const glm::ivec2& windowSize) const;
-	void updateShadersRightEye(const glm::ivec2& windowSize) const;
+	void updateShaders() const;
+	void updateShadersLeftEye() const;
+	void updateShadersRightEye() const;
 
 private:
 	glm::vec3 m_targetPos{0, 0, 0};
@@ -63,6 +66,6 @@ private:
 
 	const ShaderPrograms& m_shaderPrograms;
 
-	void updateShaders(const glm::ivec2& windowSize, const glm::mat4& projectionViewMatrix,
+	void updateShaders(const glm::mat4& projectionViewMatrix,
 		AnaglyphMode anaglyphMode) const;
 };

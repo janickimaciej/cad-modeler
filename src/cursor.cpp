@@ -10,9 +10,9 @@ void Cursor::render() const
 	m_mesh.render();
 }
 
-void Cursor::updateGUI(const glm::mat4& cameraMatrix, const glm::ivec2& windowSize)
+void Cursor::updateGUI(const Camera& camera)
 {
-	m_gui.update(cameraMatrix, windowSize);
+	m_gui.update(camera);
 }
 
 glm::vec3 Cursor::getPos() const
@@ -23,34 +23,6 @@ glm::vec3 Cursor::getPos() const
 void Cursor::setPos(const glm::vec3& pos)
 {
 	m_pos = pos;
-}
-
-glm::vec2 Cursor::getScreenPos(const glm::mat4& cameraMatrix, const glm::ivec2& windowSize) const
-{
-	glm::vec4 clipPos = cameraMatrix * glm::vec4{m_pos, 1};
-	clipPos /= clipPos.w;
-	return glm::vec2
-	{
-		(clipPos.x + 1) / 2 * windowSize.x,
-		(-clipPos.y + 1) / 2 * windowSize.y
-	};
-}
-
-void Cursor::setScreenPos(const glm::vec2& screenPos, const glm::mat4& cameraMatrix,
-	const glm::ivec2& windowSize)
-{
-	glm::vec4 prevClipPos = cameraMatrix * glm::vec4{m_pos, 1};
-	prevClipPos /= prevClipPos.w;
-	glm::vec4 clipPos
-	{
-		screenPos.x / windowSize.x * 2 - 1,
-		-screenPos.y / windowSize.y * 2 + 1,
-		prevClipPos.z,
-		1
-	};
-	glm::vec4 worldPos = glm::inverse(cameraMatrix) * clipPos;
-	worldPos /= worldPos.w;
-	m_pos = glm::vec3{worldPos};
 }
 
 void Cursor::updateShaders() const
