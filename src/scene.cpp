@@ -498,7 +498,7 @@ void Scene::moveUniqueSelectedModel(const glm::vec2& offset) const
 void Scene::collapse2Points()
 {
 	std::vector<Point*> points = getNonVirtualSelectedPoints();
-	if (points.size() != 2)
+	if (m_selectedModels.size() != points.size() || points.size() != 2)
 	{
 		return;
 	}
@@ -1212,11 +1212,19 @@ std::optional<int> Scene::getClosestModel(const glm::vec2& screenPos) const
 std::vector<Point*> Scene::getNonVirtualSelectedPoints() const
 {
 	std::vector<Point*> selectedPoints{};
-	for (const std::unique_ptr<Point>& point : m_points)
+	for (const Model* model : m_selectedModels)
 	{
-		if (!point->isVirtual() && point->isSelected())
+		auto point = find_if
+		(
+			m_points.begin(), m_points.end(),
+			[model] (const std::unique_ptr<Point>& point)
+			{
+				return point.get() == model;
+			}
+		);
+		if (point != m_points.end() && !(*point)->isVirtual())
 		{
-			selectedPoints.push_back(point.get());
+			selectedPoints.push_back(point->get());
 		}
 	}
 	return selectedPoints;

@@ -45,6 +45,7 @@ void BezierCurve::deletePoint(int index)
 	m_points.erase(m_points.begin() + index);
 	m_pointMoveNotifications.erase(m_pointMoveNotifications.begin() + index);
 	m_pointDestroyNotifications.erase(m_pointDestroyNotifications.begin() + index);
+	m_pointRereferenceNotifications.erase(m_pointRereferenceNotifications.begin() + index);
 	if (pointCount() > 0)
 	{
 		updateGeometry();
