@@ -269,9 +269,9 @@ void C2BezierCurve::registerForNotificationsBezier(Point* point)
 {
 	m_bezierPointMoveNotifications.push_back(point->registerForMoveNotification
 		(
-			[this] (void* notification)
+			[this] (Point* point)
 			{
-				bezierPointMoveNotification(static_cast<Point::MoveCallback*>(notification));
+				bezierPointMoveNotification(point);
 			}
 		));
 }
@@ -286,42 +286,39 @@ void C2BezierCurve::pointMoveNotification()
 	}
 }
 
-void C2BezierCurve::pointDestroyNotification(Point::DestroyCallback* notification)
+void C2BezierCurve::pointDestroyNotification(const Point* point)
 {
 	if (!m_blockNotifications)
 	{
 		m_blockNotifications = true;
-		BezierCurve::pointDestroyNotification(notification);
+		BezierCurve::pointDestroyNotification(point);
 		m_blockNotifications = false;
 	}
 }
 
-void C2BezierCurve::pointRereferenceNotification(Point::RereferenceCallback* notification,
-	Point* newPoint)
+void C2BezierCurve::pointRereferenceNotification(const Point* point, Point* newPoint)
 {
 	if (!m_blockNotifications)
 	{
 		m_blockNotifications = true;
-		BezierCurve::pointRereferenceNotification(notification, newPoint);
+		BezierCurve::pointRereferenceNotification(point, newPoint);
 		m_blockNotifications = false;
 	}
 }
 
-void C2BezierCurve::bezierPointMoveNotification(Point::MoveCallback* notification)
+void C2BezierCurve::bezierPointMoveNotification(const Point* point)
 {
 	if (!m_blockNotifications)
 	{
 		m_blockNotifications = true;
-		auto iterator = std::find_if
-		(
-			m_bezierPointMoveNotifications.begin(), m_bezierPointMoveNotifications.end(),
-			[notification] (const std::shared_ptr<Point::MoveCallback>& sharedNotification)
-			{
-				return sharedNotification.get() == notification;
-			}
-		);
-		int index = static_cast<int>(iterator - m_bezierPointMoveNotifications.begin());
+		int index = getBezierPointIndex(point);
 		updateWithBezierPoint(index);
 		m_blockNotifications = false;
 	}
+}
+
+int C2BezierCurve::getBezierPointIndex(const Point* point) const
+{
+	auto iterator = std::find(m_bezierPoints.begin(), m_bezierPoints.end(), point);
+	return static_cast<int>(iterator - m_bezierPoints.begin());
 }

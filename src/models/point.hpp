@@ -33,9 +33,9 @@ public:
 		Point* m_point{};
 	};
 
-	using MoveCallback = std::function<void(void*)>;
-	using DestroyCallback = std::function<void(void*)>;
-	using RereferenceCallback = std::function<void(void*, Point*)>;
+	using MoveCallback = std::function<void(Point*)>;
+	using DestroyCallback = std::function<void(Point*)>;
+	using RereferenceCallback = std::function<void(Point*, Point*)>;
 
 	Point(const ShaderProgram& shaderProgram, const glm::vec3& pos, bool isDeletable = true,
 		bool isVirtual = false);
@@ -51,7 +51,7 @@ public:
 		const DestroyCallback& callback);
 	std::shared_ptr<RereferenceCallback> registerForRereferenceNotification(
 		const RereferenceCallback& callback);
-	DeletabilityLock getDeletabilityLock();
+	DeletabilityLock acquireDeletabilityLock();
 	void tryMakeDeletable();
 
 	bool isReferenced();

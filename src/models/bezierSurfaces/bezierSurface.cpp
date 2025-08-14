@@ -3,6 +3,7 @@
 #include <glm/gtc/constants.hpp>
 
 #include <string>
+#include <tuple>
 
 BezierSurface::BezierSurface(const std::string& name,
 	const ShaderProgram& bezierSurfaceGridShaderProgram, int patchesU, int patchesV,
@@ -302,7 +303,7 @@ void BezierSurface::registerForNotifications(Point* point)
 {
 	m_pointMoveNotifications.push_back(point->registerForMoveNotification
 		(
-			[this] (void*)
+			[this] (Point*)
 			{
 				pointMoveNotification();
 			}
@@ -310,14 +311,13 @@ void BezierSurface::registerForNotifications(Point* point)
 
 	m_pointRereferenceNotifications.push_back(point->registerForRereferenceNotification
 		(
-			[this] (void* notification, Point* newPoint)
+			[this] (Point* point, Point* newPoint)
 			{
-				pointRereferenceNotification(static_cast<Point::RereferenceCallback*>(notification),
-					newPoint);
+				pointRereferenceNotification(point, newPoint);
 			}
 		));
 
-	m_pointDeletabilityLocks.push_back(point->getDeletabilityLock());
+	m_pointDeletabilityLocks.push_back(point->acquireDeletabilityLock());
 }
 
 void BezierSurface::pointMoveNotification()
@@ -325,42 +325,16 @@ void BezierSurface::pointMoveNotification()
 	updateGeometry();
 }
 
-void BezierSurface::pointRereferenceNotification(Point::RereferenceCallback* notification,
-	Point* newPoint)
+void BezierSurface::pointRereferenceNotification(Point* point, Point* newPoint)
 {
-	auto iterator = std::find_if
-	(
-		m_pointRereferenceNotifications.begin(), m_pointRereferenceNotifications.end(),
-		[notification] (const std::shared_ptr<Point::RereferenceCallback>& sharedNotification)
-		{
-			return sharedNotification.get() == notification;
-		}
-	);
-	std::size_t notificationIndex = iterator - m_pointRereferenceNotifications.begin();
-	std::size_t rowIndex = notificationIndex / m_points[0].size();
-	std::size_t pointIndex = notificationIndex % m_points[0].size();
+	int rowIndex{};
+	int columnIndex{};
+	std::tie(rowIndex, columnIndex) = getPointIndices(point);
+	int pointIndex = rowIndex * static_cast<int>(m_points[0].size()) + columnIndex;
 
-	m_points[rowIndex][pointIndex] = newPoint;
+	m_points[rowIndex][columnIndex] = newPoint;
 
-	m_pointMoveNotifications[notificationIndex] = newPoint->registerForMoveNotification
-		(
-			[this] (void*)
-			{
-				pointMoveNotification();
-			}
-		);
-
-	m_pointRereferenceNotifications[notificationIndex] =
-		newPoint->registerForRereferenceNotification
-		(
-			[this] (void* notification, Point* newPoint)
-			{
-				pointRereferenceNotification(static_cast<Point::RereferenceCallback*>(notification),
-					newPoint);
-			}
-		);
-
-	m_pointDeletabilityLocks[notificationIndex] = newPoint->getDeletabilityLock();
+	m_pointDeletabilityLocks[pointIndex] = newPoint->acquireDeletabilityLock();
 
 	updateGeometry();
 }
@@ -764,4 +738,19 @@ void BezierSurface::clearExpiredNotifications()
 			return notification.expired();
 		}
 	);
+}
+
+std::pair<int, int> BezierSurface::getPointIndices(const Point* point) const
+{
+	for (int row = 0; row < m_points.size(); ++row)
+	{
+		for (int column = 0; column < m_points[row].size(); ++column)
+		{
+			if (m_points[row][column] == point)
+			{
+				return {row, column};
+			}
+		}
+	}
+	return {};
 }

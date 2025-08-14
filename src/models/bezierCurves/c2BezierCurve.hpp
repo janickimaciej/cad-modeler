@@ -53,8 +53,9 @@ private:
 	void registerForNotificationsBezier(const std::vector<Point*>& points);
 	void registerForNotificationsBezier(Point* point);
 	virtual void pointMoveNotification() override;
-	virtual void pointDestroyNotification(Point::DestroyCallback* notification) override;
-	virtual void pointRereferenceNotification(Point::RereferenceCallback* notification,
-		Point* newPoint) override;
-	void bezierPointMoveNotification(Point::MoveCallback* notification);
+	virtual void pointDestroyNotification(const Point* point) override;
+	virtual void pointRereferenceNotification(const Point* point, Point* newPoint) override;
+	void bezierPointMoveNotification(const Point* point);
+
+	int getBezierPointIndex(const Point* point) const;
 };

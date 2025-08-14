@@ -16,6 +16,7 @@
 #include <functional>
 #include <memory>
 #include <string>
+#include <utility>
 #include <vector>
 
 class BezierSurface : public Model, public Intersectable
@@ -106,7 +107,7 @@ private:
 
 	void registerForNotifications(Point* point);
 	void pointMoveNotification();
-	void pointRereferenceNotification(Point::RereferenceCallback* notification, Point* newPoint);
+	void pointRereferenceNotification(Point* point, Point* newPoint);
 
 	std::vector<std::vector<glm::vec3>> createBoorPointsNoWrapping(const glm::vec3& pos,
 		float sizeU, float sizeV) const;
@@ -137,6 +138,8 @@ private:
 
 	void notifyDestroy();
 	void clearExpiredNotifications();
+
+	std::pair<int, int> getPointIndices(const Point* point) const;
 };
 
 template <typename PointPtr>

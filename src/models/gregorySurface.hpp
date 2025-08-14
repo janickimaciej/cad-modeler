@@ -13,6 +13,7 @@
 #include <functional>
 #include <memory>
 #include <optional>
+#include <tuple>
 #include <vector>
 
 class GregorySurface : public Model
@@ -79,11 +80,13 @@ private:
 	void registerForNotifications(const std::array<BezierPatch*, 3>& patches);
 	void registerForNotifications(Point* point);
 	void pointMoveNotification();
-	void pointRereferenceNotification(Point::RereferenceCallback* notification, Point* newPoint);
+	void pointRereferenceNotification(const Point* point, Point* newPoint);
 	void surfaceDestroyNotification();
 
 	static glm::vec3 deCasteljau(const glm::vec3& a, const glm::vec3& b, float t);
 	static glm::vec3 deCasteljau(const glm::vec3& a, const glm::vec3& b, const glm::vec3& c,
 		float t);
 	static std::optional<std::array<int, 6>> find3Cycle(const std::array<BezierPatch*, 3>& patches);
+
+	std::tuple<int, int, int> getBezierPointIndices(const Point* point) const;
 };

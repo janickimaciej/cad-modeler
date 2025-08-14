@@ -139,7 +139,7 @@ void BezierCurve::registerForNotifications(Point* point)
 {
 	m_pointMoveNotifications.push_back(point->registerForMoveNotification
 		(
-			[this] (void*)
+			[this] (Point*)
 			{
 				pointMoveNotification();
 			}
@@ -147,18 +147,17 @@ void BezierCurve::registerForNotifications(Point* point)
 
 	m_pointDestroyNotifications.push_back(point->registerForDestroyNotification
 		(
-			[this] (void* notification)
+			[this] (Point* point)
 			{
-				pointDestroyNotification(static_cast<Point::DestroyCallback*>(notification));
+				pointDestroyNotification(point);
 			}
 		));
 
 	m_pointRereferenceNotifications.push_back(point->registerForRereferenceNotification
 		(
-			[this] (void* notification, Point* newPoint)
+			[this] (Point* point, Point* newPoint)
 			{
-				pointRereferenceNotification(static_cast<Point::RereferenceCallback*>(notification),
-					newPoint);
+				pointRereferenceNotification(point, newPoint);
 			}
 		));
 }
@@ -168,60 +167,16 @@ void BezierCurve::pointMoveNotification()
 	updateGeometry();
 }
 
-void BezierCurve::pointDestroyNotification(Point::DestroyCallback* notification)
+void BezierCurve::pointDestroyNotification(const Point* point)
 {
-	auto iterator = std::find_if
-	(
-		m_pointDestroyNotifications.begin(), m_pointDestroyNotifications.end(),
-		[notification] (const std::shared_ptr<Point::DestroyCallback>& sharedNotification)
-		{
-			return sharedNotification.get() == notification;
-		}
-	);
-	int index = static_cast<int>(iterator - m_pointDestroyNotifications.begin());
-	deletePoint(index);
+	int pointIndex = getPointIndex(point);
+	deletePoint(pointIndex);
 }
 
-void BezierCurve::pointRereferenceNotification(Point::RereferenceCallback* notification,
-	Point* newPoint)
+void BezierCurve::pointRereferenceNotification(const Point* point, Point* newPoint)
 {
-	auto iterator = std::find_if
-	(
-		m_pointRereferenceNotifications.begin(), m_pointRereferenceNotifications.end(),
-		[notification] (const std::shared_ptr<Point::RereferenceCallback>& sharedNotification)
-		{
-			return sharedNotification.get() == notification;
-		}
-	);
-	int index = static_cast<int>(iterator - m_pointRereferenceNotifications.begin());
-
-	m_points[index] = newPoint;
-
-	m_pointMoveNotifications[index] = newPoint->registerForMoveNotification
-		(
-			[this] (void*)
-			{
-				pointMoveNotification();
-			}
-		);
-
-	m_pointDestroyNotifications[index] = newPoint->registerForDestroyNotification
-		(
-			[this] (void* notification)
-			{
-				pointDestroyNotification(static_cast<Point::DestroyCallback*>(notification));
-			}
-		);
-
-	m_pointRereferenceNotifications[index] = newPoint->registerForRereferenceNotification
-		(
-			[this] (void* notification, Point* newPoint)
-			{
-				pointRereferenceNotification(static_cast<Point::RereferenceCallback*>(notification),
-					newPoint);
-			}
-		);
-
+	int pointIndex = getPointIndex(point);
+	m_points[pointIndex] = newPoint;
 	updateGeometry();
 }
 
@@ -233,4 +188,10 @@ std::vector<glm::vec3> BezierCurve::createVertices(const std::vector<Point*>& po
 		vertices.push_back(point->getPos());
 	}
 	return vertices;
+}
+
+int BezierCurve::getPointIndex(const Point* point) const
+{
+	auto iterator = std::find(m_points.begin(), m_points.end(), point);
+	return static_cast<int>(iterator - m_points.begin());
 }

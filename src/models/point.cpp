@@ -1,6 +1,7 @@
 #include "models/point.hpp"
 
 #include <array>
+#include <iterator>
 #include <string>
 
 Point::DeletabilityLock::DeletabilityLock(Point* point) :
@@ -84,7 +85,7 @@ std::shared_ptr<Point::RereferenceCallback> Point::registerForRereferenceNotific
 	return notification;
 }
 
-Point::DeletabilityLock Point::getDeletabilityLock()
+Point::DeletabilityLock Point::acquireDeletabilityLock()
 {
 	return DeletabilityLock(this);
 }
@@ -107,6 +108,21 @@ bool Point::isReferenced()
 void Point::rereference(Point* newPoint)
 {
 	notifyRereference(newPoint);
+
+	newPoint->m_moveNotifications.insert(newPoint->m_moveNotifications.end(),
+		std::make_move_iterator(m_moveNotifications.begin()),
+		std::make_move_iterator(m_moveNotifications.end()));
+	m_moveNotifications.clear();
+
+	newPoint->m_destroyNotifications.insert(newPoint->m_destroyNotifications.end(),
+		std::make_move_iterator(m_destroyNotifications.begin()),
+		std::make_move_iterator(m_destroyNotifications.end()));
+	m_destroyNotifications.clear();
+
+	newPoint->m_rereferenceNotifications.insert(newPoint->m_rereferenceNotifications.end(),
+		std::make_move_iterator(m_rereferenceNotifications.begin()),
+		std::make_move_iterator(m_rereferenceNotifications.end()));
+	m_rereferenceNotifications.clear();
 }
 
 int Point::m_nonVirtualCount = 0;
@@ -130,7 +146,7 @@ void Point::notifyMove()
 		std::shared_ptr<MoveCallback> notificationShared = notification.lock();
 		if (notificationShared)
 		{
-			(*notificationShared)(static_cast<void*>(notificationShared.get()));
+			(*notificationShared)(this);
 		}
 	}
 }
@@ -144,7 +160,7 @@ void Point::notifyDestroy()
 		std::shared_ptr<DestroyCallback> notificationShared = notification.lock();
 		if (notificationShared)
 		{
-			(*notificationShared)(static_cast<void*>(notificationShared.get()));
+			(*notificationShared)(this);
 		}
 	}
 }
@@ -158,7 +174,7 @@ void Point::notifyRereference(Point* newPoint)
 		std::shared_ptr<RereferenceCallback> notificationShared = notification.lock();
 		if (notificationShared)
 		{
-			(*notificationShared)(static_cast<void*>(notificationShared.get()), newPoint);
+			(*notificationShared)(this, newPoint);
 		}
 	}
 }

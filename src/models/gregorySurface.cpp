@@ -297,7 +297,7 @@ void GregorySurface::registerForNotifications(Point* point)
 {
 	m_pointMoveNotifications.push_back(point->registerForMoveNotification
 		(
-			[this] (void*)
+			[this] (Point*)
 			{
 				pointMoveNotification();
 			}
@@ -305,14 +305,13 @@ void GregorySurface::registerForNotifications(Point* point)
 
 	m_pointRereferenceNotifications.push_back(point->registerForRereferenceNotification
 		(
-			[this] (void* notification, Point* newPoint)
+			[this] (Point* point, Point* newPoint)
 			{
-				pointRereferenceNotification(static_cast<Point::RereferenceCallback*>(notification),
-					newPoint);
+				pointRereferenceNotification(point, newPoint);
 			}
 		));
 
-	m_pointDeletabilityLocks.push_back(point->getDeletabilityLock());
+	m_pointDeletabilityLocks.push_back(point->acquireDeletabilityLock());
 }
 
 void GregorySurface::pointMoveNotification()
@@ -320,41 +319,14 @@ void GregorySurface::pointMoveNotification()
 	updateGeometry();
 }
 
-void GregorySurface::pointRereferenceNotification(Point::RereferenceCallback* notification,
-	Point* newPoint)
+void GregorySurface::pointRereferenceNotification(const Point* point, Point* newPoint)
 {
-	auto iterator = std::find_if
-	(
-		m_pointRereferenceNotifications.begin(), m_pointRereferenceNotifications.end(),
-		[notification] (const std::shared_ptr<Point::RereferenceCallback>& sharedNotification)
-		{
-			return sharedNotification.get() == notification;
-		}
-	);
-	std::size_t notificationIndex = iterator - m_pointRereferenceNotifications.begin();
-	std::size_t patchIndex = notificationIndex / 8;
-	std::size_t rowIndex = (notificationIndex % 8) / 4;
-	std::size_t pointIndex = notificationIndex % 4;
+	int patchIndex{};
+	int rowIndex{};
+	int columnIndex{};
+	std::tie(patchIndex, rowIndex, columnIndex) = getBezierPointIndices(point);
 
-	m_bezierPoints[patchIndex][rowIndex][pointIndex] = newPoint;
-
-	m_pointMoveNotifications[notificationIndex] = newPoint->registerForMoveNotification
-		(
-			[this] (void*)
-			{
-				pointMoveNotification();
-			}
-		);
-
-	m_pointRereferenceNotifications[notificationIndex] =
-		newPoint->registerForRereferenceNotification
-		(
-			[this] (void* notification, Point* newPoint)
-			{
-				pointRereferenceNotification(static_cast<Point::RereferenceCallback*>(notification),
-					newPoint);
-			}
-		);
+	m_bezierPoints[patchIndex][rowIndex][columnIndex] = newPoint;
 
 	updateGeometry();
 }
@@ -428,4 +400,22 @@ std::optional<std::array<int, 6>> GregorySurface::find3Cycle(
 		}
 	}
 	return std::nullopt;
+}
+
+std::tuple<int, int, int> GregorySurface::getBezierPointIndices(const Point* point) const
+{
+	for (int patch = 0; patch < m_bezierPoints.size(); ++patch)
+	{
+		for (int row = 0; row < m_bezierPoints[patch].size(); ++row)
+		{
+			for (int column = 0; column < m_bezierPoints[patch][row].size(); ++column)
+			{
+				if (m_bezierPoints[patch][row][column] == point)
+				{
+					return {patch, row, column};
+				}
+			}
+		}
+	}
+	return {};
 }
