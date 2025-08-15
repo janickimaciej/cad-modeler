@@ -21,9 +21,10 @@ class IntersectionCurve : public Model
 
 public:
 	static std::unique_ptr<IntersectionCurve> create(const ShaderProgram& shaderProgram,
-		const std::array<const Intersectable*, 2>& surfaces, const glm::vec3& cursorPos);
+		const std::array<const Intersectable*, 2>& surfaces, float step,
+		const glm::vec3& cursorPos);
 	static std::unique_ptr<IntersectionCurve> create(const ShaderProgram& shaderProgram,
-		const std::array<const Intersectable*, 2>& surfaces);
+		const std::array<const Intersectable*, 2>& surfaces, float step);
 	virtual ~IntersectionCurve() = default;
 
 	virtual void render() const override;
@@ -38,8 +39,6 @@ public:
 private:
 	static constexpr float m_startingTemperature = 0.5f;
 	static constexpr int m_simulatedAnnealingIterations = static_cast<int>(1e4f);
-	static constexpr float m_newtonMethodStep = 0.01f;
-	static constexpr float m_curveClosureDistance = 1.5f * m_newtonMethodStep;
 
 	static int m_count;
 
@@ -51,7 +50,8 @@ private:
 	IntersectionCurveGUI m_gui{*this};
 
 	static std::unique_ptr<IntersectionCurve> create(const ShaderProgram& shaderProgram,
-		const std::array<const Intersectable*, 2>& surfaces, const PointPair& startingPointPair);
+		const std::array<const Intersectable*, 2>& surfaces, float step,
+		const PointPair& startingPointPair);
 	IntersectionCurve(const ShaderProgram& shaderProgram,
 		const std::array<const Intersectable*, 2>& surfaces,
 		const std::vector<PointPair>& pointPairs, bool isClosed);
@@ -68,9 +68,10 @@ private:
 	static std::optional<PointPair> gradientMethod(
 		const std::array<const Intersectable*, 2>& surfaces, const PointPair& startingPointPair);
 	static std::vector<PointPair> findIntersectionPoints(
-		const std::array<const Intersectable*, 2>& surfaces, const PointPair& startingPointPair);
+		const std::array<const Intersectable*, 2>& surfaces, float step,
+		const PointPair& startingPointPair);
 	static std::optional<PointPair> newtonMethod(
-		const std::array<const Intersectable*, 2>& surfaces,
+		const std::array<const Intersectable*, 2>& surfaces, float step,
 		const std::optional<PointPair>& prevPointPair, const PointPair& startingPointPair,
 		bool backwards = false);
 

@@ -11,15 +11,25 @@ AddIntersectionPanel::AddIntersectionPanel(Scene& scene, const Callback& callbac
 
 void AddIntersectionPanel::reset()
 {
-	m_surfaceCount = 0;
+	m_step = 0.01f;
 	m_useCursor = false;
+	m_surfaceCount = 0;
 }
 
 void AddIntersectionPanel::update()
 {
 	ImGui::Spacing();
 
-	ImGui::Checkbox("Use cursor##AddIntersectionPanelCheckbox", &m_useCursor);
+	static constexpr float stepPrecision = 0.001f;
+	static const std::string format = "%.3f";
+	ImGui::InputFloat("step##AddIntersectionPanelFloat", &m_step, stepPrecision, stepPrecision,
+		format.c_str());
+	m_step = std::max(m_step, 0.001f);
+	m_step = std::min(m_step, 0.1f);
+
+	ImGui::Spacing();
+
+	ImGui::Checkbox("use cursor##AddIntersectionPanelCheckbox", &m_useCursor);
 
 	ImGui::Spacing();
 
@@ -37,7 +47,7 @@ void AddIntersectionPanel::update()
 		m_scene.deselectAllModels();
 		if (m_surfaceCount == 2)
 		{
-			m_scene.addIntersectionCurve(m_surfaces, m_useCursor);
+			m_scene.addIntersectionCurve(m_surfaces, m_step, m_useCursor);
 			m_callback();
 		}
 	}

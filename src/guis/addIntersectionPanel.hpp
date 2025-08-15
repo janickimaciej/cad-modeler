@@ -20,6 +20,7 @@ private:
 	Callback m_callback{};
 
 	std::array<const Intersectable*, 2> m_surfaces{};
+	float m_step{};
+	bool m_useCursor{};
 	int m_surfaceCount = 0;
-	bool m_useCursor = false;
 };

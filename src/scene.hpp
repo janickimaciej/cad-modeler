@@ -103,7 +103,8 @@ public:
 	void addC2BezierSurface(int patchesU, int patchesV, float sizeU, float sizeV,
 		BezierSurfaceWrapping wrapping);
 	void addGregorySurface(const std::array<BezierPatch*, 3>& patches);
-	void addIntersectionCurve(const std::array<const Intersectable*, 2>& surfaces, bool useCursor);
+	void addIntersectionCurve(const std::array<const Intersectable*, 2>& surfaces, float step,
+		bool useCursor);
 	void convertIntersectionToInterpolatingCurve(int numberOfPoints);
 
 	void updateActiveCameraGUI();

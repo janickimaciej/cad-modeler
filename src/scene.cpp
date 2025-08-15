@@ -957,18 +957,18 @@ void Scene::addGregorySurface(const std::array<BezierPatch*, 3>& patches)
 	}
 }
 
-void Scene::addIntersectionCurve(const std::array<const Intersectable*, 2>& surfaces,
+void Scene::addIntersectionCurve(const std::array<const Intersectable*, 2>& surfaces, float step,
 	bool useCursor)
 {
 	std::unique_ptr<IntersectionCurve> intersectionCurve{};
 	if (useCursor)
 	{
-		intersectionCurve = IntersectionCurve::create(m_shaderPrograms.polyline, surfaces,
+		intersectionCurve = IntersectionCurve::create(m_shaderPrograms.polyline, surfaces, step,
 			m_cursor.getPos());
 	}
 	else
 	{
-		intersectionCurve = IntersectionCurve::create(m_shaderPrograms.polyline, surfaces);
+		intersectionCurve = IntersectionCurve::create(m_shaderPrograms.polyline, surfaces, step);
 	}
 
 	if (intersectionCurve != nullptr)

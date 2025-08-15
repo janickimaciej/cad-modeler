@@ -8,7 +8,7 @@
 #include <string>
 
 std::unique_ptr<IntersectionCurve> IntersectionCurve::create(const ShaderProgram& shaderProgram,
-	const std::array<const Intersectable*, 2>& surfaces, const glm::vec3& cursorPos)
+	const std::array<const Intersectable*, 2>& surfaces, float step, const glm::vec3& cursorPos)
 {
 	PointPair closestSamples{};
 	if (surfaces[0] == surfaces[1])
@@ -19,11 +19,11 @@ std::unique_ptr<IntersectionCurve> IntersectionCurve::create(const ShaderProgram
 	{
 		closestSamples = findClosestSamples(surfaces, cursorPos);
 	}
-	return create(shaderProgram, surfaces, closestSamples);
+	return create(shaderProgram, surfaces, step, closestSamples);
 }
 
 std::unique_ptr<IntersectionCurve> IntersectionCurve::create(const ShaderProgram& shaderProgram,
-	const std::array<const Intersectable*, 2>& surfaces)
+	const std::array<const Intersectable*, 2>& surfaces, float step)
 {
 	PointPair closestSamples{};
 	if (surfaces[0] == surfaces[1])
@@ -34,7 +34,7 @@ std::unique_ptr<IntersectionCurve> IntersectionCurve::create(const ShaderProgram
 	{
 		closestSamples = findClosestSamples(surfaces);
 	}
-	return create(shaderProgram, surfaces, closestSamples);
+	return create(shaderProgram, surfaces, step, closestSamples);
 }
 
 void IntersectionCurve::render() const
@@ -74,7 +74,8 @@ bool IntersectionCurve::isClosed() const
 int IntersectionCurve::m_count = 0;
 
 std::unique_ptr<IntersectionCurve> IntersectionCurve::create(const ShaderProgram& shaderProgram,
-	const std::array<const Intersectable*, 2>& surfaces, const PointPair& startingPointPair)
+	const std::array<const Intersectable*, 2>& surfaces, float step,
+	const PointPair& startingPointPair)
 {
 	std::optional<PointPair> newtonMethodStartingPointPair = gradientMethod(surfaces,
 		startingPointPair);
@@ -83,13 +84,13 @@ std::unique_ptr<IntersectionCurve> IntersectionCurve::create(const ShaderProgram
 		return nullptr;
 	}
 
-	std::vector<PointPair> intersectionPointPairs = findIntersectionPoints(surfaces,
+	std::vector<PointPair> intersectionPointPairs = findIntersectionPoints(surfaces, step,
 		*newtonMethodStartingPointPair);
 
 	float endpointsDistanceSquared =
 		getDistanceSquared(surfaces[0]->surface(intersectionPointPairs[0][0]),
 			surfaces[0]->surface(intersectionPointPairs.back()[0]));
-	bool isClosed = endpointsDistanceSquared < m_curveClosureDistance * m_curveClosureDistance;
+	bool isClosed = endpointsDistanceSquared < std::pow(1.5f * step, 2);
 
 	return std::unique_ptr<IntersectionCurve>(new IntersectionCurve{shaderProgram, surfaces,
 		intersectionPointPairs, isClosed});
@@ -295,7 +296,8 @@ std::optional<IntersectionCurve::PointPair> IntersectionCurve::gradientMethod(
 }
 
 std::vector<IntersectionCurve::PointPair> IntersectionCurve::findIntersectionPoints(
-	const std::array<const Intersectable*, 2>& surfaces, const PointPair& startingPointPair)
+	const std::array<const Intersectable*, 2>& surfaces, float step,
+	const PointPair& startingPointPair)
 {
 	static constexpr std::size_t maxPointPairs = static_cast<std::size_t>(1e4f);
 
@@ -305,8 +307,7 @@ std::vector<IntersectionCurve::PointPair> IntersectionCurve::findIntersectionPoi
 	for (int i = 0; i < maxPointPairs; ++i)
 	{
 		if (i > 5 && getDistanceSquared(surfaces[0]->surface(pointPair[0]),
-			surfaces[0]->surface(forwardPointPairs[0][0])) <
-			m_curveClosureDistance * m_curveClosureDistance)
+			surfaces[0]->surface(forwardPointPairs[0][0])) < std::pow(1.5f * step, 2))
 		{
 			forwardPointPairs.push_back(forwardPointPairs[0]);
 			return forwardPointPairs;
@@ -325,7 +326,8 @@ std::vector<IntersectionCurve::PointPair> IntersectionCurve::findIntersectionPoi
 			prevPointPair = forwardPointPairs[forwardPointPairs.size() - 2];
 		}
 
-		std::optional<PointPair> newPointPair = newtonMethod(surfaces, prevPointPair, pointPair);
+		std::optional<PointPair> newPointPair = newtonMethod(surfaces, step, prevPointPair,
+			pointPair);
 		if (!newPointPair.has_value())
 		{
 			return forwardPointPairs;
@@ -355,8 +357,8 @@ std::vector<IntersectionCurve::PointPair> IntersectionCurve::findIntersectionPoi
 			prevPointPair = backwardsPointPairs[backwardsPointPairs.size() - 2];
 		}
 
-		std::optional<PointPair> newPointPair = newtonMethod(surfaces, prevPointPair, pointPair,
-			true);
+		std::optional<PointPair> newPointPair = newtonMethod(surfaces, step, prevPointPair,
+			pointPair, true);
 		if (!newPointPair.has_value())
 		{
 			break;
@@ -373,7 +375,7 @@ std::vector<IntersectionCurve::PointPair> IntersectionCurve::findIntersectionPoi
 }
 
 std::optional<IntersectionCurve::PointPair> IntersectionCurve::newtonMethod(
-	const std::array<const Intersectable*, 2>& surfaces,
+	const std::array<const Intersectable*, 2>& surfaces, float step,
 	const std::optional<PointPair>& prevPointPair, const PointPair& startingPointPair,
 	bool backwards)
 {
@@ -419,7 +421,7 @@ std::optional<IntersectionCurve::PointPair> IntersectionCurve::newtonMethod(
 			surface[0].x - surface[1].x,
 			surface[0].y - surface[1].y,
 			surface[0].z - surface[1].z,
-			tangentDiff - m_newtonMethodStep
+			tangentDiff - step
 		};
 
 		if (glm::dot(rhs, rhs) < error)
