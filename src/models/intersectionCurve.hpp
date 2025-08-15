@@ -33,11 +33,13 @@ public:
 
 	int pointCount() const;
 	std::vector<glm::vec3> getIntersectionPoints() const;
+	bool isClosed() const;
 
 private:
 	static constexpr float m_startingTemperature = 0.5f;
 	static constexpr int m_simulatedAnnealingIterations = static_cast<int>(1e4f);
 	static constexpr float m_newtonMethodStep = 0.01f;
+	static constexpr float m_curveClosureDistance = 1.5f * m_newtonMethodStep;
 
 	static int m_count;
 
@@ -45,13 +47,14 @@ private:
 	std::unique_ptr<Mesh> m_mesh{};
 	std::array<const Intersectable*, 2> m_surfaces{};
 	std::vector<PointPair> m_pointPairs{};
+	bool m_isClosed{};
 	IntersectionCurveGUI m_gui{*this};
 
 	static std::unique_ptr<IntersectionCurve> create(const ShaderProgram& shaderProgram,
 		const std::array<const Intersectable*, 2>& surfaces, const PointPair& startingPointPair);
 	IntersectionCurve(const ShaderProgram& shaderProgram,
 		const std::array<const Intersectable*, 2>& surfaces,
-		const std::vector<PointPair>& pointPair);
+		const std::vector<PointPair>& pointPairs, bool isClosed);
 	void createMesh();
 	virtual void updateShaders() const override;
 	void updatePos();

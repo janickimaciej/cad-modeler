@@ -1,6 +1,7 @@
 #include "scene.hpp"
 
 #include <algorithm>
+#include <cstddef>
 #include <iterator>
 #include <utility>
 
@@ -977,44 +978,61 @@ void Scene::addIntersectionCurve(const std::array<const Intersectable*, 2>& surf
 	}
 }
 
-void Scene::convertIntersectionCurveToInterpolatingCurve()
+void Scene::convertIntersectionToInterpolatingCurve(int numberOfPoints)
 {
-	if (m_selectedModels.size() == 1)
+	if (m_selectedModels.size() != 1)
 	{
-		auto selectedIntersectionCurve = std::find_if
-		(
-			m_intersectionCurves.begin(), m_intersectionCurves.end(),
-			[] (const std::unique_ptr<IntersectionCurve>& curve)
-			{
-				return curve->isSelected();
-			}
-		);
-
-		if (selectedIntersectionCurve == m_intersectionCurves.end())
-		{
-			return;
-		}
-
-		std::vector<glm::vec3> intersectionPoints =
-			(*selectedIntersectionCurve)->getIntersectionPoints();
-
-		std::vector<Point*> points{};
-		for (int i = 0; i < intersectionPoints.size(); i += 10)
-		{
-			std::unique_ptr<Point> point = std::make_unique<Point>(m_shaderPrograms.point,
-				intersectionPoints[i]);
-			points.push_back(point.get());
-			m_models.push_back(point.get());
-			m_points.push_back(std::move(point));
-		}
-		points.push_back(points[0]);
-
-		std::unique_ptr<InterpolatingBezierCurve> curve = std::make_unique<InterpolatingBezierCurve>(
-			m_shaderPrograms.interpolatingBezierCurve, m_shaderPrograms.polyline, points,
-			m_bezierCurveSelfDestructCallback);
-		m_models.push_back(curve.get());
-		m_interpolatingBezierCurves.push_back(std::move(curve));
+		return;
 	}
+
+	auto selectedIntersectionCurve = std::find_if
+	(
+		m_intersectionCurves.begin(), m_intersectionCurves.end(),
+		[] (const std::unique_ptr<IntersectionCurve>& curve)
+		{
+			return curve->isSelected();
+		}
+	);
+
+	if (selectedIntersectionCurve == m_intersectionCurves.end())
+	{
+		return;
+	}
+
+	std::vector<glm::vec3> intersectionPoints =
+		(*selectedIntersectionCurve)->getIntersectionPoints();
+	bool isClosed = (*selectedIntersectionCurve)->isClosed();
+	int segments = isClosed ? numberOfPoints : numberOfPoints - 1;
+
+	std::vector<Point*> points{};
+	float stride = (static_cast<float>(intersectionPoints.size()) - 1) / segments;
+	for (int i = 0; i < segments; ++i)
+	{
+		std::unique_ptr<Point> point = std::make_unique<Point>(m_shaderPrograms.point,
+			intersectionPoints[static_cast<std::size_t>(i * stride)]);
+		points.push_back(point.get());
+		m_models.push_back(point.get());
+		m_points.push_back(std::move(point));
+	}
+
+	if (isClosed)
+	{
+		points.push_back(points[0]);
+	}
+	else
+	{
+		std::unique_ptr<Point> lastPoint = std::make_unique<Point>(m_shaderPrograms.point,
+			intersectionPoints.back());
+		points.push_back(lastPoint.get());
+		m_models.push_back(lastPoint.get());
+		m_points.push_back(std::move(lastPoint));
+	}
+
+	std::unique_ptr<InterpolatingBezierCurve> curve = std::make_unique<InterpolatingBezierCurve>(
+		m_shaderPrograms.interpolatingBezierCurve, m_shaderPrograms.polyline, points,
+		m_bezierCurveSelfDestructCallback);
+	m_models.push_back(curve.get());
+	m_interpolatingBezierCurves.push_back(std::move(curve));
 }
 
 void Scene::updateActiveCameraGUI()

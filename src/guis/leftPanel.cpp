@@ -47,6 +47,15 @@ LeftPanel::LeftPanel(Scene& scene, const glm::ivec2& windowSize) :
 			m_addIntersectionPanel.reset();
 			m_mode = Mode::none;
 		}
+	},
+	m_convertIntersectionToInterpolatingCurvePanel
+	{
+		scene,
+		[this] ()
+		{
+			m_convertIntersectionToInterpolatingCurvePanel.reset();
+			m_mode = Mode::none;
+		}
 	}
 { }
 
@@ -303,9 +312,23 @@ void LeftPanel::updateButtons()
 
 	separator();
 
-	if (ImGui::Button("Convert inters. to interp. curve"))
+	if (ImGui::Button("Convert inters. to interp. curve") &&
+		m_scene.getModelCount(ModelType::intersectionCurve) > 0)
 	{
-		m_scene.convertIntersectionCurveToInterpolatingCurve();
+		resetPanels();
+		if (m_mode == Mode::convert)
+		{
+			m_mode = Mode::none;
+		}
+		else
+		{
+			m_mode = Mode::convert;
+		}
+	}
+
+	if (m_mode == Mode::convert)
+	{
+		m_convertIntersectionToInterpolatingCurvePanel.update();
 	}
 
 	separator();
@@ -324,6 +347,7 @@ void LeftPanel::resetPanels()
 	m_addC2BezierSurfacePanel.reset();
 	m_addGregorySurfacePanel.reset();
 	m_addIntersectionPanel.reset();
+	m_convertIntersectionToInterpolatingCurvePanel.reset();
 }
 
 void LeftPanel::separator()

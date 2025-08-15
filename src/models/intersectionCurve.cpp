@@ -66,6 +66,11 @@ std::vector<glm::vec3> IntersectionCurve::getIntersectionPoints() const
 	return intersectionCurves;
 }
 
+bool IntersectionCurve::isClosed() const
+{
+	return m_isClosed;
+}
+
 int IntersectionCurve::m_count = 0;
 
 std::unique_ptr<IntersectionCurve> IntersectionCurve::create(const ShaderProgram& shaderProgram,
@@ -78,20 +83,26 @@ std::unique_ptr<IntersectionCurve> IntersectionCurve::create(const ShaderProgram
 		return nullptr;
 	}
 
-	std::vector<PointPair> intersectionPointPair = findIntersectionPoints(surfaces,
+	std::vector<PointPair> intersectionPointPairs = findIntersectionPoints(surfaces,
 		*newtonMethodStartingPointPair);
 
+	float endpointsDistanceSquared =
+		getDistanceSquared(surfaces[0]->surface(intersectionPointPairs[0][0]),
+			surfaces[0]->surface(intersectionPointPairs.back()[0]));
+	bool isClosed = endpointsDistanceSquared < m_curveClosureDistance * m_curveClosureDistance;
+
 	return std::unique_ptr<IntersectionCurve>(new IntersectionCurve{shaderProgram, surfaces,
-		intersectionPointPair});
+		intersectionPointPairs, isClosed});
 }
 
 IntersectionCurve::IntersectionCurve(const ShaderProgram& shaderProgram,
 	const std::array<const Intersectable*, 2>& surfaces,
-	const std::vector<PointPair>& pointPair) :
+	const std::vector<PointPair>& pointPairs, bool isClosed) :
 	Model{{}, "Intersection curve " + std::to_string(m_count++)},
 	m_shaderProgram{shaderProgram},
 	m_surfaces{surfaces},
-	m_pointPairs{pointPair}
+	m_pointPairs{pointPairs},
+	m_isClosed{isClosed}
 {
 	createMesh();
 	updatePos();
@@ -286,8 +297,6 @@ std::optional<IntersectionCurve::PointPair> IntersectionCurve::gradientMethod(
 std::vector<IntersectionCurve::PointPair> IntersectionCurve::findIntersectionPoints(
 	const std::array<const Intersectable*, 2>& surfaces, const PointPair& startingPointPair)
 {
-	static constexpr float eps = 1.5f * m_newtonMethodStep;
-	static constexpr float epsSquared = eps * eps;
 	static constexpr std::size_t maxPointPairs = static_cast<std::size_t>(1e4f);
 
 	std::vector<PointPair> forwardPointPairs{};
@@ -296,7 +305,8 @@ std::vector<IntersectionCurve::PointPair> IntersectionCurve::findIntersectionPoi
 	for (int i = 0; i < maxPointPairs; ++i)
 	{
 		if (i > 5 && getDistanceSquared(surfaces[0]->surface(pointPair[0]),
-			surfaces[0]->surface(forwardPointPairs[0][0])) < epsSquared)
+			surfaces[0]->surface(forwardPointPairs[0][0])) <
+			m_curveClosureDistance * m_curveClosureDistance)
 		{
 			forwardPointPairs.push_back(forwardPointPairs[0]);
 			return forwardPointPairs;

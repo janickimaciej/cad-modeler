@@ -3,6 +3,7 @@
 #include "guis/addBezierSurfacePanel.hpp"
 #include "guis/addGregorySurfacePanel.hpp"
 #include "guis/addIntersectionPanel.hpp"
+#include "guis/convertIntersectionToInterpolatingCurvePanel.hpp"
 #include "scene.hpp"
 
 #include <glm/glm.hpp>
@@ -15,7 +16,8 @@ class LeftPanel
 		c0BezierSurface,
 		c2BezierSurface,
 		gregorySurface,
-		intersection
+		intersection,
+		convert
 	};
 
 public:
@@ -33,6 +35,7 @@ private:
 	AddBezierSurfacePanel m_addC2BezierSurfacePanel;
 	AddGregorySurfacePanel m_addGregorySurfacePanel;
 	AddIntersectionPanel m_addIntersectionPanel;
+	ConvertIntersectionToInterpolatingCurvePanel m_convertIntersectionToInterpolatingCurvePanel;
 
 	void updateCamera();
 	void updateAnaglyph();

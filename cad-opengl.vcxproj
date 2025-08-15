@@ -40,6 +40,7 @@
     <ClCompile Include="src\guis\cameraGUIs\orthographicCameraGUI.cpp" />
     <ClCompile Include="src\guis\cameraGUIs\perspectiveCameraGUI.cpp" />
     <ClCompile Include="src\cursor.cpp" />
+    <ClCompile Include="src\guis\convertIntersectionToInterpolatingCurvePanel.cpp" />
     <ClCompile Include="src\guis\modelGUIs\bezierPatchGUI.cpp" />
     <ClCompile Include="src\guis\modelGUIs\gregorySurfaceGUI.cpp" />
     <ClCompile Include="src\guis\modelGUIs\intersectionCurveGUI.cpp" />
@@ -115,6 +116,7 @@
     <ClInclude Include="src\guis\addGregorySurfacePanel.hpp" />
     <ClInclude Include="src\guis\addIntersectionPanel.hpp" />
     <ClInclude Include="src\guis\bottomRightPanel.hpp" />
+    <ClInclude Include="src\guis\convertIntersectionToInterpolatingCurvePanel.hpp" />
     <ClInclude Include="src\guis\guiMode.hpp" />
     <ClInclude Include="src\guis\leftPanel.hpp" />
     <ClInclude Include="src\guis\centerPointGUI.hpp" />
