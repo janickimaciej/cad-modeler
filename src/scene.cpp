@@ -544,7 +544,7 @@ BezierPatch* Scene::getUniqueSelectedBezierPatch() const
 	return nullptr;
 }
 
-const Intersectable* Scene::getUniqueSelectedIntersectable() const
+Intersectable* Scene::getUniqueSelectedIntersectable() const
 {
 	if (m_selectedModels.size() != 1)
 	{
@@ -556,14 +556,6 @@ const Intersectable* Scene::getUniqueSelectedIntersectable() const
 		if (torus->isSelected())
 		{
 			return torus.get();
-		}
-	}
-
-	for (const std::unique_ptr<BezierPatch>& patch : m_bezierPatches)
-	{
-		if (patch->isSelected())
-		{
-			return patch.get();
 		}
 	}
 
@@ -801,8 +793,12 @@ void Scene::addPoint()
 
 void Scene::addTorus()
 {
-	std::unique_ptr<Torus> torus = std::make_unique<Torus>(m_shaderPrograms.mesh,
-		m_cursor.getPos());
+	std::unique_ptr<Torus> torus = std::make_unique<Torus>(
+		[this] (const std::vector<IntersectionCurve*>& intersectionCurves)
+		{
+			deleteIntersectionCurves(intersectionCurves);
+		},
+		m_shaderPrograms.mesh, m_cursor.getPos());
 	m_models.push_back(torus.get());
 	m_toruses.push_back(std::move(torus));
 }
@@ -922,6 +918,10 @@ void Scene::addC0BezierSurface(int patchesU, int patchesV, float sizeU, float si
 	std::vector<std::unique_ptr<Point>> newPoints{};
 	std::vector<std::unique_ptr<BezierPatch>> newPatches{};
 	std::unique_ptr<C0BezierSurface> surface = std::make_unique<C0BezierSurface>(
+		[this] (const std::vector<IntersectionCurve*>& intersectionCurves)
+		{
+			deleteIntersectionCurves(intersectionCurves);
+		},
 		m_shaderPrograms.bezierSurface, m_shaderPrograms.mesh, m_shaderPrograms.point, patchesU,
 		patchesV, m_cursor.getPos(), sizeU, sizeV, wrapping, newPoints, newPatches);
 	addPoints(std::move(newPoints));
@@ -936,6 +936,10 @@ void Scene::addC2BezierSurface(int patchesU, int patchesV, float sizeU, float si
 	std::vector<std::unique_ptr<Point>> newPoints{};
 	std::vector<std::unique_ptr<BezierPatch>> newPatches{};
 	std::unique_ptr<C2BezierSurface> surface = std::make_unique<C2BezierSurface>(
+		[this] (const std::vector<IntersectionCurve*>& intersectionCurves)
+		{
+			deleteIntersectionCurves(intersectionCurves);
+		},
 		m_shaderPrograms.bezierSurface, m_shaderPrograms.mesh, m_shaderPrograms.point, patchesU,
 		patchesV, m_cursor.getPos(), sizeU, sizeV, wrapping, newPoints, newPatches);
 	addPoints(std::move(newPoints));
@@ -957,22 +961,29 @@ void Scene::addGregorySurface(const std::array<BezierPatch*, 3>& patches)
 	}
 }
 
-void Scene::addIntersectionCurve(const std::array<const Intersectable*, 2>& surfaces, float step,
+void Scene::addIntersectionCurve(const std::array<Intersectable*, 2>& surfaces, float step,
 	bool useCursor)
 {
 	std::unique_ptr<IntersectionCurve> intersectionCurve{};
 	if (useCursor)
 	{
-		intersectionCurve = IntersectionCurve::create(m_shaderPrograms.polyline, surfaces, step,
-			m_cursor.getPos());
+		intersectionCurve = IntersectionCurve::create(m_shaderPrograms.polyline,
+			{surfaces[0], surfaces[1]}, step, m_cursor.getPos());
 	}
 	else
 	{
-		intersectionCurve = IntersectionCurve::create(m_shaderPrograms.polyline, surfaces, step);
+		intersectionCurve = IntersectionCurve::create(m_shaderPrograms.polyline,
+			{surfaces[0], surfaces[1]}, step);
 	}
 
 	if (intersectionCurve != nullptr)
 	{
+		surfaces[0]->addIntersectionCurve(intersectionCurve.get());
+		if (surfaces[0] != surfaces[1])
+		{
+			surfaces[1]->addIntersectionCurve(intersectionCurve.get());
+		}
+
 		m_models.push_back(intersectionCurve.get());
 		m_intersectionCurves.push_back(std::move(intersectionCurve));
 	}
@@ -1371,5 +1382,20 @@ void Scene::deleteUnreferencedNonDeletablePoints()
 	for (const Point* point : pointsToBeDeleted)
 	{
 		std::erase(m_models, point);
+	}
+}
+
+void Scene::deleteIntersectionCurves(const std::vector<IntersectionCurve*>& intersectionCurves)
+{
+	for (const IntersectionCurve* curve : intersectionCurves)
+	{
+		std::erase(m_models, curve);
+		std::erase(m_selectedModels, curve);
+		std::erase_if(m_intersectionCurves,
+			[curve] (const std::unique_ptr<IntersectionCurve>& intersectionCurve)
+			{
+				return intersectionCurve.get() == curve;
+			}
+		);
 	}
 }

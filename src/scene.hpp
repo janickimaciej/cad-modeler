@@ -75,7 +75,7 @@ public:
 	void moveUniqueSelectedModel(const glm::vec2& offset) const;
 	void collapse2Points();
 	BezierPatch* getUniqueSelectedBezierPatch() const;
-	const Intersectable* getUniqueSelectedIntersectable() const;
+	Intersectable* getUniqueSelectedIntersectable() const;
 	bool isCursorAtPos(const glm::vec2& screenPos) const;
 	void moveCursor(const glm::vec2& offset);
 	void moveCursorToSelectedModels();
@@ -103,7 +103,7 @@ public:
 	void addC2BezierSurface(int patchesU, int patchesV, float sizeU, float sizeV,
 		BezierSurfaceWrapping wrapping);
 	void addGregorySurface(const std::array<BezierPatch*, 3>& patches);
-	void addIntersectionCurve(const std::array<const Intersectable*, 2>& surfaces, float step,
+	void addIntersectionCurve(const std::array<Intersectable*, 2>& surfaces, float step,
 		bool useCursor);
 	void convertIntersectionToInterpolatingCurve(int numberOfPoints);
 
@@ -187,6 +187,7 @@ private:
 	void deleteInvalidBezierPatches();
 	void deleteInvalidGregorySurfaces();
 	void deleteUnreferencedNonDeletablePoints();
+	void deleteIntersectionCurves(const std::vector<IntersectionCurve*>& intersectionCurves);
 
 	template <typename Type>
 	void deleteSelectedModels(std::vector<std::unique_ptr<Type>>& models);

@@ -19,4 +19,5 @@ private:
 	void updateScale();
 	void updateRadii();
 	void updateGrid();
+	void updateIntersectionCurves();
 };

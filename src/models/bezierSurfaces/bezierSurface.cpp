@@ -5,10 +5,11 @@
 #include <string>
 #include <tuple>
 
-BezierSurface::BezierSurface(const std::string& name,
-	const ShaderProgram& bezierSurfaceGridShaderProgram, int patchesU, int patchesV,
-	BezierSurfaceWrapping wrapping) :
+BezierSurface::BezierSurface(const Intersectable::ChangeCallback& changeCallback,
+	const std::string& name, const ShaderProgram& bezierSurfaceGridShaderProgram, int patchesU,
+	int patchesV, BezierSurfaceWrapping wrapping) :
 	Model{{}, name},
+	Intersectable{changeCallback},
 	m_gridShaderProgram{bezierSurfaceGridShaderProgram},
 	m_patchesU{static_cast<std::size_t>(patchesU)},
 	m_patchesV{static_cast<std::size_t>(patchesV)},
@@ -188,6 +189,7 @@ void BezierSurface::updateGeometry()
 	updatePos();
 	updatePatches();
 	updateGridMesh();
+	notifyChange();
 }
 
 void BezierSurface::updatePos()

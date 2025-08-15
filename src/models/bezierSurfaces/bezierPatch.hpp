@@ -1,7 +1,6 @@
 #pragma once
 
 #include "guis/modelGUIs/bezierPatchGUI.hpp"
-#include "intersectable.hpp"
 #include "meshes/mesh.hpp"
 #include "models/model.hpp"
 #include "models/point.hpp"
@@ -15,7 +14,7 @@
 
 class BezierSurface;
 
-class BezierPatch : public Model, public Intersectable
+class BezierPatch : public Model
 {
 public:
 	using DestroyCallback = std::function<void()>;
@@ -41,12 +40,9 @@ public:
 	std::shared_ptr<DestroyCallback> registerForDestroyNotification(
 		const DestroyCallback& callback);
 
-	virtual glm::vec3 surface(float u, float v) const override;
-	virtual glm::vec3 surfaceDU(float u, float v) const override;
-	virtual glm::vec3 surfaceDV(float u, float v) const override;
-
-	virtual bool uWrapped() const override;
-	virtual bool vWrapped() const override;
+	glm::vec3 surface(float u, float v) const;
+	glm::vec3 surfaceDU(float u, float v) const;
+	glm::vec3 surfaceDV(float u, float v) const;
 
 private:
 	static int m_count;

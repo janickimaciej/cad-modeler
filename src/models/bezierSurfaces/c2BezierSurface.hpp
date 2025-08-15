@@ -1,5 +1,6 @@
 #pragma once
 
+#include "intersectable.hpp"
 #include "models/bezierSurfaces/bezierSurface.hpp"
 #include "models/bezierSurfaces/bezierSurfaceWrapping.hpp"
 #include "models/point.hpp"
@@ -17,7 +18,8 @@ class C2BezierSurface : public BezierSurface
 	friend class C2BezierSurfaceSerializer;
 
 public:
-	C2BezierSurface(const ShaderProgram& bezierSurfaceShaderProgram,
+	C2BezierSurface(const Intersectable::ChangeCallback& changeCallback,
+		const ShaderProgram& bezierSurfaceShaderProgram,
 		const ShaderProgram& bezierSurfaceGridShaderProgram,
 		const ShaderProgram& pointShaderProgram, int patchesU, int patchesV, const glm::vec3& pos,
 		float sizeU, float sizeV, BezierSurfaceWrapping wrapping,

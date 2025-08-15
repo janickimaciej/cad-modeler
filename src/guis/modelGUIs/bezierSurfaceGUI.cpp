@@ -11,6 +11,13 @@ BezierSurfaceGUI::BezierSurfaceGUI(BezierSurface& surface) :
 
 void BezierSurfaceGUI::update()
 {
+	updateRenderGrid();
+	updateLineCount();
+	updateIntersectionCurves();
+}
+
+void BezierSurfaceGUI::updateRenderGrid()
+{
 	bool renderGrid = m_surface.getRenderGrid();
 	bool prevRenderGrid = renderGrid;
 	ImGui::Checkbox(("render grid" + suffix()).c_str(), &renderGrid);
@@ -18,7 +25,10 @@ void BezierSurfaceGUI::update()
 	{
 		m_surface.setRenderGrid(renderGrid);
 	}
+}
 
+void BezierSurfaceGUI::updateLineCount()
+{
 	static constexpr int stepPrecision = 1;
 
 	int lineCount = m_surface.getLineCount();
@@ -29,5 +39,17 @@ void BezierSurfaceGUI::update()
 	if (lineCount != prevLineCount)
 	{
 		m_surface.setLineCount(lineCount);
+	}
+}
+
+void BezierSurfaceGUI::updateIntersectionCurves()
+{
+	if (m_surface.intersectionCurveCount() > 0)
+	{
+		ImGui::Text("Intersection curves:");
+		for (int i = 0; i < m_surface.intersectionCurveCount(); ++i)
+		{
+			ImGui::Text(('\t' + m_surface.intersectionCurveName(i)).c_str());
+		}
 	}
 }

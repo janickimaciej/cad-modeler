@@ -13,4 +13,8 @@ public:
 
 private:
 	BezierSurface& m_surface;
+
+	void updateRenderGrid();
+	void updateLineCount();
+	void updateIntersectionCurves();
 };

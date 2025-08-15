@@ -1,7 +1,6 @@
 #pragma once
 
 #include "guis/modelGUIs/intersectionCurveGUI.hpp"
-#include "intersectable.hpp"
 #include "meshes/mesh.hpp"
 #include "models/model.hpp"
 #include "shaderProgram.hpp"
@@ -15,17 +14,21 @@
 #include <random>
 #include <vector>
 
+class Intersectable;
+
 class IntersectionCurve : public Model
 {
 	using PointPair = std::array<glm::vec2, 2>;
 
 public:
+	using DestroyCallback = std::function<void(IntersectionCurve*)>;
+
 	static std::unique_ptr<IntersectionCurve> create(const ShaderProgram& shaderProgram,
 		const std::array<const Intersectable*, 2>& surfaces, float step,
 		const glm::vec3& cursorPos);
 	static std::unique_ptr<IntersectionCurve> create(const ShaderProgram& shaderProgram,
 		const std::array<const Intersectable*, 2>& surfaces, float step);
-	virtual ~IntersectionCurve() = default;
+	virtual ~IntersectionCurve();
 
 	virtual void render() const override;
 	virtual void updateGUI() override;
@@ -35,6 +38,9 @@ public:
 	int pointCount() const;
 	std::vector<glm::vec3> getIntersectionPoints() const;
 	bool isClosed() const;
+
+	std::shared_ptr<DestroyCallback> registerForDestroyNotification(
+		const DestroyCallback& callback);
 
 private:
 	static constexpr float m_startingTemperature = 0.5f;
@@ -48,6 +54,8 @@ private:
 	std::vector<PointPair> m_pointPairs{};
 	bool m_isClosed{};
 	IntersectionCurveGUI m_gui{*this};
+
+	std::vector<std::weak_ptr<DestroyCallback>> m_destroyNotifications{};
 
 	static std::unique_ptr<IntersectionCurve> create(const ShaderProgram& shaderProgram,
 		const std::array<const Intersectable*, 2>& surfaces, float step,
@@ -86,6 +94,9 @@ private:
 		const std::array<const Intersectable*, 2>& surfaces, const PointPair& pointPair);
 	static PointPair vec4ToPointPair(const glm::vec4& vec);
 	static std::optional<glm::vec4> pointPairToVec4(const std::optional<PointPair>& pointPair);
+
+	void notifyDestroy();
+	void clearExpiredNotifications();
 
 	template <typename Vec>
 	static Vec simulatedAnnealing(const std::function<float(const Vec&)>& function,

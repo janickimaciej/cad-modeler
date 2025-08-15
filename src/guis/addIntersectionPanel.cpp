@@ -36,7 +36,7 @@ void AddIntersectionPanel::update()
 	if (ImGui::Button(("Add surface (" + std::to_string(m_surfaceCount) +
 		"/2)##AddIntersectionPanelButton").c_str()))
 	{
-		const Intersectable* surface = m_scene.getUniqueSelectedIntersectable();
+		Intersectable* surface = m_scene.getUniqueSelectedIntersectable();
 		if (surface == nullptr)
 		{
 			return;

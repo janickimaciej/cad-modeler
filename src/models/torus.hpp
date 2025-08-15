@@ -16,10 +16,13 @@ class Torus : public Model, public Intersectable
 	friend class TorusSerializer;
 
 public:
-	Torus(const ShaderProgram& shaderProgram, const glm::vec3& pos);
+	Torus(const Intersectable::ChangeCallback& changeCallback, const ShaderProgram& shaderProgram,
+		const glm::vec3& pos);
 	virtual ~Torus() = default;
 	virtual void render() const override;
 	virtual void updateGUI() override;
+
+	virtual void setPos(const glm::vec3& pos) override;
 
 	float getMajorRadius() const;
 	void setMajorRadius(float majorRadius);

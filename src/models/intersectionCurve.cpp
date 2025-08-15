@@ -1,5 +1,7 @@
 #include "models/intersectionCurve.hpp"
 
+#include "intersectable.hpp"
+
 #include <glad/glad.h>
 
 #include <algorithm>
@@ -37,6 +39,11 @@ std::unique_ptr<IntersectionCurve> IntersectionCurve::create(const ShaderProgram
 	return create(shaderProgram, surfaces, step, closestSamples);
 }
 
+IntersectionCurve::~IntersectionCurve()
+{
+	notifyDestroy();
+}
+
 void IntersectionCurve::render() const
 {
 	updateShaders();
@@ -69,6 +76,14 @@ std::vector<glm::vec3> IntersectionCurve::getIntersectionPoints() const
 bool IntersectionCurve::isClosed() const
 {
 	return m_isClosed;
+}
+
+std::shared_ptr<IntersectionCurve::DestroyCallback>
+	IntersectionCurve::registerForDestroyNotification(const DestroyCallback& callback)
+{
+	std::shared_ptr<DestroyCallback> notification = std::make_shared<DestroyCallback>(callback);
+	m_destroyNotifications.push_back(notification);
+	return notification;
 }
 
 int IntersectionCurve::m_count = 0;
@@ -555,4 +570,30 @@ std::optional<glm::vec4> IntersectionCurve::pointPairToVec4(
 	}
 
 	return glm::vec4{(*pointPair)[0].x, (*pointPair)[0].y, (*pointPair)[1].x, (*pointPair)[1].y};
+}
+
+void IntersectionCurve::notifyDestroy()
+{
+	clearExpiredNotifications();
+
+	for (const std::weak_ptr<DestroyCallback>& notification : m_destroyNotifications)
+	{
+		std::shared_ptr<DestroyCallback> notificationShared = notification.lock();
+		if (notificationShared)
+		{
+			(*notificationShared)(this);
+		}
+	}
+}
+
+void IntersectionCurve::clearExpiredNotifications()
+{
+	std::erase_if
+	(
+		m_destroyNotifications,
+		[] (const std::weak_ptr<DestroyCallback>& notification)
+		{
+			return notification.expired();
+		}
+	);
 }

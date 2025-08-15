@@ -210,16 +210,6 @@ glm::vec3 BezierPatch::surfaceDV(float u, float v) const
 	return deCasteljauDT(surfaceV[0], surfaceV[1], surfaceV[2], surfaceV[3], v);
 }
 
-bool BezierPatch::uWrapped() const
-{
-	return false;
-}
-
-bool BezierPatch::vWrapped() const
-{
-	return false;
-}
-
 int BezierPatch::m_count = 0;
 
 void BezierPatch::createSurfaceMesh()

@@ -20,6 +20,7 @@ void TorusGUI::update()
 	updateScale();
 	updateRadii();
 	updateGrid();
+	updateIntersectionCurves();
 }
 
 void TorusGUI::updatePos()
@@ -170,5 +171,17 @@ void TorusGUI::updateGrid()
 	if (minorGrid != prevMinorGrid)
 	{
 		m_torus.setMinorGrid(minorGrid);
+	}
+}
+
+void TorusGUI::updateIntersectionCurves()
+{
+	if (m_torus.intersectionCurveCount() > 0)
+	{
+		ImGui::Text("Intersection curves:");
+		for (int i = 0; i < m_torus.intersectionCurveCount(); ++i)
+		{
+			ImGui::Text(('\t' + m_torus.intersectionCurveName(i)).c_str());
+		}
 	}
 }

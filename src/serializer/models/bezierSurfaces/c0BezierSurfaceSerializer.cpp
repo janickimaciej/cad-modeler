@@ -72,6 +72,10 @@ void C0BezierSurfaceSerializer::deserialize(const nlohmann::ordered_json& json, 
 	std::vector<std::unique_ptr<Point>> points{};
 	std::vector<std::unique_ptr<BezierPatch>> patches{};
 	std::unique_ptr<C0BezierSurface> surface = std::make_unique<C0BezierSurface>(
+		[&scene] (const std::vector<IntersectionCurve*>& intersectionCurves)
+		{
+			scene.deleteIntersectionCurves(intersectionCurves);
+		},
 		scene.m_shaderPrograms.bezierSurface, scene.m_shaderPrograms.mesh,
 		scene.m_shaderPrograms.point, patchesU, patchesV, glm::vec3{}, 1.0f, 1.0f, wrapping,
 		points, patches);
