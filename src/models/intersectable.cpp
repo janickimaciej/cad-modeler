@@ -86,6 +86,7 @@ void Intersectable::intersectionCurveDestroyNotification(const IntersectionCurve
 	m_intersectionCurves.erase(m_intersectionCurves.begin() + curveIndex);
 	m_intersectionCurveDestroyNotifications.erase(
 		m_intersectionCurveDestroyNotifications.begin() + curveIndex);
+	m_intersectionCurveTrims.erase(m_intersectionCurveTrims.begin() + curveIndex);
 	m_selectedIntersectionCurve = std::nullopt;
 }
 
