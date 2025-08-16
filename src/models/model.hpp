@@ -34,7 +34,7 @@ public:
 	bool isSelected() const;
 	bool isDeletable() const;
 	bool isVirtual() const;
-	void select();
+	virtual void select();
 	void deselect();
 
 	glm::mat4 getRotationMatrix() const;

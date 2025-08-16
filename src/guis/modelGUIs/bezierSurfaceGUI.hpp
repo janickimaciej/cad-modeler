@@ -1,5 +1,6 @@
 #pragma once
 
+#include "guis/modelGUIs/intersectableGUI.hpp"
 #include "guis/modelGUIs/modelGUI.hpp"
 
 class BezierSurface;
@@ -13,8 +14,8 @@ public:
 
 private:
 	BezierSurface& m_surface;
+	IntersectableGUI m_intersectableGUI;
 
 	void updateRenderGrid();
 	void updateLineCount();
-	void updateIntersectionCurves();
 };

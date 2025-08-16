@@ -1,9 +1,8 @@
 #pragma once
 
 #include "guis/modelGUIs/torusGUI.hpp"
-#include "intersectable.hpp"
 #include "meshes/indicesMesh.hpp"
-#include "models/model.hpp"
+#include "models/intersectable.hpp"
 #include "shaderProgram.hpp"
 
 #include <glm/glm.hpp>
@@ -11,7 +10,7 @@
 #include <memory>
 #include <vector>
 
-class Torus : public Model, public Intersectable
+class Torus : public Intersectable
 {
 	friend class TorusSerializer;
 

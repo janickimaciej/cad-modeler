@@ -1,6 +1,6 @@
 #pragma once
 
-#include "intersectable.hpp"
+#include "models/intersectable.hpp"
 #include "scene.hpp"
 
 #include <array>

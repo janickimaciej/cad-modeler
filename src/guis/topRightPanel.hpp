@@ -9,7 +9,7 @@
 class TopRightPanel
 {
 public:
-	static constexpr int width = 250;
+	static constexpr int width = 272;
 
 	TopRightPanel(Scene& scene, const glm::ivec2& windowSize);
 	void update(GUIMode mode);

@@ -10,7 +10,8 @@
 
 TorusGUI::TorusGUI(Torus& torus) :
 	ModelGUI{torus},
-	m_torus{torus}
+	m_torus{torus},
+	m_intersectableGUI{torus}
 { }
 
 void TorusGUI::update()
@@ -20,7 +21,7 @@ void TorusGUI::update()
 	updateScale();
 	updateRadii();
 	updateGrid();
-	updateIntersectionCurves();
+	m_intersectableGUI.update();
 }
 
 void TorusGUI::updatePos()
@@ -171,17 +172,5 @@ void TorusGUI::updateGrid()
 	if (minorGrid != prevMinorGrid)
 	{
 		m_torus.setMinorGrid(minorGrid);
-	}
-}
-
-void TorusGUI::updateIntersectionCurves()
-{
-	if (m_torus.intersectionCurveCount() > 0)
-	{
-		ImGui::Text("Intersection curves:");
-		for (int i = 0; i < m_torus.intersectionCurveCount(); ++i)
-		{
-			ImGui::Text(('\t' + m_torus.intersectionCurveName(i)).c_str());
-		}
 	}
 }

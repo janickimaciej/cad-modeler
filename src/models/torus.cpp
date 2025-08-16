@@ -11,8 +11,7 @@ static constexpr int initialMinor = 16;
 
 Torus::Torus(const Intersectable::ChangeCallback& changeCallback,
 	const ShaderProgram& shaderProgram, const glm::vec3& pos) :
-	Model{pos, "Torus " + std::to_string(m_count++)},
-	Intersectable{changeCallback},
+	Intersectable{pos, "Torus " + std::to_string(m_count++), changeCallback},
 	m_shaderProgram{shaderProgram},
 	m_majorRadius{initialMajorRadius},
 	m_minorRadius{initialMinorRadius},

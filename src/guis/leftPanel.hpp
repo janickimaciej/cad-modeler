@@ -21,7 +21,7 @@ class LeftPanel
 	};
 
 public:
-	static constexpr int width = 250;
+	static constexpr int width = 272;
 
 	LeftPanel(Scene& scene, const glm::ivec2& windowSize);
 	void update();

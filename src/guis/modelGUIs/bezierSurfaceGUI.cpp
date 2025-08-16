@@ -6,14 +6,15 @@
 
 BezierSurfaceGUI::BezierSurfaceGUI(BezierSurface& surface) :
 	ModelGUI{surface},
-	m_surface{surface}
+	m_surface{surface},
+	m_intersectableGUI{surface}
 { }
 
 void BezierSurfaceGUI::update()
 {
 	updateRenderGrid();
 	updateLineCount();
-	updateIntersectionCurves();
+	m_intersectableGUI.update();
 }
 
 void BezierSurfaceGUI::updateRenderGrid()
@@ -39,17 +40,5 @@ void BezierSurfaceGUI::updateLineCount()
 	if (lineCount != prevLineCount)
 	{
 		m_surface.setLineCount(lineCount);
-	}
-}
-
-void BezierSurfaceGUI::updateIntersectionCurves()
-{
-	if (m_surface.intersectionCurveCount() > 0)
-	{
-		ImGui::Text("Intersection curves:");
-		for (int i = 0; i < m_surface.intersectionCurveCount(); ++i)
-		{
-			ImGui::Text(('\t' + m_surface.intersectionCurveName(i)).c_str());
-		}
 	}
 }

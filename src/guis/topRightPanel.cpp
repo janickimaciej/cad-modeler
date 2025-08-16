@@ -10,7 +10,7 @@ TopRightPanel::TopRightPanel(Scene& scene, const glm::ivec2& windowSize) :
 void TopRightPanel::update(GUIMode mode)
 {
 	ImGui::SetNextWindowPos({static_cast<float>(m_windowSize.x - width), 0}, ImGuiCond_Always);
-	ImGui::SetNextWindowSize({width, static_cast<float>(m_windowSize.y - 2 * width + 11)},
+	ImGui::SetNextWindowSize({width, static_cast<float>(m_windowSize.y - width + 1)},
 		ImGuiCond_Always);
 	ImGui::Begin("topRightPanel", nullptr, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoTitleBar);
 	ImGui::PushItemWidth(100);

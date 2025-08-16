@@ -1,5 +1,6 @@
 #pragma once
 
+#include "guis/modelGUIs/intersectableGUI.hpp"
 #include "guis/modelGUIs/modelGUI.hpp"
 
 class Torus;
@@ -13,11 +14,11 @@ public:
 
 private:
 	Torus& m_torus;
+	IntersectableGUI m_intersectableGUI;
 
 	void updatePos();
 	void updateOrientation();
 	void updateScale();
 	void updateRadii();
 	void updateGrid();
-	void updateIntersectionCurves();
 };

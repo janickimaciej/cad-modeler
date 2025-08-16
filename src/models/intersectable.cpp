@@ -1,8 +1,16 @@
-#include "intersectable.hpp"
+#include "models/intersectable.hpp"
 
-Intersectable::Intersectable(const ChangeCallback& changeCallback) :
+Intersectable::Intersectable(const glm::vec3& pos, const std::string& name,
+	const ChangeCallback& changeCallback) :
+	Model{pos, name},
 	m_changeCallback{changeCallback}
 { }
+
+void Intersectable::select()
+{
+	m_selectedIntersectionCurve = std::nullopt;
+	Model::select();
+}
 
 glm::vec3 Intersectable::surface(const glm::vec2& pos) const
 {
@@ -23,6 +31,7 @@ void Intersectable::addIntersectionCurve(IntersectionCurve* curve)
 {
 	m_intersectionCurves.push_back(curve);
 	registerForNotification(curve);
+	m_intersectionCurveTrims.push_back(Trim::none);
 }
 
 int Intersectable::intersectionCurveCount() const
@@ -33,6 +42,26 @@ int Intersectable::intersectionCurveCount() const
 std::string Intersectable::intersectionCurveName(int index) const
 {
 	return m_intersectionCurves[index]->getName();
+}
+
+std::optional<int> Intersectable::selectedIntersectionCurveIndex() const
+{
+	return m_selectedIntersectionCurve;
+}
+
+void Intersectable::selectIntersectionCurve(std::optional<int> index)
+{
+	m_selectedIntersectionCurve = index;
+}
+
+Intersectable::Trim Intersectable::getIntersectionCurveTrim(int index) const
+{
+	return m_intersectionCurveTrims[index];
+}
+
+void Intersectable::setIntersectionCurveTrim(int index, Trim trim)
+{
+	m_intersectionCurveTrims[index] = trim;
 }
 
 void Intersectable::notifyChange()
@@ -57,6 +86,7 @@ void Intersectable::intersectionCurveDestroyNotification(const IntersectionCurve
 	m_intersectionCurves.erase(m_intersectionCurves.begin() + curveIndex);
 	m_intersectionCurveDestroyNotifications.erase(
 		m_intersectionCurveDestroyNotifications.begin() + curveIndex);
+	m_selectedIntersectionCurve = std::nullopt;
 }
 
 int Intersectable::getCurveIndex(const IntersectionCurve* curve) const

@@ -1,10 +1,10 @@
 #pragma once
 
 #include "guis/modelGUIs/bezierSurfaceGUI.hpp"
-#include "intersectable.hpp"
 #include "meshes/indicesMesh.hpp"
 #include "models/bezierSurfaces/bezierPatch.hpp"
 #include "models/bezierSurfaces/bezierSurfaceWrapping.hpp"
+#include "models/intersectable.hpp"
 #include "models/model.hpp"
 #include "models/point.hpp"
 #include "shaderProgram.hpp"
@@ -19,7 +19,7 @@
 #include <utility>
 #include <vector>
 
-class BezierSurface : public Model, public Intersectable
+class BezierSurface : public Intersectable
 {
 	friend class C0BezierSurfaceSerializer;
 	friend class C2BezierSurfaceSerializer;

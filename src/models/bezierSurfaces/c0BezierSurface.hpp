@@ -1,9 +1,9 @@
 #pragma once
 
-#include "intersectable.hpp"
 #include "models/bezierSurfaces/bezierSurface.hpp"
 #include "models/bezierSurfaces/bezierSurfaceWrapping.hpp"
 #include "models/bezierSurfaces/bezierPatch.hpp"
+#include "models/intersectable.hpp"
 #include "models/point.hpp"
 #include "shaderProgram.hpp"
 
