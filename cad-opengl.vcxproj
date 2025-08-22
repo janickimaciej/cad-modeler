@@ -36,7 +36,6 @@
     <ClCompile Include="src\guis\addBezierSurfacePanel.cpp" />
     <ClCompile Include="src\guis\addGregorySurfacePanel.cpp" />
     <ClCompile Include="src\guis\addIntersectionPanel.cpp" />
-    <ClCompile Include="src\guis\bottomRightPanel.cpp" />
     <ClCompile Include="src\guis\cameraGUIs\orthographicCameraGUI.cpp" />
     <ClCompile Include="src\guis\cameraGUIs\perspectiveCameraGUI.cpp" />
     <ClCompile Include="src\cursor.cpp" />
@@ -46,7 +45,7 @@
     <ClCompile Include="src\guis\modelGUIs\intersectableGUI.cpp" />
     <ClCompile Include="src\guis\modelGUIs\intersectionCurveGUI.cpp" />
     <ClCompile Include="src\guis\modelListPanel.cpp" />
-    <ClCompile Include="src\guis\topRightPanel.cpp" />
+    <ClCompile Include="src\guis\rightPanel.cpp" />
     <ClCompile Include="src\guis\valueWindows\deserializingWindow.cpp" />
     <ClCompile Include="src\guis\valueWindows\serializingWindow.cpp" />
     <ClCompile Include="src\models\intersectable.cpp" />
@@ -95,6 +94,7 @@
     <ClCompile Include="src\serializer\sceneSerializer.cpp" />
     <ClCompile Include="src\shaderProgram.cpp" />
     <ClCompile Include="src\shaderPrograms.cpp" />
+    <ClCompile Include="src\texture.cpp" />
     <ClCompile Include="src\window.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -116,7 +116,6 @@
     <ClInclude Include="src\guis\addBezierSurfacePanel.hpp" />
     <ClInclude Include="src\guis\addGregorySurfacePanel.hpp" />
     <ClInclude Include="src\guis\addIntersectionPanel.hpp" />
-    <ClInclude Include="src\guis\bottomRightPanel.hpp" />
     <ClInclude Include="src\guis\convertIntersectionToInterpolatingCurvePanel.hpp" />
     <ClInclude Include="src\guis\guiMode.hpp" />
     <ClInclude Include="src\guis\leftPanel.hpp" />
@@ -132,7 +131,7 @@
     <ClInclude Include="src\guis\modelGUIs\intersectableGUI.hpp" />
     <ClInclude Include="src\guis\modelGUIs\intersectionCurveGUI.hpp" />
     <ClInclude Include="src\guis\modelListPanel.hpp" />
-    <ClInclude Include="src\guis\topRightPanel.hpp" />
+    <ClInclude Include="src\guis\rightPanel.hpp" />
     <ClInclude Include="src\guis\valueWindows\deserializingWindow.hpp" />
     <ClInclude Include="src\guis\valueWindows\serializingWindow.hpp" />
     <ClInclude Include="src\models\intersectable.hpp" />
@@ -180,6 +179,7 @@
     <ClInclude Include="src\serializer\sceneSerializer.hpp" />
     <ClInclude Include="src\shaderProgram.hpp" />
     <ClInclude Include="src\shaderPrograms.hpp" />
+    <ClInclude Include="src\texture.hpp" />
     <ClInclude Include="src\window.hpp" />
   </ItemGroup>
   <ItemGroup>

@@ -1,7 +1,7 @@
 #include "window.hpp"
 
 #include "guis/leftPanel.hpp"
-#include "guis/topRightPanel.hpp"
+#include "guis/rightPanel.hpp"
 
 #include <cmath>
 #include <string>
@@ -306,5 +306,5 @@ bool Window::isKeyPressed(int key)
 bool Window::isCursorInGUI()
 {
 	glm::vec2 cursorPos = getCursorPos();
-	return cursorPos.x <= LeftPanel::width || cursorPos.x >= m_size.x - TopRightPanel::width;
+	return cursorPos.x <= LeftPanel::width || cursorPos.x >= m_size.x - RightPanel::width;
 }

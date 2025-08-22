@@ -2,7 +2,7 @@
 
 #include <imgui/imgui.h>
 
-#include <optional>
+#include <cstdint>
 
 IntersectableGUI::IntersectableGUI(Intersectable& intersectable) :
 	m_intersectable{intersectable}
@@ -17,22 +17,12 @@ void IntersectableGUI::update()
 		static constexpr ImGuiTreeNodeFlags globalFlags =
 			ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick;
 
-		std::optional<int> clickedCurve = std::nullopt;
-		std::optional<int> selectedCurve = m_intersectable.selectedIntersectionCurveIndex();
 		for (int i = 0; i < m_intersectable.intersectionCurveCount(); ++i)
 		{
 			ImGuiTreeNodeFlags flags = globalFlags;
-			if (selectedCurve.has_value() && i == *selectedCurve)
-			{
-				flags |= ImGuiTreeNodeFlags_Selected;
-			}
 
 			bool isOpen = ImGui::TreeNodeEx((m_intersectable.intersectionCurveName(i) + "##" +
 				m_intersectable.getOriginalName() + std::to_string(i)).c_str(), flags);
-			if (ImGui::IsItemClicked())
-			{
-				clickedCurve = i;
-			}
 			if (isOpen)
 			{
 				int trim = static_cast<int>(m_intersectable.getIntersectionCurveTrim(i));
@@ -48,13 +38,16 @@ void IntersectableGUI::update()
 					m_intersectable.setIntersectionCurveTrim(i,
 						static_cast<Intersectable::Trim>(trim));
 				}
+
+				static constexpr int imageSize = 256;
+				ImGui::Image
+				(
+					reinterpret_cast<void*>(static_cast<std::intptr_t>(
+						m_intersectable.getIntersectionCurveTextureId(i))),
+					{imageSize, imageSize}
+				);
 				ImGui::TreePop();
 			}
-		}
-
-		if (clickedCurve.has_value())
-		{
-			m_intersectable.selectIntersectionCurve(*clickedCurve);
 		}
 	}
 }

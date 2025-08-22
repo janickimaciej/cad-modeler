@@ -6,12 +6,12 @@
 
 #include <glm/glm.hpp>
 
-class TopRightPanel
+class RightPanel
 {
 public:
-	static constexpr int width = 272;
+	static constexpr int width = 350;
 
-	TopRightPanel(Scene& scene, const glm::ivec2& windowSize);
+	RightPanel(Scene& scene, const glm::ivec2& windowSize);
 	void update(GUIMode mode);
 
 private:

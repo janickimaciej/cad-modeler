@@ -6,12 +6,6 @@ Intersectable::Intersectable(const glm::vec3& pos, const std::string& name,
 	m_changeCallback{changeCallback}
 { }
 
-void Intersectable::select()
-{
-	m_selectedIntersectionCurve = std::nullopt;
-	Model::select();
-}
-
 glm::vec3 Intersectable::surface(const glm::vec2& pos) const
 {
 	return surface(pos.x, pos.y);
@@ -32,6 +26,7 @@ void Intersectable::addIntersectionCurve(IntersectionCurve* curve)
 	m_intersectionCurves.push_back(curve);
 	registerForNotification(curve);
 	m_intersectionCurveTrims.push_back(Trim::none);
+	m_intersectionCurveTextures.push_back(createIntersectionCurveTexture(curve));
 }
 
 int Intersectable::intersectionCurveCount() const
@@ -44,16 +39,6 @@ std::string Intersectable::intersectionCurveName(int index) const
 	return m_intersectionCurves[index]->getName();
 }
 
-std::optional<int> Intersectable::selectedIntersectionCurveIndex() const
-{
-	return m_selectedIntersectionCurve;
-}
-
-void Intersectable::selectIntersectionCurve(std::optional<int> index)
-{
-	m_selectedIntersectionCurve = index;
-}
-
 Intersectable::Trim Intersectable::getIntersectionCurveTrim(int index) const
 {
 	return m_intersectionCurveTrims[index];
@@ -62,6 +47,11 @@ Intersectable::Trim Intersectable::getIntersectionCurveTrim(int index) const
 void Intersectable::setIntersectionCurveTrim(int index, Trim trim)
 {
 	m_intersectionCurveTrims[index] = trim;
+}
+
+unsigned int Intersectable::getIntersectionCurveTextureId(int index) const
+{
+	return m_intersectionCurveTextures[index].getId();
 }
 
 void Intersectable::notifyChange()
@@ -87,11 +77,33 @@ void Intersectable::intersectionCurveDestroyNotification(const IntersectionCurve
 	m_intersectionCurveDestroyNotifications.erase(
 		m_intersectionCurveDestroyNotifications.begin() + curveIndex);
 	m_intersectionCurveTrims.erase(m_intersectionCurveTrims.begin() + curveIndex);
-	m_selectedIntersectionCurve = std::nullopt;
 }
 
 int Intersectable::getCurveIndex(const IntersectionCurve* curve) const
 {
 	auto iterator = std::find(m_intersectionCurves.begin(), m_intersectionCurves.end(), curve);
 	return static_cast<int>(iterator - m_intersectionCurves.begin());
+}
+
+Texture Intersectable::createIntersectionCurveTexture(const IntersectionCurve* curve)
+{
+	static constexpr int textureSize = 256;
+	using TextureData =
+		std::array<std::array<std::array<unsigned char, 3>, textureSize>, textureSize>;
+
+	std::vector<glm::vec3> intersectionPoints = curve->getIntersectionPoints();
+	std::unique_ptr<TextureData> textureData = std::make_unique<TextureData>();
+
+	for (int i = 0; i < textureSize; ++i)
+	{
+		for (int j = 0; j < textureSize; ++j)
+		{
+			(*textureData)[i][j][0] = 0;
+			(*textureData)[i][j][1] = 255;
+			(*textureData)[i][j][2] = 0;
+		}
+	}
+
+	Texture texture{textureSize, textureSize, (*textureData)[0][0].data()};
+	return texture;
 }
