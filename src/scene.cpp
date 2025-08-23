@@ -35,7 +35,7 @@ void Scene::update()
 	deleteUnreferencedNonDeletablePoints();
 }
 
-void Scene::render() const
+void Scene::render()
 {
 	if (m_anaglyphOn)
 	{
@@ -798,7 +798,7 @@ void Scene::addTorus()
 		{
 			deleteIntersectionCurves(intersectionCurves);
 		},
-		m_shaderPrograms.mesh, m_cursor.getPos());
+		m_shaderPrograms.mesh, m_shaderPrograms.flat, m_cursor.getPos());
 	m_models.push_back(torus.get());
 	m_toruses.push_back(std::move(torus));
 }
@@ -922,8 +922,9 @@ void Scene::addC0BezierSurface(int patchesU, int patchesV, float sizeU, float si
 		{
 			deleteIntersectionCurves(intersectionCurves);
 		},
-		m_shaderPrograms.bezierSurface, m_shaderPrograms.mesh, m_shaderPrograms.point, patchesU,
-		patchesV, m_cursor.getPos(), sizeU, sizeV, wrapping, newPoints, newPatches);
+		m_shaderPrograms.bezierSurface, m_shaderPrograms.mesh, m_shaderPrograms.point,
+		m_shaderPrograms.flat, patchesU, patchesV, m_cursor.getPos(), sizeU, sizeV, wrapping,
+		newPoints, newPatches);
 	addPoints(std::move(newPoints));
 	addBezierPatches(std::move(newPatches));
 	m_models.push_back(surface.get());
@@ -940,8 +941,9 @@ void Scene::addC2BezierSurface(int patchesU, int patchesV, float sizeU, float si
 		{
 			deleteIntersectionCurves(intersectionCurves);
 		},
-		m_shaderPrograms.bezierSurface, m_shaderPrograms.mesh, m_shaderPrograms.point, patchesU,
-		patchesV, m_cursor.getPos(), sizeU, sizeV, wrapping, newPoints, newPatches);
+		m_shaderPrograms.bezierSurface, m_shaderPrograms.mesh, m_shaderPrograms.point,
+		m_shaderPrograms.flat, patchesU, patchesV, m_cursor.getPos(), sizeU, sizeV, wrapping,
+		newPoints, newPatches);
 	addPoints(std::move(newPoints));
 	addBezierPatches(std::move(newPatches));
 	m_models.push_back(surface.get());
@@ -978,10 +980,10 @@ void Scene::addIntersectionCurve(const std::array<Intersectable*, 2>& surfaces, 
 
 	if (intersectionCurve != nullptr)
 	{
-		surfaces[0]->addIntersectionCurve(intersectionCurve.get());
+		surfaces[0]->addIntersectionCurve(intersectionCurve.get(), 0);
 		if (surfaces[0] != surfaces[1])
 		{
-			surfaces[1]->addIntersectionCurve(intersectionCurve.get());
+			surfaces[1]->addIntersectionCurve(intersectionCurve.get(), 1);
 		}
 
 		m_models.push_back(intersectionCurve.get());

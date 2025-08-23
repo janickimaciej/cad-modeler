@@ -1,7 +1,9 @@
 #pragma once
 
+#include "meshes/flatMesh.hpp"
 #include "models/intersectionCurve.hpp"
 #include "models/model.hpp"
+#include "shaderProgram.hpp"
 #include "texture.hpp"
 
 #include <glm/glm.hpp>
@@ -19,13 +21,13 @@ public:
 	{
 		none,
 		red,
-		blue
+		green
 	};
 
 	using ChangeCallback = std::function<void(const std::vector<IntersectionCurve*>&)>;
 
 	Intersectable(const glm::vec3& pos, const std::string& name,
-		const ChangeCallback& changeCallback);
+		const ChangeCallback& changeCallback, const ShaderProgram& flatShaderProgram);
 
 	virtual glm::vec3 surface(float u, float v) const = 0;
 	virtual glm::vec3 surfaceDU(float u, float v) const = 0;
@@ -38,7 +40,7 @@ public:
 	virtual bool uWrapped() const = 0;
 	virtual bool vWrapped() const = 0;
 
-	void addIntersectionCurve(IntersectionCurve* curve);
+	void addIntersectionCurve(IntersectionCurve* curve, int surfaceIndex);
 	int intersectionCurveCount() const;
 	std::string intersectionCurveName(int index) const;
 
@@ -55,12 +57,16 @@ private:
 		m_intersectionCurveDestroyNotifications{};
 	std::vector<Trim> m_intersectionCurveTrims{};
 	std::vector<Texture> m_intersectionCurveTextures{};
+	const ShaderProgram& m_flatShaderProgram;
 
 	ChangeCallback m_changeCallback;
 
 	void registerForNotification(IntersectionCurve* curve);
+	Texture createIntersectionCurveTexture(const IntersectionCurve* curve, int surfaceIndex);
 	void intersectionCurveDestroyNotification(const IntersectionCurve* curve);
 	int getCurveIndex(const IntersectionCurve* curve) const;
+	std::unique_ptr<FlatMesh> createIntersectionMesh(
+		const std::vector<glm::vec2>& intersectionPoints) const;
 
-	static Texture createIntersectionCurveTexture(const IntersectionCurve* curve);
+	static glm::vec2 params2Tex(const glm::vec2& parameters);
 };

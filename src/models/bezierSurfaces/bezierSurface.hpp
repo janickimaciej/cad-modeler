@@ -28,8 +28,8 @@ public:
 	using DestroyCallback = std::function<void()>;
 
 	BezierSurface(const Intersectable::ChangeCallback& changeCallback, const std::string& name,
-		const ShaderProgram& bezierSurfaceGridShaderProgram, int patchesU, int patchesV,
-		BezierSurfaceWrapping wrapping);
+		const ShaderProgram& bezierSurfaceGridShaderProgram, const ShaderProgram& flatShaderProgram,
+		int patchesU, int patchesV, BezierSurfaceWrapping wrapping);
 	virtual ~BezierSurface();
 
 	virtual void render() const override;

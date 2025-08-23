@@ -36,6 +36,7 @@ public:
 	virtual void setPos(const glm::vec3&) override;
 
 	int pointCount() const;
+	std::vector<glm::vec2> getIntersectionPoints(int surfaceIndex) const;
 	std::vector<glm::vec3> getIntersectionPoints() const;
 	bool isClosed() const;
 
@@ -78,6 +79,7 @@ private:
 	static std::vector<PointPair> findIntersectionPoints(
 		const std::array<const Intersectable*, 2>& surfaces, float step,
 		const PointPair& startingPointPair);
+	static void normalizePoints(std::vector<PointPair>& pointPairs);
 	static std::optional<PointPair> newtonMethod(
 		const std::array<const Intersectable*, 2>& surfaces, float step,
 		const std::optional<PointPair>& prevPointPair, const PointPair& startingPointPair,

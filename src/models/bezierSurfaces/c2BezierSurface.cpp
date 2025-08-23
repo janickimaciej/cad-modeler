@@ -11,11 +11,12 @@
 C2BezierSurface::C2BezierSurface(const Intersectable::ChangeCallback& changeCallback,
 	const ShaderProgram& bezierSurfaceShaderProgram,
 	const ShaderProgram& bezierSurfaceGridShaderProgram, const ShaderProgram& pointShaderProgram,
-	int patchesU, int patchesV, const glm::vec3& pos, float sizeU, float sizeV,
-	BezierSurfaceWrapping wrapping, std::vector<std::unique_ptr<Point>>& points,
+	const ShaderProgram& flatShaderProgram, int patchesU, int patchesV, const glm::vec3& pos,
+	float sizeU, float sizeV, BezierSurfaceWrapping wrapping,
+	std::vector<std::unique_ptr<Point>>& points,
 	std::vector<std::unique_ptr<BezierPatch>>& patches) :
 	BezierSurface{changeCallback, "C2 Bezier surface " + std::to_string(m_count++),
-		bezierSurfaceGridShaderProgram, patchesU, patchesV, wrapping}
+		bezierSurfaceGridShaderProgram, flatShaderProgram, patchesU, patchesV, wrapping}
 {
 	switch (wrapping)
 	{

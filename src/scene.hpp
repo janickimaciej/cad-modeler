@@ -47,7 +47,7 @@ class Scene
 public:
 	Scene(const glm::ivec2& windowSize);
 	void update();
-	void render() const;
+	void render();
 	void updateWindowSize(const glm::ivec2& windowSize);
 
 	CameraType getCameraType() const;

@@ -2,9 +2,8 @@
 
 #include <glad/glad.h>
 
-Texture::Texture(int width, int height, unsigned char* data) :
-	m_width{width},
-	m_height{height}
+Texture::Texture(const glm::ivec2& size, unsigned char* data) :
+	m_size{size}
 {
 	glGenTextures(1, &m_id);
 	glBindTexture(GL_TEXTURE_2D, m_id);
@@ -13,15 +12,14 @@ Texture::Texture(int width, int height, unsigned char* data) :
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, m_width, m_height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, m_size.x, m_size.y, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
 
 	glBindTexture(GL_TEXTURE_2D, 0);
 }
 
 Texture::Texture(Texture&& texture) noexcept :
 	m_id{texture.m_id},
-	m_width{texture.m_width},
-	m_height{texture.m_height}
+	m_size{texture.m_size}
 {
 	texture.m_invalid = true;
 }
@@ -37,8 +35,7 @@ Texture::~Texture()
 Texture& Texture::operator=(Texture&& texture) noexcept
 {
 	m_id = texture.m_id;
-	m_width = texture.m_width;
-	m_height = texture.m_height;
+	m_size = texture.m_size;
 	texture.m_invalid = true;
 	return *this;
 }

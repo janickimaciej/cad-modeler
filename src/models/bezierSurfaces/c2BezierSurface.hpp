@@ -21,9 +21,9 @@ public:
 	C2BezierSurface(const Intersectable::ChangeCallback& changeCallback,
 		const ShaderProgram& bezierSurfaceShaderProgram,
 		const ShaderProgram& bezierSurfaceGridShaderProgram,
-		const ShaderProgram& pointShaderProgram, int patchesU, int patchesV, const glm::vec3& pos,
-		float sizeU, float sizeV, BezierSurfaceWrapping wrapping,
-		std::vector<std::unique_ptr<Point>>& points,
+		const ShaderProgram& pointShaderProgram, const ShaderProgram& flatShaderProgram,
+		int patchesU, int patchesV, const glm::vec3& pos, float sizeU, float sizeV,
+		BezierSurfaceWrapping wrapping, std::vector<std::unique_ptr<Point>>& points,
 		std::vector<std::unique_ptr<BezierPatch>>& patches);
 	virtual ~C2BezierSurface() = default;
 

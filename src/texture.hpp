@@ -1,9 +1,11 @@
 #pragma once
 
+#include <glm/glm.hpp>
+
 class Texture
 {
 public:
-	Texture(int width, int height, unsigned char* data);
+	Texture(const glm::ivec2& size, unsigned char* data);
 	Texture(const Texture&) = delete;
 	Texture(Texture&& texture) noexcept;
 	~Texture();
@@ -16,7 +18,6 @@ public:
 private:
 	bool m_invalid = false;
 
-	unsigned int m_id;
-	int m_width{};
-	int m_height{};
+	unsigned int m_id{};
+	glm::ivec2 m_size{};
 };

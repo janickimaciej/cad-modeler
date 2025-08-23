@@ -2,7 +2,8 @@
 
 #include <glad/glad.h>
 
-Framebuffer::Framebuffer(const glm::ivec2& size)
+Framebuffer::Framebuffer(const glm::ivec2& size) :
+	m_size{size}
 {
 	glGenFramebuffers(1, &m_FBO);
 	bind();
@@ -24,14 +25,18 @@ Framebuffer::~Framebuffer()
 	glDeleteFramebuffers(1, &m_FBO);
 }
 
-void Framebuffer::bind() const
+void Framebuffer::bind()
 {
+	glGetIntegerv(GL_VIEWPORT, m_previousViewport.data());
+	glViewport(0, 0, m_size.x, m_size.y);
 	glBindFramebuffer(GL_FRAMEBUFFER, m_FBO);
 }
 
 void Framebuffer::unbind() const
 {
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	glViewport(m_previousViewport[0], m_previousViewport[1], m_previousViewport[2],
+		m_previousViewport[3]);
 }
 
 void Framebuffer::bindTexture() const
@@ -43,6 +48,11 @@ void Framebuffer::resize(const glm::ivec2& size) const
 {
 	resizeColorBuffer(size);
 	resizeDepthStencilBuffer(size);
+}
+
+void Framebuffer::getTextureData(unsigned char* output) const
+{
+	glReadPixels(0, 0, m_size.x, m_size.y, GL_RGB, GL_UNSIGNED_BYTE, output);
 }
 
 void Framebuffer::createColorBuffer(const glm::ivec2& size)

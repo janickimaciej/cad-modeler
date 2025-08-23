@@ -63,14 +63,24 @@ int IntersectionCurve::pointCount() const
 	return static_cast<int>(m_pointPairs.size());
 }
 
-std::vector<glm::vec3> IntersectionCurve::getIntersectionPoints() const
+std::vector<glm::vec2> IntersectionCurve::getIntersectionPoints(int surfaceIndex) const
 {
-	std::vector<glm::vec3> intersectionCurves{};
+	std::vector<glm::vec2> points{};
 	for (const PointPair& pointPair : m_pointPairs)
 	{
-		intersectionCurves.push_back(m_surfaces[0]->surface(pointPair[0]));
+		points.push_back(pointPair[surfaceIndex]);
 	}
-	return intersectionCurves;
+	return points;
+}
+
+std::vector<glm::vec3> IntersectionCurve::getIntersectionPoints() const
+{
+	std::vector<glm::vec3> points{};
+	for (const PointPair& pointPair : m_pointPairs)
+	{
+		points.push_back(m_surfaces[0]->surface(pointPair[0]));
+	}
+	return points;
 }
 
 bool IntersectionCurve::isClosed() const
@@ -101,6 +111,7 @@ std::unique_ptr<IntersectionCurve> IntersectionCurve::create(const ShaderProgram
 
 	std::vector<PointPair> intersectionPointPairs = findIntersectionPoints(surfaces, step,
 		*newtonMethodStartingPointPair);
+	normalizePoints(intersectionPointPairs);
 
 	float endpointsDistanceSquared =
 		getDistanceSquared(surfaces[0]->surface(intersectionPointPairs[0][0]),
@@ -389,6 +400,27 @@ std::vector<IntersectionCurve::PointPair> IntersectionCurve::findIntersectionPoi
 	return backwardsPointPairs;
 }
 
+void IntersectionCurve::normalizePoints(std::vector<PointPair>& pointPairs)
+{
+	for (PointPair& pointPair : pointPairs)
+	{
+		for (glm::vec2& point : pointPair)
+		{
+			for (int i = 0; i < 2; ++i)
+			{
+				while (point[i] < 0)
+				{
+					point[i] += 1;
+				}
+				while (point[i] >= 1)
+				{
+					point[i] -= 1;
+				}
+			}
+		}
+	}
+}
+
 std::optional<IntersectionCurve::PointPair> IntersectionCurve::newtonMethod(
 	const std::array<const Intersectable*, 2>& surfaces, float step,
 	const std::optional<PointPair>& prevPointPair, const PointPair& startingPointPair,
@@ -491,8 +523,8 @@ bool IntersectionCurve::outsideDomain(const std::array<const Intersectable*, 2>&
 {
 	for (int i = 0; i < 2; ++i)
 	{
-		if (!surfaces[i]->uWrapped() && (pointPair[i].x < 0 || pointPair[i].x > 1) ||
-		!surfaces[i]->vWrapped() && (pointPair[i].y < 0 || pointPair[i].y > 1))
+		if (!surfaces[i]->uWrapped() && (pointPair[i].x < 0 || pointPair[i].x >= 1) ||
+		!surfaces[i]->vWrapped() && (pointPair[i].y < 0 || pointPair[i].y >= 1))
 		{
 			return true;
 		}

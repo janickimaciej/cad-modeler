@@ -6,9 +6,10 @@
 #include <tuple>
 
 BezierSurface::BezierSurface(const Intersectable::ChangeCallback& changeCallback,
-	const std::string& name, const ShaderProgram& bezierSurfaceGridShaderProgram, int patchesU,
-	int patchesV, BezierSurfaceWrapping wrapping) :
-	Intersectable{{}, name, changeCallback},
+	const std::string& name, const ShaderProgram& bezierSurfaceGridShaderProgram,
+	const ShaderProgram& flatShaderProgram, int patchesU, int patchesV,
+	BezierSurfaceWrapping wrapping) :
+	Intersectable{{}, name, changeCallback, flatShaderProgram},
 	m_gridShaderProgram{bezierSurfaceGridShaderProgram},
 	m_patchesU{static_cast<std::size_t>(patchesU)},
 	m_patchesV{static_cast<std::size_t>(patchesV)},

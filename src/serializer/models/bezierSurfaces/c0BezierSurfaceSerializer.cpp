@@ -77,8 +77,8 @@ void C0BezierSurfaceSerializer::deserialize(const nlohmann::ordered_json& json, 
 			scene.deleteIntersectionCurves(intersectionCurves);
 		},
 		scene.m_shaderPrograms.bezierSurface, scene.m_shaderPrograms.mesh,
-		scene.m_shaderPrograms.point, patchesU, patchesV, glm::vec3{}, 1.0f, 1.0f, wrapping,
-		points, patches);
+		scene.m_shaderPrograms.point, scene.m_shaderPrograms.flat, patchesU, patchesV, glm::vec3{},
+		1.0f, 1.0f, wrapping, points, patches);
 	scene.addBezierPatches(std::move(patches));
 
 	surface->m_pointMoveNotifications.clear();

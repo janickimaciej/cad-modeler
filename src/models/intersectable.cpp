@@ -1,8 +1,13 @@
 #include "models/intersectable.hpp"
 
+#include "framebuffer.hpp"
+
+#include <cstddef>
+
 Intersectable::Intersectable(const glm::vec3& pos, const std::string& name,
-	const ChangeCallback& changeCallback) :
+	const ChangeCallback& changeCallback, const ShaderProgram& flatShaderProgram) :
 	Model{pos, name},
+	m_flatShaderProgram{flatShaderProgram},
 	m_changeCallback{changeCallback}
 { }
 
@@ -21,12 +26,12 @@ glm::vec3 Intersectable::surfaceDV(const glm::vec2& pos) const
 	return surfaceDV(pos.x, pos.y);
 }
 
-void Intersectable::addIntersectionCurve(IntersectionCurve* curve)
+void Intersectable::addIntersectionCurve(IntersectionCurve* curve, int surfaceIndex)
 {
 	m_intersectionCurves.push_back(curve);
 	registerForNotification(curve);
 	m_intersectionCurveTrims.push_back(Trim::none);
-	m_intersectionCurveTextures.push_back(createIntersectionCurveTexture(curve));
+	m_intersectionCurveTextures.push_back(createIntersectionCurveTexture(curve, surfaceIndex));
 }
 
 int Intersectable::intersectionCurveCount() const
@@ -70,6 +75,34 @@ void Intersectable::registerForNotification(IntersectionCurve* curve)
 		));
 }
 
+Texture Intersectable::createIntersectionCurveTexture(const IntersectionCurve* curve,
+	int surfaceIndex)
+{
+	static constexpr int textureSize = 256;
+	using TextureData =
+		std::array<std::array<std::array<unsigned char, 3>, textureSize>, textureSize>;
+	std::unique_ptr<TextureData> textureData = std::make_unique<TextureData>();
+
+	Framebuffer framebuffer{{textureSize, textureSize}};
+	std::vector<glm::vec2> intersectionPoints = curve->getIntersectionPoints(surfaceIndex);
+	std::unique_ptr<FlatMesh> mesh = createIntersectionMesh(intersectionPoints);
+
+	framebuffer.bind();
+
+	glClearColor(0, 0.3f, 0, 1.0f);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	m_flatShaderProgram.use();
+	mesh->render();
+	framebuffer.getTextureData((*textureData)[0][0].data());
+
+	framebuffer.unbind();
+
+	// TODO: flood fill
+
+	Texture texture{{textureSize, textureSize}, (*textureData)[0][0].data()};
+	return texture;
+}
+
 void Intersectable::intersectionCurveDestroyNotification(const IntersectionCurve* curve)
 {
 	int curveIndex = getCurveIndex(curve);
@@ -77,6 +110,7 @@ void Intersectable::intersectionCurveDestroyNotification(const IntersectionCurve
 	m_intersectionCurveDestroyNotifications.erase(
 		m_intersectionCurveDestroyNotifications.begin() + curveIndex);
 	m_intersectionCurveTrims.erase(m_intersectionCurveTrims.begin() + curveIndex);
+	m_intersectionCurveTextures.erase(m_intersectionCurveTextures.begin() + curveIndex);
 }
 
 int Intersectable::getCurveIndex(const IntersectionCurve* curve) const
@@ -85,25 +119,74 @@ int Intersectable::getCurveIndex(const IntersectionCurve* curve) const
 	return static_cast<int>(iterator - m_intersectionCurves.begin());
 }
 
-Texture Intersectable::createIntersectionCurveTexture(const IntersectionCurve* curve)
+std::unique_ptr<FlatMesh> Intersectable::createIntersectionMesh(
+	const std::vector<glm::vec2>& intersectionPoints) const
 {
-	static constexpr int textureSize = 256;
-	using TextureData =
-		std::array<std::array<std::array<unsigned char, 3>, textureSize>, textureSize>;
+	std::vector<glm::vec2> vertices{};
+	std::vector<unsigned int> indices{};
 
-	std::vector<glm::vec3> intersectionPoints = curve->getIntersectionPoints();
-	std::unique_ptr<TextureData> textureData = std::make_unique<TextureData>();
-
-	for (int i = 0; i < textureSize; ++i)
+	int index = 0;
+	glm::vec2 segmentStart{};
+	glm::vec2 segmentEnd = intersectionPoints[0];
+	vertices.push_back(params2Tex(segmentEnd));
+	for (std::size_t segment = 0; segment < intersectionPoints.size() - 1; ++segment)
 	{
-		for (int j = 0; j < textureSize; ++j)
+		segmentStart = segmentEnd;
+		segmentEnd = intersectionPoints[segment + 1];
+
+		bool cross = false;
+		glm::vec2 crossDirection{0, 0};
+		float xDiff = segmentEnd.x - segmentStart.x;
+		float yDiff = segmentEnd.y - segmentStart.y;
+		if (xDiff > 0.5f)
 		{
-			(*textureData)[i][j][0] = 0;
-			(*textureData)[i][j][1] = 255;
-			(*textureData)[i][j][2] = 0;
+			crossDirection += glm::vec2{-1, 0};
+			cross = true;
+		}
+		if (xDiff < -0.5f)
+		{
+			crossDirection += glm::vec2{1, 0};
+			cross = true;
+		}
+		if (yDiff > 0.5f)
+		{
+			crossDirection += glm::vec2{0, -1};
+			cross = true;
+		}
+		if (yDiff < -0.5f)
+		{
+			crossDirection += glm::vec2{0, 1};
+			cross = true;
+		}
+
+		if (cross)
+		{
+			vertices.push_back(params2Tex(segmentEnd + crossDirection));
+			indices.push_back(index);
+			indices.push_back(++index);
+
+			vertices.push_back(params2Tex(segmentStart - crossDirection));
+			vertices.push_back(params2Tex(segmentEnd));
+			indices.push_back(++index);
+			indices.push_back(++index);
+		}
+		else
+		{
+			vertices.push_back(params2Tex(segmentEnd));
+			indices.push_back(index);
+			indices.push_back(++index);
 		}
 	}
 
-	Texture texture{textureSize, textureSize, (*textureData)[0][0].data()};
-	return texture;
+	return std::make_unique<FlatMesh>(vertices, indices);
+}
+
+glm::vec2 Intersectable::params2Tex(const glm::vec2& parameters)
+{
+	static constexpr float visualAdjustment = 0.9999f;
+	return
+	{
+		visualAdjustment * (2 * parameters.x - 1),
+		visualAdjustment * (-2 * parameters.y + 1)
+	};
 }

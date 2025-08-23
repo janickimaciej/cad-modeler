@@ -21,6 +21,7 @@ struct ShaderPrograms
 		path("gregorySurfaceTES"), path("FS")};
 	ShaderProgram quad{path("quadVS"), path("quadFS")};
 	ShaderProgram vectors{path("VS"), path("vectorsFS")};
+	ShaderProgram flat{path("flatVS"), path("FS")};
 
 private:
 	static std::string path(const std::string& shaderName);

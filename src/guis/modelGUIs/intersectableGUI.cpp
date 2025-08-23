@@ -32,7 +32,7 @@ void IntersectableGUI::update()
 				ImGui::SameLine();
 				ImGui::RadioButton("red", &trim, static_cast<int>(Intersectable::Trim::red));
 				ImGui::SameLine();
-				ImGui::RadioButton("blue", &trim, static_cast<int>(Intersectable::Trim::blue));
+				ImGui::RadioButton("green", &trim, static_cast<int>(Intersectable::Trim::green));
 				if (trim != prevTrim)
 				{
 					m_intersectable.setIntersectionCurveTrim(i,

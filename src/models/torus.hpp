@@ -16,7 +16,7 @@ class Torus : public Intersectable
 
 public:
 	Torus(const Intersectable::ChangeCallback& changeCallback, const ShaderProgram& shaderProgram,
-		const glm::vec3& pos);
+		const ShaderProgram& flatShaderProgram, const glm::vec3& pos);
 	virtual ~Torus() = default;
 	virtual void render() const override;
 	virtual void updateGUI() override;
