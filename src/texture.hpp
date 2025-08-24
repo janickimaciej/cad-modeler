@@ -5,7 +5,7 @@
 class Texture
 {
 public:
-	Texture(const glm::ivec2& size, unsigned char* data);
+	Texture(const glm::ivec2& size, const unsigned char* data);
 	Texture(const Texture&) = delete;
 	Texture(Texture&& texture) noexcept;
 	~Texture();

@@ -16,6 +16,9 @@
 
 class Intersectable : public Model
 {
+	static constexpr int textureSize = 256;
+	using TextureData =
+		std::array<std::array<std::array<unsigned char, 3>, textureSize>, textureSize>;
 public:
 	enum class Trim
 	{
@@ -57,6 +60,7 @@ private:
 		m_intersectionCurveDestroyNotifications{};
 	std::vector<Trim> m_intersectionCurveTrims{};
 	std::vector<Texture> m_intersectionCurveTextures{};
+	std::optional<int> m_trimmingCurve = std::nullopt;
 	const ShaderProgram& m_flatShaderProgram;
 
 	ChangeCallback m_changeCallback;
@@ -64,9 +68,9 @@ private:
 	void registerForNotification(IntersectionCurve* curve);
 	Texture createIntersectionCurveTexture(const IntersectionCurve* curve, int surfaceIndex);
 	void intersectionCurveDestroyNotification(const IntersectionCurve* curve);
-	int getCurveIndex(const IntersectionCurve* curve) const;
 	std::unique_ptr<FlatMesh> createIntersectionMesh(
 		const std::vector<glm::vec2>& intersectionPoints) const;
-
+	void floodfill(TextureData& data) const;
+	int getCurveIndex(const IntersectionCurve* curve) const;
 	static glm::vec2 params2Tex(const glm::vec2& parameters);
 };

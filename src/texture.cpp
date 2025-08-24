@@ -2,7 +2,7 @@
 
 #include <glad/glad.h>
 
-Texture::Texture(const glm::ivec2& size, unsigned char* data) :
+Texture::Texture(const glm::ivec2& size, const unsigned char* data) :
 	m_size{size}
 {
 	glGenTextures(1, &m_id);
