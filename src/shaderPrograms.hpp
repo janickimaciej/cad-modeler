@@ -10,6 +10,7 @@ struct ShaderPrograms
 	ShaderProgram point{path("pointVS"), path("pointGS"), path("FS")};
 	ShaderProgram cursor{path("cursorVS"), path("cursorGS"), path("cursorFS")};
 	ShaderProgram plane{path("planeVS"), path("planeFS")};
+	ShaderProgram torus{path("torusVS"), path("intersectableFS")};
 	ShaderProgram bezierCurve{path("bezierCurveVS"), path("bezierCurveTCS"), path("bezierCurveTES"),
 		path("FS")};
 	ShaderProgram interpolatingBezierCurve{path("interpolatingBezierCurveVS"),

@@ -28,6 +28,7 @@
     <ClCompile Include="dep\imgui\imgui_tables.cpp" />
     <ClCompile Include="dep\imgui\imgui_widgets.cpp" />
     <ClCompile Include="dep\imgui\misc\cpp\imgui_stdlib.cpp" />
+    <ClCompile Include="src\meshes\torusMesh.cpp" />
     <ClCompile Include="src\centerPoint.cpp" />
     <ClCompile Include="src\cameras\camera.cpp" />
     <ClCompile Include="src\cameras\orthographicCamera.cpp" />
@@ -109,6 +110,7 @@
     <ClInclude Include="dep\imgui\imstb_truetype.h" />
     <ClInclude Include="dep\imgui\misc\cpp\imgui_stdlib.h" />
     <ClInclude Include="src\anaglyphMode.hpp" />
+    <ClInclude Include="src\meshes\torusMesh.hpp" />
     <ClInclude Include="src\centerPoint.hpp" />
     <ClInclude Include="src\cameras\camera.hpp" />
     <ClInclude Include="src\cameras\orthographicCamera.hpp" />
@@ -186,6 +188,8 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="dep\imgui\misc\debuggers\imgui.natstepfilter" />
+    <None Include="src\shaders\torusVS.glsl" />
+    <None Include="src\shaders\intersectableFS.glsl" />
     <None Include="src\shaders\vectorsFS.glsl" />
     <None Include="src\shaders\gregorySurfaceTCS.glsl" />
     <None Include="src\shaders\gregorySurfaceTES.glsl" />

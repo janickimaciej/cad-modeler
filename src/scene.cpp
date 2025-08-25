@@ -798,7 +798,7 @@ void Scene::addTorus()
 		{
 			deleteIntersectionCurves(intersectionCurves);
 		},
-		m_shaderPrograms.mesh, m_shaderPrograms.flat, m_cursor.getPos());
+		m_shaderPrograms.torus, m_shaderPrograms.flat, m_cursor.getPos());
 	m_models.push_back(torus.get());
 	m_toruses.push_back(std::move(torus));
 }

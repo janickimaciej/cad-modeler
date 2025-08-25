@@ -13,6 +13,7 @@ public:
 	Texture& operator=(const Texture&) = delete;
 	Texture& operator=(Texture&& texture) noexcept;
 
+	void use() const;
 	unsigned int getId() const;
 
 private:

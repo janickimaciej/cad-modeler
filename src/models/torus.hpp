@@ -1,7 +1,7 @@
 #pragma once
 
 #include "guis/modelGUIs/torusGUI.hpp"
-#include "meshes/indicesMesh.hpp"
+#include "meshes/torusMesh.hpp"
 #include "models/intersectable.hpp"
 #include "shaderProgram.hpp"
 
@@ -44,7 +44,7 @@ private:
 	static int m_count;
 
 	const ShaderProgram& m_shaderProgram;
-	std::unique_ptr<IndicesMesh> m_mesh{};
+	std::unique_ptr<TorusMesh> m_mesh{};
 	TorusGUI m_gui{*this};
 
 	float m_majorRadius{};
@@ -58,6 +58,6 @@ private:
 	virtual void updateShaders() const override;
 
 	void updateMesh();
-	std::vector<glm::vec3> createVertices() const;
+	std::vector<TorusMesh::Vertex> createVertices() const;
 	std::vector<unsigned int> createIndices() const;
 };

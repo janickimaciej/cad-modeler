@@ -53,6 +53,7 @@ public:
 
 protected:
 	void notifyChange();
+	void useTrim(const ShaderProgram& surfaceShaderProgram) const;
 
 private:
 	std::vector<IntersectionCurve*> m_intersectionCurves{};

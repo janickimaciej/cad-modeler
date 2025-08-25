@@ -24,6 +24,7 @@ Torus::Torus(const Intersectable::ChangeCallback& changeCallback,
 
 void Torus::render() const
 {
+	//useTrim(m_shaderProgram);
 	updateShaders();
 	m_mesh->render();
 }
@@ -150,7 +151,7 @@ int Torus::m_count = 0;
 
 void Torus::createMesh()
 {
-	m_mesh = std::make_unique<IndicesMesh>(createVertices(), createIndices(), GL_LINES);
+	m_mesh = std::make_unique<TorusMesh>(createVertices(), createIndices());
 }
 
 void Torus::updateShaders() const
@@ -159,17 +160,18 @@ void Torus::updateShaders() const
 	m_shaderProgram.setUniform("modelMatrix", getModelMatrix());
 	m_shaderProgram.setUniform("isDark", false);
 	m_shaderProgram.setUniform("isSelected", isSelected());
+	m_shaderProgram.setUniform("textureMin", glm::vec2{0, 0});
+	m_shaderProgram.setUniform("textureMax", glm::vec2{1, 1});
 }
 
 void Torus::updateMesh()
 {
-	m_mesh->update(createVertices());
-	m_mesh->update(createIndices());
+	m_mesh->update(createVertices(), createIndices());
 }
 
-std::vector<glm::vec3> Torus::createVertices() const
+std::vector<TorusMesh::Vertex> Torus::createVertices() const
 {
-	std::vector<glm::vec3> vertices{};
+	std::vector<TorusMesh::Vertex> vertices{};
 
 	float du = 1.0f / m_majorGrid;
 	float dv = 1.0f / m_minorGrid;
@@ -180,7 +182,7 @@ std::vector<glm::vec3> Torus::createVertices() const
 			float u = iu * du;
 			float v = iv * dv;
 
-			vertices.push_back(surfaceLocal(u, v));
+			vertices.push_back({surfaceLocal(u, v), {u, v}});
 		}
 	}
 

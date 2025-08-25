@@ -70,6 +70,18 @@ unsigned int Intersectable::getIntersectionCurveTextureId(int index) const
 	return m_intersectionCurveTextures[index].getId();
 }
 
+void Intersectable::useTrim(const ShaderProgram& surfaceShaderProgram) const
+{
+	surfaceShaderProgram.use();
+	surfaceShaderProgram.setUniform("useTrim", m_trimmingCurve.has_value());
+	if (m_trimmingCurve.has_value())
+	{
+		surfaceShaderProgram.setUniform("trimSide",
+			static_cast<int>(m_intersectionCurveTrims[*m_trimmingCurve]));
+		m_intersectionCurveTextures[*m_trimmingCurve].use();
+	}
+}
+
 void Intersectable::notifyChange()
 {
 	m_changeCallback(m_intersectionCurves);

@@ -40,6 +40,11 @@ Texture& Texture::operator=(Texture&& texture) noexcept
 	return *this;
 }
 
+void Texture::use() const
+{
+	glBindTexture(GL_TEXTURE_2D, m_id);
+}
+
 unsigned int Texture::getId() const
 {
 	return m_id;
