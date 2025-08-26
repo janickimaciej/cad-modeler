@@ -69,6 +69,5 @@ void TorusMesh::createEBO()
 
 	bindVAO();
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_EBO);
-	glEnableVertexAttribArray(0);
 	unbindVAO();
 }

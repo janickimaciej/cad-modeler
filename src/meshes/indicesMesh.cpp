@@ -39,7 +39,6 @@ void IndicesMesh::createEBO(const std::vector<unsigned int>& indices)
 
 	bindVAO();
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_EBO);
-	glEnableVertexAttribArray(0);
 	unbindVAO();
 
 	update(indices);

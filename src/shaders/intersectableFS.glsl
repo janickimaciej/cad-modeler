@@ -13,11 +13,11 @@ in vec2 surfacePos;
 uniform bool isDark;
 uniform bool isSelected;
 uniform int anaglyphMode;
-//uniform bool useTrim;
-//uniform int trimSide;
-//uniform sampler2D trimTextureSampler;
-//uniform vec2 textureMin;
-//uniform vec2 textureMax;
+uniform bool useTrim;
+uniform int trimSide;
+uniform sampler2D trimTextureSampler;
+uniform vec2 textureMin;
+uniform vec2 textureMax;
 
 out vec4 outColor;
 
@@ -25,16 +25,17 @@ vec4 anaglyph(vec4 outColor);
 
 void main()
 {
-	//if (useTrim)
-	//{
-		//vec2 texturePos = textureMin + (textureMax - textureMin) * surfacePos;
-		//vec3 textureColor = texture(trimTextureSampler, texturePos).xyz;
-		//if (trimSide == TRIM_RED && textureColor.r > 0 ||
-			//trimSide == TRIM_GREEN && textureColor.r == 0)
-		//{
-			//discard;
-		//}
-	//}
+	if (useTrim)
+	{
+		vec2 texturePos = textureMin + (textureMax - textureMin) * surfacePos;
+		texturePos.y = -texturePos.y;
+		vec3 textureColor = texture(trimTextureSampler, texturePos).xyz;
+		if (trimSide == TRIM_RED && textureColor.r >= 0.25 ||
+			trimSide == TRIM_GREEN && textureColor.r < 0.25)
+		{
+			discard;
+		}
+	}
 
 	float brightness = isDark ? 0.5 : 1;
 	outColor = isSelected ? vec4(brightness, brightness, 0, 1) :

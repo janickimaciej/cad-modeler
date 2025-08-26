@@ -24,7 +24,7 @@ Torus::Torus(const Intersectable::ChangeCallback& changeCallback,
 
 void Torus::render() const
 {
-	//useTrim(m_shaderProgram);
+	useTrim(m_shaderProgram);
 	updateShaders();
 	m_mesh->render();
 }

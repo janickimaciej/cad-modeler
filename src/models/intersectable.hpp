@@ -16,7 +16,7 @@
 
 class Intersectable : public Model
 {
-	static constexpr int textureSize = 256;
+	static constexpr int textureSize = 2048;
 	using TextureData =
 		std::array<std::array<std::array<unsigned char, 3>, textureSize>, textureSize>;
 public:
