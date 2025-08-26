@@ -175,9 +175,9 @@ std::vector<TorusMesh::Vertex> Torus::createVertices() const
 
 	float du = 1.0f / m_majorGrid;
 	float dv = 1.0f / m_minorGrid;
-	for (int iu = 0; iu < m_majorGrid; ++iu)
+	for (int iu = 0; iu <= m_majorGrid; ++iu)
 	{
-		for (int iv = 0; iv < m_minorGrid; ++iv)
+		for (int iv = 0; iv <= m_minorGrid; ++iv)
 		{
 			float u = iu * du;
 			float v = iv * dv;
@@ -197,9 +197,9 @@ std::vector<unsigned int> Torus::createIndices() const
 	{
 		for (int j = 0; j < m_minorGrid; ++j)
 		{
-			int ind0 = i * m_minorGrid + j;
-			int ind1 = i * m_minorGrid + (j + 1) % m_minorGrid;
-			int ind2 = ((i + 1) % m_majorGrid) * m_minorGrid + j;
+			int ind0 = i * (m_minorGrid + 1) + j;
+			int ind1 = i * (m_minorGrid + 1) + j + 1;
+			int ind2 = (i + 1) * (m_minorGrid + 1) + j;
 
 			indices.push_back(ind0);
 			indices.push_back(ind1);

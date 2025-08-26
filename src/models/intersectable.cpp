@@ -2,6 +2,8 @@
 
 #include "framebuffer.hpp"
 
+#include <glad/glad.h>
+
 #include <cstddef>
 #include <stack>
 
@@ -119,7 +121,9 @@ Texture Intersectable::createIntersectionCurveTexture(const IntersectionCurve* c
 
 	floodfill(*textureData);
 
-	Texture texture{{textureSize, textureSize}, (*textureData)[0][0].data()};
+	GLenum uWrap = uWrapped() ? GL_REPEAT : GL_CLAMP_TO_EDGE;
+	GLenum vWrap = vWrapped() ? GL_REPEAT : GL_CLAMP_TO_EDGE;
+	Texture texture{{textureSize, textureSize}, (*textureData)[0][0].data(), uWrap, vWrap};
 	return texture;
 }
 

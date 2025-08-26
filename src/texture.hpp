@@ -1,11 +1,12 @@
 #pragma once
 
+#include <glad/glad.h>
 #include <glm/glm.hpp>
 
 class Texture
 {
 public:
-	Texture(const glm::ivec2& size, const unsigned char* data);
+	Texture(const glm::ivec2& size, const unsigned char* data, GLenum uWrap, GLenum vWrap);
 	Texture(const Texture&) = delete;
 	Texture(Texture&& texture) noexcept;
 	~Texture();
