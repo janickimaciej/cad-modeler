@@ -22,6 +22,10 @@ public:
 	virtual void updateGUI() override;
 
 	virtual void setPos(const glm::vec3& pos) override;
+	virtual void setPitchRad(float pitchRad) override;
+	virtual void setYawRad(float yawRad) override;
+	virtual void setRollRad(float rollRad) override;
+	virtual void setScale(const glm::vec3& scale) override;
 
 	float getMajorRadius() const;
 	void setMajorRadius(float majorRadius);

@@ -16,16 +16,14 @@ public:
 
 	glm::vec3 getPos() const;
 	virtual void setPos(const glm::vec3& pos);
-
 	float getPitchRad() const;
-	void setPitchRad(float pitchRad);
+	virtual void setPitchRad(float pitchRad);
 	float getYawRad() const;
-	void setYawRad(float yawRad);
+	virtual void setYawRad(float yawRad);
 	float getRollRad() const;
-	void setRollRad(float rollRad);
-
+	virtual void setRollRad(float rollRad);
 	glm::vec3 getScale() const;
-	void setScale(const glm::vec3& scale);
+	virtual void setScale(const glm::vec3& scale);
 
 	std::string getOriginalName() const;
 	std::string getName() const;

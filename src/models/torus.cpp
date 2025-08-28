@@ -40,6 +40,30 @@ void Torus::setPos(const glm::vec3& pos)
 	notifyChange();
 }
 
+void Torus::setPitchRad(float pitchRad)
+{
+	Model::setPitchRad(pitchRad);
+	notifyChange();
+}
+
+void Torus::setYawRad(float yawRad)
+{
+	Model::setYawRad(yawRad);
+	notifyChange();
+}
+
+void Torus::setRollRad(float rollRad)
+{
+	Model::setRollRad(rollRad);
+	notifyChange();
+}
+
+void Torus::setScale(const glm::vec3& scale)
+{
+	Model::setScale(scale);
+	notifyChange();
+}
+
 float Torus::getMajorRadius() const
 {
 	return m_majorRadius;
