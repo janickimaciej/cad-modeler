@@ -175,10 +175,23 @@ std::vector<std::unique_ptr<BezierPatch>> BezierSurface::createPatches(
 			bool isOnPositiveUEdge = patchU == m_patchesU - 1;
 			bool isOnNegativeVEdge = patchV == 0;
 			bool isOnPositiveVEdge = patchV == m_patchesV - 1;
+			glm::vec2 textureMin =
+			{
+				static_cast<float>(patchU) / m_patchesU,
+				static_cast<float>(patchV) / m_patchesV
+			};
+			glm::vec2 textureMax =
+			{
+				static_cast<float>(patchU + 1) / m_patchesU,
+				static_cast<float>(patchV + 1) / m_patchesV
+			};
 			patches.push_back(std::make_unique<BezierPatch>(
-				[this] (const ShaderProgram& shaderProgram)
+				[this, textureMin, textureMax] (const ShaderProgram& shaderProgram)
 				{
 					useTrim(shaderProgram);
+					shaderProgram.use();
+					shaderProgram.setUniform("textureMin", textureMin);
+					shaderProgram.setUniform("textureMax", textureMax);
 				},
 				bezierSurfaceShaderProgram, getBezierPoints(patchU, patchV), *this,
 				isOnNegativeUEdge, isOnPositiveUEdge, isOnNegativeVEdge, isOnPositiveVEdge));

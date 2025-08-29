@@ -28,7 +28,6 @@ void main()
 	if (useTrim)
 	{
 		vec2 texturePos = textureMin + (textureMax - textureMin) * surfacePos;
-		texturePos.y = -texturePos.y;
 		vec3 textureColor = texture(trimTextureSampler, texturePos).xyz;
 		if (trimSide == TRIM_RED && textureColor.r >= 0.25 ||
 			trimSide == TRIM_GREEN && textureColor.r < 0.25)
