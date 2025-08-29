@@ -44,7 +44,9 @@ void IntersectableGUI::update()
 				(
 					reinterpret_cast<void*>(static_cast<std::intptr_t>(
 						m_intersectable.getIntersectionCurveTextureId(i))),
-					{imageSize, imageSize}
+					{imageSize, imageSize},
+					ImVec2{0.0f, 1.0f},
+					ImVec2{1.0f, 0.0f}
 				);
 				ImGui::TreePop();
 			}

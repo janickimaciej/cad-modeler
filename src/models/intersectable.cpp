@@ -181,10 +181,10 @@ int Intersectable::getCurveIndex(const IntersectionCurve* curve) const
 
 glm::vec2 Intersectable::params2Tex(const glm::vec2& parameters)
 {
-	static constexpr float visualAdjustment = 0.9999f;
+	static constexpr float adjustment = 0.9999f;
 	return
 	{
-		visualAdjustment * (2 * parameters.x - 1),
-		visualAdjustment * (-2 * parameters.y + 1)
+		adjustment * (2 * parameters.x - 1),
+		adjustment * (2 * parameters.y - 1)
 	};
 }
