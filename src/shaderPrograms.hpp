@@ -17,7 +17,7 @@ struct ShaderPrograms
 		path("interpolatingBezierCurveTCS"), path("interpolatingBezierCurveTES"), path("FS")};
 	ShaderProgram polyline{path("VS"), path("FS")};
 	ShaderProgram bezierSurface{path("surfaceVS"), path("bezierSurfaceTCS"),
-		path("bezierSurfaceTES"), path("FS")};
+		path("bezierSurfaceTES"), path("intersectableFS")};
 	ShaderProgram gregorySurface{path("surfaceVS"), path("gregorySurfaceTCS"),
 		path("gregorySurfaceTES"), path("FS")};
 	ShaderProgram quad{path("quadVS"), path("quadFS")};

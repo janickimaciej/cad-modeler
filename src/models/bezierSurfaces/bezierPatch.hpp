@@ -9,6 +9,7 @@
 #include <glm/glm.hpp>
 
 #include <array>
+#include <functional>
 #include <memory>
 #include <vector>
 
@@ -19,10 +20,11 @@ class BezierPatch : public Model
 public:
 	using DestroyCallback = std::function<void()>;
 
-	BezierPatch(const ShaderProgram& shaderProgram,
-		const std::array<std::array<Point*, 4>, 4>& bezierPoints,
-		const BezierSurface& surface, bool isOnNegativeUEdge, bool isOnPositiveUEdge,
-		bool isOnNegativeVEdge, bool isOnPositiveVEdge);
+	BezierPatch(const std::function<void(const ShaderProgram&)>& useTrim,
+		const ShaderProgram& shaderProgram,
+		const std::array<std::array<Point*, 4>, 4>& bezierPoints, const BezierSurface& surface,
+		bool isOnNegativeUEdge, bool isOnPositiveUEdge, bool isOnNegativeVEdge,
+		bool isOnPositiveVEdge);
 	virtual ~BezierPatch();
 	virtual void render() const override;
 	virtual void updateGUI() override;
@@ -61,6 +63,7 @@ private:
 	bool m_isOnNegativeVEdge{};
 	bool m_isOnPositiveVEdge{};
 
+	std::function<void(const ShaderProgram&)> m_useTrim{};
 	std::vector<std::weak_ptr<DestroyCallback>> m_destroyNotifications{};
 
 	void createSurfaceMesh();

@@ -7,6 +7,8 @@ uniform mat4 projectionViewMatrix;
 uniform int lineCount;
 uniform bool orientationFlipped;
 
+out vec2 surfacePos;
+
 vec3 deCasteljau2(vec3 a, vec3 b, float t);
 vec3 deCasteljau3(vec3 a, vec3 b, vec3 c, float t);
 vec3 deCasteljau4(vec3 a, vec3 b, vec3 c, vec3 d, float t);
@@ -25,6 +27,7 @@ void main()
 		u = gl_TessCoord.x;
 		v = gl_TessCoord.y / (1 - 1.0 / lineCount);
 	}
+	surfacePos = vec2(u, v);
 
 	vec3 bezierV[4];
 	for (int i = 0; i < 4; ++i)

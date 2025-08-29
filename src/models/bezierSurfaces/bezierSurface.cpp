@@ -175,9 +175,13 @@ std::vector<std::unique_ptr<BezierPatch>> BezierSurface::createPatches(
 			bool isOnPositiveUEdge = patchU == m_patchesU - 1;
 			bool isOnNegativeVEdge = patchV == 0;
 			bool isOnPositiveVEdge = patchV == m_patchesV - 1;
-			patches.push_back(std::make_unique<BezierPatch>(bezierSurfaceShaderProgram,
-				getBezierPoints(patchU, patchV), *this, isOnNegativeUEdge, isOnPositiveUEdge,
-				isOnNegativeVEdge, isOnPositiveVEdge));
+			patches.push_back(std::make_unique<BezierPatch>(
+				[this] (const ShaderProgram& shaderProgram)
+				{
+					useTrim(shaderProgram);
+				},
+				bezierSurfaceShaderProgram, getBezierPoints(patchU, patchV), *this,
+				isOnNegativeUEdge, isOnPositiveUEdge, isOnNegativeVEdge, isOnPositiveVEdge));
 			m_patches[patchV].push_back(patches.back().get());
 		}
 	}

@@ -6,10 +6,10 @@
 
 #include <string>
 
-BezierPatch::BezierPatch(const ShaderProgram& shaderProgram,
-	const std::array<std::array<Point*, 4>, 4>& bezierPoints, const BezierSurface& surface,
-	bool isOnNegativeUEdge, bool isOnPositiveUEdge, bool isOnNegativeVEdge,
-	bool isOnPositiveVEdge) :
+BezierPatch::BezierPatch(const std::function<void(const ShaderProgram&)>& useTrim,
+	const ShaderProgram& shaderProgram, const std::array<std::array<Point*, 4>, 4>& bezierPoints,
+	const BezierSurface& surface, bool isOnNegativeUEdge, bool isOnPositiveUEdge,
+	bool isOnNegativeVEdge, bool isOnPositiveVEdge) :
 	Model{{}, "Bezier patch " + std::to_string(m_count++), false},
 	m_shaderProgram{shaderProgram},
 	m_bezierPoints{bezierPoints},
@@ -17,7 +17,8 @@ BezierPatch::BezierPatch(const ShaderProgram& shaderProgram,
 	m_isOnNegativeUEdge{isOnNegativeUEdge},
 	m_isOnPositiveUEdge{isOnPositiveUEdge},
 	m_isOnNegativeVEdge{isOnNegativeVEdge},
-	m_isOnPositiveVEdge{isOnPositiveVEdge}
+	m_isOnPositiveVEdge{isOnPositiveVEdge},
+	m_useTrim{useTrim}
 {
 	createSurfaceMesh();
 	updatePos();
@@ -30,6 +31,7 @@ BezierPatch::~BezierPatch()
 
 void BezierPatch::render() const
 {
+	m_useTrim(m_shaderProgram);
 	updateShaders();
 
 	m_shaderProgram.use();
