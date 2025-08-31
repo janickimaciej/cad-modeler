@@ -1,7 +1,6 @@
 #include "cursor.hpp"
 
-Cursor::Cursor(const ShaderProgram& shaderProgram) :
-	m_shaderProgram{shaderProgram}
+Cursor::Cursor()
 { }
 
 void Cursor::render() const
@@ -27,5 +26,6 @@ void Cursor::setPos(const glm::vec3& pos)
 
 void Cursor::updateShaders() const
 {
+	m_shaderProgram.use();
 	m_shaderProgram.setUniform("posWorld", m_pos);
 }

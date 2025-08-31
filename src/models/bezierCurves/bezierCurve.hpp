@@ -5,6 +5,7 @@
 #include "models/model.hpp"
 #include "models/point.hpp"
 #include "shaderProgram.hpp"
+#include "shaderPrograms.hpp"
 
 #include <glm/glm.hpp>
 
@@ -18,9 +19,8 @@ class BezierCurve : public Model
 public:
 	using SelfDestructCallback = std::function<void(const BezierCurve*)>;
 
-	BezierCurve(const std::string& name, const ShaderProgram& curveShaderProgram,
-		const ShaderProgram& polylineShaderProgram, const std::vector<Point*>& points,
-		const SelfDestructCallback& selfDestructCallback);
+	BezierCurve(const std::string& name, const std::vector<Point*>& points,
+		const ShaderProgram& curveShaderProgram, const SelfDestructCallback& selfDestructCallback);
 	virtual ~BezierCurve() = default;
 	virtual void render() const override;
 
@@ -64,7 +64,7 @@ protected:
 
 private:
 	const ShaderProgram& m_curveShaderProgram;
-	const ShaderProgram& m_polylineShaderProgram;
+	const ShaderProgram& m_polylineShaderProgram = *ShaderPrograms::polyline;
 
 	BezierCurveGUI m_gui{*this};
 

@@ -23,7 +23,6 @@
 #include "models/torus.hpp"
 #include "plane/plane.hpp"
 #include "quad.hpp"
-#include "shaderPrograms.hpp"
 
 #include <glm/glm.hpp>
 
@@ -122,8 +121,6 @@ public:
 	void setProjectionPlane(float projectionPlane);
 
 private:
-	ShaderPrograms m_shaderPrograms{};
-
 	std::vector<Model*> m_models{};
 	std::vector<Model*> m_selectedModels{};
 	std::vector<std::unique_ptr<Point>> m_points{};
@@ -137,11 +134,11 @@ private:
 	std::vector<std::unique_ptr<GregorySurface>> m_gregorySurfaces{};
 	std::vector<std::unique_ptr<IntersectionCurve>> m_intersectionCurves{};
 
-	Cursor m_cursor{m_shaderPrograms.cursor};
-	CenterPoint m_selectedModelsCenter{m_shaderPrograms.cursor, m_selectedModels};
+	Cursor m_cursor{};
+	CenterPoint m_selectedModelsCenter{m_selectedModels};
 
 	static constexpr float gridScale = 5.0f;
-	Plane m_plane{m_shaderPrograms.plane, gridScale};
+	Plane m_plane{gridScale};
 
 	PerspectiveCamera m_perspectiveCamera;
 	OrthographicCamera m_orthographicCamera;

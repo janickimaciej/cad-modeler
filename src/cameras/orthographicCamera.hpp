@@ -2,13 +2,12 @@
 
 #include "guis/cameraGUIs/orthographicCameraGUI.hpp"
 #include "cameras/camera.hpp"
-#include "shaderPrograms.hpp"
 
 class OrthographicCamera : public Camera
 {
 public:
 	OrthographicCamera(const glm::ivec2& windowSize, float viewHeight, float nearPlane,
-		float farPlane, const ShaderPrograms& shaderPrograms);
+		float farPlane);
 	virtual ~OrthographicCamera() = default;
 	virtual void updateGUI() override;
 	float getViewHeight() const;

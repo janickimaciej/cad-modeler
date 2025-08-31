@@ -8,6 +8,7 @@
 #include "models/model.hpp"
 #include "models/point.hpp"
 #include "shaderProgram.hpp"
+#include "shaderPrograms.hpp"
 
 #include <glm/glm.hpp>
 
@@ -28,7 +29,6 @@ public:
 	using DestroyCallback = std::function<void()>;
 
 	BezierSurface(const Intersectable::ChangeCallback& changeCallback, const std::string& name,
-		const ShaderProgram& bezierSurfaceGridShaderProgram, const ShaderProgram& flatShaderProgram,
 		int patchesU, int patchesV, BezierSurfaceWrapping wrapping);
 	virtual ~BezierSurface();
 
@@ -66,11 +66,9 @@ protected:
 	std::size_t getBezierPointsU() const;
 	std::size_t getBezierPointsV() const;
 
-	virtual std::vector<std::unique_ptr<Point>> createPoints(
-		const ShaderProgram& pointShaderProgram, const glm::vec3& pos, float sizeU,
+	virtual std::vector<std::unique_ptr<Point>> createPoints(const glm::vec3& pos, float sizeU,
 		float sizeV) = 0;
-	std::vector<std::unique_ptr<BezierPatch>> createPatches(
-		const ShaderProgram& bezierSurfaceShaderProgram);
+	std::vector<std::unique_ptr<BezierPatch>> createPatches();
 	virtual void createGridMesh() = 0;
 	virtual void updateGeometry();
 	void updatePos();
@@ -91,7 +89,7 @@ protected:
 	static std::vector<glm::vec3> createVertices(const std::vector<std::vector<PointPtr>>& points);
 
 private:
-	const ShaderProgram& m_gridShaderProgram;
+	const ShaderProgram& m_gridShaderProgram = *ShaderPrograms::polyline;
 
 	BezierSurfaceGUI m_gui{*this};
 

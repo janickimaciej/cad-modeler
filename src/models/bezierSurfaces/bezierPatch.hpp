@@ -5,6 +5,7 @@
 #include "models/model.hpp"
 #include "models/point.hpp"
 #include "shaderProgram.hpp"
+#include "shaderPrograms.hpp"
 
 #include <glm/glm.hpp>
 
@@ -21,7 +22,6 @@ public:
 	using DestroyCallback = std::function<void()>;
 
 	BezierPatch(const std::function<void(const ShaderProgram&)>& useTrim,
-		const ShaderProgram& shaderProgram,
 		const std::array<std::array<Point*, 4>, 4>& bezierPoints, const BezierSurface& surface,
 		bool isOnNegativeUEdge, bool isOnPositiveUEdge, bool isOnNegativeVEdge,
 		bool isOnPositiveVEdge);
@@ -49,7 +49,7 @@ public:
 private:
 	static int m_count;
 
-	const ShaderProgram& m_shaderProgram;
+	const ShaderProgram& m_shaderProgram = *ShaderPrograms::bezierSurface;
 	std::unique_ptr<Mesh> m_mesh{};
 	BezierPatchGUI m_gui{*this};
 

@@ -18,12 +18,9 @@ class C2BezierSurface : public BezierSurface
 	friend class C2BezierSurfaceSerializer;
 
 public:
-	C2BezierSurface(const Intersectable::ChangeCallback& changeCallback,
-		const ShaderProgram& bezierSurfaceShaderProgram,
-		const ShaderProgram& bezierSurfaceGridShaderProgram,
-		const ShaderProgram& pointShaderProgram, const ShaderProgram& flatShaderProgram,
-		int patchesU, int patchesV, const glm::vec3& pos, float sizeU, float sizeV,
-		BezierSurfaceWrapping wrapping, std::vector<std::unique_ptr<Point>>& points,
+	C2BezierSurface(const Intersectable::ChangeCallback& changeCallback, int patchesU, int patchesV,
+		const glm::vec3& pos, float sizeU, float sizeV, BezierSurfaceWrapping wrapping,
+		std::vector<std::unique_ptr<Point>>& points,
 		std::vector<std::unique_ptr<BezierPatch>>& patches);
 	virtual ~C2BezierSurface() = default;
 
@@ -32,10 +29,9 @@ private:
 
 	std::vector<std::vector<std::unique_ptr<Point>>> m_bezierPoints{};
 
-	virtual std::vector<std::unique_ptr<Point>> createPoints(
-		const ShaderProgram& pointShaderProgram, const glm::vec3& pos, float sizeU,
+	virtual std::vector<std::unique_ptr<Point>> createPoints(const glm::vec3& pos, float sizeU,
 		float sizeV) override;
-	void createBezierPoints(const ShaderProgram& pointShaderProgram);
+	void createBezierPoints();
 	void updateBezierPoints();
 	virtual void createGridMesh() override;
 	virtual void updateGeometry() override;

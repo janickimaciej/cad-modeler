@@ -3,8 +3,8 @@
 #include <cmath>
 
 PerspectiveCamera::PerspectiveCamera(const glm::ivec2& windowSize, float fovYDeg, float nearPlane,
-	float farPlane, const ShaderPrograms& shaderPrograms) :
-	Camera{windowSize, nearPlane, farPlane, shaderPrograms},
+	float farPlane) :
+	Camera{windowSize, nearPlane, farPlane},
 	m_gui{*this},
 	m_fovYDeg{fovYDeg}
 {

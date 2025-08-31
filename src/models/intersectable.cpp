@@ -1,9 +1,8 @@
 #include "models/intersectable.hpp"
 
 Intersectable::Intersectable(const glm::vec3& pos, const std::string& name,
-	const ChangeCallback& changeCallback, const ShaderProgram& flatShaderProgram) :
+	const ChangeCallback& changeCallback) :
 	Model{pos, name},
-	m_flatShaderProgram{flatShaderProgram},
 	m_changeCallback{changeCallback}
 { }
 

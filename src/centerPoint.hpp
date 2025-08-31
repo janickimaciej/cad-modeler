@@ -4,6 +4,7 @@
 #include "meshes/pointMesh.hpp"
 #include "models/model.hpp"
 #include "shaderProgram.hpp"
+#include "shaderPrograms.hpp"
 
 #include <glm/glm.hpp>
 
@@ -12,7 +13,7 @@
 class CenterPoint
 {
 public:
-	CenterPoint(const ShaderProgram& shaderProgram, const std::vector<Model*>& models);
+	CenterPoint(const std::vector<Model*>& models);
 	void render() const;
 	void updateGUI();
 
@@ -28,7 +29,7 @@ public:
 	void scaleZ(float scale);
 
 private:
-	const ShaderProgram& m_shaderProgram;
+	const ShaderProgram& m_shaderProgram = *ShaderPrograms::cursor;
 
 	const std::vector<Model*>& m_models{};
 	CenterPointGUI m_gui{*this};

@@ -17,6 +17,9 @@ public:
 	ShaderProgram(const ShaderProgram&) = delete;
 	ShaderProgram(ShaderProgram&&) = delete;
 	~ShaderProgram();
+	
+	ShaderProgram& operator=(const ShaderProgram&) = delete;
+	ShaderProgram& operator=(ShaderProgram&&) = delete;
 
 	void use() const;
 

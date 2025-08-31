@@ -6,6 +6,7 @@
 #include "models/model.hpp"
 #include "models/point.hpp"
 #include "shaderProgram.hpp"
+#include "shaderPrograms.hpp"
 
 #include <glm/glm.hpp>
 
@@ -21,8 +22,7 @@ class GregorySurface : public Model
 public:
 	using SelfDestructCallback = std::function<void(const GregorySurface*)>;
 
-	static std::unique_ptr<GregorySurface> create(const ShaderProgram& surfaceShaderProgram,
-		const ShaderProgram& vectorsShaderProgram, const std::array<BezierPatch*, 3>& patches,
+	static std::unique_ptr<GregorySurface> create(const std::array<BezierPatch*, 3>& patches,
 		const SelfDestructCallback& selfDestructCallback);
 	virtual ~GregorySurface() = default;
 
@@ -39,8 +39,8 @@ public:
 private:
 	static int m_count;
 
-	const ShaderProgram& m_surfaceShaderProgram;
-	const ShaderProgram& m_vectorsShaderProgram;
+	const ShaderProgram& m_surfaceShaderProgram = *ShaderPrograms::gregorySurface;
+	const ShaderProgram& m_vectorsShaderProgram = *ShaderPrograms::vectors;
 
 	std::unique_ptr<Mesh> m_surfaceMesh{};
 	std::unique_ptr<Mesh> m_vectorsMesh{};
@@ -58,8 +58,7 @@ private:
 
 	SelfDestructCallback m_selfDestructCallback;
 
-	GregorySurface(const ShaderProgram& surfaceShaderProgram,
-		const ShaderProgram& vectorsShaderProgram, const std::array<BezierPatch*, 3>& patches,
+	GregorySurface(const std::array<BezierPatch*, 3>& patches,
 		const SelfDestructCallback& selfDestructCallback, const std::array<int, 6>& corners);
 
 	void getBezierPoints(const std::array<BezierPatch*, 3>& patches,

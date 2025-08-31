@@ -10,13 +10,10 @@
 #include <cstddef>
 #include <string>
 
-C2BezierCurve::C2BezierCurve(const ShaderProgram& curveShaderProgram,
-	const ShaderProgram& polylineShaderProgram, const ShaderProgram& pointShaderProgram,
-	const std::vector<Point*>& points, const SelfDestructCallback& selfDestructCallback,
+C2BezierCurve::C2BezierCurve(const std::vector<Point*>& points,
+	const SelfDestructCallback& selfDestructCallback,
 	std::vector<std::unique_ptr<Point>>& bezierPoints) :
-	CXBezierCurve{"C2 Bezier curve " + std::to_string(m_count++), curveShaderProgram,
-		polylineShaderProgram, points, selfDestructCallback},
-	m_pointShaderProgram{pointShaderProgram}
+	CXBezierCurve{"C2 Bezier curve " + std::to_string(m_count++), points, selfDestructCallback}
 {
 	bezierPoints = createBezierPoints();
 	updateBezierPoints();
@@ -57,8 +54,7 @@ void C2BezierCurve::addPoints(const std::vector<Point*>& points,
 	std::vector<Point*> newBezierPointPtrs{};
 	for (int i = 0; i < newBezierPointCount; ++i)
 	{
-		bezierPoints.push_back(std::make_unique<Point>(m_pointShaderProgram, glm::vec3{}, false,
-			true));
+		bezierPoints.push_back(std::make_unique<Point>(glm::vec3{}, false, true));
 		m_bezierPoints.push_back(bezierPoints.back().get());
 		newBezierPointPtrs.push_back(bezierPoints.back().get());
 	}
@@ -96,7 +92,7 @@ std::vector<std::unique_ptr<Point>> C2BezierCurve::createBezierPoints()
 	{
 		for (int i = 0; i < 3 * bezierSegments - 3; ++i)
 		{
-			bezierPoints.push_back(std::make_unique<Point>(m_pointShaderProgram, glm::vec3{}, false,
+			bezierPoints.push_back(std::make_unique<Point>(glm::vec3{}, false,
 				true));
 			m_bezierPoints.push_back(bezierPoints.back().get());
 		}

@@ -8,15 +8,12 @@
 #include <cstddef>
 #include <string>
 
-C2BezierSurface::C2BezierSurface(const Intersectable::ChangeCallback& changeCallback,
-	const ShaderProgram& bezierSurfaceShaderProgram,
-	const ShaderProgram& bezierSurfaceGridShaderProgram, const ShaderProgram& pointShaderProgram,
-	const ShaderProgram& flatShaderProgram, int patchesU, int patchesV, const glm::vec3& pos,
-	float sizeU, float sizeV, BezierSurfaceWrapping wrapping,
+C2BezierSurface::C2BezierSurface(const Intersectable::ChangeCallback& changeCallback, int patchesU,
+	int patchesV, const glm::vec3& pos, float sizeU, float sizeV, BezierSurfaceWrapping wrapping,
 	std::vector<std::unique_ptr<Point>>& points,
 	std::vector<std::unique_ptr<BezierPatch>>& patches) :
-	BezierSurface{changeCallback, "C2 Bezier surface " + std::to_string(m_count++),
-		bezierSurfaceGridShaderProgram, flatShaderProgram, patchesU, patchesV, wrapping}
+	BezierSurface{changeCallback, "C2 Bezier surface " + std::to_string(m_count++), patchesU,
+		patchesV, wrapping}
 {
 	switch (wrapping)
 	{
@@ -36,19 +33,19 @@ C2BezierSurface::C2BezierSurface(const Intersectable::ChangeCallback& changeCall
 			break;
 	}
 
-	points = createPoints(pointShaderProgram, pos, sizeU, sizeV);
-	createBezierPoints(pointShaderProgram);
+	points = createPoints(pos, sizeU, sizeV);
+	createBezierPoints();
 	updateBezierPoints();
 	updatePos();
-	patches = createPatches(bezierSurfaceShaderProgram);
+	patches = createPatches();
 	createGridMesh();
 	registerForNotifications();
 }
 
 int C2BezierSurface::m_count = 0;
 
-std::vector<std::unique_ptr<Point>> C2BezierSurface::createPoints(
-	const ShaderProgram& pointShaderProgram, const glm::vec3& pos, float sizeU, float sizeV)
+std::vector<std::unique_ptr<Point>> C2BezierSurface::createPoints(const glm::vec3& pos, float sizeU,
+	float sizeV)
 {
 	std::vector<std::vector<glm::vec3>> boorPoints = createBoorPoints(pos, sizeU, sizeV);
 	std::vector<std::unique_ptr<Point>> points{};
@@ -57,21 +54,21 @@ std::vector<std::unique_ptr<Point>> C2BezierSurface::createPoints(
 	{
 		for (int u = 0; u < boorPoints[v].size(); ++u)
 		{
-			points.push_back(std::make_unique<Point>(pointShaderProgram, boorPoints[v][u], false));
+			points.push_back(std::make_unique<Point>(boorPoints[v][u], false));
 			m_points[v].push_back(points.back().get());
 		}
 	}
 	return points;
 }
 
-void C2BezierSurface::createBezierPoints(const ShaderProgram& pointShaderProgram)
+void C2BezierSurface::createBezierPoints()
 {
 	m_bezierPoints.resize(getBezierPointsV());
 	for (std::vector<std::unique_ptr<Point>>& row : m_bezierPoints)
 	{
 		for (int u = 0; u < getBezierPointsU(); ++u)
 		{
-			row.push_back(std::make_unique<Point>(pointShaderProgram, glm::vec3{}));
+			row.push_back(std::make_unique<Point>(glm::vec3{}));
 		}
 	}
 }

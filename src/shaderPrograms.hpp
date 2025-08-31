@@ -2,28 +2,22 @@
 
 #include "shaderProgram.hpp"
 
-#include <string>
+#include <memory>
 
-struct ShaderPrograms
+namespace ShaderPrograms
 {
-	ShaderProgram mesh{path("meshVS"), path("FS")};
-	ShaderProgram point{path("pointVS"), path("pointGS"), path("FS")};
-	ShaderProgram cursor{path("cursorVS"), path("cursorGS"), path("cursorFS")};
-	ShaderProgram plane{path("planeVS"), path("planeFS")};
-	ShaderProgram torus{path("torusVS"), path("intersectableFS")};
-	ShaderProgram bezierCurve{path("bezierCurveVS"), path("bezierCurveTCS"), path("bezierCurveTES"),
-		path("FS")};
-	ShaderProgram interpolatingBezierCurve{path("interpolatingBezierCurveVS"),
-		path("interpolatingBezierCurveTCS"), path("interpolatingBezierCurveTES"), path("FS")};
-	ShaderProgram polyline{path("VS"), path("FS")};
-	ShaderProgram bezierSurface{path("surfaceVS"), path("bezierSurfaceTCS"),
-		path("bezierSurfaceTES"), path("intersectableFS")};
-	ShaderProgram gregorySurface{path("surfaceVS"), path("gregorySurfaceTCS"),
-		path("gregorySurfaceTES"), path("FS")};
-	ShaderProgram quad{path("quadVS"), path("quadFS")};
-	ShaderProgram vectors{path("VS"), path("vectorsFS")};
-	ShaderProgram flat{path("flatVS"), path("FS")};
+	void init();
 
-private:
-	static std::string path(const std::string& shaderName);
-};
+	extern std::unique_ptr<const ShaderProgram> point;
+	extern std::unique_ptr<const ShaderProgram> cursor;
+	extern std::unique_ptr<const ShaderProgram> plane;
+	extern std::unique_ptr<const ShaderProgram> torus;
+	extern std::unique_ptr<const ShaderProgram> bezierCurve;
+	extern std::unique_ptr<const ShaderProgram> interpolatingBezierCurve;
+	extern std::unique_ptr<const ShaderProgram> polyline;
+	extern std::unique_ptr<const ShaderProgram> bezierSurface;
+	extern std::unique_ptr<const ShaderProgram> gregorySurface;
+	extern std::unique_ptr<const ShaderProgram> quad;
+	extern std::unique_ptr<const ShaderProgram> vectors;
+	extern std::unique_ptr<const ShaderProgram> flat;
+}

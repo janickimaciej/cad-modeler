@@ -6,11 +6,8 @@
 #include <tuple>
 
 BezierSurface::BezierSurface(const Intersectable::ChangeCallback& changeCallback,
-	const std::string& name, const ShaderProgram& bezierSurfaceGridShaderProgram,
-	const ShaderProgram& flatShaderProgram, int patchesU, int patchesV,
-	BezierSurfaceWrapping wrapping) :
-	Intersectable{{}, name, changeCallback, flatShaderProgram},
-	m_gridShaderProgram{bezierSurfaceGridShaderProgram},
+	const std::string& name, int patchesU, int patchesV, BezierSurfaceWrapping wrapping) :
+	Intersectable{{}, name, changeCallback},
 	m_patchesU{static_cast<std::size_t>(patchesU)},
 	m_patchesV{static_cast<std::size_t>(patchesV)},
 	m_wrapping{wrapping}
@@ -162,8 +159,7 @@ std::size_t BezierSurface::getBezierPointsV() const
 	return{};
 }
 
-std::vector<std::unique_ptr<BezierPatch>> BezierSurface::createPatches(
-	const ShaderProgram& bezierSurfaceShaderProgram)
+std::vector<std::unique_ptr<BezierPatch>> BezierSurface::createPatches()
 {
 	std::vector<std::unique_ptr<BezierPatch>> patches{};
 	m_patches.resize(m_patchesV);
@@ -193,8 +189,8 @@ std::vector<std::unique_ptr<BezierPatch>> BezierSurface::createPatches(
 					shaderProgram.setUniform("textureMin", textureMin);
 					shaderProgram.setUniform("textureMax", textureMax);
 				},
-				bezierSurfaceShaderProgram, getBezierPoints(patchU, patchV), *this,
-				isOnNegativeUEdge, isOnPositiveUEdge, isOnNegativeVEdge, isOnPositiveVEdge));
+				getBezierPoints(patchU, patchV), *this, isOnNegativeUEdge, isOnPositiveUEdge,
+				isOnNegativeVEdge, isOnPositiveVEdge));
 			m_patches[patchV].push_back(patches.back().get());
 		}
 	}

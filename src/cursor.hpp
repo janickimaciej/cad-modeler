@@ -4,13 +4,14 @@
 #include "guis/cursorGUI.hpp"
 #include "meshes/pointMesh.hpp"
 #include "shaderProgram.hpp"
+#include "shaderPrograms.hpp"
 
 #include <glm/glm.hpp>
 
 class Cursor
 {
 public:
-	Cursor(const ShaderProgram& shaderProgram);
+	Cursor();
 
 	void render() const;
 	void updateGUI(const Camera& camera);
@@ -19,7 +20,7 @@ public:
 	void setPos(const glm::vec3& pos);
 
 private:
-	const ShaderProgram& m_shaderProgram;
+	const ShaderProgram& m_shaderProgram = *ShaderPrograms::cursor;
 
 	CursorGUI m_gui{*this};
 

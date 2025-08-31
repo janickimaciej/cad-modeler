@@ -3,15 +3,16 @@
 #include "cameras/cameraType.hpp"
 #include "quad.hpp"
 #include "shaderProgram.hpp"
+#include "shaderPrograms.hpp"
 
 class Plane
 {
 public:
-	Plane(const ShaderProgram& shaderProgram, float scale);
+	Plane(float scale);
 	void render(CameraType cameraType) const;
 
 private:
-	const ShaderProgram& m_shaderProgram;
+	const ShaderProgram& m_shaderProgram = *ShaderPrograms::plane;
 
 	float m_scale{};
 	Quad m_quad{};

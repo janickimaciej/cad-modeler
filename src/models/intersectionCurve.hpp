@@ -4,6 +4,7 @@
 #include "meshes/mesh.hpp"
 #include "models/model.hpp"
 #include "shaderProgram.hpp"
+#include "shaderPrograms.hpp"
 #include <glm/glm.hpp>
 
 #include <array>
@@ -23,10 +24,10 @@ class IntersectionCurve : public Model
 public:
 	using DestroyCallback = std::function<void(IntersectionCurve*)>;
 
-	static std::unique_ptr<IntersectionCurve> create(const ShaderProgram& shaderProgram,
+	static std::unique_ptr<IntersectionCurve> create(
 		const std::array<const Intersectable*, 2>& surfaces, float step,
 		const glm::vec3& cursorPos);
-	static std::unique_ptr<IntersectionCurve> create(const ShaderProgram& shaderProgram,
+	static std::unique_ptr<IntersectionCurve> create(
 		const std::array<const Intersectable*, 2>& surfaces, float step);
 	virtual ~IntersectionCurve();
 
@@ -49,7 +50,7 @@ private:
 
 	static int m_count;
 
-	const ShaderProgram& m_shaderProgram;
+	const ShaderProgram& m_shaderProgram = *ShaderPrograms::polyline;
 	std::unique_ptr<Mesh> m_mesh{};
 	std::array<const Intersectable*, 2> m_surfaces{};
 	std::vector<PointPair> m_pointPairs{};
@@ -58,11 +59,10 @@ private:
 
 	std::vector<std::weak_ptr<DestroyCallback>> m_destroyNotifications{};
 
-	static std::unique_ptr<IntersectionCurve> create(const ShaderProgram& shaderProgram,
+	static std::unique_ptr<IntersectionCurve> create(
 		const std::array<const Intersectable*, 2>& surfaces, float step,
 		const PointPair& startingPointPair);
-	IntersectionCurve(const ShaderProgram& shaderProgram,
-		const std::array<const Intersectable*, 2>& surfaces,
+	IntersectionCurve(const std::array<const Intersectable*, 2>& surfaces,
 		const std::vector<PointPair>& pointPairs, bool isClosed);
 	void createMesh();
 	virtual void updateShaders() const override;

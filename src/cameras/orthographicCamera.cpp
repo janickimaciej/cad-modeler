@@ -1,8 +1,8 @@
 #include "cameras/orthographicCamera.hpp"
 
 OrthographicCamera::OrthographicCamera(const glm::ivec2& windowSize, float viewHeight,
-	float nearPlane, float farPlane, const ShaderPrograms& shaderPrograms) :
-	Camera{windowSize, nearPlane, farPlane, shaderPrograms},
+	float nearPlane, float farPlane) :
+	Camera{windowSize, nearPlane, farPlane},
 	m_gui{*this},
 	m_viewHeight{viewHeight}
 {

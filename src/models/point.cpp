@@ -31,11 +31,9 @@ Point::DeletabilityLock& Point::DeletabilityLock::operator=(DeletabilityLock&& l
 	return *this;
 }
 
-Point::Point(const ShaderProgram& shaderProgram, const glm::vec3& pos, bool isDeletable,
-	bool isVirtual) :
+Point::Point(const glm::vec3& pos, bool isDeletable, bool isVirtual) :
 	Model{pos, isVirtual ? "VirtualPoint " + std::to_string(m_virtualCount++) :
-		"Point " + std::to_string(m_nonVirtualCount++), isDeletable, isVirtual},
-	m_shaderProgram{shaderProgram}
+		"Point " + std::to_string(m_nonVirtualCount++), isDeletable, isVirtual}
 { }
 
 Point::~Point()

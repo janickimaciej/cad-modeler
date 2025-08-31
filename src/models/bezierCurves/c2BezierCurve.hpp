@@ -3,7 +3,6 @@
 #include "meshes/mesh.hpp"
 #include "models/bezierCurves/cxBezierCurve.hpp"
 #include "models/point.hpp"
-#include "shaderProgram.hpp"
 
 #include <memory>
 #include <vector>
@@ -13,9 +12,8 @@ class C2BezierCurve : public CXBezierCurve
 	friend class C2BezierCurveSerializer;
 
 public:
-	C2BezierCurve(const ShaderProgram& curveShaderProgram,
-		const ShaderProgram& polylineShaderProgram, const ShaderProgram& pointShaderProgram,
-		const std::vector<Point*>& points, const SelfDestructCallback& selfDestructCallback,
+	C2BezierCurve(const std::vector<Point*>& points,
+		const SelfDestructCallback& selfDestructCallback,
 		std::vector<std::unique_ptr<Point>>& bezierPoints);
 	virtual ~C2BezierCurve() = default;
 	virtual void render() const override;
@@ -26,8 +24,6 @@ public:
 
 private:
 	static int m_count;
-
-	const ShaderProgram& m_pointShaderProgram;
 
 	std::unique_ptr<Mesh> m_bezierPolylineMesh{};
 

@@ -4,6 +4,7 @@
 #include "meshes/pointMesh.hpp"
 #include "models/model.hpp"
 #include "shaderProgram.hpp"
+#include "shaderPrograms.hpp"
 
 #include <glm/glm.hpp>
 
@@ -37,8 +38,7 @@ public:
 	using DestroyCallback = std::function<void(Point*)>;
 	using RereferenceCallback = std::function<void(Point*, Point*)>;
 
-	Point(const ShaderProgram& shaderProgram, const glm::vec3& pos, bool isDeletable = true,
-		bool isVirtual = false);
+	Point(const glm::vec3& pos, bool isDeletable = true, bool isVirtual = false);
 	virtual ~Point();
 
 	virtual void render() const override;
@@ -61,7 +61,7 @@ private:
 	static int m_nonVirtualCount;
 	static int m_virtualCount;
 
-	const ShaderProgram& m_shaderProgram;
+	const ShaderProgram& m_shaderProgram = *ShaderPrograms::point;
 	PointMesh m_mesh{};
 	PointGUI m_gui{*this};
 

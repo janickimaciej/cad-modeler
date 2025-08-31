@@ -4,6 +4,7 @@
 #include "meshes/torusMesh.hpp"
 #include "models/intersectable.hpp"
 #include "shaderProgram.hpp"
+#include "shaderPrograms.hpp"
 
 #include <glm/glm.hpp>
 
@@ -15,8 +16,7 @@ class Torus : public Intersectable
 	friend class TorusSerializer;
 
 public:
-	Torus(const Intersectable::ChangeCallback& changeCallback, const ShaderProgram& shaderProgram,
-		const ShaderProgram& flatShaderProgram, const glm::vec3& pos);
+	Torus(const Intersectable::ChangeCallback& changeCallback, const glm::vec3& pos);
 	virtual ~Torus() = default;
 	virtual void render() const override;
 	virtual void updateGUI() override;
@@ -47,7 +47,7 @@ public:
 private:
 	static int m_count;
 
-	const ShaderProgram& m_shaderProgram;
+	const ShaderProgram& m_shaderProgram = *ShaderPrograms::torus;
 	std::unique_ptr<TorusMesh> m_mesh{};
 	TorusGUI m_gui{*this};
 

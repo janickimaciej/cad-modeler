@@ -40,7 +40,6 @@ void C0BezierCurveSerializer::deserialize(const nlohmann::ordered_json& json, Sc
 	}
 
 	std::unique_ptr<C0BezierCurve> curve = std::make_unique<C0BezierCurve>(
-		scene.m_shaderPrograms.bezierCurve, scene.m_shaderPrograms.polyline,
 		points, scene.m_bezierCurveSelfDestructCallback);
 
 	if (json.contains("name"))

@@ -2,6 +2,7 @@
 
 #include "guis/leftPanel.hpp"
 #include "guis/rightPanel.hpp"
+#include "shaderPrograms.hpp"
 
 #include <cmath>
 #include <string>
@@ -28,6 +29,8 @@ Window::Window(const glm::ivec2& initialSize) :
 	glfwSetKeyCallback(m_windowPtr, callbackWrapper<&Window::keyCallback>);
 
 	gladLoadGLLoader(reinterpret_cast<GLADloadproc>(glfwGetProcAddress));
+
+	ShaderPrograms::init();
 }
 
 Window::~Window()

@@ -1,5 +1,7 @@
 #include "models/bezierCurves/interpolatingBezierCurve.hpp"
 
+#include "shaderPrograms.hpp"
+
 #include <glm/glm.hpp>
 
 #include <algorithm>
@@ -7,11 +9,10 @@
 #include <memory>
 #include <string>
 
-InterpolatingBezierCurve::InterpolatingBezierCurve(const ShaderProgram& curveShaderProgram,
-	const ShaderProgram& polylineShaderProgram, const std::vector<Point*>& points,
+InterpolatingBezierCurve::InterpolatingBezierCurve(const std::vector<Point*>& points,
 	const SelfDestructCallback& selfDestructCallback) :
-	BezierCurve{"Interpolating Bezier curve " + std::to_string(m_count++), curveShaderProgram,
-		polylineShaderProgram, points, selfDestructCallback}
+	BezierCurve{"Interpolating Bezier curve " + std::to_string(m_count++), points,
+		*ShaderPrograms::interpolatingBezierCurve, selfDestructCallback}
 {
 	createCurveMesh();
 	registerForNotifications(m_points);

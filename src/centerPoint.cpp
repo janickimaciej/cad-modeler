@@ -4,8 +4,7 @@
 
 #include <cmath>
 
-CenterPoint::CenterPoint(const ShaderProgram& shaderProgram, const std::vector<Model*>& models) :
-	m_shaderProgram{shaderProgram},
+CenterPoint::CenterPoint(const std::vector<Model*>& models) :
 	m_models{models}
 { }
 
@@ -152,6 +151,7 @@ void CenterPoint::rotate(const glm::mat3& rotationMatrix)
 
 void CenterPoint::updateShaders() const
 {
+	m_shaderProgram.use();
 	m_shaderProgram.setUniform("posWorld", getPos());
 }
 

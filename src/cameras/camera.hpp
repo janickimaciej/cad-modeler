@@ -1,15 +1,13 @@
 #pragma once
 
 #include "anaglyphMode.hpp"
-#include "shaderPrograms.hpp"
 
 #include <glm/glm.hpp>
 
 class Camera
 {
 public:
-	Camera(const glm::ivec2& windowSize, float nearPlane, float farPlane,
-		const ShaderPrograms& shaderPrograms);
+	Camera(const glm::ivec2& windowSize, float nearPlane, float farPlane);
 	virtual ~Camera() = default;
 	void use() const;
 	void useLeftEye() const;
@@ -63,8 +61,6 @@ private:
 	glm::vec3 m_targetPos{0, 0, 0};
 	float m_pitchRad = 0;
 	float m_yawRad = 0;
-
-	const ShaderPrograms& m_shaderPrograms;
 
 	void updateShaders(const glm::mat4& projectionViewMatrix,
 		AnaglyphMode anaglyphMode) const;

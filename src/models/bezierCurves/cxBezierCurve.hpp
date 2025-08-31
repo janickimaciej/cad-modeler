@@ -3,7 +3,6 @@
 #include "meshes/indicesMesh.hpp"
 #include "models/bezierCurves/bezierCurve.hpp"
 #include "models/point.hpp"
-#include "shaderProgram.hpp"
 
 #include <string>
 #include <vector>
@@ -11,8 +10,7 @@
 class CXBezierCurve : public BezierCurve
 {
 public:
-	CXBezierCurve(const std::string& name, const ShaderProgram& curveShaderProgram,
-		const ShaderProgram& polylineShaderProgram, const std::vector<Point*>& points,
+	CXBezierCurve(const std::string& name, const std::vector<Point*>& points,
 		const SelfDestructCallback& selfDestructCallback);
 	virtual ~CXBezierCurve() = default;
 

@@ -1,9 +1,10 @@
 #include "models/bezierCurves/cxBezierCurve.hpp"
 
-CXBezierCurve::CXBezierCurve(const std::string& name, const ShaderProgram& curveShaderProgram,
-	const ShaderProgram& polylineShaderProgram, const std::vector<Point*>& points,
+#include "shaderPrograms.hpp"
+
+CXBezierCurve::CXBezierCurve(const std::string& name, const std::vector<Point*>& points,
 	const SelfDestructCallback& selfDestructCallback) :
-	BezierCurve{name, curveShaderProgram, polylineShaderProgram, points, selfDestructCallback}
+	BezierCurve{name, points, *ShaderPrograms::bezierCurve, selfDestructCallback}
 { }
 
 std::vector<unsigned int> CXBezierCurve::createCurveIndices(const std::vector<Point*>& points)

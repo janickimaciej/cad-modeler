@@ -5,6 +5,7 @@
 #include "models/intersectionCurve.hpp"
 #include "models/model.hpp"
 #include "shaderProgram.hpp"
+#include "shaderPrograms.hpp"
 #include "texture.hpp"
 
 #include <glad/glad.h>
@@ -36,7 +37,7 @@ public:
 	using ChangeCallback = std::function<void(const std::vector<IntersectionCurve*>&)>;
 
 	Intersectable(const glm::vec3& pos, const std::string& name,
-		const ChangeCallback& changeCallback, const ShaderProgram& flatShaderProgram);
+		const ChangeCallback& changeCallback);
 
 	virtual glm::vec3 surface(float u, float v) const = 0;
 	virtual glm::vec3 surfaceDU(float u, float v) const = 0;
@@ -69,7 +70,7 @@ private:
 	std::vector<Texture> m_intersectionCurveSmallTextures{};
 	std::vector<Texture> m_intersectionCurveBigTextures{};
 	std::optional<int> m_trimmingCurve = std::nullopt;
-	const ShaderProgram& m_flatShaderProgram;
+	const ShaderProgram& m_flatShaderProgram = *ShaderPrograms::flat;
 
 	ChangeCallback m_changeCallback;
 

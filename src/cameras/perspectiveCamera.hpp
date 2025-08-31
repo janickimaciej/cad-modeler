@@ -2,13 +2,11 @@
 
 #include "guis/cameraGUIs/perspectiveCameraGUI.hpp"
 #include "cameras/camera.hpp"
-#include "shaderPrograms.hpp"
 
 class PerspectiveCamera : public Camera
 {
 public:
-	PerspectiveCamera(const glm::ivec2& windowSize, float fovYDeg, float nearPlane, float farPlane,
-		const ShaderPrograms& shaderPrograms);
+	PerspectiveCamera(const glm::ivec2& windowSize, float fovYDeg, float nearPlane, float farPlane);
 	virtual ~PerspectiveCamera() = default;
 	virtual void updateGUI() override;
 	float getFOVYDeg() const;

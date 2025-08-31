@@ -2,7 +2,6 @@
 
 #include "models/bezierCurves/cxBezierCurve.hpp"
 #include "models/point.hpp"
-#include "shaderProgram.hpp"
 
 #include <vector>
 
@@ -11,8 +10,7 @@ class C0BezierCurve : public CXBezierCurve
 	friend class C0BezierCurveSerializer;
 
 public:
-	C0BezierCurve(const ShaderProgram& bezierCurveShaderProgram,
-		const ShaderProgram& bezierCurvePolylineShaderProgram, const std::vector<Point*>& points,
+	C0BezierCurve(const std::vector<Point*>& points,
 		const SelfDestructCallback& selfDestructCallback);
 	virtual ~C0BezierCurve() = default;
 	void addPoints(const std::vector<Point*>& points);

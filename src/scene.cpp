@@ -11,8 +11,8 @@ static constexpr float nearPlane = 0.1f;
 static constexpr float farPlane = 1000.0f;
 
 Scene::Scene(const glm::ivec2& windowSize) :
-	m_perspectiveCamera{windowSize, fovYDeg, nearPlane, farPlane, m_shaderPrograms},
-	m_orthographicCamera{windowSize, viewHeight, nearPlane, farPlane, m_shaderPrograms},
+	m_perspectiveCamera{windowSize, fovYDeg, nearPlane, farPlane},
+	m_orthographicCamera{windowSize, viewHeight, nearPlane, farPlane},
 	m_leftEyeFramebuffer{windowSize}
 {
 	auto firstModelIter = m_models.begin();
@@ -60,7 +60,6 @@ void Scene::render()
 		glDisable(GL_DEPTH_TEST);
 		glBlendFunc(GL_ONE, GL_ONE);
 		m_leftEyeFramebuffer.bindTexture();
-		m_shaderPrograms.quad.use();
 		m_leftEyeQuad.render();
 		glEnable(GL_DEPTH_TEST);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -737,8 +736,7 @@ std::string Scene::getModelName(int i, ModelType type) const
 
 void Scene::addPoint()
 {
-	std::unique_ptr<Point> point = std::make_unique<Point>(m_shaderPrograms.point,
-		m_cursor.getPos());
+	std::unique_ptr<Point> point = std::make_unique<Point>(m_cursor.getPos());
 
 	if (m_selectedModels.size() == 1)
 	{
@@ -797,8 +795,7 @@ void Scene::addTorus()
 		[this] (const std::vector<IntersectionCurve*>& intersectionCurves)
 		{
 			deleteIntersectionCurves(intersectionCurves);
-		},
-		m_shaderPrograms.torus, m_shaderPrograms.flat, m_cursor.getPos());
+		}, m_cursor.getPos());
 	m_models.push_back(torus.get());
 	m_toruses.push_back(std::move(torus));
 }
@@ -812,9 +809,8 @@ void Scene::addC0BezierCurve()
 		return;
 	}
 
-	std::unique_ptr<C0BezierCurve> curve = std::make_unique<C0BezierCurve>(
-		m_shaderPrograms.bezierCurve, m_shaderPrograms.polyline,
-		nonVirtualSelectedPoints, m_bezierCurveSelfDestructCallback);
+	std::unique_ptr<C0BezierCurve> curve = std::make_unique<C0BezierCurve>(nonVirtualSelectedPoints,
+		m_bezierCurveSelfDestructCallback);
 	m_models.push_back(curve.get());
 	m_c0BezierCurves.push_back(std::move(curve));
 }
@@ -829,9 +825,8 @@ void Scene::addC2BezierCurve()
 	}
 
 	std::vector<std::unique_ptr<Point>> newPoints{};
-	std::unique_ptr<C2BezierCurve> curve = std::make_unique<C2BezierCurve>(
-		m_shaderPrograms.bezierCurve, m_shaderPrograms.polyline, m_shaderPrograms.point,
-		nonVirtualSelectedPoints, m_bezierCurveSelfDestructCallback, newPoints);
+	std::unique_ptr<C2BezierCurve> curve = std::make_unique<C2BezierCurve>(nonVirtualSelectedPoints,
+		m_bezierCurveSelfDestructCallback, newPoints);
 	m_models.push_back(curve.get());
 	m_c2BezierCurves.push_back(std::move(curve));
 	addPoints(std::move(newPoints));
@@ -847,7 +842,6 @@ void Scene::addInterpolatingBezierCurve()
 	}
 
 	std::unique_ptr<InterpolatingBezierCurve> curve = std::make_unique<InterpolatingBezierCurve>(
-		m_shaderPrograms.interpolatingBezierCurve, m_shaderPrograms.polyline,
 		nonVirtualSelectedPoints, m_bezierCurveSelfDestructCallback);
 	m_models.push_back(curve.get());
 	m_interpolatingBezierCurves.push_back(std::move(curve));
@@ -922,9 +916,7 @@ void Scene::addC0BezierSurface(int patchesU, int patchesV, float sizeU, float si
 		{
 			deleteIntersectionCurves(intersectionCurves);
 		},
-		m_shaderPrograms.bezierSurface, m_shaderPrograms.mesh, m_shaderPrograms.point,
-		m_shaderPrograms.flat, patchesU, patchesV, m_cursor.getPos(), sizeU, sizeV, wrapping,
-		newPoints, newPatches);
+		patchesU, patchesV, m_cursor.getPos(), sizeU, sizeV, wrapping, newPoints, newPatches);
 	addPoints(std::move(newPoints));
 	addBezierPatches(std::move(newPatches));
 	m_models.push_back(surface.get());
@@ -941,9 +933,7 @@ void Scene::addC2BezierSurface(int patchesU, int patchesV, float sizeU, float si
 		{
 			deleteIntersectionCurves(intersectionCurves);
 		},
-		m_shaderPrograms.bezierSurface, m_shaderPrograms.mesh, m_shaderPrograms.point,
-		m_shaderPrograms.flat, patchesU, patchesV, m_cursor.getPos(), sizeU, sizeV, wrapping,
-		newPoints, newPatches);
+		patchesU, patchesV, m_cursor.getPos(), sizeU, sizeV, wrapping, newPoints, newPatches);
 	addPoints(std::move(newPoints));
 	addBezierPatches(std::move(newPatches));
 	m_models.push_back(surface.get());
@@ -952,8 +942,7 @@ void Scene::addC2BezierSurface(int patchesU, int patchesV, float sizeU, float si
 
 void Scene::addGregorySurface(const std::array<BezierPatch*, 3>& patches)
 {
-	std::unique_ptr<GregorySurface> surface = GregorySurface::create(
-		m_shaderPrograms.gregorySurface, m_shaderPrograms.vectors, patches,
+	std::unique_ptr<GregorySurface> surface = GregorySurface::create(patches,
 		m_gregorySurfaceSelfDestructCallback);
 
 	if (surface != nullptr)
@@ -969,13 +958,12 @@ void Scene::addIntersectionCurve(const std::array<Intersectable*, 2>& surfaces, 
 	std::unique_ptr<IntersectionCurve> intersectionCurve{};
 	if (useCursor)
 	{
-		intersectionCurve = IntersectionCurve::create(m_shaderPrograms.polyline,
-			{surfaces[0], surfaces[1]}, step, m_cursor.getPos());
+		intersectionCurve = IntersectionCurve::create({surfaces[0], surfaces[1]}, step,
+			m_cursor.getPos());
 	}
 	else
 	{
-		intersectionCurve = IntersectionCurve::create(m_shaderPrograms.polyline,
-			{surfaces[0], surfaces[1]}, step);
+		intersectionCurve = IntersectionCurve::create({surfaces[0], surfaces[1]}, step);
 	}
 
 	if (intersectionCurve != nullptr)
@@ -1021,7 +1009,7 @@ void Scene::convertIntersectionToInterpolatingCurve(int numberOfPoints)
 	float stride = (static_cast<float>(intersectionPoints.size()) - 1) / segments;
 	for (int i = 0; i < segments; ++i)
 	{
-		std::unique_ptr<Point> point = std::make_unique<Point>(m_shaderPrograms.point,
+		std::unique_ptr<Point> point = std::make_unique<Point>(
 			intersectionPoints[static_cast<std::size_t>(i * stride)]);
 		points.push_back(point.get());
 		m_models.push_back(point.get());
@@ -1034,16 +1022,14 @@ void Scene::convertIntersectionToInterpolatingCurve(int numberOfPoints)
 	}
 	else
 	{
-		std::unique_ptr<Point> lastPoint = std::make_unique<Point>(m_shaderPrograms.point,
-			intersectionPoints.back());
+		std::unique_ptr<Point> lastPoint = std::make_unique<Point>(intersectionPoints.back());
 		points.push_back(lastPoint.get());
 		m_models.push_back(lastPoint.get());
 		m_points.push_back(std::move(lastPoint));
 	}
 
 	std::unique_ptr<InterpolatingBezierCurve> curve = std::make_unique<InterpolatingBezierCurve>(
-		m_shaderPrograms.interpolatingBezierCurve, m_shaderPrograms.polyline, points,
-		m_bezierCurveSelfDestructCallback);
+		points, m_bezierCurveSelfDestructCallback);
 	m_models.push_back(curve.get());
 	m_interpolatingBezierCurves.push_back(std::move(curve));
 }
@@ -1195,19 +1181,16 @@ void Scene::renderModels() const
 
 void Scene::renderCursor() const
 {
-	m_shaderPrograms.cursor.use();
 	m_cursor.render();
 }
 
 void Scene::renderSelectedModelsCenter() const
 {
-	m_shaderPrograms.cursor.use();
 	m_selectedModelsCenter.render();
 }
 
 void Scene::renderGrid() const
 {
-	m_shaderPrograms.plane.use();
 	m_plane.render(m_cameraType);
 }
 

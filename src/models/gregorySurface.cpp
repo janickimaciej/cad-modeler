@@ -6,8 +6,7 @@
 #include <cstddef>
 #include <string>
 
-std::unique_ptr<GregorySurface> GregorySurface::create(const ShaderProgram& surfaceShaderProgram,
-	const ShaderProgram& vectorsShaderProgram, const std::array<BezierPatch*, 3>& patches,
+std::unique_ptr<GregorySurface> GregorySurface::create(const std::array<BezierPatch*, 3>& patches,
 	const SelfDestructCallback& selfDestructCallback)
 {
 	std::optional<std::array<int, 6>> corners = find3Cycle(patches);
@@ -16,8 +15,8 @@ std::unique_ptr<GregorySurface> GregorySurface::create(const ShaderProgram& surf
 		return nullptr;
 	}
 
-	return std::unique_ptr<GregorySurface>{new GregorySurface{surfaceShaderProgram,
-		vectorsShaderProgram, patches, selfDestructCallback, *corners}};
+	return std::unique_ptr<GregorySurface>{new GregorySurface{patches, selfDestructCallback,
+		*corners}};
 }
 
 void GregorySurface::render() const
@@ -60,12 +59,9 @@ void GregorySurface::setLineCount(int lineCount)
 
 int GregorySurface::m_count = 0;
 
-GregorySurface::GregorySurface(const ShaderProgram& surfaceShaderProgram,
-	const ShaderProgram& vectorsShaderProgram, const std::array<BezierPatch*, 3>& patches,
+GregorySurface::GregorySurface(const std::array<BezierPatch*, 3>& patches,
 	const SelfDestructCallback& selfDestructCallback, const std::array<int, 6>& corners) :
 	Model{{}, "Gregory surface " + std::to_string(m_count++)},
-	m_surfaceShaderProgram{surfaceShaderProgram},
-	m_vectorsShaderProgram{vectorsShaderProgram},
 	m_selfDestructCallback{selfDestructCallback}
 {
 	getBezierPoints(patches, corners);

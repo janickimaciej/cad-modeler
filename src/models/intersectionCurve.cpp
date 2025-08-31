@@ -9,7 +9,7 @@
 #include <cstddef>
 #include <string>
 
-std::unique_ptr<IntersectionCurve> IntersectionCurve::create(const ShaderProgram& shaderProgram,
+std::unique_ptr<IntersectionCurve> IntersectionCurve::create(
 	const std::array<const Intersectable*, 2>& surfaces, float step, const glm::vec3& cursorPos)
 {
 	PointPair closestSamples{};
@@ -21,10 +21,10 @@ std::unique_ptr<IntersectionCurve> IntersectionCurve::create(const ShaderProgram
 	{
 		closestSamples = findClosestSamples(surfaces, cursorPos);
 	}
-	return create(shaderProgram, surfaces, step, closestSamples);
+	return create(surfaces, step, closestSamples);
 }
 
-std::unique_ptr<IntersectionCurve> IntersectionCurve::create(const ShaderProgram& shaderProgram,
+std::unique_ptr<IntersectionCurve> IntersectionCurve::create(
 	const std::array<const Intersectable*, 2>& surfaces, float step)
 {
 	PointPair closestSamples{};
@@ -36,7 +36,7 @@ std::unique_ptr<IntersectionCurve> IntersectionCurve::create(const ShaderProgram
 	{
 		closestSamples = findClosestSamples(surfaces);
 	}
-	return create(shaderProgram, surfaces, step, closestSamples);
+	return create(surfaces, step, closestSamples);
 }
 
 IntersectionCurve::~IntersectionCurve()
@@ -98,7 +98,7 @@ std::shared_ptr<IntersectionCurve::DestroyCallback>
 
 int IntersectionCurve::m_count = 0;
 
-std::unique_ptr<IntersectionCurve> IntersectionCurve::create(const ShaderProgram& shaderProgram,
+std::unique_ptr<IntersectionCurve> IntersectionCurve::create(
 	const std::array<const Intersectable*, 2>& surfaces, float step,
 	const PointPair& startingPointPair)
 {
@@ -118,15 +118,13 @@ std::unique_ptr<IntersectionCurve> IntersectionCurve::create(const ShaderProgram
 			surfaces[0]->surface(intersectionPointPairs.back()[0]));
 	bool isClosed = endpointsDistanceSquared < std::pow(1.5f * step, 2);
 
-	return std::unique_ptr<IntersectionCurve>(new IntersectionCurve{shaderProgram, surfaces,
+	return std::unique_ptr<IntersectionCurve>(new IntersectionCurve{surfaces,
 		intersectionPointPairs, isClosed});
 }
 
-IntersectionCurve::IntersectionCurve(const ShaderProgram& shaderProgram,
-	const std::array<const Intersectable*, 2>& surfaces,
+IntersectionCurve::IntersectionCurve(const std::array<const Intersectable*, 2>& surfaces,
 	const std::vector<PointPair>& pointPairs, bool isClosed) :
 	Model{{}, "Intersection curve " + std::to_string(m_count++)},
-	m_shaderProgram{shaderProgram},
 	m_surfaces{surfaces},
 	m_pointPairs{pointPairs},
 	m_isClosed{isClosed}

@@ -1,15 +1,15 @@
 #include "cameras/camera.hpp"
 
+#include "shaderPrograms.hpp"
+
 #include <glm/gtc/constants.hpp>
 
 #include <cmath>
 
-Camera::Camera(const glm::ivec2& windowSize, float nearPlane, float farPlane,
-	const ShaderPrograms& shaderPrograms) :
+Camera::Camera(const glm::ivec2& windowSize, float nearPlane, float farPlane) :
 	m_windowSize{windowSize},
 	m_nearPlane{nearPlane},
-	m_farPlane{farPlane},
-	m_shaderPrograms{shaderPrograms}
+	m_farPlane{farPlane}
 {
 	updateViewMatrix();
 }
@@ -228,52 +228,48 @@ void Camera::updateShaders(const glm::mat4& projectionViewMatrix, AnaglyphMode a
 {
 	glm::mat4 projectionViewMatrixInverse = glm::inverse(projectionViewMatrix);
 
-	m_shaderPrograms.mesh.use();
-	m_shaderPrograms.mesh.setUniform("projectionViewMatrix", projectionViewMatrix);
-	m_shaderPrograms.mesh.setUniform("anaglyphMode", static_cast<int>(anaglyphMode));
+	ShaderPrograms::point->use();
+	ShaderPrograms::point->setUniform("projectionViewMatrix", projectionViewMatrix);
+	ShaderPrograms::point->setUniform("anaglyphMode", static_cast<int>(anaglyphMode));
 
-	m_shaderPrograms.point.use();
-	m_shaderPrograms.point.setUniform("projectionViewMatrix", projectionViewMatrix);
-	m_shaderPrograms.point.setUniform("anaglyphMode", static_cast<int>(anaglyphMode));
+	ShaderPrograms::cursor->use();
+	ShaderPrograms::cursor->setUniform("projectionViewMatrix", projectionViewMatrix);
+	ShaderPrograms::cursor->setUniform("anaglyphMode", static_cast<int>(anaglyphMode));
 
-	m_shaderPrograms.cursor.use();
-	m_shaderPrograms.cursor.setUniform("projectionViewMatrix", projectionViewMatrix);
-	m_shaderPrograms.cursor.setUniform("anaglyphMode", static_cast<int>(anaglyphMode));
+	ShaderPrograms::plane->use();
+	ShaderPrograms::plane->setUniform("projectionViewMatrix", projectionViewMatrix);
+	ShaderPrograms::plane->setUniform("projectionViewMatrixInverse", projectionViewMatrixInverse);
+	ShaderPrograms::plane->setUniform("anaglyphMode", static_cast<int>(anaglyphMode));
 
-	m_shaderPrograms.plane.use();
-	m_shaderPrograms.plane.setUniform("projectionViewMatrix", projectionViewMatrix);
-	m_shaderPrograms.plane.setUniform("projectionViewMatrixInverse", projectionViewMatrixInverse);
-	m_shaderPrograms.plane.setUniform("anaglyphMode", static_cast<int>(anaglyphMode));
+	ShaderPrograms::torus->use();
+	ShaderPrograms::torus->setUniform("projectionViewMatrix", projectionViewMatrix);
+	ShaderPrograms::torus->setUniform("anaglyphMode", static_cast<int>(anaglyphMode));
 
-	m_shaderPrograms.torus.use();
-	m_shaderPrograms.torus.setUniform("projectionViewMatrix", projectionViewMatrix);
-	m_shaderPrograms.torus.setUniform("anaglyphMode", static_cast<int>(anaglyphMode));
+	ShaderPrograms::bezierCurve->use();
+	ShaderPrograms::bezierCurve->setUniform("projectionViewMatrix", projectionViewMatrix);
+	ShaderPrograms::bezierCurve->setUniform("windowSize", m_windowSize);
+	ShaderPrograms::bezierCurve->setUniform("anaglyphMode", static_cast<int>(anaglyphMode));
 
-	m_shaderPrograms.bezierCurve.use();
-	m_shaderPrograms.bezierCurve.setUniform("projectionViewMatrix", projectionViewMatrix);
-	m_shaderPrograms.bezierCurve.setUniform("windowSize", m_windowSize);
-	m_shaderPrograms.bezierCurve.setUniform("anaglyphMode", static_cast<int>(anaglyphMode));
-
-	m_shaderPrograms.interpolatingBezierCurve.use();
-	m_shaderPrograms.interpolatingBezierCurve.setUniform("projectionViewMatrix",
+	ShaderPrograms::interpolatingBezierCurve->use();
+	ShaderPrograms::interpolatingBezierCurve->setUniform("projectionViewMatrix",
 		projectionViewMatrix);
-	m_shaderPrograms.interpolatingBezierCurve.setUniform("windowSize", m_windowSize);
-	m_shaderPrograms.interpolatingBezierCurve.setUniform("anaglyphMode",
+	ShaderPrograms::interpolatingBezierCurve->setUniform("windowSize", m_windowSize);
+	ShaderPrograms::interpolatingBezierCurve->setUniform("anaglyphMode",
 		static_cast<int>(anaglyphMode));
 
-	m_shaderPrograms.polyline.use();
-	m_shaderPrograms.polyline.setUniform("projectionViewMatrix", projectionViewMatrix);
-	m_shaderPrograms.polyline.setUniform("anaglyphMode", static_cast<int>(anaglyphMode));
+	ShaderPrograms::polyline->use();
+	ShaderPrograms::polyline->setUniform("projectionViewMatrix", projectionViewMatrix);
+	ShaderPrograms::polyline->setUniform("anaglyphMode", static_cast<int>(anaglyphMode));
 
-	m_shaderPrograms.bezierSurface.use();
-	m_shaderPrograms.bezierSurface.setUniform("projectionViewMatrix", projectionViewMatrix);
-	m_shaderPrograms.bezierSurface.setUniform("anaglyphMode", static_cast<int>(anaglyphMode));
+	ShaderPrograms::bezierSurface->use();
+	ShaderPrograms::bezierSurface->setUniform("projectionViewMatrix", projectionViewMatrix);
+	ShaderPrograms::bezierSurface->setUniform("anaglyphMode", static_cast<int>(anaglyphMode));
 
-	m_shaderPrograms.gregorySurface.use();
-	m_shaderPrograms.gregorySurface.setUniform("projectionViewMatrix", projectionViewMatrix);
-	m_shaderPrograms.gregorySurface.setUniform("anaglyphMode", static_cast<int>(anaglyphMode));
+	ShaderPrograms::gregorySurface->use();
+	ShaderPrograms::gregorySurface->setUniform("projectionViewMatrix", projectionViewMatrix);
+	ShaderPrograms::gregorySurface->setUniform("anaglyphMode", static_cast<int>(anaglyphMode));
 
-	m_shaderPrograms.vectors.use();
-	m_shaderPrograms.vectors.setUniform("projectionViewMatrix", projectionViewMatrix);
-	m_shaderPrograms.vectors.setUniform("anaglyphMode", static_cast<int>(anaglyphMode));
+	ShaderPrograms::vectors->use();
+	ShaderPrograms::vectors->setUniform("projectionViewMatrix", projectionViewMatrix);
+	ShaderPrograms::vectors->setUniform("anaglyphMode", static_cast<int>(anaglyphMode));
 }

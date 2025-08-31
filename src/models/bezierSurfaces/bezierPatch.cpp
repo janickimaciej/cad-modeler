@@ -7,11 +7,10 @@
 #include <string>
 
 BezierPatch::BezierPatch(const std::function<void(const ShaderProgram&)>& useTrim,
-	const ShaderProgram& shaderProgram, const std::array<std::array<Point*, 4>, 4>& bezierPoints,
+	const std::array<std::array<Point*, 4>, 4>& bezierPoints,
 	const BezierSurface& surface, bool isOnNegativeUEdge, bool isOnPositiveUEdge,
 	bool isOnNegativeVEdge, bool isOnPositiveVEdge) :
 	Model{{}, "Bezier patch " + std::to_string(m_count++), false},
-	m_shaderProgram{shaderProgram},
 	m_bezierPoints{bezierPoints},
 	m_surface{surface},
 	m_isOnNegativeUEdge{isOnNegativeUEdge},
