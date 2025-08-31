@@ -151,12 +151,12 @@ void Intersectable::floodfill(TextureData<textureSize>& data) const
 		}
 	}
 
-	std::stack<glm::vec2> stack{};
+	std::stack<glm::ivec2> stack{};
 	fill(data[startY][startX]);
 	stack.push({startX, startY});
 	while (!stack.empty())
 	{
-		glm::vec2 pixel = stack.top();
+		glm::ivec2 pixel = stack.top();
 		stack.pop();
 
 		if (pixel.x == 0 && uWrapped() && isEmpty(data[pixel.y][textureSize - 1]))

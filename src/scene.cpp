@@ -1,5 +1,7 @@
 #include "scene.hpp"
 
+#include "shaderPrograms.hpp"
+
 #include <algorithm>
 #include <cstddef>
 #include <iterator>
@@ -60,6 +62,7 @@ void Scene::render()
 		glDisable(GL_DEPTH_TEST);
 		glBlendFunc(GL_ONE, GL_ONE);
 		m_leftEyeFramebuffer.bindTexture();
+		ShaderPrograms::quad->use();
 		m_leftEyeQuad.render();
 		glEnable(GL_DEPTH_TEST);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);

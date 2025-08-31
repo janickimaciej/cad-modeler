@@ -37,7 +37,6 @@ Quad::Quad()
 
 void Quad::render() const
 {
-	m_shaderProgram.use();
 	glBindVertexArray(m_VAO);
 	glDrawArrays(GL_TRIANGLES, 0, static_cast<GLsizei>(vertexCount));
 	glBindVertexArray(0);
