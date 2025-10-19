@@ -15,7 +15,7 @@ Window::Window(const glm::ivec2& initialSize) :
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 2);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 	glfwWindowHint(GLFW_SAMPLES, 4);
-	static const std::string windowTitle = "cad-opengl";
+	static const std::string windowTitle = "cad-modeler";
 	m_windowPtr = glfwCreateWindow(initialSize.x, initialSize.y, windowTitle.c_str(), nullptr,
 		nullptr);
 	glfwSetWindowUserPointer(m_windowPtr, this);

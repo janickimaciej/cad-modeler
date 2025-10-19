@@ -223,7 +223,7 @@
     <VCProjectVersion>17.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
     <ProjectGuid>{13c63608-d6ea-4ad7-8a36-e1d2c3af0421}</ProjectGuid>
-    <RootNamespace>cad-opengl</RootNamespace>
+    <RootNamespace>cad-modeler</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
