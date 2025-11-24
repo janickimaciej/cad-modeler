@@ -339,6 +339,32 @@ void LeftPanel::updateButtons()
 	}
 
 	separator();
+
+	if (ImGui::Button("Magic"))
+	{
+		m_scene.magic();
+	}
+
+	separator();
+
+	if (ImGui::Button("Generate heightmap"))
+	{
+		m_scene.generateHeightmap();
+	}
+
+	separator();
+
+	if (ImGui::Button("Generate offset heightmaps"))
+	{
+		m_scene.generateOffsetHeightmaps();
+	}
+
+	separator();
+
+	if (ImGui::Button("Generate path 1"))
+	{
+		m_scene.generatePath1();
+	}
 }
 
 void LeftPanel::resetPanels()

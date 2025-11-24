@@ -49,7 +49,7 @@ public:
 private:
 	static int m_count;
 
-	const ShaderProgram& m_shaderProgram = *ShaderPrograms::bezierSurface;
+	const ShaderProgram& m_shaderProgram = *ShaderPrograms::bezierSurfaceTriangles;
 	std::unique_ptr<Mesh> m_mesh{};
 	BezierPatchGUI m_gui{*this};
 

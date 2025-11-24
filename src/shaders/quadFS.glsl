@@ -8,5 +8,6 @@ out vec4 outColor;
 
 void main()
 {
-	outColor = texture(textureSampler, texturePos);
+	float height = texture(textureSampler, texturePos).r;
+	outColor = vec4(height, height - 1, height - 2, 1);
 }

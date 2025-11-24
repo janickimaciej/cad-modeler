@@ -8,6 +8,7 @@
 #include "centerPoint.hpp"
 #include "cursor.hpp"
 #include "framebuffer.hpp"
+#include "heightmap.hpp"
 #include "models/bezierCurves/c0BezierCurve.hpp"
 #include "models/bezierCurves/c2BezierCurve.hpp"
 #include "models/bezierCurves/interpolatingBezierCurve.hpp"
@@ -31,6 +32,15 @@
 #include <optional>
 #include <string>
 #include <vector>
+
+static inline constexpr glm::ivec2 heightmapSize{900, 900};
+static inline constexpr float path1_segmentingOffset = 0.1f;
+static inline constexpr float path1_inaccuracyOffset = 0.02f;
+static inline constexpr float path1_radius = 0.8f;
+static inline constexpr float path1_offset =
+	path1_segmentingOffset + path1_inaccuracyOffset + path1_radius;
+static inline constexpr float baseHeight = 2.5f;
+static inline constexpr float path1Level = 1.25f;
 
 class Scene
 {
@@ -120,6 +130,18 @@ public:
 	float getProjectionPlane() const;
 	void setProjectionPlane(float projectionPlane);
 
+	void magic();
+	void generateHeightmap();
+	void generateOffsetHeightmaps();
+	void generatePath1();
+
+	Heightmap m_heightmap{heightmapSize};
+	Heightmap m_offsetHeightmap1{heightmapSize};
+	Heightmap m_offsetHeightmap2{heightmapSize};
+	OrthographicCamera m_heightmapCamera;
+	bool m_renderHeightmap = false;
+	bool m_renderOffsetHeightmap = false;
+
 private:
 	std::vector<Model*> m_models{};
 	std::vector<Model*> m_selectedModels{};
@@ -137,7 +159,7 @@ private:
 	Cursor m_cursor{};
 	CenterPoint m_selectedModelsCenter{m_selectedModels};
 
-	static constexpr float gridScale = 5.0f;
+	static constexpr float gridScale = 7.5f;
 	Plane m_plane{gridScale};
 
 	PerspectiveCamera m_perspectiveCamera;

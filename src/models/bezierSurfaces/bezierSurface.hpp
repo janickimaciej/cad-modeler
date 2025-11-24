@@ -52,6 +52,11 @@ public:
 	virtual bool uWrapped() const override;
 	virtual bool vWrapped() const override;
 
+	auto& points()
+	{
+		return m_points;
+	}
+
 protected:
 	std::unique_ptr<IndicesMesh> m_gridMesh{};
 
@@ -94,7 +99,7 @@ private:
 	BezierSurfaceGUI m_gui{*this};
 
 	bool m_renderGrid = false;
-	int m_lineCount = 4;
+	int m_lineCount = 12;
 
 	std::vector<std::weak_ptr<DestroyCallback>> m_destroyNotifications{};
 

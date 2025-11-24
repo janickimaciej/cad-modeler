@@ -96,6 +96,7 @@
     <ClCompile Include="src\serializer\sceneSerializer.cpp" />
     <ClCompile Include="src\shaderProgram.cpp" />
     <ClCompile Include="src\shaderPrograms.cpp" />
+    <ClCompile Include="src\heightmap.cpp" />
     <ClCompile Include="src\texture.cpp" />
     <ClCompile Include="src\window.cpp" />
   </ItemGroup>
@@ -183,11 +184,17 @@
     <ClInclude Include="src\serializer\sceneSerializer.hpp" />
     <ClInclude Include="src\shaderProgram.hpp" />
     <ClInclude Include="src\shaderPrograms.hpp" />
+    <ClInclude Include="src\heightmap.hpp" />
     <ClInclude Include="src\texture.hpp" />
     <ClInclude Include="src\window.hpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="dep\imgui\misc\debuggers\imgui.natstepfilter" />
+    <None Include="src\shaders\heightmapFS.glsl" />
+    <None Include="src\shaders\heightmapVS.glsl" />
+    <None Include="src\shaders\bezierSurfaceTrianglesFS.glsl" />
+    <None Include="src\shaders\bezierSurfaceTrianglesTCS.glsl" />
+    <None Include="src\shaders\bezierSurfaceTrianglesTES.glsl" />
     <None Include="src\shaders\torusVS.glsl" />
     <None Include="src\shaders\intersectableFS.glsl" />
     <None Include="src\shaders\vectorsFS.glsl" />
