@@ -11,36 +11,18 @@ uniform sampler2D textureSampler;
 
 out vec4 outColor;
 
+vec2 pos2TexturePos(vec2 pos)
+{
+	return (pos + 7.5) / 15.0;
+}
+
 void main()
 {
-	/*float textureRadius = radius / 15;
-	const int samplingResolution = 64;
-	float dx = 2 * textureRadius / samplingResolution;
-	float dy = dx;
-	float maxHeight = flatCutter ? 0 : radius;
-	for (int i = 0; i <= samplingResolution; ++i)
-	{
-		float x = texturePos.x - textureRadius + i * dx;
-		for (int j = 0; j <= samplingResolution; ++j)
-		{
-			float y = texturePos.y - textureRadius + j * dy;
-			float distanceSquared = pow(x - texturePos.x, 2) + pow(y - texturePos.y, 2);
-			if (pow(textureRadius, 2) - distanceSquared >= 0)
-			{
-				float cutterOffset = flatCutter ? 0 :
-					15 * sqrt(pow(textureRadius, 2) - distanceSquared);
-				float height = max(texture(textureSampler, vec2(x, y)).r, pathLevel);
-				maxHeight = max(maxHeight, height + cutterOffset);
-			}
-		}
-	}
-	outColor = vec4(base + maxHeight, 0, 0, 1);*/
-
-	float maxHeight = texture(textureSampler, texturePos).r + (flatCutter ? 0 : radius);
-	float textureRadius = radius / 15;
+	float maxHeight = max(texture(textureSampler, texturePos).r, pathLevel)
+		+ (flatCutter ? 0 : radius);
 	const int radiusResolution = 32;
 	const int angleResolution = 128;
-	float dr = textureRadius / radiusResolution;
+	float dr = radius / radiusResolution;
 	float dAlpha = 2 * 3.1415927 / angleResolution;
 	for (int i = 1; i <= radiusResolution; ++i)
 	{
@@ -48,11 +30,10 @@ void main()
 		for (int j = 0; j < angleResolution; ++j)
 		{
 			float alpha = j * dAlpha;
-			float x = texturePos.x + r * cos(alpha);
-			float y = texturePos.y + r * sin(alpha);
-			float cutterOffset = flatCutter ? 0 :
-				15 * sqrt(pow(textureRadius, 2) - pow(r, 2));
-			float height = max(texture(textureSampler, vec2(x, y)).r, pathLevel);
+			float x = pos.x + r * cos(alpha);
+			float y = pos.y + r * sin(alpha);
+			float cutterOffset = flatCutter ? 0 : sqrt(pow(radius, 2) - pow(r, 2));
+			float height = max(texture(textureSampler, pos2TexturePos(vec2(x, y))).r, pathLevel);
 			maxHeight = max(maxHeight, height + cutterOffset);
 		}
 	}

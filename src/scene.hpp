@@ -34,13 +34,13 @@
 #include <vector>
 
 static inline constexpr glm::ivec2 heightmapSize{900, 900};
-static inline constexpr float path1_segmentingOffset = 0.1f;
-static inline constexpr float path1_inaccuracyOffset = 0.02f;
-static inline constexpr float path1_radius = 0.8f;
-static inline constexpr float path1_offset =
-	path1_segmentingOffset + path1_inaccuracyOffset + path1_radius;
+static inline constexpr float path1Radius = 0.8f;
+static inline constexpr float path1SegmentingOffset = 0.02f;
+static inline constexpr float path1InaccuracyOffset = 0.02f;
+static inline constexpr float path1Offset =
+	path1Radius + path1SegmentingOffset + path1InaccuracyOffset;
 static inline constexpr float baseHeight = 2.5f;
-static inline constexpr float path1Level = 1.25f;
+static inline constexpr float middlePathLevel = 1.25f;
 
 class Scene
 {
@@ -183,7 +183,7 @@ private:
 		};
 
 	Framebuffer m_leftEyeFramebuffer;
-	Quad m_leftEyeQuad{};
+	Quad m_quad{};
 	bool m_anaglyphOn = false;
 
 	void setUpFramebuffer() const;
