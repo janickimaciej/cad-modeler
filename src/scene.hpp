@@ -34,13 +34,6 @@
 #include <vector>
 
 static inline constexpr glm::ivec2 heightmapSize{900, 900};
-static inline constexpr float path1Radius = 0.8f;
-static inline constexpr float path1SegmentingOffset = 0.02f;
-static inline constexpr float path1InaccuracyOffset = 0.02f;
-static inline constexpr float path1Offset =
-	path1Radius + path1SegmentingOffset + path1InaccuracyOffset;
-static inline constexpr float baseHeight = 2.5f;
-static inline constexpr float middlePathLevel = 1.25f;
 
 class Scene
 {
@@ -54,6 +47,16 @@ class Scene
 	friend class TorusSerializer;
 
 public:
+	using TextureData = std::array<std::array<std::array<float, 3>, heightmapSize.x>,
+		heightmapSize.y>;
+	using HeightmapData = std::array<std::array<float, heightmapSize.x>, heightmapSize.y>;
+
+	bool m_renderGUI = true;
+	bool renderGUI() const
+	{
+		return m_renderGUI;
+	}
+
 	Scene(const glm::ivec2& windowSize);
 	void update();
 	void render();
@@ -132,12 +135,16 @@ public:
 
 	void magic();
 	void generateHeightmap();
-	void generateOffsetHeightmaps();
+	void generateOffsetHeightmap(float radius, bool flatCutter, float level = 0);
+	std::unique_ptr<HeightmapData> getOffsetHeightmapData();
+	void generateEdge();
+	float getHeightmapHeight(float defaultHeight, const HeightmapData& heightmapData,
+		int xIndex, float z);
 	void generatePath1();
+	void generatePath2();
 
 	Heightmap m_heightmap{heightmapSize};
-	Heightmap m_offsetHeightmap1{heightmapSize};
-	Heightmap m_offsetHeightmap2{heightmapSize};
+	Heightmap m_offsetHeightmap{heightmapSize};
 	OrthographicCamera m_heightmapCamera;
 	bool m_renderHeightmap = false;
 	bool m_renderOffsetHeightmap = false;

@@ -15,6 +15,18 @@ static constexpr float fovYDeg = 60.0f;
 static constexpr float nearPlane = 0.1f;
 static constexpr float farPlane = 1000.0f;
 
+static inline constexpr float baseHeight = 2.5f;
+static inline constexpr float yDefault = 6.6f;
+
+static inline constexpr float path1Radius = 0.8f;
+static inline constexpr float path1SegmentingOffset = 0.02f;
+static inline constexpr float path1InaccuracyOffset = 0.02f;
+static inline constexpr float path1Offset =
+	path1Radius + path1SegmentingOffset + path1InaccuracyOffset;
+static inline constexpr float path1IntermediateLevel = 1.25f;
+
+static inline constexpr float path2Radius = 0.5f;
+
 Scene::Scene(const glm::ivec2& windowSize) :
 	m_perspectiveCamera{windowSize, fovYDeg, nearPlane, farPlane},
 	m_orthographicCamera{windowSize, viewHeight, nearPlane, farPlane},
@@ -50,6 +62,7 @@ void Scene::render()
 		clearFramebuffer(AnaglyphMode::none);
 		m_heightmap.bindTexture();
 		ShaderPrograms::quad->use();
+		ShaderPrograms::quad->setUniform("level", 0);
 		m_quad.render();
 		return;
 	}
@@ -57,8 +70,9 @@ void Scene::render()
 	if (m_renderOffsetHeightmap)
 	{	
 		clearFramebuffer(AnaglyphMode::none);
-		m_offsetHeightmap2.bindTexture();
+		m_offsetHeightmap.bindTexture();
 		ShaderPrograms::quad->use();
+		ShaderPrograms::quad->setUniform("level", baseHeight);
 		m_quad.render();
 		return;
 	}
@@ -1171,24 +1185,14 @@ void Scene::setProjectionPlane(float projectionPlane)
 
 void Scene::magic()
 {
-	int skip = 3;
-	for (auto& surface : m_c0BezierSurfaces)
+	for (auto& point : m_points)
 	{
-		if (skip)
-		{
-			skip--;
-			continue;
-		}
-		auto& points = surface->points();
-		for (auto& pointsRow : points)
-		{
-			for (auto point : pointsRow)
-			{
-				auto pos = point->getPos();
-				pos.y *= 1.5;
-				point->setPos(pos);
-			}
-		}
+		auto pos = point->getPos();
+		pos.x *= 0.977f;
+		pos.x += 0.158f;
+		pos.x *= 0.998f;
+		pos.z += 0.62f;
+		point->setPos(pos);
 	}
 }
 
@@ -1202,33 +1206,68 @@ void Scene::generateHeightmap()
 	{
 		surface->render();
 	}
-	m_renderHeightmap = true;
-	m_renderOffsetHeightmap = false;
 	m_heightmap.unbind();
+	m_renderHeightmap = true;
 }
 
-void Scene::generateOffsetHeightmaps()
+void Scene::generateOffsetHeightmap(float radius, bool flatCutter, float level)
 {
-	auto generate = [this] (Heightmap& offsetHeightmap, float level)
-		{
-			offsetHeightmap.bind();
-			glClearColor(0, 0, 0, 1.0f);
-			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-			m_heightmapCamera.use();
-			ShaderPrograms::heightmap->use();
-			ShaderPrograms::heightmap->setUniform("radius", path1Offset);
-			ShaderPrograms::heightmap->setUniform("flatCutter", false);
-			ShaderPrograms::heightmap->setUniform("base", baseHeight);
-			ShaderPrograms::heightmap->setUniform("pathLevel", level);
-			m_heightmap.bindTexture();
-			m_quad.render();
-			m_renderHeightmap = false;
-			m_renderOffsetHeightmap = true;
-			offsetHeightmap.unbind();
-		};
+	m_offsetHeightmap.bind();
+	glClearColor(0, 0, 0, 1.0f);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	m_heightmapCamera.use();
+	ShaderPrograms::heightmap->use();
+	ShaderPrograms::heightmap->setUniform("radius", radius);
+	ShaderPrograms::heightmap->setUniform("flatCutter", flatCutter);
+	ShaderPrograms::heightmap->setUniform("base", baseHeight);
+	ShaderPrograms::heightmap->setUniform("pathLevel", level);
+	m_heightmap.bindTexture();
+	m_quad.render();
+	m_offsetHeightmap.unbind();
+	m_renderHeightmap = false;
+	m_renderOffsetHeightmap = true;
+	m_renderGUI = false;
+}
 
-	generate(m_offsetHeightmap1, middlePathLevel);
-	generate(m_offsetHeightmap2, 0);
+void Scene::generateEdge()
+{
+
+}
+
+std::unique_ptr<Scene::HeightmapData> Scene::getOffsetHeightmapData()
+{
+	auto textureData = std::make_unique<TextureData>();
+	m_offsetHeightmap.bind();
+	m_offsetHeightmap.getTextureData((*textureData)[0][0].data());
+	m_offsetHeightmap.unbind();
+	auto offsetHeightmapData = std::make_unique<HeightmapData>();
+	for (int i = 0; i < heightmapSize.y; ++i)
+	{
+		for (int j = 0; j < heightmapSize.x; ++j)
+		{
+			(*offsetHeightmapData)[i][j] = (*textureData)[i][j][0];
+		}
+	}
+	return offsetHeightmapData;
+}
+
+float Scene::getHeightmapHeight(float defaultHeight, const HeightmapData& heightmapData,
+	int xIndex, float z)
+{
+	if (xIndex < 0 || xIndex >= heightmapSize.x)
+	{
+		return defaultHeight;
+	}
+	float yPix = (z + 7.5f) / 15.0f * heightmapSize.y - 0.5f;
+	if (yPix < 0 || yPix >= heightmapSize.y - 1)
+	{
+		return defaultHeight;
+	}
+	int yPixFloor = static_cast<int>(glm::floor(yPix));
+	int yPixCeil = yPixFloor + 1;
+	float heightYFloor = heightmapData[yPixFloor][xIndex];
+	float heightYCeil = heightmapData[yPixCeil][xIndex];
+	return (yPix - yPixFloor) * heightYCeil + (yPixCeil - yPix) * heightYFloor;
 }
 
 void Scene::generatePath1()
@@ -1236,45 +1275,18 @@ void Scene::generatePath1()
 	constexpr float zStart = -7.6f;
 	constexpr float xOffset = path1Radius * 1.2f;
 
-	auto generate = [zStart, xOffset] (std::vector<glm::vec3>& path, Heightmap& offsetHeightmap,
-			float pathLevel, bool backwards, bool left)
+	auto generate = [this] (std::vector<glm::vec3>& path, float pathLevel,
+		bool backwards, bool left)
 		{
-			using TextureData = std::array<std::array<std::array<float, 3>, heightmapSize.x>,
-				heightmapSize.y>;
-			auto textureData = std::make_unique<TextureData>();
-			using HeightmapData = std::array<std::array<float, heightmapSize.x>, heightmapSize.y>;
-			auto heightmapData = std::make_unique<HeightmapData>();
-			offsetHeightmap.bind();
-			offsetHeightmap.getTextureData((*textureData)[0][0].data());
-			offsetHeightmap.unbind();
-			for (int i = 0; i < heightmapSize.y; ++i)
-			{
-				for (int j = 0; j < heightmapSize.x; ++j)
-				{
-					(*heightmapData)[i][j] = (*textureData)[i][j][0];
-				}
-			}
+			auto offsetHeightmapData = getOffsetHeightmapData();
 
 			constexpr float stride = path1Radius;
 			constexpr int passCount = 20;
 			float lowestHeight = baseHeight + pathLevel + path1Offset;
 
-			auto getHeight = [lowestHeight, &heightmapData] (int xIndex, float z)
+			auto getHeight = [this, lowestHeight, &offsetHeightmapData] (int xIndex, float z)
 				{
-					if (xIndex < 0 || xIndex >= heightmapSize.x)
-					{
-						return lowestHeight;
-					}
-					float yPix = (z + 7.5f) / 15.0f * heightmapSize.y - 0.5f;
-					if (yPix < 0 || yPix >= heightmapSize.y - 1)
-					{
-						return lowestHeight;
-					}
-					int yPixFloor = static_cast<int>(glm::floor(yPix));
-					int yPixCeil = yPixFloor + 1;
-					float heightYFloor = (*heightmapData)[yPixFloor][xIndex];
-					float heightYCeil = (*heightmapData)[yPixCeil][xIndex];
-					return (yPix - yPixFloor) * heightYCeil + (yPixCeil - yPix) * heightYFloor;
+					return getHeightmapHeight(lowestHeight, *offsetHeightmapData, xIndex, z);
 				};
 
 			auto xIndex2X = [] (int xIndex)
@@ -1336,20 +1348,139 @@ void Scene::generatePath1()
 		};
 
 	std::vector<glm::vec3> path{};
-	path.push_back({0, 6.6f, 0});
-	path.push_back({-7.5f - xOffset, 6.6f, zStart});
+	path.push_back({0, yDefault + path1Radius, 0});
+	path.push_back({-7.5f - xOffset, yDefault + path1Radius, zStart});
+	
+	generateOffsetHeightmap(path1Offset, false, path1IntermediateLevel);
+	generate(path, path1IntermediateLevel, false, false);
+	generateOffsetHeightmap(path1Offset, false);
+	generate(path, 0, true, false);
 
-	generate(path, m_offsetHeightmap1, middlePathLevel, false, false);
-	generate(path, m_offsetHeightmap2, 0, true, false);
+	path.push_back({-7.5f - xOffset, yDefault + path1Radius, zStart});
+	path.push_back({0, yDefault + path1Radius, 0});
 
-	path.push_back({-7.5f - xOffset, 6.6f, zStart});
-	path.push_back({0, 6.6f, 0});
-
-	std::ofstream file{"D:/Desktop/VisualStudio/IiSI/3c-milling-simulator/res/toolpaths/path1.k16"};
+	std::ofstream file{"D:/Desktop/VisualStudio/IiSI/3c-milling-simulator/res/toolpaths/p1.k16"};
 	for (int i = 0; i < path.size(); ++i)
 	{
 		file << std::format("N{}G01X{:.3f}Y{:.3f}Z{:.3f}\n", i + 3, path[i].x * 10, path[i].z * 10,
 			(path[i].y - path1Radius) * 10);
+	}
+	file.close();
+}
+
+void Scene::generatePath2()
+{
+	constexpr float zStart = -7.6f;
+	constexpr float xOffset = path2Radius * 1.2f;
+	constexpr float stride = 1.9f * path2Radius;
+	constexpr int passCount = 16;
+
+	auto generate = [this] (std::vector<glm::vec3>& path, bool backwards)
+		{
+			auto offsetHeightmapData = getOffsetHeightmapData();
+
+			constexpr float dz = 15.0f / heightmapSize.y;
+			constexpr int stridePix = stride / dz + 1;
+
+			auto getHeight = [this, &offsetHeightmapData] (int xIndex, float z)
+				{
+					return getHeightmapHeight(baseHeight, *offsetHeightmapData, xIndex, z);
+				};
+
+			auto xIndex2X = [] (int xIndex)
+				{
+					return (xIndex + 0.5f) / heightmapSize.x * 15.0f - 7.5f;
+				};
+
+			auto getLastZero = [backwards, getHeight] (float z)
+				{
+					int xIndex = backwards ? heightmapSize.x - 1 : 0;
+					int increment = backwards ? -1 : 1;
+					for (int i = 0; i <= heightmapSize.x / 2; ++i)
+					{
+						xIndex += increment;
+						constexpr float eps = 1e-9f;
+						if (getHeight(xIndex, z) > baseHeight + eps)
+						{
+							break;
+						}
+					}
+					return xIndex - increment;
+				};
+
+			for (int i = 0; i < passCount; i += 2)
+			{
+				float xStart = -7.5f - xOffset;
+
+				if (backwards)
+				{
+					xStart = -xStart;
+				}
+
+				float z = zStart + (backwards ? passCount - 1 - i : i) * stride;
+				float z1 = z;
+				float z2 = z + (backwards ? -stride : stride);
+				path.push_back({xStart, baseHeight, z1});
+
+				int xIndex1 = getLastZero(z1);
+				float x1 = xIndex2X(xIndex1);
+				float xLine1 = x1;
+				int xIndex2 = getLastZero(z2);
+				float x2 = xIndex2X(xIndex2);
+				float xLine2 = x2;
+
+				float angle = std::atan((x2 - x1) / (backwards ? -stride : stride));
+				constexpr float maxAngle = glm::radians(45.0f);
+
+				if (angle < -maxAngle)
+				{
+					path.push_back({x1, baseHeight, z1});
+					xLine1 = xLine2 + (backwards ? -stride : stride) * std::tan(maxAngle);
+				}
+				if (angle > maxAngle)
+				{
+					xLine2 = xLine1 + (backwards ? -stride : stride) * std::tan(maxAngle);
+				}
+
+				float maxXOffset = 0;
+				for (int j = 0; j < stridePix; ++j)
+				{
+					float zOffset = j * dz;
+					int xIndex = getLastZero(z1 + (backwards ? -zOffset : zOffset));
+					float x = xIndex2X(xIndex);
+					float xLine = xLine1 + (xLine2 - xLine1) * zOffset / stride;
+					maxXOffset = std::max(maxXOffset, (backwards ? x - xLine : xLine - x));
+				}
+				path.push_back({xLine1 + (backwards ? maxXOffset : -maxXOffset), baseHeight, z1});
+				path.push_back({xLine2 + (backwards ? maxXOffset : -maxXOffset), baseHeight, z2});
+
+				if (angle > maxAngle)
+				{
+					path.push_back({x2, baseHeight, z2});
+				}
+
+				path.push_back({xStart, baseHeight, z2});
+			}
+		};
+
+	std::vector<glm::vec3> path{};
+	path.push_back({0, yDefault, 0});
+	path.push_back({-7.5f - xOffset, yDefault, zStart});
+	
+	generateOffsetHeightmap(path2Radius, true);
+	generate(path, false);
+	path.push_back({-7.5f - xOffset, baseHeight, zStart + passCount * stride});
+	path.push_back({7.5f + xOffset, baseHeight, zStart + passCount * stride});
+	generate(path, true);
+
+	path.push_back({7.5f + xOffset, yDefault, zStart});
+	path.push_back({0, yDefault, 0});
+
+	std::ofstream file{"D:/Desktop/VisualStudio/IiSI/3c-milling-simulator/res/toolpaths/p2.f10"};
+	for (int i = 0; i < path.size(); ++i)
+	{
+		file << std::format("N{}G01X{:.3f}Y{:.3f}Z{:.3f}\n", i + 3, path[i].x * 10, path[i].z * 10,
+			path[i].y * 10);
 	}
 	file.close();
 }

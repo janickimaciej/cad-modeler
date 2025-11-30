@@ -63,7 +63,7 @@ void LeftPanel::update()
 {
 	ImGui::SetNextWindowPos({0, 0}, ImGuiCond_Always);
 	ImGui::SetNextWindowSize({width, static_cast<float>(m_windowSize.y)}, ImGuiCond_Always);
-	ImGui::Begin("leftPanel", nullptr, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoTitleBar);
+	ImGui::Begin("leftPanel", nullptr, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoBackground);
 	ImGui::PushItemWidth(100);
 
 	updateCamera();
@@ -354,16 +354,16 @@ void LeftPanel::updateButtons()
 
 	separator();
 
-	if (ImGui::Button("Generate offset heightmaps"))
+	if (ImGui::Button("Generate path 1"))
 	{
-		m_scene.generateOffsetHeightmaps();
+		m_scene.generatePath1();
 	}
 
 	separator();
 
-	if (ImGui::Button("Generate path 1"))
+	if (ImGui::Button("Generate path 2"))
 	{
-		m_scene.generatePath1();
+		m_scene.generatePath2();
 	}
 }
 

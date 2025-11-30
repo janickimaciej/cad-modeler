@@ -15,10 +15,12 @@ int main()
 
 	while (!window.shouldClose())
 	{
-		gui.update();
+		if (scene.renderGUI())
+			gui.update();
 		scene.update();
 		scene.render();
-		gui.render();
+		if (scene.renderGUI())
+			gui.render();
 		window.swapBuffers();
 		window.pollEvents();
 	}
