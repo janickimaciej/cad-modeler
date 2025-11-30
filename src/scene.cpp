@@ -1,5 +1,6 @@
 #include "scene.hpp"
 
+#include "guis/leftPanel.hpp"
 #include "shaderPrograms.hpp"
 
 #include <algorithm>
@@ -62,17 +63,27 @@ void Scene::render()
 		clearFramebuffer(AnaglyphMode::none);
 		m_heightmap.bindTexture();
 		ShaderPrograms::quad->use();
-		ShaderPrograms::quad->setUniform("level", 0);
+		ShaderPrograms::quad->setUniform("level", 0.0f);
 		m_quad.render();
 		return;
 	}
 
 	if (m_renderOffsetHeightmap)
-	{	
+	{
 		clearFramebuffer(AnaglyphMode::none);
 		m_offsetHeightmap.bindTexture();
 		ShaderPrograms::quad->use();
 		ShaderPrograms::quad->setUniform("level", baseHeight);
+		m_quad.render();
+		return;
+	}
+
+	if (m_renderEdge)
+	{
+		clearFramebuffer(AnaglyphMode::none);
+		m_edge.bindTexture();
+		ShaderPrograms::quad->use();
+		ShaderPrograms::quad->setUniform("level", 0.0f);
 		m_quad.render();
 		return;
 	}
@@ -1208,30 +1219,40 @@ void Scene::generateHeightmap()
 	}
 	m_heightmap.unbind();
 	m_renderHeightmap = true;
+	glViewport(LeftPanel::width, 0, heightmapSize.x, heightmapSize.y);
 }
 
-void Scene::generateOffsetHeightmap(float radius, bool flatCutter, float level)
+void Scene::generateOffsetHeightmap(float radius, bool flatCutter, float pathLevel)
 {
 	m_offsetHeightmap.bind();
 	glClearColor(0, 0, 0, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	m_heightmapCamera.use();
 	ShaderPrograms::heightmap->use();
 	ShaderPrograms::heightmap->setUniform("radius", radius);
 	ShaderPrograms::heightmap->setUniform("flatCutter", flatCutter);
 	ShaderPrograms::heightmap->setUniform("base", baseHeight);
-	ShaderPrograms::heightmap->setUniform("pathLevel", level);
+	ShaderPrograms::heightmap->setUniform("pathLevel", pathLevel);
 	m_heightmap.bindTexture();
 	m_quad.render();
 	m_offsetHeightmap.unbind();
 	m_renderHeightmap = false;
 	m_renderOffsetHeightmap = true;
-	m_renderGUI = false;
 }
 
 void Scene::generateEdge()
 {
-
+	m_edge.bind();
+	glClearColor(0, 0, 0, 1.0f);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	ShaderPrograms::edge->use();
+	ShaderPrograms::edge->setUniform("level", baseHeight);
+	ShaderPrograms::edge->setUniform("resolution", heightmapSize);
+	m_offsetHeightmap.bindTexture();
+	m_quad.render();
+	m_edge.unbind();
+	m_renderHeightmap = false;
+	m_renderOffsetHeightmap = false;
+	m_renderEdge = true;
 }
 
 std::unique_ptr<Scene::HeightmapData> Scene::getOffsetHeightmapData()

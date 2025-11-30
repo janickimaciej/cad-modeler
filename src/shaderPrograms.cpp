@@ -12,6 +12,7 @@ namespace ShaderPrograms
 	std::unique_ptr<const ShaderProgram> torus{};
 	std::unique_ptr<const ShaderProgram> bezierCurve{};
 	std::unique_ptr<const ShaderProgram> heightmap{};
+	std::unique_ptr<const ShaderProgram> edge{};
 	std::unique_ptr<const ShaderProgram> interpolatingBezierCurve{};
 	std::unique_ptr<const ShaderProgram> polyline{};
 	std::unique_ptr<const ShaderProgram> bezierSurface{};
@@ -34,6 +35,7 @@ namespace ShaderPrograms
 			path("interpolatingBezierCurveVS"), path("interpolatingBezierCurveTCS"),
 			path("interpolatingBezierCurveTES"), path("FS"));
 		heightmap = std::make_unique<const ShaderProgram>(path("heightmapVS"), path("heightmapFS"));
+		edge = std::make_unique<const ShaderProgram>(path("edgeVS"), path("edgeFS"));
 		polyline = std::make_unique<const ShaderProgram>(path("VS"), path("FS"));
 		bezierSurface = std::make_unique<const ShaderProgram>(path("surfaceVS"),
 			path("bezierSurfaceTCS"), path("bezierSurfaceTES"), path("intersectableFS"));

@@ -51,12 +51,6 @@ public:
 		heightmapSize.y>;
 	using HeightmapData = std::array<std::array<float, heightmapSize.x>, heightmapSize.y>;
 
-	bool m_renderGUI = true;
-	bool renderGUI() const
-	{
-		return m_renderGUI;
-	}
-
 	Scene(const glm::ivec2& windowSize);
 	void update();
 	void render();
@@ -135,7 +129,7 @@ public:
 
 	void magic();
 	void generateHeightmap();
-	void generateOffsetHeightmap(float radius, bool flatCutter, float level = 0);
+	void generateOffsetHeightmap(float radius, bool flatCutter, float pathLevel = 0);
 	std::unique_ptr<HeightmapData> getOffsetHeightmapData();
 	void generateEdge();
 	float getHeightmapHeight(float defaultHeight, const HeightmapData& heightmapData,
@@ -145,9 +139,11 @@ public:
 
 	Heightmap m_heightmap{heightmapSize};
 	Heightmap m_offsetHeightmap{heightmapSize};
+	Heightmap m_edge{heightmapSize};
 	OrthographicCamera m_heightmapCamera;
 	bool m_renderHeightmap = false;
 	bool m_renderOffsetHeightmap = false;
+	bool m_renderEdge = false;
 
 private:
 	std::vector<Model*> m_models{};

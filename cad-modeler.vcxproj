@@ -190,6 +190,8 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="dep\imgui\misc\debuggers\imgui.natstepfilter" />
+    <None Include="src\shaders\edgeFS.glsl" />
+    <None Include="src\shaders\edgeVS.glsl" />
     <None Include="src\shaders\heightmapFS.glsl" />
     <None Include="src\shaders\heightmapVS.glsl" />
     <None Include="src\shaders\bezierSurfaceTrianglesFS.glsl" />

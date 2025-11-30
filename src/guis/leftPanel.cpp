@@ -365,6 +365,13 @@ void LeftPanel::updateButtons()
 	{
 		m_scene.generatePath2();
 	}
+
+	separator();
+
+	if (ImGui::Button("Generate edge"))
+	{
+		m_scene.generateEdge();
+	}
 }
 
 void LeftPanel::resetPanels()

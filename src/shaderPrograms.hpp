@@ -15,6 +15,7 @@ namespace ShaderPrograms
 	extern std::unique_ptr<const ShaderProgram> bezierCurve;
 	extern std::unique_ptr<const ShaderProgram> interpolatingBezierCurve;
 	extern std::unique_ptr<const ShaderProgram> heightmap;
+	extern std::unique_ptr<const ShaderProgram> edge;
 	extern std::unique_ptr<const ShaderProgram> polyline;
 	extern std::unique_ptr<const ShaderProgram> bezierSurface;
 	extern std::unique_ptr<const ShaderProgram> bezierSurfaceTriangles;
