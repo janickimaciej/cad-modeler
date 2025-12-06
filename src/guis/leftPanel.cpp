@@ -368,9 +368,9 @@ void LeftPanel::updateButtons()
 
 	separator();
 
-	if (ImGui::Button("Generate edge"))
+	if (ImGui::Button("Generate path 3"))
 	{
-		m_scene.generateEdge();
+		m_scene.generatePath3();
 	}
 }
 

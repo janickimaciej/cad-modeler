@@ -33,7 +33,7 @@
 #include <string>
 #include <vector>
 
-static inline constexpr glm::ivec2 heightmapSize{900, 900};
+static inline constexpr glm::ivec2 heightmapSize{2500, 2500};
 
 class Scene
 {
@@ -130,12 +130,13 @@ public:
 	void magic();
 	void generateHeightmap();
 	void generateOffsetHeightmap(float radius, bool flatCutter, float pathLevel = 0);
-	std::unique_ptr<HeightmapData> getOffsetHeightmapData();
+	std::unique_ptr<HeightmapData> getHeightmapData(Heightmap& heightmap);
 	void generateEdge();
 	float getHeightmapHeight(float defaultHeight, const HeightmapData& heightmapData,
 		int xIndex, float z);
 	void generatePath1();
 	void generatePath2();
+	void generatePath3();
 
 	Heightmap m_heightmap{heightmapSize};
 	Heightmap m_offsetHeightmap{heightmapSize};
