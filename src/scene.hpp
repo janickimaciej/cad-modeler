@@ -132,11 +132,15 @@ public:
 	void generateOffsetHeightmap(float radius, bool flatCutter, float pathLevel = 0);
 	std::unique_ptr<HeightmapData> getHeightmapData(Heightmap& heightmap);
 	void generateEdge();
-	float getHeightmapHeight(float defaultHeight, const HeightmapData& heightmapData,
+	static float getHeightmapHeight(float defaultHeight, const HeightmapData& heightmapData,
 		int xIndex, float z);
+	static float getHeightmapHeight(float defaultHeight, const HeightmapData& heightmapData,
+		float x, float z);
+	static float getCurvatureRadius(const glm::vec3& p1, const glm::vec3& p2, const glm::vec3& p3);
 	void generatePath1();
 	void generatePath2();
 	void generatePath3();
+	void generatePath4();
 
 	Heightmap m_heightmap{heightmapSize};
 	Heightmap m_offsetHeightmap{heightmapSize};
