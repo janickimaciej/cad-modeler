@@ -1228,14 +1228,29 @@ void Scene::generateOffsetHeightmap(float radius, bool flatCutter, float pathLev
 	m_offsetHeightmap.bind();
 	glClearColor(0, 0, 0, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	ShaderPrograms::heightmap->use();
-	ShaderPrograms::heightmap->setUniform("radius", radius);
-	ShaderPrograms::heightmap->setUniform("flatCutter", flatCutter);
-	ShaderPrograms::heightmap->setUniform("base", baseHeight);
-	ShaderPrograms::heightmap->setUniform("pathLevel", pathLevel);
-	m_heightmap.bindTexture();
-	m_quad.render();
 	m_offsetHeightmap.unbind();
+
+	static constexpr glm::ivec2 viewportSize{75, 75};
+	for (int i = 0; i * viewportSize.x < heightmapSize.x; ++i)
+	{
+		for (int j = 0; j * viewportSize.y < heightmapSize.y; ++j)
+		{
+			glm::ivec2 viewportOffset{i * viewportSize.x, j * viewportSize.y};
+			m_offsetHeightmap.bind(viewportOffset, viewportSize);
+			ShaderPrograms::heightmap->use();
+			ShaderPrograms::heightmap->setUniform("heightmapSize", heightmapSize);
+			ShaderPrograms::heightmap->setUniform("radius", radius);
+			ShaderPrograms::heightmap->setUniform("flatCutter", flatCutter);
+			ShaderPrograms::heightmap->setUniform("base", baseHeight);
+			ShaderPrograms::heightmap->setUniform("pathLevel", pathLevel);
+			ShaderPrograms::heightmap->setUniform("viewportSize", viewportSize);
+			ShaderPrograms::heightmap->setUniform("viewportOffset", viewportOffset);
+			m_heightmap.bindTexture();
+			m_quad.render();
+			m_offsetHeightmap.unbind();
+		}
+	}
+
 	m_renderHeightmap = false;
 	m_renderOffsetHeightmap = true;
 }
@@ -1603,9 +1618,9 @@ void Scene::generatePath3()
 		};
 
 	std::vector<glm::vec3> points{};
-	for (const auto& point : pointIndices)
+	for (const auto& pointIndex : pointIndices)
 	{
-		points.push_back(indicesToPoint(point));
+		points.push_back(indicesToPoint(pointIndex));
 	}
 
 	auto getCurvatureRadius = [] (const glm::vec3& p1, const glm::vec3& p2, const glm::vec3& p3)
@@ -1635,17 +1650,30 @@ void Scene::generatePath3()
 			return static_cast<std::size_t>(index);
 		};
 
+	auto getSmoothPoint = [&points, &getProperIndex] (int index)
+		{
+			return 0.15f * points[getProperIndex(index - 3)] +
+				0.15f * points[getProperIndex(index - 2)] +
+				0.2f * points[getProperIndex(index - 1)] +
+				0.0f * points[getProperIndex(index)] +
+				0.2f * points[getProperIndex(index + 1)] +
+				0.15f * points[getProperIndex(index + 2)] +
+				0.15f * points[getProperIndex(index + 3)];
+		};
+
+	glm::vec3 point0 = getSmoothPoint(0);
+
 	float yIntermediate = baseHeight + 1.0f;
 	float zStart = -7.5f - path2Radius * 1.2f;
 	std::vector<glm::vec3> path{};
 	path.push_back({0, yDefault, 0});
-	path.push_back({points[0].x, yIntermediate, zStart});
-	path.push_back({points[0].x, points[0].y, zStart});
+	path.push_back({point0.x, yIntermediate, zStart});
+	path.push_back({point0.x, point0.y, zStart});
 
 	float minCurvatureRadius = std::numeric_limits<float>::max();
-	constexpr float maxDepth = 0.005f;
-	glm::vec3 prevPathPoint = points[0];
-	path.push_back(points[0]);
+	constexpr float maxDepth = 0.001f;
+	glm::vec3 prevPathPoint = point0;
+	path.push_back(point0);
 	for (int i = 2; i < points.size(); ++i)
 	{
 		static constexpr int range = 15;
@@ -1656,15 +1684,15 @@ void Scene::generatePath3()
 		float segmentLengthSquared = glm::dot(points[i] - prevPathPoint, points[i] - prevPathPoint);
 		if (segmentLengthSquared > 4 * (2 * minCurvatureRadius * maxDepth - std::pow(maxDepth, 2)))
 		{
-			prevPathPoint = points[getProperIndex(i - 1)];
+			prevPathPoint = getSmoothPoint(i - 1);
 			path.push_back(prevPathPoint);
 			minCurvatureRadius = std::numeric_limits<float>::max();
 		}
 	}
-	path.push_back(points[0]);
+	path.push_back(point0);
 
-	path.push_back({points[0].x, points[0].y, zStart});
-	path.push_back({points[0].x, yIntermediate, zStart});
+	path.push_back({point0.x, point0.y, zStart});
+	path.push_back({point0.x, yIntermediate, zStart});
 	path.push_back({0, yDefault, 0});
 
 	std::ofstream file{"D:/Desktop/VisualStudio/IiSI/3c-milling-simulator/res/toolpaths/p3.f10"};

@@ -20,8 +20,8 @@ void main()
 {
 	float maxHeight = max(texture(textureSampler, texturePos).r, pathLevel)
 		+ (flatCutter ? 0 : radius);
-	const int radiusResolution = 32;
-	const int angleResolution = 128;
+	const int radiusResolution = 128;
+	const int angleResolution = 512;
 	float dr = radius / radiusResolution;
 	float dAlpha = 2 * 3.1415927 / angleResolution;
 	for (int i = 1; i <= radiusResolution; ++i)

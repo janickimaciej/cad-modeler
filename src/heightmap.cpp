@@ -27,8 +27,13 @@ Heightmap::~Heightmap()
 
 void Heightmap::bind()
 {
+	bind({0, 0}, m_size);
+}
+
+void Heightmap::bind(const glm::ivec2& viewportOffset, const glm::ivec2& viewportSize)
+{
 	glGetIntegerv(GL_VIEWPORT, m_previousViewport.data());
-	glViewport(0, 0, m_size.x, m_size.y);
+	glViewport(viewportOffset.x, viewportOffset.y, viewportSize.x, viewportSize.y);
 	glBindFramebuffer(GL_FRAMEBUFFER, m_FBO);
 }
 

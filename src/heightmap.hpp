@@ -10,6 +10,7 @@ public:
 	Heightmap(const glm::ivec2& size);
 	~Heightmap();
 	void bind();
+	void bind(const glm::ivec2& viewportOffset, const glm::ivec2& viewportSize);
 	void unbind() const;
 	void bindTexture() const;
 	void resize(const glm::ivec2& size) const;

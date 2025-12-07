@@ -33,7 +33,7 @@
 #include <string>
 #include <vector>
 
-static inline constexpr glm::ivec2 heightmapSize{2500, 2500};
+static inline constexpr glm::ivec2 heightmapSize{3000, 3000};
 
 class Scene
 {
