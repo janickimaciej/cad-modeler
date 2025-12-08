@@ -1745,6 +1745,8 @@ void Scene::generatePath4()
 	auto getPathPoint = [&surface] (float u, float v)
 		{
 			glm::vec3 surfacePoint = surface.surface(u, v);
+			surfacePoint.y += path4Radius;
+			surfacePoint.z *= -1;
 			glm::vec3 normalVector = glm::normalize(
 				glm::cross(surface.surfaceDU(u, v), surface.surfaceDV(u, v)));
 			return surfacePoint + path4Radius * normalVector;
@@ -1769,7 +1771,7 @@ void Scene::generatePath4()
 
 	static constexpr int uResolution = 1000;
 	static constexpr int vResolution = uResolution;
-	static constexpr float dU = 1.0f / uResolution;
+	static constexpr float dU = 0.5f / uResolution;
 	static constexpr float dV = 1.0f / vResolution;
 
 	for (int uIndex = 0; uIndex <= uResolution; ++uIndex)
