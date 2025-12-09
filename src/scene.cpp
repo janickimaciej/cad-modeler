@@ -1729,92 +1729,128 @@ void Scene::generatePath3()
 
 void Scene::generatePath4()
 {
-	std::vector<glm::vec3> path{};
-	const BezierSurface& surface = *m_c0BezierSurfaces[0];
-
-	generateOffsetHeightmap(path4Radius, false);
-
-	auto offsetHeightmapData = getHeightmapData(m_offsetHeightmap);
-
-	float lowestHeight = baseHeight + path4Radius;
-	auto getHeight = [&offsetHeightmapData, lowestHeight] (float x, float z)
+	auto generate = [this] (std::vector<glm::vec3>& path, const BezierSurface& surface,
+		const std::function<glm::vec2(const glm::vec2&)>& remapUV)
 		{
-			return getHeightmapHeight(lowestHeight, *offsetHeightmapData, x, z);
-		};
+			auto offsetHeightmapData = getHeightmapData(m_offsetHeightmap);
 
-	auto getPathPoint = [&surface] (float u, float v)
-		{
-			glm::vec3 surfacePoint = surface.surface(u, v);
-			surfacePoint.y += path4Radius;
-			surfacePoint.z *= -1;
-			glm::vec3 normalVector = glm::normalize(
-				glm::cross(surface.surfaceDU(u, v), surface.surfaceDV(u, v)));
-			return surfacePoint + path4Radius * normalVector;
-		};
+			float lowestHeight = baseHeight + path4Radius;
+			float safeHeight = baseHeight + path4Radius + 1.0f;
+			auto getHeight = [&offsetHeightmapData, lowestHeight] (float x, float z)
+				{
+					return getHeightmapHeight(lowestHeight, *offsetHeightmapData, x, z);
+				};
 
-	auto getPoint = [&surface, &getHeight, &getPathPoint] (float u, float v)
-		{
-			static constexpr float eps = 1e-3f;
+			auto getPathPoint = [&surface] (const glm::vec2& uv)
+				{
+					glm::vec3 surfacePoint = surface.surface(uv[0], uv[1]);
+					surfacePoint.y += path4Radius;
+					surfacePoint.z *= -1;
+					glm::vec3 normalVector = glm::normalize(
+						glm::cross(surface.surfaceDU(uv[0], uv[1]),
+							surface.surfaceDV(uv[0], uv[1])));
+					return surfacePoint + path4Radius * normalVector;
+				};
 
-			glm::vec3 pathPoint = getPathPoint(u, v);
-			float heightmapHeight = getHeight(pathPoint.x, pathPoint.z);
-			if (heightmapHeight - pathPoint.y > eps)
+			auto getPoint = [&surface, &getHeight, &getPathPoint, remapUV] (glm::vec2 uv)
+				{
+					uv = remapUV(uv);
+					static constexpr float eps = 1e-3f;
+
+					glm::vec3 pathPoint = getPathPoint(uv);
+					float heightmapHeight = getHeight(pathPoint.x, pathPoint.z);
+					if (heightmapHeight - pathPoint.y > eps)
+					{
+						pathPoint.y = heightmapHeight;
+						return std::pair<glm::vec3, bool>{pathPoint, false};
+					}
+					else
+					{
+						return std::pair<glm::vec3, bool>{pathPoint, true};
+					}
+				};
+
+			static constexpr int uResolution = 50;
+			static constexpr int vResolution = 200;
+			static constexpr float dU = 1.0f / uResolution;
+			static constexpr float dV = 1.0f / vResolution;
+
+			auto [firstPoint, _] = getPoint({0.0f, 0.0f});
+			firstPoint.y = safeHeight;
+			path.push_back(firstPoint);
+
+			bool backwards = false;
+			for (int uIndex = 0; uIndex <= uResolution; ++uIndex)
 			{
-				pathPoint.y = heightmapHeight;
-				return std::pair<glm::vec3, bool>{pathPoint, false};
-			}
-			else
-			{
-				return std::pair<glm::vec3, bool>{pathPoint, true};
-			}
-		};
+				float u = uIndex * dU;
+				float minVCurvatureRadius = std::numeric_limits<float>::max();
+				//std::vector<glm::vec3> constantUPath{};
 
-	static constexpr int uResolution = 1000;
-	static constexpr int vResolution = uResolution;
-	static constexpr float dU = 0.5f / uResolution;
-	static constexpr float dV = 1.0f / vResolution;
+				auto [prevPoint, prevOnMilledSurface] = getPoint({u, backwards ? 1.0f : 0.0f});
+				path.push_back(prevPoint);
+				glm::vec3 prevPathPoint = prevPoint;
+				auto [currPoint, currOnMilledSurface] = getPoint({u, dV});
+				glm::vec3 nextPoint{};
+				bool nextOnMilledSurface{};
 
-	for (int uIndex = 0; uIndex <= uResolution; ++uIndex)
-	{
-		float u = uIndex * dU;
-		float minVCurvatureRadius = std::numeric_limits<float>::max();
-		//std::vector<glm::vec3> constantUPath{};
+				for (int vIndex = 2; vIndex < vResolution; ++vIndex)
+				{
+					float v = (backwards ? vResolution - vIndex : vIndex) * dV;
 
-		auto [prevPoint, prevOnMilledSurface] = getPoint(u, 0);
-		path.push_back(prevPoint);
-		glm::vec3 prevPathPoint = prevPoint;
-		auto [currPoint, currOnMilledSurface] = getPoint(u, dV);
-		glm::vec3 nextPoint{};
-		bool nextOnMilledSurface{};
+					std::tie(nextPoint, nextOnMilledSurface) = getPoint({u, v});
+					float vCurvatureRadius = getCurvatureRadius(prevPoint, currPoint, nextPoint);
+					minVCurvatureRadius = std::min(minVCurvatureRadius, vCurvatureRadius);
 
-		for (int vIndex = 2; vIndex < vResolution; ++vIndex)
-		{
-			float v = vIndex * dV;
+					float segmentLengthSquared =
+						glm::dot(nextPoint - prevPathPoint, nextPoint - prevPathPoint);
+					constexpr float maxDepth = 0.001f;
+					if (!prevOnMilledSurface && currOnMilledSurface && nextOnMilledSurface ||
+						prevOnMilledSurface && currOnMilledSurface && !nextOnMilledSurface ||
+						segmentLengthSquared > 4 * (2 * minVCurvatureRadius * maxDepth -
+							std::pow(maxDepth, 2)))
+					{
+						path.push_back(currPoint);
+						prevPathPoint = currPoint;
+						minVCurvatureRadius = std::numeric_limits<float>::max();
+					}
 
-			std::tie(nextPoint, nextOnMilledSurface) = getPoint(u, v);
-			float vCurvatureRadius = getCurvatureRadius(prevPoint, currPoint, nextPoint);
-			minVCurvatureRadius = std::min(minVCurvatureRadius, vCurvatureRadius);
+					prevPoint = currPoint;
+					currPoint = nextPoint;
+					prevOnMilledSurface = currOnMilledSurface;
+					currOnMilledSurface = nextOnMilledSurface;
+				}
 
-			float segmentLengthSquared =
-				glm::dot(nextPoint - prevPathPoint, nextPoint - prevPathPoint);
-			constexpr float maxDepth = 0.001f;
-			if (!prevOnMilledSurface && currOnMilledSurface && nextOnMilledSurface ||
-				prevOnMilledSurface && currOnMilledSurface && !nextOnMilledSurface ||
-				segmentLengthSquared > 4 * (2 * minVCurvatureRadius * maxDepth -
-					std::pow(maxDepth, 2)))
-			{
+				std::tie(currPoint, nextOnMilledSurface) = getPoint({u, backwards ? 0.0f : 1.0f});
 				path.push_back(currPoint);
-				prevPathPoint = currPoint;
-				minVCurvatureRadius = std::numeric_limits<float>::max();
+
+				backwards = !backwards;
 			}
 
-			prevPoint = currPoint;
-			currPoint = nextPoint;
-			prevOnMilledSurface = currOnMilledSurface;
-			currOnMilledSurface = nextOnMilledSurface;
-		}
-		break;
-	}
+			glm::vec3 lastPoint = path.back();
+			lastPoint.y = safeHeight;
+			path.push_back(lastPoint);
+		};
+
+	std::vector<glm::vec3> path{};
+	generateOffsetHeightmap(path4Radius, false);
+	path.push_back({0, yDefault, 0});
+	generate(path, *m_c0BezierSurfaces[0], [] (const glm::vec2& uv)
+		{
+			return glm::vec2{uv[0] / 2.0f, 1.0f - uv[1]};
+		});
+	generate(path, *m_c0BezierSurfaces[1], [] (const glm::vec2& uv)
+		{
+			return glm::vec2{uv[1], 0.5f + uv[0] / 2.0f};
+		});
+	//generate(path, *m_c0BezierSurfaces[2], [] (const glm::vec2& uv)
+	//	{
+	//		return glm::vec2{uv[0], uv[1] / 2.0f};
+	//	});
+	//generate(path, *m_c0BezierSurfaces[3], [] (const glm::vec2& uv)
+	//	{
+	//		return glm::vec2{uv[0], uv[1] / 2.0f};
+	//	});
+	path.push_back({0, yDefault, 0});
 
 	std::ofstream file{"D:/Desktop/VisualStudio/IiSI/3c-milling-simulator/res/toolpaths/p4.k08"};
 	for (int i = 0; i < path.size(); ++i)
