@@ -1744,12 +1744,13 @@ void Scene::generatePath4()
 			auto getPathPoint = [&surface] (const glm::vec2& uv)
 				{
 					glm::vec3 surfacePoint = surface.surface(uv[0], uv[1]);
-					surfacePoint.y += path4Radius;
-					surfacePoint.z *= -1;
 					glm::vec3 normalVector = glm::normalize(
 						glm::cross(surface.surfaceDU(uv[0], uv[1]),
 							surface.surfaceDV(uv[0], uv[1])));
-					return surfacePoint + path4Radius * normalVector;
+					glm::vec3 pathPoint = surfacePoint + path4Radius * normalVector;
+					pathPoint.y += baseHeight;
+					pathPoint.z *= -1;
+					return pathPoint;
 				};
 
 			auto getPoint = [&surface, &getHeight, &getPathPoint, remapUV] (glm::vec2 uv)
@@ -1784,12 +1785,12 @@ void Scene::generatePath4()
 			{
 				float u = uIndex * dU;
 				float minVCurvatureRadius = std::numeric_limits<float>::max();
-				//std::vector<glm::vec3> constantUPath{};
 
 				auto [prevPoint, prevOnMilledSurface] = getPoint({u, backwards ? 1.0f : 0.0f});
 				path.push_back(prevPoint);
 				glm::vec3 prevPathPoint = prevPoint;
-				auto [currPoint, currOnMilledSurface] = getPoint({u, dV});
+				auto [currPoint, currOnMilledSurface] =
+					getPoint({u, (backwards ? vResolution - 1 : 1) * dV});
 				glm::vec3 nextPoint{};
 				bool nextOnMilledSurface{};
 
@@ -1842,14 +1843,14 @@ void Scene::generatePath4()
 		{
 			return glm::vec2{uv[1], 0.5f + uv[0] / 2.0f};
 		});
-	//generate(path, *m_c0BezierSurfaces[2], [] (const glm::vec2& uv)
-	//	{
-	//		return glm::vec2{uv[0], uv[1] / 2.0f};
-	//	});
-	//generate(path, *m_c0BezierSurfaces[3], [] (const glm::vec2& uv)
-	//	{
-	//		return glm::vec2{uv[0], uv[1] / 2.0f};
-	//	});
+	generate(path, *m_c0BezierSurfaces[2], [] (const glm::vec2& uv)
+		{
+			return glm::vec2{uv[1], uv[0] / 2.0f};
+		});
+	generate(path, *m_c0BezierSurfaces[3], [] (const glm::vec2& uv)
+		{
+			return glm::vec2{uv[1], 0.5f + uv[0] / 2.0f};
+		});
 	path.push_back({0, yDefault, 0});
 
 	std::ofstream file{"D:/Desktop/VisualStudio/IiSI/3c-milling-simulator/res/toolpaths/p4.k08"};
