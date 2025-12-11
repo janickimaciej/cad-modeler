@@ -1753,26 +1753,22 @@ void Scene::generatePath4()
 					return pathPoint;
 				};
 
-			auto getPoint = [&surface, &getHeight, &getPathPoint, remapUV] (glm::vec2 uv)
+			auto getPoint =
+				[&surface, &getHeight, &getPathPoint, remapUV, lowestHeight] (glm::vec2 uv)
 				{
 					uv = remapUV(uv);
-					static constexpr float eps = 1e-3f;
+					static constexpr float eps = 1e-2f;
 
 					glm::vec3 pathPoint = getPathPoint(uv);
 					float heightmapHeight = getHeight(pathPoint.x, pathPoint.z);
-					if (heightmapHeight - pathPoint.y > eps)
-					{
-						pathPoint.y = heightmapHeight;
-						return std::pair<glm::vec3, bool>{pathPoint, false};
-					}
-					else
-					{
-						return std::pair<glm::vec3, bool>{pathPoint, true};
-					}
+					pathPoint.y = heightmapHeight;
+					pathPoint.y = std::max(pathPoint.y, lowestHeight + 0.01f);
+					return std::pair<glm::vec3, bool>{pathPoint,
+						heightmapHeight - pathPoint.y < eps};
 				};
 
 			static constexpr int uResolution = 50;
-			static constexpr int vResolution = 200;
+			static constexpr int vResolution = 1000;
 			static constexpr float dU = 1.0f / uResolution;
 			static constexpr float dV = 1.0f / vResolution;
 
@@ -1837,7 +1833,7 @@ void Scene::generatePath4()
 	path.push_back({0, yDefault, 0});
 	generate(path, *m_c0BezierSurfaces[0], [] (const glm::vec2& uv)
 		{
-			return glm::vec2{uv[0] / 2.0f, 1.0f - uv[1]};
+			return glm::vec2{uv[0] / 2.0f, 0.89f * (uv[1]) + 0.11f};
 		});
 	generate(path, *m_c0BezierSurfaces[1], [] (const glm::vec2& uv)
 		{
