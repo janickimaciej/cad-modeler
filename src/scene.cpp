@@ -30,6 +30,8 @@ static inline constexpr float path1IntermediateLevel = 1.25f;
 static inline constexpr float path2Radius = 0.5f;
 
 static inline constexpr float path4Radius = 0.4f;
+static inline constexpr float path4BaseOffset = 0.01f;
+static inline constexpr int path4IntersectionOffset = 10;
 
 Scene::Scene(const glm::ivec2& windowSize) :
 	m_perspectiveCamera{windowSize, fovYDeg, nearPlane, farPlane},
@@ -1686,16 +1688,16 @@ void Scene::generatePath3()
 
 	glm::vec3 point0 = getSmoothPoint(0);
 
-	float yIntermediate = baseHeight + 1.0f;
+	float safeHeight = baseHeight + 1.0f;
 	float zStart = -7.5f - path2Radius * 1.2f;
 	std::vector<glm::vec3> path{};
 	path.push_back({0, yDefault, 0});
-	path.push_back({point0.x, yIntermediate, zStart});
+	path.push_back({point0.x, safeHeight, zStart});
 	path.push_back({point0.x, point0.y, zStart});
 
 	float minCurvatureRadius = std::numeric_limits<float>::max();
 	glm::vec3 prevPathPoint = point0;
-	path.push_back(point0);
+	path.push_back(prevPathPoint);
 	for (int i = 2; i < points.size(); ++i)
 	{
 		static constexpr int range = 15;
@@ -1715,7 +1717,7 @@ void Scene::generatePath3()
 	path.push_back(point0);
 
 	path.push_back({point0.x, point0.y, zStart});
-	path.push_back({point0.x, yIntermediate, zStart});
+	path.push_back({point0.x, safeHeight, zStart});
 	path.push_back({0, yDefault, 0});
 
 	std::ofstream file{"D:/Desktop/VisualStudio/IiSI/3c-milling-simulator/res/toolpaths/p3.f10"};
@@ -1730,7 +1732,8 @@ void Scene::generatePath3()
 void Scene::generatePath4()
 {
 	auto generate = [this] (std::vector<glm::vec3>& path, const BezierSurface& surface,
-		const std::function<glm::vec2(const glm::vec2&)>& remapUV)
+		int uResolution, const std::function<glm::vec2(const glm::vec2&)>& remapUV,
+		bool turnOnIntersection = false)
 		{
 			auto offsetHeightmapData = getHeightmapData(m_offsetHeightmap);
 
@@ -1761,15 +1764,14 @@ void Scene::generatePath4()
 
 					glm::vec3 pathPoint = getPathPoint(uv);
 					float heightmapHeight = getHeight(pathPoint.x, pathPoint.z);
+					bool onMilledSurface = heightmapHeight - pathPoint.y < eps;
 					pathPoint.y = heightmapHeight;
-					pathPoint.y = std::max(pathPoint.y, lowestHeight + 0.01f);
-					return std::pair<glm::vec3, bool>{pathPoint,
-						heightmapHeight - pathPoint.y < eps};
+					pathPoint.y = std::max(pathPoint.y, lowestHeight + path4BaseOffset);
+					return std::pair<glm::vec3, bool>{pathPoint, onMilledSurface};
 				};
 
-			static constexpr int uResolution = 50;
-			static constexpr int vResolution = 1000;
-			static constexpr float dU = 1.0f / uResolution;
+			static constexpr int vResolution = 50000;
+			float dU = 1.0f / uResolution;
 			static constexpr float dV = 1.0f / vResolution;
 
 			auto [firstPoint, _] = getPoint({0.0f, 0.0f});
@@ -1777,34 +1779,79 @@ void Scene::generatePath4()
 			path.push_back(firstPoint);
 
 			bool backwards = false;
+			int vIndex = 0;
 			for (int uIndex = 0; uIndex <= uResolution; ++uIndex)
 			{
 				float u = uIndex * dU;
 				float minVCurvatureRadius = std::numeric_limits<float>::max();
 
-				auto [prevPoint, prevOnMilledSurface] = getPoint({u, backwards ? 1.0f : 0.0f});
+				if (turnOnIntersection && backwards)
+				{
+					static constexpr float eps = 1e-4f;
+					auto [point, onMilledSurface] = getPoint({u, vIndex * dV});
+					if (!onMilledSurface && point.y > lowestHeight + path4BaseOffset + eps)
+					{
+						while (!onMilledSurface && point.y > lowestHeight + path4BaseOffset + eps)
+						{
+							backwards ? --vIndex : ++vIndex;
+							std::tie(point, onMilledSurface) =
+								getPoint({u, (vIndex + path4IntersectionOffset) * dV});
+						}
+					}
+					else
+					{
+						while (onMilledSurface || point.y <= lowestHeight + path4BaseOffset + eps)
+						{
+							backwards ? ++vIndex : --vIndex;
+							std::tie(point, onMilledSurface) =
+								getPoint({u, (vIndex + path4IntersectionOffset) * dV});
+						}
+						backwards ? --vIndex : ++vIndex;
+					}
+				}
+
+				auto [prevPoint, prevOnMilledSurface] = getPoint({u, vIndex * dV});
 				path.push_back(prevPoint);
 				glm::vec3 prevPathPoint = prevPoint;
-				auto [currPoint, currOnMilledSurface] =
-					getPoint({u, (backwards ? vResolution - 1 : 1) * dV});
+				backwards ? --vIndex : ++vIndex;
+				auto [currPoint, currOnMilledSurface] = getPoint({u, vIndex * dV});
 				glm::vec3 nextPoint{};
 				bool nextOnMilledSurface{};
 
-				for (int vIndex = 2; vIndex < vResolution; ++vIndex)
-				{
-					float v = (backwards ? vResolution - vIndex : vIndex) * dV;
+				auto limitRange = [] (int index)
+					{
+						return std::min(std::max(0, index), vResolution);
+					};
 
-					std::tie(nextPoint, nextOnMilledSurface) = getPoint({u, v});
-					float vCurvatureRadius = getCurvatureRadius(prevPoint, currPoint, nextPoint);
+				backwards ? --vIndex : ++vIndex;
+				for (;; backwards ? --vIndex : ++vIndex)
+				{
+					std::tie(nextPoint, nextOnMilledSurface) = getPoint({u, vIndex * dV});
+					int range = 10;
+					auto [negRange, __] = getPoint({u, limitRange(vIndex - 1 - range) * dV});
+					auto [posRange, ___] = getPoint({u, limitRange(vIndex - 1 + range) * dV});
+					float vCurvatureRadius = getCurvatureRadius(negRange, currPoint, posRange);
 					minVCurvatureRadius = std::min(minVCurvatureRadius, vCurvatureRadius);
 
 					float segmentLengthSquared =
 						glm::dot(nextPoint - prevPathPoint, nextPoint - prevPathPoint);
-					constexpr float maxDepth = 0.001f;
+					static constexpr float maxDepth = 0.001f;
+					static constexpr float eps = 1e-4f;
+					auto [intersectionOffsetPoint, intersectionOffsetOnMilledSurface] =
+						getPoint({u, (vIndex + path4IntersectionOffset) * dV});
+					if (vIndex == -1 || vIndex == vResolution + 1 ||
+						turnOnIntersection && !backwards && !intersectionOffsetOnMilledSurface &&
+							intersectionOffsetPoint.y > lowestHeight + path4BaseOffset + eps)
+					{
+						path.push_back(currPoint);
+						backwards ? ++vIndex : --vIndex;
+						break;
+					}
 					if (!prevOnMilledSurface && currOnMilledSurface && nextOnMilledSurface ||
 						prevOnMilledSurface && currOnMilledSurface && !nextOnMilledSurface ||
-						segmentLengthSquared > 4 * (2 * minVCurvatureRadius * maxDepth -
-							std::pow(maxDepth, 2)))
+						minVCurvatureRadius < maxDepth ||
+							segmentLengthSquared > 4 * (2 * minVCurvatureRadius * maxDepth -
+								std::pow(maxDepth, 2)))
 					{
 						path.push_back(currPoint);
 						prevPathPoint = currPoint;
@@ -1817,9 +1864,6 @@ void Scene::generatePath4()
 					currOnMilledSurface = nextOnMilledSurface;
 				}
 
-				std::tie(currPoint, nextOnMilledSurface) = getPoint({u, backwards ? 0.0f : 1.0f});
-				path.push_back(currPoint);
-
 				backwards = !backwards;
 			}
 
@@ -1830,26 +1874,219 @@ void Scene::generatePath4()
 
 	std::vector<glm::vec3> path{};
 	generateOffsetHeightmap(path4Radius, false);
-	path.push_back({0, yDefault, 0});
-	generate(path, *m_c0BezierSurfaces[0], [] (const glm::vec2& uv)
+	path.push_back({0, yDefault + path4Radius, 0});
+
+	auto surface0Adjust = [] (float u)
 		{
-			return glm::vec2{uv[0] / 2.0f, 0.89f * (uv[1]) + 0.11f};
-		});
-	generate(path, *m_c0BezierSurfaces[1], [] (const glm::vec2& uv)
+			static constexpr float start = 0.11f;
+			static constexpr float end = 0.89f;
+			return start + (end - start) * u;
+		};
+
+	auto surface1Adjust = [] (float u)
 		{
-			return glm::vec2{uv[1], 0.5f + uv[0] / 2.0f};
-		});
-	generate(path, *m_c0BezierSurfaces[2], [] (const glm::vec2& uv)
+			static constexpr float start = 0.115f;
+			static constexpr float end = 0.917f;
+			return start + (end - start) * u;
+		};
+	auto surface2Adjust = [] (float u)
 		{
-			return glm::vec2{uv[1], uv[0] / 2.0f};
-		});
-	generate(path, *m_c0BezierSurfaces[3], [] (const glm::vec2& uv)
+			static constexpr float start = 0.109f;
+			static constexpr float end = 0.846f;
+			return start + (end - start) * u;
+		};
+	auto surface3Adjust = [] (float u)
 		{
-			return glm::vec2{uv[1], 0.5f + uv[0] / 2.0f};
+			static constexpr float start = 0.248f;
+			static constexpr float end = 0.88f;
+			return start + (end - start) * u;
+		};
+
+	generate(path, *m_c0BezierSurfaces[3], 20, [&surface3Adjust] (const glm::vec2& uv)
+		{
+			return glm::vec2{uv[1], 0.5f + surface3Adjust(uv[0]) / 2.0f};
 		});
-	path.push_back({0, yDefault, 0});
+	generate(path, *m_c0BezierSurfaces[0], 38, [&surface0Adjust] (const glm::vec2& uv)
+		{
+			return glm::vec2{surface0Adjust(uv[0]) / 2.0f, 0.89f * uv[1] + 0.11f};
+		});
+	generate(path, *m_c0BezierSurfaces[1], 38, [&surface1Adjust] (const glm::vec2& uv)
+		{
+			return glm::vec2{uv[1], 0.5f + surface1Adjust(uv[0]) / 2.0f};
+		}, true);
+	generate(path, *m_c0BezierSurfaces[2], 23, [&surface2Adjust] (const glm::vec2& uv)
+		{
+			return glm::vec2{1.0f - uv[1], surface2Adjust(uv[0]) / 2.0f};
+		}, true);
+	generate(path, *m_c0BezierSurfaces[2], 23, [&surface2Adjust] (const glm::vec2& uv)
+		{
+			return glm::vec2{uv[1], surface2Adjust(uv[0]) / 2.0f};
+		}, true);
+	generate(path, *m_c0BezierSurfaces[1], 38, [&surface1Adjust] (const glm::vec2& uv)
+		{
+			return glm::vec2{1.0f - uv[1], 0.5f + surface1Adjust(uv[0]) / 2.0f};
+		}, true);
+	path.push_back({0, yDefault + path4Radius, 0});
 
 	std::ofstream file{"D:/Desktop/VisualStudio/IiSI/3c-milling-simulator/res/toolpaths/p4.k08"};
+	for (int i = 0; i < path.size(); ++i)
+	{
+		file << std::format("N{}G01X{:.3f}Y{:.3f}Z{:.3f}\n", i + 3, path[i].x * 10, path[i].z * 10,
+			(path[i].y - path4Radius) * 10);
+	}
+	file.close();
+}
+
+void Scene::generatePath5()
+{
+	auto offsetHeightmapData = getHeightmapData(m_offsetHeightmap);
+
+	float lowestHeight = baseHeight + path4Radius;
+
+	auto getHeight = [&offsetHeightmapData, lowestHeight] (float x, float z)
+		{
+			return getHeightmapHeight(lowestHeight, *offsetHeightmapData, x, z);
+		};
+
+	auto generate = [this, &getHeight, lowestHeight] (std::vector<glm::vec3>& path,
+		Intersectable& surface0, Intersectable& surface1, const glm::vec3& cursorPos,
+		bool invert)
+		{
+			auto getNormalVec = [] (const Intersectable& surface, const glm::vec2& uv)
+				{
+					return glm::normalize(glm::cross(surface.surfaceDU(uv[0], uv[1]),
+						surface.surfaceDV(uv[0], uv[1])));
+				};
+
+			m_cursor.setPos(cursorPos);
+
+			addIntersectionCurve({&surface0, &surface1}, 0.001f, true);
+			auto intersectionPoints0 = m_intersectionCurves.back()->getIntersectionPoints(0);
+			auto intersectionPoints1 = m_intersectionCurves.back()->getIntersectionPoints(1);
+			auto intersectionPoints = m_intersectionCurves.back()->getIntersectionPoints();
+
+			std::vector<glm::vec3> offsetPoints{};
+			for (int i = 0; i < intersectionPoints.size(); ++i)
+			{
+				glm::vec3 normalVec0 = getNormalVec(surface0, intersectionPoints0[i]);
+				glm::vec3 normalVec1 = getNormalVec(surface1, intersectionPoints1[i]);
+
+				glm::vec3 middleVec = glm::normalize(normalVec0 + normalVec1);
+				float cos = glm::dot(normalVec0, middleVec);
+				float offset = path4Radius / cos;
+
+				glm::vec3 surfacePoint = intersectionPoints[i];
+				offsetPoints.push_back(surfacePoint + offset * middleVec);
+			}
+
+			bool prevPositive = invert ? offsetPoints[0].y > path4Radius + path4BaseOffset :
+				offsetPoints.back().y > path4Radius + path4BaseOffset;
+			int start{};
+			int count = static_cast<int>(offsetPoints.size());
+			for (int i = 0; i < count; ++i)
+			{
+				int index = invert ? count - 1 - i : i;
+				if (offsetPoints[index].y > path4Radius + path4BaseOffset)
+				{
+					if (!prevPositive)
+					{
+						start = index;
+						break;
+					}
+					prevPositive = true;
+				}
+				else
+				{
+					prevPositive = false;
+				}
+			}
+
+			int preStart = invert ? start + 1 : start - 1;
+			if (preStart < 0)
+			{
+				preStart += count;
+			}
+			if (preStart >= count)
+			{
+				preStart -= count;
+			}
+
+			glm::vec3 prevNormalVec = getNormalVec(surface1, intersectionPoints1[preStart]);
+			glm::vec3 prevPoint = offsetPoints[preStart];
+			std::vector<glm::vec3> pathPoints{};
+			for (int i = 0; i < count; ++i)
+			{
+				int index = invert ? start - i : start + i;
+				if (index < 0)
+				{
+					index += count;
+				}
+				if (index >= count)
+				{
+					index -= count;
+				}
+
+				glm::vec3 normalVec = getNormalVec(surface1, intersectionPoints1[index]);
+
+				if (offsetPoints[index].y <= path4Radius + path4BaseOffset ||
+					glm::length(offsetPoints[index] - prevPoint) > 0.05f)
+				{
+					break;
+				}
+				pathPoints.push_back(offsetPoints[index]);
+				prevNormalVec = normalVec;
+				prevPoint = offsetPoints[index];
+			}
+
+			for (auto& point : pathPoints)
+			{
+				point.z *= -1;
+				//point.y = getHeight(point.x, point.z);
+				point.y += baseHeight;
+				//point.y = std::max(point.y, lowestHeight + path4BaseOffset);
+			}
+
+			glm::vec3 firstPoint = pathPoints[0];
+			float safeHeight = baseHeight + path4Radius + 0.3f;
+			path.push_back({firstPoint.x, safeHeight, firstPoint.z});
+
+			float minCurvatureRadius = std::numeric_limits<float>::max();
+			glm::vec3 prevPathPoint = firstPoint;
+			path.push_back(prevPathPoint);
+			for (int i = 2; i < pathPoints.size(); ++i)
+			{
+				float curvatureRadius = getCurvatureRadius(pathPoints[i - 1], pathPoints[i],
+					pathPoints[i + 1]);
+				minCurvatureRadius = std::min(minCurvatureRadius, curvatureRadius);
+
+				float segmentLengthSquared = glm::dot(pathPoints[i] - prevPathPoint,
+					pathPoints[i] - prevPathPoint);
+				constexpr float maxDepth = 0.001f;
+				if (segmentLengthSquared >
+					4 * (2 * minCurvatureRadius * maxDepth - std::pow(maxDepth, 2)))
+				{
+					prevPathPoint = pathPoints[i - 1];
+					path.push_back(prevPathPoint);
+					minCurvatureRadius = std::numeric_limits<float>::max();
+				}
+			}
+			glm::vec3 lastPoint = pathPoints.back();
+			path.push_back(lastPoint);
+
+			path.push_back({lastPoint.x, safeHeight, lastPoint.z});
+		};
+
+	std::vector<glm::vec3> path{};
+	path.push_back({0, yDefault + path4Radius, 0});
+	generate(path, *m_c0BezierSurfaces[0], *m_c0BezierSurfaces[1], {-0.8f, 0.5f, 3.0f}, false);
+	generate(path, *m_c0BezierSurfaces[0], *m_c0BezierSurfaces[2], {-0.9f, 0.4f, -0.3f}, false);
+	generate(path, *m_c0BezierSurfaces[0], *m_c0BezierSurfaces[3], {0.1f, 0.2f, -4.3f}, false);
+	generate(path, *m_c0BezierSurfaces[0], *m_c0BezierSurfaces[3], {0.1f, 0.2f, -4.3f}, true);
+	generate(path, *m_c0BezierSurfaces[0], *m_c0BezierSurfaces[2], {-0.1f, 0.4f, -0.3f}, false);
+	generate(path, *m_c0BezierSurfaces[0], *m_c0BezierSurfaces[1], {0.5f, 0.5f, 3.0f}, false);
+	path.push_back({0, yDefault + path4Radius, 0});
+
+	std::ofstream file{"D:/Desktop/VisualStudio/IiSI/3c-milling-simulator/res/toolpaths/p5.k08"};
 	for (int i = 0; i < path.size(); ++i)
 	{
 		file << std::format("N{}G01X{:.3f}Y{:.3f}Z{:.3f}\n", i + 3, path[i].x * 10, path[i].z * 10,

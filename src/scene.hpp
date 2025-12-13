@@ -141,6 +141,7 @@ public:
 	void generatePath2();
 	void generatePath3();
 	void generatePath4();
+	void generatePath5();
 
 	Heightmap m_heightmap{heightmapSize};
 	Heightmap m_offsetHeightmap{heightmapSize};

@@ -379,6 +379,13 @@ void LeftPanel::updateButtons()
 	{
 		m_scene.generatePath4();
 	}
+
+	separator();
+
+	if (ImGui::Button("Generate path 5"))
+	{
+		m_scene.generatePath5();
+	}
 }
 
 void LeftPanel::resetPanels()
