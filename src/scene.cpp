@@ -20,18 +20,17 @@ static constexpr float farPlane = 1000.0f;
 static inline constexpr float baseHeight = 2.5f;
 static inline constexpr float yDefault = 6.6f;
 
-static inline constexpr float path1Radius = 0.8f;
-static inline constexpr float path1SegmentingOffset = 0.02f;
-static inline constexpr float path1InaccuracyOffset = 0.02f;
-static inline constexpr float path1Offset =
-	path1Radius + path1SegmentingOffset + path1InaccuracyOffset;
-static inline constexpr float path1IntermediateLevel = 1.25f;
+static inline constexpr float roughingPathRadius = 0.8f;
+static inline constexpr float roughingPathSegmentingOffset = 0.02f;
+static inline constexpr float roughingPathInaccuracyOffset = 0.02f;
+static inline constexpr float roughingPathOffset =
+	roughingPathRadius + roughingPathSegmentingOffset + roughingPathInaccuracyOffset;
+static inline constexpr float roughingIntermediateLevel = 1.25f;
 
-static inline constexpr float path2Radius = 0.5f;
+static inline constexpr float flatPathRadius = 0.5f;
 
-static inline constexpr float path4Radius = 0.4f;
-static inline constexpr float path4BaseOffset = 0.01f;
-static inline constexpr int path4IntersectionOffset = 100;
+static inline constexpr float finishingPathRadius = 0.4f;
+static inline constexpr float finishingPathBaseOffset = 0.01f;
 
 Scene::Scene(const glm::ivec2& windowSize) :
 	m_perspectiveCamera{windowSize, fovYDeg, nearPlane, farPlane},
@@ -1259,13 +1258,13 @@ void Scene::generateOffsetHeightmap(float radius, bool flatCutter, float pathLev
 	m_renderOffsetHeightmap = true;
 }
 
-void Scene::generateEdge()
+void Scene::generateEdge(float level)
 {
 	m_edge.bind();
 	glClearColor(0, 0, 0, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	ShaderPrograms::edge->use();
-	ShaderPrograms::edge->setUniform("level", baseHeight);
+	ShaderPrograms::edge->setUniform("level", level);
 	ShaderPrograms::edge->setUniform("resolution", heightmapSize);
 	m_offsetHeightmap.bindTexture();
 	m_quad.render();
@@ -1348,19 +1347,19 @@ float Scene::getCurvatureRadius(const glm::vec3& p1, const glm::vec3& p2, const 
 	return glm::length(p2 - p1) / (2 * sin);
 }
 
-void Scene::generatePath1()
+std::vector<glm::vec3> Scene::generateRoughingPath()
 {
 	constexpr float zStart = -7.6f;
-	constexpr float xOffset = path1Radius * 1.2f;
+	constexpr float xOffset = roughingPathRadius * 1.2f;
 
 	auto generate = [this] (std::vector<glm::vec3>& path, float pathLevel,
 		bool backwards, bool left)
 		{
 			auto offsetHeightmapData = getHeightmapData(m_offsetHeightmap);
 
-			constexpr float stride = path1Radius;
+			constexpr float stride = roughingPathRadius;
 			constexpr int passCount = 20;
-			float lowestHeight = baseHeight + pathLevel + path1Offset;
+			float lowestHeight = baseHeight + pathLevel + roughingPathOffset;
 
 			auto getHeight = [this, lowestHeight, &offsetHeightmapData] (int xIndex, float z)
 				{
@@ -1410,8 +1409,8 @@ void Scene::generatePath1()
 					float x = xIndex2X(left ? heightmapSize.x - 1 - xIndex : xIndex);
 					float segmentLengthSquared =
 						std::pow(x - xPrev, 2.0f) + std::pow(heightCurrPix - yPrev, 2.0f);
-					if (segmentLengthSquared > 4 * (2 * minCurvatureRadius * path1SegmentingOffset -
-						std::pow(path1SegmentingOffset, 2)))
+					if (segmentLengthSquared > 4 * (2 * minCurvatureRadius * roughingPathSegmentingOffset -
+						std::pow(roughingPathSegmentingOffset, 2)))
 					{
 						xPrev = xIndex2X(left ? heightmapSize.x - xIndex : xIndex - 1);
 						yPrev = heightPrevPix;
@@ -1430,31 +1429,25 @@ void Scene::generatePath1()
 		};
 
 	std::vector<glm::vec3> path{};
-	path.push_back({0, yDefault + path1Radius, 0});
-	path.push_back({-7.5f - xOffset, yDefault + path1Radius, zStart});
-	
-	generateOffsetHeightmap(path1Offset, false, path1IntermediateLevel);
-	generate(path, path1IntermediateLevel, false, false);
-	generateOffsetHeightmap(path1Offset, false);
+	path.push_back({0, yDefault + roughingPathRadius, 0});
+	path.push_back({-7.5f - xOffset, yDefault + roughingPathRadius, zStart});
+
+	generateOffsetHeightmap(roughingPathOffset, false, roughingIntermediateLevel);
+	generate(path, roughingIntermediateLevel, false, false);
+	generateOffsetHeightmap(roughingPathOffset, false);
 	generate(path, 0, true, false);
 
-	path.push_back({-7.5f - xOffset, yDefault + path1Radius, zStart});
-	path.push_back({0, yDefault + path1Radius, 0});
+	path.push_back({-7.5f - xOffset, yDefault + roughingPathRadius, zStart});
+	path.push_back({0, yDefault + roughingPathRadius, 0});
 
-	std::ofstream file{"D:/Desktop/VisualStudio/IiSI/3c-milling-simulator/res/toolpaths/p1.k16"};
-	for (int i = 0; i < path.size(); ++i)
-	{
-		file << std::format("N{}G01X{:.3f}Y{:.3f}Z{:.3f}\n", i + 3, path[i].x * 10, path[i].z * 10,
-			(path[i].y - path1Radius) * 10);
-	}
-	file.close();
+	return path;
 }
 
-void Scene::generatePath2()
+std::vector<glm::vec3> Scene::generateFlatPath()
 {
 	constexpr float zStart = -7.6f;
-	constexpr float xOffset = path2Radius * 1.2f;
-	constexpr float stride = 1.9f * path2Radius;
+	constexpr float xOffset = flatPathRadius * 1.2f;
+	constexpr float stride = 1.9f * flatPathRadius;
 	constexpr int passCount = 16;
 
 	auto generate = [this] (std::vector<glm::vec3>& path, bool backwards)
@@ -1545,31 +1538,25 @@ void Scene::generatePath2()
 			}
 		};
 
+	float safeHeight = baseHeight + 1.0f;
+
 	std::vector<glm::vec3> path{};
-	path.push_back({0, yDefault, 0});
-	path.push_back({-7.5f - xOffset, yDefault, zStart});
-	
-	generateOffsetHeightmap(path2Radius, true);
+	path.push_back({-7.5f - xOffset, safeHeight, zStart});
+
+	generateOffsetHeightmap(flatPathRadius, true);
 	generate(path, false);
 	path.push_back({-7.5f - xOffset, baseHeight, zStart + passCount * stride});
 	path.push_back({7.5f + xOffset, baseHeight, zStart + passCount * stride});
 	generate(path, true);
 
-	path.push_back({7.5f + xOffset, yDefault, zStart});
-	path.push_back({0, yDefault, 0});
+	path.push_back({7.5f + xOffset, safeHeight, zStart});
 
-	std::ofstream file{"D:/Desktop/VisualStudio/IiSI/3c-milling-simulator/res/toolpaths/p2.f10"};
-	for (int i = 0; i < path.size(); ++i)
-	{
-		file << std::format("N{}G01X{:.3f}Y{:.3f}Z{:.3f}\n", i + 3, path[i].x * 10, path[i].z * 10,
-			path[i].y * 10);
-	}
-	file.close();
+	return path;
 }
 
-void Scene::generatePath3()
+std::vector<glm::vec3> Scene::generateContourPath(float level)
 {
-	generateEdge();
+	generateEdge(level);
 
 	auto edgeData = getHeightmapData(m_edge);
 
@@ -1635,7 +1622,7 @@ void Scene::generatePath3()
 	auto firstPointNeighbors = findNeighbors(firstPoint);
 	Neighbors firstPointMoves{firstPointNeighbors.first - firstPoint,
 		firstPointNeighbors.second - firstPoint};
-	
+
 	std::vector<glm::ivec2> pointIndices{};
 	pointIndices.push_back(firstPoint);
 	glm::ivec2 move = firstPointMoves.first.x > 0 ? firstPointMoves.first : firstPointMoves.second;
@@ -1650,10 +1637,10 @@ void Scene::generatePath3()
 		point += move;
 	}
 
-	auto indicesToPoint = [] (const glm::ivec2& point)
+	auto indicesToPoint = [level] (const glm::ivec2& point)
 		{
 			glm::vec2 xz = (glm::vec2{point} + 0.5f) / glm::vec2{heightmapSize} * 15.0f - 7.5f;
-			return glm::vec3{xz.x, baseHeight, xz.y};
+			return glm::vec3{xz.x, level, xz.y};
 		};
 
 	std::vector<glm::vec3> points{};
@@ -1661,7 +1648,7 @@ void Scene::generatePath3()
 	{
 		points.push_back(indicesToPoint(pointIndex));
 	}
-	
+
 	auto getProperIndex = [size = points.size()] (int index)
 		{
 			if (index < 0)
@@ -1688,12 +1675,7 @@ void Scene::generatePath3()
 
 	glm::vec3 point0 = getSmoothPoint(0);
 
-	float safeHeight = baseHeight + 1.0f;
-	float zStart = -7.5f - path2Radius * 1.2f;
 	std::vector<glm::vec3> path{};
-	path.push_back({0, yDefault, 0});
-	path.push_back({point0.x, safeHeight, zStart});
-	path.push_back({point0.x, point0.y, zStart});
 
 	float minCurvatureRadius = std::numeric_limits<float>::max();
 	glm::vec3 prevPathPoint = point0;
@@ -1716,29 +1698,19 @@ void Scene::generatePath3()
 	}
 	path.push_back(point0);
 
-	path.push_back({point0.x, point0.y, zStart});
-	path.push_back({point0.x, safeHeight, zStart});
-	path.push_back({0, yDefault, 0});
-
-	std::ofstream file{"D:/Desktop/VisualStudio/IiSI/3c-milling-simulator/res/toolpaths/p3.f10"};
-	for (int i = 0; i < path.size(); ++i)
-	{
-		file << std::format("N{}G01X{:.3f}Y{:.3f}Z{:.3f}\n", i + 3, path[i].x * 10, path[i].z * 10,
-			path[i].y * 10);
-	}
-	file.close();
+	return path;
 }
 
-void Scene::generatePath4()
+std::vector<glm::vec3> Scene::generateFinishingPath()
 {
 	auto generate = [this] (std::vector<glm::vec3>& path, const BezierSurface& surface,
 		int uResolution, const std::function<glm::vec2(const glm::vec2&)>& remapUV,
-		bool turnOnIntersection = false)
+		bool turnOnIntersection = false, int intersectionOffset = {})
 		{
 			auto offsetHeightmapData = getHeightmapData(m_offsetHeightmap);
 
-			float lowestHeight = baseHeight + path4Radius;
-			float safeHeight = baseHeight + path4Radius + 1.0f;
+			float lowestHeight = baseHeight + finishingPathRadius;
+			float safeHeight = baseHeight + finishingPathRadius + 1.0f;
 
 			auto getHeight = [&offsetHeightmapData, lowestHeight] (float x, float z)
 				{
@@ -1751,7 +1723,7 @@ void Scene::generatePath4()
 					glm::vec3 normalVector = glm::normalize(
 						glm::cross(surface.surfaceDU(uv[0], uv[1]),
 							surface.surfaceDV(uv[0], uv[1])));
-					glm::vec3 pathPoint = surfacePoint + path4Radius * normalVector;
+					glm::vec3 pathPoint = surfacePoint + finishingPathRadius * normalVector;
 					pathPoint.y += baseHeight;
 					pathPoint.z *= -1;
 					return pathPoint;
@@ -1767,7 +1739,7 @@ void Scene::generatePath4()
 					float heightmapHeight = getHeight(pathPoint.x, pathPoint.z);
 					bool onMilledSurface = heightmapHeight - pathPoint.y < eps;
 					pathPoint.y = heightmapHeight;
-					pathPoint.y = std::max(pathPoint.y, lowestHeight + path4BaseOffset);
+					pathPoint.y = std::max(pathPoint.y, lowestHeight + finishingPathBaseOffset);
 					return std::pair<glm::vec3, bool>{pathPoint, onMilledSurface};
 				};
 
@@ -1782,9 +1754,9 @@ void Scene::generatePath4()
 					auto [point, onMilledSurface] =
 						getPoint({u, (vIndex + (backwards ? -offset : offset)) * dV});
 
-					while (!intersection && point.y > lowestHeight + path4BaseOffset + eps ||
+					while (!intersection && point.y > lowestHeight + finishingPathBaseOffset + eps ||
 						intersection && (onMilledSurface ||
-							point.y <= lowestHeight + path4BaseOffset + eps))
+							point.y <= lowestHeight + finishingPathBaseOffset + eps))
 					{
 							backwards ? ++vIndex : --vIndex;
 							std::tie(point, onMilledSurface) =
@@ -1795,9 +1767,9 @@ void Scene::generatePath4()
 							}
 					}
 
-					while (!intersection && point.y <= lowestHeight + path4BaseOffset + eps ||
+					while (!intersection && point.y <= lowestHeight + finishingPathBaseOffset + eps ||
 						intersection && !onMilledSurface &&
-							point.y > lowestHeight + path4BaseOffset + eps)
+							point.y > lowestHeight + finishingPathBaseOffset + eps)
 					{
 						backwards ? --vIndex : ++vIndex;
 						std::tie(point, onMilledSurface) =
@@ -1817,7 +1789,7 @@ void Scene::generatePath4()
 				float minVCurvatureRadius = std::numeric_limits<float>::max();
 
 				findStartNextPath(u, vIndex, backwards, turnOnIntersection && backwards,
-					(turnOnIntersection && backwards) ? path4IntersectionOffset : 0);
+					(turnOnIntersection && backwards) ? intersectionOffset : 0);
 
 				auto [prevPoint, prevOnMilledSurface] = getPoint({u, vIndex * dV});
 				float safeChangePathOffset = 0.1f;
@@ -1858,12 +1830,12 @@ void Scene::generatePath4()
 					static constexpr float eps = 1e-6f;
 					auto [testPoint, testOnMilledSurface] =
 						getPoint({u, (vIndex + (turnOnIntersection && !backwards ?
-							path4IntersectionOffset : 0)) * dV});
+							intersectionOffset : 0)) * dV});
 					if (vIndex == -1 || vIndex == vResolution + 1 ||
 						turnOnIntersection && !backwards && !testOnMilledSurface &&
-							testPoint.y > lowestHeight + path4BaseOffset + eps ||
+							testPoint.y > lowestHeight + finishingPathBaseOffset + eps ||
 						(!turnOnIntersection || backwards) &&
-							testPoint.y <= lowestHeight + path4BaseOffset + eps)
+							testPoint.y <= lowestHeight + finishingPathBaseOffset + eps)
 					{
 						path.push_back(currPoint);
 						backwards ? ++vIndex : --vIndex;
@@ -1895,8 +1867,7 @@ void Scene::generatePath4()
 		};
 
 	std::vector<glm::vec3> path{};
-	generateOffsetHeightmap(path4Radius, false);
-	path.push_back({0, yDefault + path4Radius, 0});
+	generateOffsetHeightmap(finishingPathRadius, false);
 
 	auto surface0Adjust = [] (float u)
 		{
@@ -1931,39 +1902,32 @@ void Scene::generatePath4()
 	generate(path, *m_c0BezierSurfaces[1], 37, [&surface1Adjust] (const glm::vec2& uv)
 		{
 			return glm::vec2{uv[1], 0.5f + surface1Adjust(1.0f - uv[0]) / 2.0f};
-		}, true);
+		}, true, 100);
 	generate(path, *m_c0BezierSurfaces[1], 37, [&surface1Adjust] (const glm::vec2& uv)
 		{
 			return glm::vec2{1.0f - uv[1], 0.5f + surface1Adjust(uv[0]) / 2.0f};
-		}, true);
+		}, true, 100);
 	generate(path, *m_c0BezierSurfaces[2], 23, [&surface2Adjust] (const glm::vec2& uv)
 		{
 			return glm::vec2{uv[1], surface2Adjust(1.0f - uv[0]) / 2.0f};
-		}, true);
+		}, true, 300);
 	generate(path, *m_c0BezierSurfaces[2], 23, [&surface2Adjust] (const glm::vec2& uv)
 		{
 			return glm::vec2{1.0f - uv[1], surface2Adjust(uv[0]) / 2.0f};
-		}, true);
+		}, true, 300);
 	generate(path, *m_c0BezierSurfaces[3], 20, [&surface3Adjust] (const glm::vec2& uv)
 		{
 			return glm::vec2{uv[1], 0.5f + surface3Adjust(uv[0]) / 2.0f};
 		});
-	path.push_back({0, yDefault + path4Radius, 0});
 
-	std::ofstream file{"D:/Desktop/VisualStudio/IiSI/3c-milling-simulator/res/toolpaths/p4.k08"};
-	for (int i = 0; i < path.size(); ++i)
-	{
-		file << std::format("N{}G01X{:.3f}Y{:.3f}Z{:.3f}\n", i + 3, path[i].x * 10, path[i].z * 10,
-			(path[i].y - path4Radius) * 10);
-	}
-	file.close();
+	return path;
 }
 
-void Scene::generatePath5()
+std::vector<glm::vec3> Scene::generateFinishingIntersectionsPath()
 {
 	auto offsetHeightmapData = getHeightmapData(m_offsetHeightmap);
 
-	float lowestHeight = baseHeight + path4Radius;
+	float lowestHeight = baseHeight + finishingPathRadius;
 
 	auto getHeight = [&offsetHeightmapData, lowestHeight] (float x, float z)
 		{
@@ -1995,20 +1959,20 @@ void Scene::generatePath5()
 
 				glm::vec3 middleVec = glm::normalize(normalVec0 + normalVec1);
 				float cos = glm::dot(normalVec0, middleVec);
-				float offset = path4Radius / cos;
+				float offset = finishingPathRadius / cos;
 
 				glm::vec3 surfacePoint = intersectionPoints[i];
 				offsetPoints.push_back(surfacePoint + offset * middleVec);
 			}
 
-			bool prevPositive = invert ? offsetPoints[0].y > path4Radius + path4BaseOffset :
-				offsetPoints.back().y > path4Radius + path4BaseOffset;
+			bool prevPositive = invert ? offsetPoints[0].y > finishingPathRadius + finishingPathBaseOffset :
+				offsetPoints.back().y > finishingPathRadius + finishingPathBaseOffset;
 			int start{};
 			int count = static_cast<int>(offsetPoints.size());
 			for (int i = 0; i < count; ++i)
 			{
 				int index = invert ? count - 1 - i : i;
-				if (offsetPoints[index].y > path4Radius + path4BaseOffset)
+				if (offsetPoints[index].y > finishingPathRadius + finishingPathBaseOffset)
 				{
 					if (!prevPositive)
 					{
@@ -2050,7 +2014,7 @@ void Scene::generatePath5()
 
 				glm::vec3 normalVec = getNormalVec(surface1, intersectionPoints1[index]);
 
-				if (offsetPoints[index].y <= path4Radius + path4BaseOffset ||
+				if (offsetPoints[index].y <= finishingPathRadius + finishingPathBaseOffset ||
 					glm::length(offsetPoints[index] - prevPoint) > 0.05f)
 				{
 					break;
@@ -2063,13 +2027,11 @@ void Scene::generatePath5()
 			for (auto& point : pathPoints)
 			{
 				point.z *= -1;
-				//point.y = getHeight(point.x, point.z);
 				point.y += baseHeight;
-				//point.y = std::max(point.y, lowestHeight + path4BaseOffset);
 			}
 
 			glm::vec3 firstPoint = pathPoints[0];
-			float safeHeight = baseHeight + path4Radius + 0.3f;
+			float safeHeight = baseHeight + finishingPathRadius + 0.3f;
 			path.push_back({firstPoint.x, safeHeight, firstPoint.z});
 
 			float minCurvatureRadius = std::numeric_limits<float>::max();
@@ -2099,27 +2061,129 @@ void Scene::generatePath5()
 		};
 
 	std::vector<glm::vec3> path{};
-	path.push_back({0, yDefault + path4Radius, 0});
 	generate(path, *m_c0BezierSurfaces[0], *m_c0BezierSurfaces[1], {-0.8f, 0.5f, 3.0f}, false);
 	generate(path, *m_c0BezierSurfaces[0], *m_c0BezierSurfaces[2], {-0.9f, 0.4f, -0.3f}, false);
 	generate(path, *m_c0BezierSurfaces[0], *m_c0BezierSurfaces[3], {0.1f, 0.2f, -4.3f}, false);
 	generate(path, *m_c0BezierSurfaces[0], *m_c0BezierSurfaces[3], {0.1f, 0.2f, -4.3f}, true);
 	generate(path, *m_c0BezierSurfaces[0], *m_c0BezierSurfaces[2], {-0.1f, 0.4f, -0.3f}, false);
 	generate(path, *m_c0BezierSurfaces[0], *m_c0BezierSurfaces[1], {0.5f, 0.5f, 3.0f}, false);
-	path.push_back({0, yDefault + path4Radius, 0});
 
-	std::ofstream file{"D:/Desktop/VisualStudio/IiSI/3c-milling-simulator/res/toolpaths/p5.k08"};
+	return path;
+}
+
+void Scene::savePath1()
+{
+	auto path = generateRoughingPath();
+	savePath(path, roughingPathRadius, "p1.k16");
+}
+
+void Scene::savePath2()
+{
+	auto path = generateFlatPath();
+	path.insert(path.begin(), {0, yDefault, 0});
+	path.push_back({0, yDefault, 0});
+
+	savePath(path, 0, "p2.f10");
+}
+
+void Scene::savePath3()
+{
+	auto path = generateContourPath(baseHeight);
+	float safeHeight = baseHeight + 1.0f;
+	float zStart = -7.5f - flatPathRadius * 1.2f;
+	glm::vec3 firstPoint = *path.begin();
+	path.insert(path.begin(), {firstPoint.x, firstPoint.y, zStart});
+	path.insert(path.begin(), {firstPoint.x, safeHeight, zStart});
+	path.insert(path.begin(), {0, yDefault, 0});
+	path.push_back({firstPoint.x, firstPoint.y, zStart});
+	path.push_back({firstPoint.x, safeHeight, zStart});
+	path.push_back({0, yDefault, 0});
+
+	savePath(path, 0, "p3.f10");
+}
+
+void Scene::savePath4()
+{
+	auto path = generateFinishingPath();
+	path.insert(path.begin(), {0, yDefault + finishingPathRadius, 0});
+	path.push_back({0, yDefault + finishingPathRadius, 0});
+
+	savePath(path, finishingPathRadius, "p4.k08");
+}
+
+void Scene::savePath5()
+{
+	auto path = generateFinishingIntersectionsPath();
+	path.insert(path.begin(), {0, yDefault + finishingPathRadius, 0});
+	path.push_back({0, yDefault + finishingPathRadius, 0});
+
+	savePath(path, finishingPathRadius, "p5.k08");
+}
+
+void Scene::savePath6()
+{
+	auto path = generateContourPath(baseHeight + finishingPathRadius);
+	glm::vec3 firstPoint = *path.begin();
+	float safeHeight = baseHeight + 1.0f;
+	path.insert(path.begin(), {firstPoint.x, safeHeight, firstPoint.z});
+	path.insert(path.begin(), {0, yDefault + finishingPathRadius, 0});
+	path.push_back({firstPoint.x, safeHeight, firstPoint.z});
+	path.push_back({0, yDefault + finishingPathRadius, 0});
+
+	savePath(path, finishingPathRadius, "p6.k08");
+}
+
+void Scene::saveAllPaths()
+{
+	auto path1 = generateRoughingPath();
+	savePath(path1, roughingPathRadius, "path1.k16");
+
+	auto path2 = generateFlatPath();
+
+	auto path3 = generateContourPath(baseHeight);
+	float safeHeight = baseHeight + 1.0f;
+	float zStart = -7.5f - flatPathRadius * 1.2f;
+	glm::vec3 firstPoint = *path3.begin();
+	path3.insert(path3.begin(), {firstPoint.x, firstPoint.y, zStart});
+	path3.insert(path3.begin(), {firstPoint.x, safeHeight, zStart});
+	path3.push_back({firstPoint.x, firstPoint.y, zStart});
+	path3.push_back({firstPoint.x, safeHeight, zStart});
+
+	path2.insert(path2.end(), path3.begin(), path3.end());
+	path2.insert(path2.begin(), {0, yDefault, 0});
+	path2.push_back({0, yDefault, 0});
+
+	savePath(path2, 0, "path2.f10");
+
+	auto path4 = generateFinishingPath();
+
+	auto path5 = generateFinishingIntersectionsPath();
+
+	auto path6 = generateContourPath(baseHeight + finishingPathRadius);
+	firstPoint = *path6.begin();
+	path6.insert(path6.begin(), {firstPoint.x, safeHeight, firstPoint.z});
+	path6.push_back({firstPoint.x, safeHeight, firstPoint.z});
+
+	firstPoint = *path5.begin();
+	path4.push_back({firstPoint.x, safeHeight + finishingPathRadius, firstPoint.z});
+	path4.insert(path4.end(), path5.begin(), path5.end());
+	path4.insert(path4.end(), path6.begin(), path6.end());
+	path4.insert(path4.begin(), {0, yDefault + finishingPathRadius, 0});
+	path4.push_back({0, yDefault + finishingPathRadius, 0});
+
+	savePath(path4, finishingPathRadius, "path3.k08");
+}
+
+void Scene::savePath(const std::vector<glm::vec3>& path, float yOffset, const std::string& filename)
+{
+	std::ofstream file{"D:/Desktop/VisualStudio/IiSI/3c-milling-simulator/res/toolpaths/" +
+		filename};
 	for (int i = 0; i < path.size(); ++i)
 	{
 		file << std::format("N{}G01X{:.3f}Y{:.3f}Z{:.3f}\n", i + 3, path[i].x * 10, path[i].z * 10,
-			(path[i].y - path4Radius) * 10);
+			(path[i].y - yOffset) * 10);
 	}
 	file.close();
-}
-
-void Scene::generatePath6()
-{
-
 }
 
 void Scene::setUpFramebuffer() const

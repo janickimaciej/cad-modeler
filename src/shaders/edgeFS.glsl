@@ -39,6 +39,6 @@ void main()
 		hasZeroNonEdgeNeighbor = hasZeroNonEdgeNeighbor ||
 			(isZero(neighborPos) && !isEdge(neighborPos));
 	}
-	
+
 	outColor = vec4(edge && hasZeroNonEdgeNeighbor, 0, 0, 1);
 }

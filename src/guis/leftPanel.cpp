@@ -63,7 +63,8 @@ void LeftPanel::update()
 {
 	ImGui::SetNextWindowPos({0, 0}, ImGuiCond_Always);
 	ImGui::SetNextWindowSize({width, static_cast<float>(m_windowSize.y)}, ImGuiCond_Always);
-	ImGui::Begin("leftPanel", nullptr, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoBackground);
+	ImGui::Begin("leftPanel", nullptr, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoTitleBar |
+		ImGuiWindowFlags_NoBackground);
 	ImGui::PushItemWidth(100);
 
 	updateCamera();
@@ -356,35 +357,49 @@ void LeftPanel::updateButtons()
 
 	if (ImGui::Button("Generate path 1"))
 	{
-		m_scene.generatePath1();
+		m_scene.savePath1();
 	}
 
 	separator();
 
 	if (ImGui::Button("Generate path 2"))
 	{
-		m_scene.generatePath2();
+		m_scene.savePath2();
 	}
 
 	separator();
 
 	if (ImGui::Button("Generate path 3"))
 	{
-		m_scene.generatePath3();
+		m_scene.savePath3();
 	}
 
 	separator();
 
 	if (ImGui::Button("Generate path 4"))
 	{
-		m_scene.generatePath4();
+		m_scene.savePath4();
 	}
 
 	separator();
 
 	if (ImGui::Button("Generate path 5"))
 	{
-		m_scene.generatePath5();
+		m_scene.savePath5();
+	}
+
+	separator();
+
+	if (ImGui::Button("Generate path 6"))
+	{
+		m_scene.savePath6();
+	}
+
+	separator();
+
+	if (ImGui::Button("Generate all paths"))
+	{
+		m_scene.saveAllPaths();
 	}
 }
 
