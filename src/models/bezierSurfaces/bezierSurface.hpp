@@ -94,7 +94,7 @@ private:
 	BezierSurfaceGUI m_gui{*this};
 
 	bool m_renderGrid = false;
-	int m_lineCount = 12;
+	int m_lineCount = 8;
 
 	std::vector<std::weak_ptr<DestroyCallback>> m_destroyNotifications{};
 

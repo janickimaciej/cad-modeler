@@ -1,6 +1,5 @@
 #include "scene.hpp"
 
-#include "guis/leftPanel.hpp"
 #include "shaderPrograms.hpp"
 
 #include <algorithm>

@@ -39,17 +39,6 @@ void Camera::updateWindowSize()
 	updateProjectionMatrix();
 }
 
-glm::vec3 Camera::getPos() const
-{
-	return m_targetPos + m_radius *
-		glm::vec3
-		{
-			-std::cos(m_pitchRad) * std::sin(m_yawRad),
-			-std::sin(m_pitchRad),
-			std::cos(m_pitchRad) * std::cos(m_yawRad)
-		};
-}
-
 void Camera::addPitch(float pitchRad)
 {
 	m_pitchRad += pitchRad;
@@ -174,13 +163,7 @@ void Camera::setProjectionPlane(float projectionPlane)
 
 void Camera::updateViewMatrix()
 {
-	glm::vec3 pos = m_targetPos + m_radius *
-		glm::vec3
-		{
-			-std::cos(m_pitchRad) * std::sin(m_yawRad),
-			-std::sin(m_pitchRad),
-			std::cos(m_pitchRad) * std::cos(m_yawRad)
-		};
+	glm::vec3 pos = getPos();
 
 	glm::vec3 direction = glm::normalize(pos - m_targetPos);
 	glm::vec3 right = glm::normalize(glm::cross(glm::vec3{0, 1, 0}, direction));
@@ -276,10 +259,6 @@ void Camera::updateShaders(const glm::mat4& projectionViewMatrix, AnaglyphMode a
 	ShaderPrograms::bezierSurface->setUniform("projectionViewMatrix", projectionViewMatrix);
 	ShaderPrograms::bezierSurface->setUniform("anaglyphMode", static_cast<int>(anaglyphMode));
 
-	ShaderPrograms::bezierSurfaceTriangles->use();
-	ShaderPrograms::bezierSurfaceTriangles->setUniform("projectionViewMatrix", projectionViewMatrix);
-	ShaderPrograms::bezierSurfaceTriangles->setUniform("cameraPos", getPos());
-
 	ShaderPrograms::gregorySurface->use();
 	ShaderPrograms::gregorySurface->setUniform("projectionViewMatrix", projectionViewMatrix);
 	ShaderPrograms::gregorySurface->setUniform("anaglyphMode", static_cast<int>(anaglyphMode));
@@ -287,4 +266,19 @@ void Camera::updateShaders(const glm::mat4& projectionViewMatrix, AnaglyphMode a
 	ShaderPrograms::vectors->use();
 	ShaderPrograms::vectors->setUniform("projectionViewMatrix", projectionViewMatrix);
 	ShaderPrograms::vectors->setUniform("anaglyphMode", static_cast<int>(anaglyphMode));
+
+	ShaderPrograms::bezierSurfaceTriangles->use();
+	ShaderPrograms::bezierSurfaceTriangles->setUniform("projectionViewMatrix",
+		projectionViewMatrix);
+}
+
+glm::vec3 Camera::getPos() const
+{
+	return m_targetPos + m_radius *
+		glm::vec3
+		{
+			-std::cos(m_pitchRad) * std::sin(m_yawRad),
+			-std::sin(m_pitchRad),
+			std::cos(m_pitchRad) * std::cos(m_yawRad)
+		};
 }

@@ -18,6 +18,8 @@ class BezierSurface;
 
 class BezierPatch : public Model
 {
+	friend class ToolpathGenerator;
+
 public:
 	using DestroyCallback = std::function<void()>;
 
@@ -49,7 +51,7 @@ public:
 private:
 	static int m_count;
 
-	const ShaderProgram& m_shaderProgram = *ShaderPrograms::bezierSurfaceTriangles;
+	const ShaderProgram& m_shaderProgram = *ShaderPrograms::bezierSurface;
 	std::unique_ptr<Mesh> m_mesh{};
 	BezierPatchGUI m_gui{*this};
 

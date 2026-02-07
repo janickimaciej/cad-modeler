@@ -141,7 +141,7 @@ private:
 	Cursor m_cursor{};
 	CenterPoint m_selectedModelsCenter{m_selectedModels};
 
-	static constexpr float gridScale = 7.5f;
+	static constexpr float gridScale = 5.0f;
 	Plane m_plane{gridScale};
 
 	PerspectiveCamera m_perspectiveCamera;

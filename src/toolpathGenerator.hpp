@@ -35,6 +35,12 @@ private:
 	OrthographicCamera m_heightmapCamera;
 	Quad m_quad{};
 
+	std::vector<glm::vec3> generateRoughingPath();
+	std::vector<glm::vec3> generateFlatPath();
+	std::vector<glm::vec3> generateContourPath(float level);
+	std::vector<glm::vec3> generateFinishingPath();
+	std::vector<glm::vec3> generateIntersectionsPath();
+
 	void generateHeightmap();
 	void generateOffsetHeightmap(float radius, bool flatCutter, float pathLevel = 0);
 	std::unique_ptr<HeightmapData> getHeightmapData(Heightmap& heightmap);
@@ -44,10 +50,5 @@ private:
 	static float getHeightmapHeight(float defaultHeight, const HeightmapData& heightmapData,
 		float x, float z);
 	static float getCurvatureRadius(const glm::vec3& p1, const glm::vec3& p2, const glm::vec3& p3);
-	std::vector<glm::vec3> generateRoughingPath();
-	std::vector<glm::vec3> generateFlatPath();
-	std::vector<glm::vec3> generateContourPath(float level);
-	std::vector<glm::vec3> generateFinishingPath();
-	std::vector<glm::vec3> generateFinishingIntersectionsPath();
 	void savePath(const std::vector<glm::vec3>& path, float yOffset, const std::string& filename);
 };

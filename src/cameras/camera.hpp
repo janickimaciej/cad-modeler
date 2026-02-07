@@ -15,7 +15,6 @@ public:
 	virtual void updateGUI() = 0;
 	glm::mat4 getMatrix() const;
 	void updateWindowSize();
-	glm::vec3 getPos() const;
 
 	void addPitch(float pitchRad);
 	void addYaw(float yawRad);
@@ -65,4 +64,5 @@ private:
 
 	void updateShaders(const glm::mat4& projectionViewMatrix,
 		AnaglyphMode anaglyphMode) const;
+	glm::vec3 getPos() const;
 };
