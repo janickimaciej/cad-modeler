@@ -1,5 +1,7 @@
 #version 420 core
 
+#define PI 3.1415927
+
 in vec2 pos;
 in vec2 texturePos;
 
@@ -23,7 +25,7 @@ void main()
 	const int radiusResolution = 128;
 	const int angleResolution = 512;
 	float dr = radius / radiusResolution;
-	float dAlpha = 2 * 3.1415927 / angleResolution;
+	float dAlpha = 2 * PI / angleResolution;
 	for (int i = 1; i <= radiusResolution; ++i)
 	{
 		float r = i * dr;

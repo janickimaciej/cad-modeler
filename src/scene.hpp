@@ -8,7 +8,6 @@
 #include "centerPoint.hpp"
 #include "cursor.hpp"
 #include "framebuffer.hpp"
-#include "heightmap.hpp"
 #include "models/bezierCurves/c0BezierCurve.hpp"
 #include "models/bezierCurves/c2BezierCurve.hpp"
 #include "models/bezierCurves/interpolatingBezierCurve.hpp"
@@ -24,6 +23,7 @@
 #include "models/torus.hpp"
 #include "plane/plane.hpp"
 #include "quad.hpp"
+#include "toolpathGenerator.hpp"
 
 #include <glm/glm.hpp>
 
@@ -32,8 +32,6 @@
 #include <optional>
 #include <string>
 #include <vector>
-
-static inline constexpr glm::ivec2 heightmapSize{3000, 3000};
 
 class Scene
 {
@@ -45,12 +43,9 @@ class Scene
 	friend class PointSerializer;
 	friend class SceneSerializer;
 	friend class TorusSerializer;
+	friend class ToolpathGenerator;
 
 public:
-	using TextureData = std::array<std::array<std::array<float, 3>, heightmapSize.x>,
-		heightmapSize.y>;
-	using HeightmapData = std::array<std::array<float, heightmapSize.x>, heightmapSize.y>;
-
 	Scene(const glm::ivec2& windowSize);
 	void update();
 	void render();
@@ -127,37 +122,7 @@ public:
 	float getProjectionPlane() const;
 	void setProjectionPlane(float projectionPlane);
 
-	void magic();
-	void generateHeightmap();
-	void generateOffsetHeightmap(float radius, bool flatCutter, float pathLevel = 0);
-	std::unique_ptr<HeightmapData> getHeightmapData(Heightmap& heightmap);
-	void generateEdge(float level);
-	static float getHeightmapHeight(float defaultHeight, const HeightmapData& heightmapData,
-		int xIndex, float z);
-	static float getHeightmapHeight(float defaultHeight, const HeightmapData& heightmapData,
-		float x, float z);
-	static float getCurvatureRadius(const glm::vec3& p1, const glm::vec3& p2, const glm::vec3& p3);
-	std::vector<glm::vec3> generateRoughingPath();
-	std::vector<glm::vec3> generateFlatPath();
-	std::vector<glm::vec3> generateContourPath(float level);
-	std::vector<glm::vec3> generateFinishingPath();
-	std::vector<glm::vec3> generateFinishingIntersectionsPath();
-	void savePath1();
-	void savePath2();
-	void savePath3();
-	void savePath4();
-	void savePath5();
-	void savePath6();
-	void saveAllPaths();
-	void savePath(const std::vector<glm::vec3>& path, float yOffset, const std::string& filename);
-
-	Heightmap m_heightmap{heightmapSize};
-	Heightmap m_offsetHeightmap{heightmapSize};
-	Heightmap m_edge{heightmapSize};
-	OrthographicCamera m_heightmapCamera;
-	bool m_renderHeightmap = false;
-	bool m_renderOffsetHeightmap = false;
-	bool m_renderEdge = false;
+	void generatePaths();
 
 private:
 	std::vector<Model*> m_models{};
@@ -202,6 +167,8 @@ private:
 	Framebuffer m_leftEyeFramebuffer;
 	Quad m_quad{};
 	bool m_anaglyphOn = false;
+
+	ToolpathGenerator m_toolpathGenerator{*this};
 
 	void setUpFramebuffer() const;
 	void clearFramebuffer(AnaglyphMode anaglyphMode) const;

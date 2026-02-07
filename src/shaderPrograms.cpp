@@ -11,16 +11,16 @@ namespace ShaderPrograms
 	std::unique_ptr<const ShaderProgram> plane{};
 	std::unique_ptr<const ShaderProgram> torus{};
 	std::unique_ptr<const ShaderProgram> bezierCurve{};
-	std::unique_ptr<const ShaderProgram> heightmap{};
-	std::unique_ptr<const ShaderProgram> edge{};
 	std::unique_ptr<const ShaderProgram> interpolatingBezierCurve{};
 	std::unique_ptr<const ShaderProgram> polyline{};
 	std::unique_ptr<const ShaderProgram> bezierSurface{};
-	std::unique_ptr<const ShaderProgram> bezierSurfaceTriangles{};
 	std::unique_ptr<const ShaderProgram> gregorySurface{};
 	std::unique_ptr<const ShaderProgram> quad{};
 	std::unique_ptr<const ShaderProgram> vectors{};
 	std::unique_ptr<const ShaderProgram> flat{};
+	std::unique_ptr<const ShaderProgram> bezierSurfaceTriangles{};
+	std::unique_ptr<const ShaderProgram> heightmap{};
+	std::unique_ptr<const ShaderProgram> edge{};
 
 	void init()
 	{
@@ -34,19 +34,19 @@ namespace ShaderPrograms
 		interpolatingBezierCurve = std::make_unique<const ShaderProgram>(
 			path("interpolatingBezierCurveVS"), path("interpolatingBezierCurveTCS"),
 			path("interpolatingBezierCurveTES"), path("FS"));
-		heightmap = std::make_unique<const ShaderProgram>(path("heightmapVS"), path("heightmapFS"));
-		edge = std::make_unique<const ShaderProgram>(path("edgeVS"), path("edgeFS"));
 		polyline = std::make_unique<const ShaderProgram>(path("VS"), path("FS"));
 		bezierSurface = std::make_unique<const ShaderProgram>(path("surfaceVS"),
 			path("bezierSurfaceTCS"), path("bezierSurfaceTES"), path("intersectableFS"));
-		bezierSurfaceTriangles = std::make_unique<const ShaderProgram>(path("surfaceVS"),
-			path("bezierSurfaceTrianglesTCS"), path("bezierSurfaceTrianglesTES"),
-			path("bezierSurfaceTrianglesFS"));
 		gregorySurface = std::make_unique<const ShaderProgram>(path("surfaceVS"),
 			path("gregorySurfaceTCS"), path("gregorySurfaceTES"), path("FS"));
 		quad = std::make_unique<const ShaderProgram>(path("quadVS"), path("quadFS"));
 		vectors = std::make_unique<const ShaderProgram>(path("VS"), path("vectorsFS"));
 		flat = std::make_unique<const ShaderProgram>(path("flatVS"), path("FS"));
+		bezierSurfaceTriangles = std::make_unique<const ShaderProgram>(path("surfaceVS"),
+			path("bezierSurfaceTrianglesTCS"), path("bezierSurfaceTrianglesTES"),
+			path("bezierSurfaceTrianglesFS"));
+		heightmap = std::make_unique<const ShaderProgram>(path("heightmapVS"), path("heightmapFS"));
+		edge = std::make_unique<const ShaderProgram>(path("edgeVS"), path("edgeFS"));
 	}
 
 	std::string path(const std::string& shaderName)

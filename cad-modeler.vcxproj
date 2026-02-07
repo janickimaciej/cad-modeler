@@ -98,6 +98,7 @@
     <ClCompile Include="src\shaderPrograms.cpp" />
     <ClCompile Include="src\heightmap.cpp" />
     <ClCompile Include="src\texture.cpp" />
+    <ClCompile Include="src\toolpathGenerator.cpp" />
     <ClCompile Include="src\window.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -186,6 +187,7 @@
     <ClInclude Include="src\shaderPrograms.hpp" />
     <ClInclude Include="src\heightmap.hpp" />
     <ClInclude Include="src\texture.hpp" />
+    <ClInclude Include="src\toolpathGenerator.hpp" />
     <ClInclude Include="src\window.hpp" />
   </ItemGroup>
   <ItemGroup>

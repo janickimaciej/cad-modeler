@@ -52,11 +52,6 @@ public:
 	virtual bool uWrapped() const override;
 	virtual bool vWrapped() const override;
 
-	auto& points()
-	{
-		return m_points;
-	}
-
 protected:
 	std::unique_ptr<IndicesMesh> m_gridMesh{};
 
