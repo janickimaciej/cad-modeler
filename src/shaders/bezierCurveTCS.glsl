@@ -5,7 +5,7 @@
 in vec3 inTessPos[];
 
 uniform mat4 projectionViewMatrix;
-uniform ivec2 windowSize;
+uniform ivec2 viewportSize;
 
 layout (vertices = controlVerticesCount) out;
 out vec3 tessPos[];
@@ -22,7 +22,7 @@ void main()
 		{
 			vec4 clipPos = projectionViewMatrix * vec4(inTessPos[i], 1);
 			clipPos /= clipPos.w;
-			tessPosScreen[i] = (clipPos.xy + 1) / 2 * windowSize;
+			tessPosScreen[i] = (clipPos.xy + 1) / 2 * viewportSize;
 		}
 		int polylineLengthScreen = int(length(tessPosScreen[1] - tessPosScreen[0]) +
 			length(tessPosScreen[2] - tessPosScreen[1]) +

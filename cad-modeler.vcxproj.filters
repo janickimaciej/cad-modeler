@@ -69,9 +69,6 @@
     <ClCompile Include="src\cameras\perspectiveCamera.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\framebuffer.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\guis\addBezierSurfacePanel.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -250,9 +247,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\shaderPrograms.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\heightmap.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\toolpathGenerator.cpp">
@@ -513,9 +507,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\shaderPrograms.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\heightmap.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\toolpathGenerator.hpp">

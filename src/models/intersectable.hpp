@@ -95,7 +95,7 @@ Texture Intersectable::createIntersectionCurveTexture(const IntersectionCurve* c
 	std::unique_ptr<TextureData<textureSize>> textureData =
 		std::make_unique<TextureData<textureSize>>();
 
-	Framebuffer framebuffer{{textureSize, textureSize}};
+	Framebuffer<unsigned char> framebuffer{GL_UNSIGNED_BYTE, GL_RGB, {textureSize, textureSize}};
 	std::vector<glm::vec2> intersectionPoints = curve->getIntersectionPoints(surfaceIndex);
 	std::unique_ptr<FlatMesh> mesh = createIntersectionMesh(intersectionPoints);
 

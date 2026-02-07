@@ -11,7 +11,7 @@
 class RenamingWindow : public ValueWindow
 {
 public:
-	RenamingWindow(Scene& scene, const glm::ivec2& windowSize);
+	RenamingWindow(Scene& scene, const glm::ivec2& viewportSize);
 	virtual ~RenamingWindow() = default;
 	void startRenaming();
 	void apply();

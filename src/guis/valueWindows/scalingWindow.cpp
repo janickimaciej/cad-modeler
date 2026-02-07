@@ -2,8 +2,8 @@
 
 #include <imgui/imgui.h>
 
-ScalingWindow::ScalingWindow(Scene& scene, const glm::ivec2& windowSize) :
-	ValueWindow{windowSize},
+ScalingWindow::ScalingWindow(Scene& scene, const glm::ivec2& viewportSize) :
+	ValueWindow{viewportSize},
 	m_scene{scene}
 { }
 

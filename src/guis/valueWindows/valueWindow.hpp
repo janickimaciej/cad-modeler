@@ -7,12 +7,12 @@
 class ValueWindow
 {
 public:
-	ValueWindow(const glm::ivec2& windowSize);
+	ValueWindow(const glm::ivec2& viewportSize);
 	virtual ~ValueWindow() = default;
 	void update();
 
 private:
-	const glm::ivec2& m_windowSize;
+	const glm::ivec2& m_viewportSize;
 
 	virtual std::string name() = 0;
 	virtual int width() = 0;

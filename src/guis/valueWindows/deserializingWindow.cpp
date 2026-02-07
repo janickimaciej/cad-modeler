@@ -4,8 +4,8 @@
 
 #include <imgui/imgui.h>
 
-DeserializingWindow::DeserializingWindow(Scene& scene, const glm::ivec2& windowSize) :
-	ValueWindow{windowSize},
+DeserializingWindow::DeserializingWindow(Scene& scene, const glm::ivec2& viewportSize) :
+	ValueWindow{viewportSize},
 	m_scene{scene}
 { }
 

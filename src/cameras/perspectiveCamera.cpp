@@ -2,9 +2,9 @@
 
 #include <cmath>
 
-PerspectiveCamera::PerspectiveCamera(const glm::ivec2& windowSize, float fovYDeg, float nearPlane,
+PerspectiveCamera::PerspectiveCamera(const glm::ivec2& viewportSize, float fovYDeg, float nearPlane,
 	float farPlane) :
-	Camera{windowSize, nearPlane, farPlane},
+	Camera{viewportSize, nearPlane, farPlane},
 	m_gui{*this},
 	m_fovYDeg{fovYDeg}
 {
@@ -35,7 +35,7 @@ void PerspectiveCamera::zoom(float zoom)
 
 void PerspectiveCamera::updateProjectionMatrix()
 {
-	float aspectRatio = static_cast<float>(m_windowSize.x) / m_windowSize.y;
+	float aspectRatio = static_cast<float>(m_viewportSize.x) / m_viewportSize.y;
 	float fovYRad = glm::radians(m_fovYDeg);
 	float cot = std::cos(fovYRad / 2) / std::sin(fovYRad / 2);
 	float eyeOffset = m_eyesDistance * cot / (2 * aspectRatio * m_screenDistance);

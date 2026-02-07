@@ -6,8 +6,8 @@
 
 #include <cmath>
 
-Camera::Camera(const glm::ivec2& windowSize, float nearPlane, float farPlane) :
-	m_windowSize{windowSize},
+Camera::Camera(const glm::ivec2& viewportSize, float nearPlane, float farPlane) :
+	m_viewportSize{viewportSize},
 	m_nearPlane{nearPlane},
 	m_farPlane{farPlane}
 {
@@ -34,7 +34,7 @@ glm::mat4 Camera::getMatrix() const
 	return m_projectionMatrix * glm::inverse(m_viewMatrixInverse);
 }
 
-void Camera::updateWindowSize()
+void Camera::updateViewportSize()
 {
 	updateProjectionMatrix();
 }
@@ -100,8 +100,8 @@ glm::vec2 Camera::posToScreenPos(const glm::vec3& pos) const
 	clipPos /= clipPos.w;
 	return glm::vec2
 	{
-		(clipPos.x + 1) / 2 * m_windowSize.x,
-		(-clipPos.y + 1) / 2 * m_windowSize.y
+		(clipPos.x + 1) / 2 * m_viewportSize.x,
+		(-clipPos.y + 1) / 2 * m_viewportSize.y
 	};
 }
 
@@ -112,8 +112,8 @@ glm::vec3 Camera::screenPosToPos(const glm::vec3& prevPos, const glm::vec2& scre
 	prevClipPos /= prevClipPos.w;
 	glm::vec4 clipPos
 	{
-		screenPos.x / m_windowSize.x * 2 - 1,
-		-screenPos.y / m_windowSize.y * 2 + 1,
+		screenPos.x / m_viewportSize.x * 2 - 1,
+		-screenPos.y / m_viewportSize.y * 2 + 1,
 		prevClipPos.z,
 		1
 	};
@@ -241,13 +241,13 @@ void Camera::updateShaders(const glm::mat4& projectionViewMatrix, AnaglyphMode a
 
 	ShaderPrograms::bezierCurve->use();
 	ShaderPrograms::bezierCurve->setUniform("projectionViewMatrix", projectionViewMatrix);
-	ShaderPrograms::bezierCurve->setUniform("windowSize", m_windowSize);
+	ShaderPrograms::bezierCurve->setUniform("viewportSize", m_viewportSize);
 	ShaderPrograms::bezierCurve->setUniform("anaglyphMode", static_cast<int>(anaglyphMode));
 
 	ShaderPrograms::interpolatingBezierCurve->use();
 	ShaderPrograms::interpolatingBezierCurve->setUniform("projectionViewMatrix",
 		projectionViewMatrix);
-	ShaderPrograms::interpolatingBezierCurve->setUniform("windowSize", m_windowSize);
+	ShaderPrograms::interpolatingBezierCurve->setUniform("viewportSize", m_viewportSize);
 	ShaderPrograms::interpolatingBezierCurve->setUniform("anaglyphMode",
 		static_cast<int>(anaglyphMode));
 

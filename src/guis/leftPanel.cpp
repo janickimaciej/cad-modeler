@@ -7,9 +7,9 @@
 #include <optional>
 #include <string>
 
-LeftPanel::LeftPanel(Scene& scene, const glm::ivec2& windowSize) :
+LeftPanel::LeftPanel(Scene& scene, const glm::ivec2& viewportSize) :
 	m_scene{scene},
-	m_windowSize{windowSize},
+	m_viewportSize{viewportSize},
 	m_addC0BezierSurfacePanel
 	{
 		[this] (int patchesU, int patchesV, float sizeU, float sizeV,
@@ -62,7 +62,7 @@ LeftPanel::LeftPanel(Scene& scene, const glm::ivec2& windowSize) :
 void LeftPanel::update()
 {
 	ImGui::SetNextWindowPos({0, 0}, ImGuiCond_Always);
-	ImGui::SetNextWindowSize({width, static_cast<float>(m_windowSize.y)}, ImGuiCond_Always);
+	ImGui::SetNextWindowSize({width, static_cast<float>(m_viewportSize.y)}, ImGuiCond_Always);
 	ImGui::Begin("leftPanel", nullptr, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoTitleBar);
 	ImGui::PushItemWidth(100);
 

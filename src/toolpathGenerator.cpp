@@ -922,7 +922,7 @@ void ToolpathGenerator::generateEdge(float level)
 }
 
 std::unique_ptr<ToolpathGenerator::HeightmapData> ToolpathGenerator::getHeightmapData(
-	Heightmap& heightmap)
+	Framebuffer<float>& heightmap)
 {
 	auto textureData = std::make_unique<TextureData>();
 	heightmap.bind();

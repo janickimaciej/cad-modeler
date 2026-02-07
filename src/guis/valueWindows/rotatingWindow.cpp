@@ -2,8 +2,8 @@
 
 #include <imgui/imgui.h>
 
-RotatingWindow::RotatingWindow(Scene& scene, const glm::ivec2& windowSize) :
-	ValueWindow{windowSize},
+RotatingWindow::RotatingWindow(Scene& scene, const glm::ivec2& viewportSize) :
+	ValueWindow{viewportSize},
 	m_scene{scene}
 { }
 

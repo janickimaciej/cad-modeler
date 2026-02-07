@@ -1,7 +1,7 @@
 #pragma once
 
 #include "cameras/orthographicCamera.hpp"
-#include "heightmap.hpp"
+#include "framebuffer.hpp"
 #include "quad.hpp"
 
 #include <glm/glm.hpp>
@@ -29,9 +29,9 @@ private:
 
 	const Scene& m_scene;
 
-	Heightmap m_heightmap{heightmapSize};
-	Heightmap m_offsetHeightmap{heightmapSize};
-	Heightmap m_edge{heightmapSize};
+	Framebuffer<float> m_heightmap{GL_FLOAT, GL_RGB32F, heightmapSize};
+	Framebuffer<float> m_offsetHeightmap{GL_FLOAT, GL_RGB32F, heightmapSize};
+	Framebuffer<float> m_edge{GL_FLOAT, GL_RGB32F, heightmapSize};
 	OrthographicCamera m_heightmapCamera;
 	Quad m_quad{};
 
@@ -43,7 +43,7 @@ private:
 
 	void generateHeightmap();
 	void generateOffsetHeightmap(float radius, bool flatCutter, float pathLevel = 0);
-	std::unique_ptr<HeightmapData> getHeightmapData(Heightmap& heightmap);
+	std::unique_ptr<HeightmapData> getHeightmapData(Framebuffer<float>& heightmap);
 	void generateEdge(float level);
 	static float getHeightmapHeight(float defaultHeight, const HeightmapData& heightmapData,
 		int xIndex, float z);

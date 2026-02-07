@@ -9,14 +9,14 @@
 #include <algorithm>
 #include <optional>
 
-GUI::GUI(GLFWwindow* window, Scene& scene, const glm::ivec2& windowSize) :
-	m_leftPanel{scene, windowSize},
-	m_rightPanel{scene, windowSize},
-	m_rotatingWindow{scene, windowSize},
-	m_scalingWindow{scene, windowSize},
-	m_renamingWindow{scene, windowSize},
-	m_serializingWindow{scene, windowSize},
-	m_deserializingWindow{scene, windowSize},
+GUI::GUI(GLFWwindow* window, Scene& scene, const glm::ivec2& viewportSize) :
+	m_leftPanel{scene, viewportSize},
+	m_rightPanel{scene, viewportSize},
+	m_rotatingWindow{scene, viewportSize},
+	m_scalingWindow{scene, viewportSize},
+	m_renamingWindow{scene, viewportSize},
+	m_serializingWindow{scene, viewportSize},
+	m_deserializingWindow{scene, viewportSize},
 	m_scene{scene}
 {
 	IMGUI_CHECKVERSION();

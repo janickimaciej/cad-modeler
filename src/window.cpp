@@ -7,8 +7,8 @@
 #include <cmath>
 #include <string>
 
-Window::Window(const glm::ivec2& initialSize) :
-	m_size{initialSize}
+Window::Window() :
+	m_viewportSize{m_initialSize}
 {
 	glfwInit();
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
@@ -16,7 +16,7 @@ Window::Window(const glm::ivec2& initialSize) :
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 	glfwWindowHint(GLFW_SAMPLES, 4);
 	static const std::string windowTitle = "cad-modeler";
-	m_windowPtr = glfwCreateWindow(initialSize.x, initialSize.y, windowTitle.c_str(), nullptr,
+	m_windowPtr = glfwCreateWindow(m_initialSize.x, m_initialSize.y, windowTitle.c_str(), nullptr,
 		nullptr);
 	glfwSetWindowUserPointer(m_windowPtr, this);
 	glfwMakeContextCurrent(m_windowPtr);
@@ -38,12 +38,12 @@ Window::~Window()
 	glfwTerminate();
 }
 
-const glm::ivec2& Window::size() const
+const glm::ivec2& Window::viewportSize() const
 {
-	return m_size;
+	return m_viewportSize;
 }
 
-void Window::setWindowData(Scene& scene, GUI& gui)
+void Window::init(Scene& scene, GUI& gui)
 {
 	m_scene = &scene;
 	m_gui = &gui;
@@ -76,8 +76,8 @@ void Window::resizeCallback(int width, int height)
 		return;
 	}
 
-	m_size = {width, height};
-	m_scene->updateWindowSize(m_size);
+	m_viewportSize = {width, height};
+	m_scene->updateViewportSize(m_viewportSize);
 	glViewport(0, 0, width, height);
 }
 
@@ -309,5 +309,5 @@ bool Window::isKeyPressed(int key)
 bool Window::isCursorInGUI()
 {
 	glm::vec2 cursorPos = getCursorPos();
-	return cursorPos.x <= LeftPanel::width || cursorPos.x >= m_size.x - RightPanel::width;
+	return cursorPos.x <= LeftPanel::width || cursorPos.x >= m_viewportSize.x - RightPanel::width;
 }

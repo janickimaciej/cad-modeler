@@ -11,7 +11,7 @@
 class SerializingWindow : public ValueWindow
 {
 public:
-	SerializingWindow(Scene& scene, const glm::ivec2& windowSize);
+	SerializingWindow(Scene& scene, const glm::ivec2& viewportSize);
 	virtual ~SerializingWindow() = default;
 	void startSerializing();
 	void apply();

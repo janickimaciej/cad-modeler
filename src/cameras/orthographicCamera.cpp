@@ -1,8 +1,8 @@
 #include "cameras/orthographicCamera.hpp"
 
-OrthographicCamera::OrthographicCamera(const glm::ivec2& windowSize, float viewHeight,
+OrthographicCamera::OrthographicCamera(const glm::ivec2& viewportSize, float viewHeight,
 	float nearPlane, float farPlane) :
-	Camera{windowSize, nearPlane, farPlane},
+	Camera{viewportSize, nearPlane, farPlane},
 	m_gui{*this},
 	m_viewHeight{viewHeight}
 {
@@ -36,7 +36,7 @@ void OrthographicCamera::zoom(float zoom)
 
 void OrthographicCamera::updateProjectionMatrix()
 {
-	float aspectRatio = static_cast<float>(m_windowSize.x) / m_windowSize.y;
+	float aspectRatio = static_cast<float>(m_viewportSize.x) / m_viewportSize.y;
 	float viewWidth = m_viewHeight * aspectRatio;
 	m_projectionMatrix =
 	{

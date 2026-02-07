@@ -8,7 +8,7 @@ in vec3 inTessNextPoint[];
 in float inTessDt[];
 
 uniform mat4 projectionViewMatrix;
-uniform ivec2 windowSize;
+uniform ivec2 viewportSize;
 
 layout (vertices = 1) out;
 out vec3 tessA[];
@@ -43,5 +43,5 @@ vec2 screenPos(vec3 worldPos)
 {
 	vec4 clipPos = projectionViewMatrix * vec4(worldPos, 1);
 	clipPos /= clipPos.w;
-	return (clipPos.xy + 1) / 2 * windowSize;
+	return (clipPos.xy + 1) / 2 * viewportSize;
 }

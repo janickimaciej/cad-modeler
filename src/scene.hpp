@@ -46,10 +46,10 @@ class Scene
 	friend class ToolpathGenerator;
 
 public:
-	Scene(const glm::ivec2& windowSize);
+	Scene(const glm::ivec2& viewportSize);
 	void update();
 	void render();
-	void updateWindowSize(const glm::ivec2& windowSize);
+	void updateViewportSize(const glm::ivec2& viewportSize);
 
 	CameraType getCameraType() const;
 	void setCameraType(CameraType cameraType);
@@ -164,7 +164,7 @@ private:
 			addGregorySurfaceForDeletion(surface);
 		};
 
-	Framebuffer m_leftEyeFramebuffer;
+	Framebuffer<unsigned char> m_leftEyeFramebuffer;
 	Quad m_quad{};
 	bool m_anaglyphOn = false;
 

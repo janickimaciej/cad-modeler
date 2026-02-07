@@ -4,8 +4,8 @@
 
 #include <imgui/imgui.h>
 
-SerializingWindow::SerializingWindow(Scene& scene, const glm::ivec2& windowSize) :
-	ValueWindow{windowSize},
+SerializingWindow::SerializingWindow(Scene& scene, const glm::ivec2& viewportSize) :
+	ValueWindow{viewportSize},
 	m_scene{scene}
 { }
 

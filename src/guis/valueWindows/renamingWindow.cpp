@@ -2,8 +2,8 @@
 
 #include <imgui/imgui.h>
 
-RenamingWindow::RenamingWindow(Scene& scene, const glm::ivec2& windowSize) :
-	ValueWindow{windowSize},
+RenamingWindow::RenamingWindow(Scene& scene, const glm::ivec2& viewportSize) :
+	ValueWindow{viewportSize},
 	m_scene{scene}
 { }
 

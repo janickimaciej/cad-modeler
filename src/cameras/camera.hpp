@@ -7,14 +7,14 @@
 class Camera
 {
 public:
-	Camera(const glm::ivec2& windowSize, float nearPlane, float farPlane);
+	Camera(const glm::ivec2& viewportSize, float nearPlane, float farPlane);
 	virtual ~Camera() = default;
 	void use() const;
 	void useLeftEye() const;
 	void useRightEye() const;
 	virtual void updateGUI() = 0;
 	glm::mat4 getMatrix() const;
-	void updateWindowSize();
+	void updateViewportSize();
 
 	void addPitch(float pitchRad);
 	void addYaw(float yawRad);
@@ -34,7 +34,7 @@ public:
 	void setProjectionPlane(float projectionPlane);
 
 protected:
-	const glm::ivec2& m_windowSize{};
+	const glm::ivec2& m_viewportSize{};
 	float m_nearPlane{};
 	float m_farPlane{};
 	float m_radius = 3;

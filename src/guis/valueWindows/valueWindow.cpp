@@ -2,15 +2,15 @@
 
 #include <imgui/imgui.h>
 
-ValueWindow::ValueWindow(const glm::ivec2& windowSize) :
-	m_windowSize{windowSize}
+ValueWindow::ValueWindow(const glm::ivec2& viewportSize) :
+	m_viewportSize{viewportSize}
 { }
 
 void ValueWindow::update()
 {
 	static constexpr int height = 35;
-	ImGui::SetNextWindowPos({(m_windowSize.x - width() + 50) / 2.0f,
-		(m_windowSize.y - height) / 2.0f}, ImGuiCond_Always);
+	ImGui::SetNextWindowPos({(m_viewportSize.x - width() + 50) / 2.0f,
+		(m_viewportSize.y - height) / 2.0f}, ImGuiCond_Always);
 	ImGui::SetNextWindowSize({static_cast<float>(width()), static_cast<float>(height)},
 		ImGuiCond_Always);
 	ImGui::Begin(name().c_str(), nullptr, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoTitleBar);

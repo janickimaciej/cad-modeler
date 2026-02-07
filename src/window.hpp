@@ -10,19 +10,21 @@
 class Window
 {
 public:
-	Window(const glm::ivec2& initialSize);
+	Window();
 	~Window();
 
-	const glm::ivec2& size() const;
-	void setWindowData(Scene& scene, GUI& gui);
+	const glm::ivec2& viewportSize() const;
+	void init(Scene& scene, GUI& gui);
 	bool shouldClose() const;
 	void swapBuffers() const;
 	void pollEvents() const;
 	GLFWwindow* getPtr();
 
 private:
+	static constexpr glm::ivec2 m_initialSize{1900, 1000};
+
 	GLFWwindow* m_windowPtr{};
-	glm::ivec2 m_size{};
+	glm::ivec2 m_viewportSize{};
 	Scene* m_scene{};
 	GUI* m_gui{};
 

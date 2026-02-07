@@ -12,10 +12,10 @@ static constexpr float fovYDeg = 60.0f;
 static constexpr float nearPlane = 0.1f;
 static constexpr float farPlane = 1000.0f;
 
-Scene::Scene(const glm::ivec2& windowSize) :
-	m_perspectiveCamera{windowSize, fovYDeg, nearPlane, farPlane},
-	m_orthographicCamera{windowSize, viewHeight, nearPlane, farPlane},
-	m_leftEyeFramebuffer{windowSize}
+Scene::Scene(const glm::ivec2& viewportSize) :
+	m_perspectiveCamera{viewportSize, fovYDeg, nearPlane, farPlane},
+	m_orthographicCamera{viewportSize, viewHeight, nearPlane, farPlane},
+	m_leftEyeFramebuffer{GL_UNSIGNED_BYTE, GL_RGB, viewportSize}
 {
 	auto firstModelIter = m_models.begin();
 
@@ -79,11 +79,11 @@ void Scene::render()
 	}
 }
 
-void Scene::updateWindowSize(const glm::ivec2& windowSize)
+void Scene::updateViewportSize(const glm::ivec2& viewportSize)
 {
-	m_perspectiveCamera.updateWindowSize();
-	m_orthographicCamera.updateWindowSize();
-	m_leftEyeFramebuffer.resize(windowSize);
+	m_perspectiveCamera.updateViewportSize();
+	m_orthographicCamera.updateViewportSize();
+	m_leftEyeFramebuffer.resize(viewportSize);
 }
 
 CameraType Scene::getCameraType() const

@@ -23,12 +23,12 @@ class LeftPanel
 public:
 	static constexpr int width = 272;
 
-	LeftPanel(Scene& scene, const glm::ivec2& windowSize);
+	LeftPanel(Scene& scene, const glm::ivec2& viewportSize);
 	void update();
 
 private:
 	Scene& m_scene;
-	const glm::ivec2& m_windowSize;
+	const glm::ivec2& m_viewportSize;
 
 	Mode m_mode = Mode::none;
 	AddBezierSurfacePanel m_addC0BezierSurfacePanel;
