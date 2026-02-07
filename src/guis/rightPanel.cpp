@@ -1,5 +1,7 @@
 #include "guis/rightPanel.hpp"
 
+#include "guis/leftPanel.hpp"
+
 #include <imgui/imgui.h>
 
 RightPanel::RightPanel(Scene& scene, const glm::ivec2& viewportSize) :
@@ -9,7 +11,8 @@ RightPanel::RightPanel(Scene& scene, const glm::ivec2& viewportSize) :
 
 void RightPanel::update(GUIMode mode)
 {
-	ImGui::SetNextWindowPos({static_cast<float>(m_viewportSize.x - width), 0}, ImGuiCond_Always);
+	ImGui::SetNextWindowPos({static_cast<float>(LeftPanel::width + m_viewportSize.x), 0},
+		ImGuiCond_Always);
 	ImGui::SetNextWindowSize({width, static_cast<float>(m_viewportSize.y)},
 		ImGuiCond_Always);
 	ImGui::Begin("rightPanel", nullptr, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoTitleBar);

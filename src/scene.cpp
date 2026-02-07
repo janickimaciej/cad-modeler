@@ -492,8 +492,8 @@ void Scene::moveUniqueSelectedModel(const glm::vec2& offset) const
 	if (selectedModel != nullptr)
 	{
 		glm::vec3 pos = selectedModel->getPos();
-		glm::vec2 screenPos = m_activeCamera->posToScreenPos(pos);
-		glm::vec3 newPos = m_activeCamera->screenPosToPos(pos, screenPos + offset);
+		glm::vec2 screenPos = m_activeCamera->posToViewportPos(pos);
+		glm::vec3 newPos = m_activeCamera->viewportPosToPos(pos, screenPos + offset);
 		selectedModel->setPos(newPos);
 	}
 }
@@ -580,20 +580,20 @@ Intersectable* Scene::getUniqueSelectedIntersectable() const
 	return nullptr;
 }
 
-bool Scene::isCursorAtPos(const glm::vec2& screenPos) const
+bool Scene::isCursorAtPos(const glm::vec2& viewportPos) const
 {
 	static constexpr float treshold = 30;
-	glm::vec2 cursorScreenPos = m_activeCamera->posToScreenPos(m_cursor.getPos());
-	glm::vec2 relativeScreenPos = cursorScreenPos - screenPos;
-	float screenDistanceSquared = glm::dot(relativeScreenPos, relativeScreenPos);
-	return screenDistanceSquared < treshold * treshold;
+	glm::vec2 cursorViewportPos = m_activeCamera->posToViewportPos(m_cursor.getPos());
+	glm::vec2 relativeViewportPos = cursorViewportPos - viewportPos;
+	float viewportDistanceSquared = glm::dot(relativeViewportPos, relativeViewportPos);
+	return viewportDistanceSquared < treshold * treshold;
 }
 
 void Scene::moveCursor(const glm::vec2& offset)
 {
 	glm::vec3 pos = m_cursor.getPos();
-	glm::vec2 screenPos = m_activeCamera->posToScreenPos(pos);
-	glm::vec3 newPos = m_activeCamera->screenPosToPos(pos, screenPos + offset);
+	glm::vec2 viewportPos = m_activeCamera->posToViewportPos(pos);
+	glm::vec3 newPos = m_activeCamera->viewportPosToPos(pos, viewportPos + offset);
 	m_cursor.setPos(newPos);
 }
 
@@ -1218,7 +1218,7 @@ std::optional<int> Scene::getClosestModel(const glm::vec2& screenPos) const
 	float minScreenDistanceSquared = treshold * treshold;
 	for (int i = 0; i < m_models.size(); ++i)
 	{
-		glm::vec2 modelScreenPos = m_activeCamera->posToScreenPos(m_models[i]->getPos());
+		glm::vec2 modelScreenPos = m_activeCamera->posToViewportPos(m_models[i]->getPos());
 		glm::vec2 relativePos = modelScreenPos - screenPos;
 		float screenDistanceSquared = glm::dot(relativePos, relativePos);
 		if (screenDistanceSquared < minScreenDistanceSquared)

@@ -1,5 +1,8 @@
 #include "guis/valueWindows/valueWindow.hpp"
 
+#include "guis/leftPanel.hpp"
+#include "guis/rightPanel.hpp"
+
 #include <imgui/imgui.h>
 
 ValueWindow::ValueWindow(const glm::ivec2& viewportSize) :
@@ -9,8 +12,9 @@ ValueWindow::ValueWindow(const glm::ivec2& viewportSize) :
 void ValueWindow::update()
 {
 	static constexpr int height = 35;
-	ImGui::SetNextWindowPos({(m_viewportSize.x - width() + 50) / 2.0f,
-		(m_viewportSize.y - height) / 2.0f}, ImGuiCond_Always);
+	int windowWidth = LeftPanel::width + m_viewportSize.x + RightPanel::width;
+	ImGui::SetNextWindowPos({(windowWidth - width()) / 2.0f, (m_viewportSize.y - height) / 2.0f},
+		ImGuiCond_Always);
 	ImGui::SetNextWindowSize({static_cast<float>(width()), static_cast<float>(height)},
 		ImGuiCond_Always);
 	ImGui::Begin(name().c_str(), nullptr, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoTitleBar);

@@ -14,6 +14,7 @@ class RotatingWindow : public ValueWindow
 public:
 	RotatingWindow(Scene& scene, const glm::ivec2& viewportSize);
 	virtual ~RotatingWindow() = default;
+
 	void startRotating();
 	void apply(GUIMode mode);
 

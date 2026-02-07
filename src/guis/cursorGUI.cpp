@@ -42,7 +42,7 @@ void CursorGUI::updateScreenPos(const Camera& camera)
 	static const std::string format = "%.0f";
 
 	glm::vec3 prevPos = m_cursor.getPos();
-	glm::vec2 screenPos = camera.posToScreenPos(prevPos);
+	glm::vec2 screenPos = camera.posToViewportPos(prevPos);
 	glm::vec2 prevScreenPos = screenPos;
 	ImGui::InputFloat(("screen x" + m_suffix).c_str(), &screenPos.x, stepPrecision, stepPrecision,
 		format.c_str());
@@ -50,7 +50,7 @@ void CursorGUI::updateScreenPos(const Camera& camera)
 		format.c_str());
 	if (screenPos != prevScreenPos)
 	{
-		glm::vec3 pos = camera.screenPosToPos(prevPos, screenPos);
+		glm::vec3 pos = camera.viewportPosToPos(prevPos, screenPos);
 		m_cursor.setPos(pos);
 	}
 }

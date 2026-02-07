@@ -1,6 +1,8 @@
 #pragma once
 
 #include "guis/gui.hpp"
+#include "guis/leftPanel.hpp"
+#include "guis/rightPanel.hpp"
 #include "scene.hpp"
 
 #include <glad/glad.h>
@@ -13,18 +15,19 @@ public:
 	Window();
 	~Window();
 
-	const glm::ivec2& viewportSize() const;
 	void init(Scene& scene, GUI& gui);
 	bool shouldClose() const;
 	void swapBuffers() const;
 	void pollEvents() const;
+
+	const glm::ivec2& viewportSize() const;
 	GLFWwindow* getPtr();
 
 private:
 	static constexpr glm::ivec2 m_initialSize{1900, 1000};
 
 	GLFWwindow* m_windowPtr{};
-	glm::ivec2 m_viewportSize{};
+	glm::ivec2 m_viewportSize{m_initialSize - glm::ivec2{LeftPanel::width + RightPanel::width, 0}};
 	Scene* m_scene{};
 	GUI* m_gui{};
 
@@ -40,6 +43,7 @@ private:
 	void buttonCallback(int button, int action, int);
 	void keyCallback(int key, int, int action, int);
 
+	void updateViewport() const;
 	glm::vec2 getCursorPos() const;
 	bool isButtonPressed(int button);
 	bool isKeyPressed(int key);

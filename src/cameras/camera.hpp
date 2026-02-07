@@ -23,8 +23,8 @@ public:
 	void moveY(float y);
 	virtual void zoom(float zoom) = 0;
 
-	glm::vec2 posToScreenPos(const glm::vec3& pos) const;
-	glm::vec3 screenPosToPos(const glm::vec3& prevPos, const glm::vec2& screenPos) const;
+	glm::vec2 posToViewportPos(const glm::vec3& pos) const;
+	glm::vec3 viewportPosToPos(const glm::vec3& prevPos, const glm::vec2& screenPos) const;
 
 	float getEyesDistance() const;
 	void setEyesDistance(float eyesDistance);

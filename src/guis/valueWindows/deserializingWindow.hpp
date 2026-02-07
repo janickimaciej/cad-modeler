@@ -13,6 +13,7 @@ class DeserializingWindow : public ValueWindow
 public:
 	DeserializingWindow(Scene& scene, const glm::ivec2& viewportSize);
 	virtual ~DeserializingWindow() = default;
+
 	void startDeserializing();
 	void apply();
 

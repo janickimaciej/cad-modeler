@@ -7,8 +7,7 @@
 #include <cmath>
 #include <string>
 
-Window::Window() :
-	m_viewportSize{m_initialSize}
+Window::Window()
 {
 	glfwInit();
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
@@ -30,17 +29,13 @@ Window::Window() :
 
 	gladLoadGLLoader(reinterpret_cast<GLADloadproc>(glfwGetProcAddress));
 
+	updateViewport();
 	ShaderPrograms::init();
 }
 
 Window::~Window()
 {
 	glfwTerminate();
-}
-
-const glm::ivec2& Window::viewportSize() const
-{
-	return m_viewportSize;
 }
 
 void Window::init(Scene& scene, GUI& gui)
@@ -64,6 +59,11 @@ void Window::pollEvents() const
 	glfwPollEvents();
 }
 
+const glm::ivec2& Window::viewportSize() const
+{
+	return m_viewportSize;
+}
+
 GLFWwindow* Window::getPtr()
 {
 	return m_windowPtr;
@@ -76,16 +76,16 @@ void Window::resizeCallback(int width, int height)
 		return;
 	}
 
-	m_viewportSize = {width, height};
+	m_viewportSize = {width - LeftPanel::width - RightPanel::width, height};
 	m_scene->updateViewportSize(m_viewportSize);
-	glViewport(0, 0, width, height);
+	updateViewport();
 }
 
 void Window::cursorMovementCallback(double x, double y)
 {
-	glm::vec2 currentPos{static_cast<float>(x), static_cast<float>(y)};
-	glm::vec2 offset = currentPos - m_lastCursorPos;
-	m_lastCursorPos = currentPos;
+	glm::vec2 currPos{static_cast<float>(x), static_cast<float>(y)};
+	glm::vec2 offset = currPos - m_lastCursorPos;
+	m_lastCursorPos = currPos;
 
 	if ((!isKeyPressed(GLFW_KEY_LEFT_SHIFT) &&
 		isButtonPressed(GLFW_MOUSE_BUTTON_MIDDLE))
@@ -143,9 +143,14 @@ void Window::scrollCallback(double, double yOffset)
 	m_scene->zoomCamera(std::pow(sensitivity, static_cast<float>(yOffset)));
 }
 
+void Window::updateViewport() const
+{
+	glViewport(LeftPanel::width, 0, m_viewportSize.x, m_viewportSize.y);
+}
+
 void Window::buttonCallback(int button, int action, int)
 {
-	glm::vec2 cursorPos = getCursorPos();
+	glm::vec2 cursorViewportPos = getCursorPos() - glm::vec2{LeftPanel::width, 0};
 
 	if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS &&
 		!isKeyPressed(GLFW_KEY_LEFT_ALT) &&
@@ -159,16 +164,16 @@ void Window::buttonCallback(int button, int action, int)
 
 		if (isKeyPressed(GLFW_KEY_RIGHT_CONTROL))
 		{
-			if (m_scene->isCursorAtPos(cursorPos))
+			if (m_scene->isCursorAtPos(cursorViewportPos))
 			{
 				m_cursorDragging = true;
 			}
 		}
 		else if (isKeyPressed(GLFW_KEY_LEFT_CONTROL))
 		{
-			m_scene->toggleModel(cursorPos);
+			m_scene->toggleModel(cursorViewportPos);
 		}
-		else if (m_scene->selectUniqueModel(cursorPos))
+		else if (m_scene->selectUniqueModel(cursorViewportPos))
 		{
 			m_modelDragging = true;
 		}
@@ -309,5 +314,5 @@ bool Window::isKeyPressed(int key)
 bool Window::isCursorInGUI()
 {
 	glm::vec2 cursorPos = getCursorPos();
-	return cursorPos.x <= LeftPanel::width || cursorPos.x >= m_viewportSize.x - RightPanel::width;
+	return cursorPos.x <= LeftPanel::width || cursorPos.x >= LeftPanel::width + m_viewportSize.x;
 }

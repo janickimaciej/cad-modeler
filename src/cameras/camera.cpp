@@ -94,7 +94,7 @@ void Camera::moveY(float y)
 	updateViewMatrix();
 }
 
-glm::vec2 Camera::posToScreenPos(const glm::vec3& pos) const
+glm::vec2 Camera::posToViewportPos(const glm::vec3& pos) const
 {
 	glm::vec4 clipPos = getMatrix() * glm::vec4{pos, 1};
 	clipPos /= clipPos.w;
@@ -105,7 +105,7 @@ glm::vec2 Camera::posToScreenPos(const glm::vec3& pos) const
 	};
 }
 
-glm::vec3 Camera::screenPosToPos(const glm::vec3& prevPos, const glm::vec2& screenPos) const
+glm::vec3 Camera::viewportPosToPos(const glm::vec3& prevPos, const glm::vec2& screenPos) const
 {
 	glm::mat4 cameraMatrix = getMatrix();
 	glm::vec4 prevClipPos = cameraMatrix * glm::vec4{prevPos, 1};
