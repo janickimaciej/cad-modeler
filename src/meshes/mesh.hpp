@@ -11,6 +11,7 @@ class Mesh
 public:
 	Mesh(const std::vector<glm::vec3>& vertices, GLenum drawType, GLint patchVertices = 0);
 	virtual ~Mesh();
+
 	void update(const std::vector<glm::vec3>& vertices);
 	virtual void render() const;
 

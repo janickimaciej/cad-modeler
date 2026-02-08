@@ -13,6 +13,7 @@ public:
 	C0BezierCurve(const std::vector<Point*>& points,
 		const SelfDestructCallback& selfDestructCallback);
 	virtual ~C0BezierCurve() = default;
+
 	void addPoints(const std::vector<Point*>& points);
 
 private:

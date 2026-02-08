@@ -1,7 +1,5 @@
 #include "quad.hpp"
 
-#include "shaderPrograms.hpp"
-
 #include <glad/glad.h>
 #include <glm/glm.hpp>
 

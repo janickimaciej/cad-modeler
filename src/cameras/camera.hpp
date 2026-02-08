@@ -9,6 +9,7 @@ class Camera
 public:
 	Camera(const glm::ivec2& viewportSize, float nearPlane, float farPlane);
 	virtual ~Camera() = default;
+
 	void use() const;
 	void useLeftEye() const;
 	void useRightEye() const;
@@ -16,15 +17,15 @@ public:
 	glm::mat4 getMatrix() const;
 	void updateViewportSize();
 
-	void addPitch(float pitchRad);
-	void addYaw(float yawRad);
 	void setTargetPos(const glm::vec3& pos);
 	void moveX(float x);
 	void moveY(float y);
+	void addPitch(float pitchRad);
+	void addYaw(float yawRad);
 	virtual void zoom(float zoom) = 0;
 
 	glm::vec2 posToViewportPos(const glm::vec3& pos) const;
-	glm::vec3 viewportPosToPos(const glm::vec3& prevPos, const glm::vec2& screenPos) const;
+	glm::vec3 viewportPosToPos(const glm::vec3& prevPos, const glm::vec2& viewportPos) const;
 
 	float getEyesDistance() const;
 	void setEyesDistance(float eyesDistance);
@@ -34,7 +35,6 @@ public:
 	void setProjectionPlane(float projectionPlane);
 
 protected:
-	const glm::ivec2& m_viewportSize{};
 	float m_nearPlane{};
 	float m_farPlane{};
 	float m_radius = 3;
@@ -57,12 +57,15 @@ protected:
 	void updateShadersLeftEye() const;
 	void updateShadersRightEye() const;
 
+	float getAspectRatio() const;
+
 private:
+	const glm::ivec2& m_viewportSize{};
 	glm::vec3 m_targetPos{0, 0, 0};
 	float m_pitchRad = 0;
 	float m_yawRad = 0;
 
+	glm::vec3 getPos() const;
 	void updateShaders(const glm::mat4& projectionViewMatrix,
 		AnaglyphMode anaglyphMode) const;
-	glm::vec3 getPos() const;
 };

@@ -1,5 +1,7 @@
 #include "models/gregorySurface.hpp"
 
+#include "shaderPrograms.hpp"
+
 #include <glad/glad.h>
 
 #include <algorithm>
@@ -243,24 +245,24 @@ void GregorySurface::updateVectorsMesh()
 
 void GregorySurface::updateShaders() const
 {
-	m_surfaceShaderProgram.use();
-	m_surfaceShaderProgram.setUniform("lineCount", m_lineCount);
-	m_surfaceShaderProgram.setUniform("isDark", false);
-	m_surfaceShaderProgram.setUniform("isSelected", isSelected());
+	ShaderPrograms::gregorySurface->use();
+	ShaderPrograms::gregorySurface->setUniform("lineCount", m_lineCount);
+	ShaderPrograms::gregorySurface->setUniform("isDark", false);
+	ShaderPrograms::gregorySurface->setUniform("isSelected", isSelected());
 }
 
 void GregorySurface::renderSurface() const
 {
-	m_surfaceShaderProgram.use();
-	m_surfaceShaderProgram.setUniform("orientationFlipped", false);
+	ShaderPrograms::gregorySurface->use();
+	ShaderPrograms::gregorySurface->setUniform("orientationFlipped", false);
 	m_surfaceMesh->render();
-	m_surfaceShaderProgram.setUniform("orientationFlipped", true);
+	ShaderPrograms::gregorySurface->setUniform("orientationFlipped", true);
 	m_surfaceMesh->render();
 }
 
 void GregorySurface::renderVectors() const
 {
-	m_vectorsShaderProgram.use();
+	ShaderPrograms::vectors->use();
 	m_vectorsMesh->render();
 }
 

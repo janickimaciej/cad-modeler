@@ -18,7 +18,7 @@ out vec3 tessD[];
 out float tessDt[];
 out float divisionY[];
 
-vec2 screenPos(vec3 worldPos);
+vec2 posViewport(vec3 posWorld);
 
 void main()
 {
@@ -28,20 +28,20 @@ void main()
 	tessD[gl_InvocationID] = inTessD[gl_InvocationID];
 	tessDt[gl_InvocationID] = inTessDt[gl_InvocationID];
 
-	int polylineLengthScreen =
-		int(length(screenPos(inTessNextPoint[gl_InvocationID]) -
-			screenPos(inTessA[gl_InvocationID])));
+	int polylineLengthViewport =
+		int(length(posViewport(inTessNextPoint[gl_InvocationID]) -
+			posViewport(inTessA[gl_InvocationID])));
 	int approximationLevel = 1;
-	int division = max(polylineLengthScreen / approximationLevel, 1);
+	int division = max(polylineLengthViewport / approximationLevel, 1);
 
 	divisionY[gl_InvocationID] = min(division / 64 + 1, 64);
 	gl_TessLevelOuter[0] = divisionY[0];
 	gl_TessLevelOuter[1] = divisionY[0] == 1 ? division : 64;
 }
 
-vec2 screenPos(vec3 worldPos)
+vec2 posViewport(vec3 posWorld)
 {
-	vec4 clipPos = projectionViewMatrix * vec4(worldPos, 1);
+	vec4 clipPos = projectionViewMatrix * vec4(posWorld, 1);
 	clipPos /= clipPos.w;
 	return (clipPos.xy + 1) / 2 * viewportSize;
 }

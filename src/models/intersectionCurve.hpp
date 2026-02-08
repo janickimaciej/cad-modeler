@@ -1,10 +1,8 @@
 #pragma once
 
-#include "guis/modelGUIs/intersectionCurveGUI.hpp"
+#include "gui/modelGUIs/intersectionCurveGUI.hpp"
 #include "meshes/mesh.hpp"
 #include "models/model.hpp"
-#include "shaderProgram.hpp"
-#include "shaderPrograms.hpp"
 #include <glm/glm.hpp>
 
 #include <array>
@@ -50,7 +48,6 @@ private:
 
 	static int m_count;
 
-	const ShaderProgram& m_shaderProgram = *ShaderPrograms::polyline;
 	std::unique_ptr<Mesh> m_mesh{};
 	std::array<const Intersectable*, 2> m_surfaces{};
 	std::vector<PointPair> m_pointPairs{};

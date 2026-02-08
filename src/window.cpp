@@ -1,7 +1,7 @@
 #include "window.hpp"
 
-#include "guis/leftPanel.hpp"
-#include "guis/rightPanel.hpp"
+#include "gui/leftPanel.hpp"
+#include "gui/rightPanel.hpp"
 #include "shaderPrograms.hpp"
 
 #include <cmath>

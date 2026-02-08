@@ -1,10 +1,8 @@
 #pragma once
 
-#include "guis/modelGUIs/pointGUI.hpp"
+#include "gui/modelGUIs/pointGUI.hpp"
 #include "meshes/pointMesh.hpp"
 #include "models/model.hpp"
-#include "shaderProgram.hpp"
-#include "shaderPrograms.hpp"
 
 #include <glm/glm.hpp>
 
@@ -61,7 +59,6 @@ private:
 	static int m_nonVirtualCount;
 	static int m_virtualCount;
 
-	const ShaderProgram& m_shaderProgram = *ShaderPrograms::point;
 	PointMesh m_mesh{};
 	PointGUI m_gui{*this};
 

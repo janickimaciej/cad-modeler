@@ -20,7 +20,7 @@ namespace ShaderPrograms
 	extern std::unique_ptr<const ShaderProgram> quad;
 	extern std::unique_ptr<const ShaderProgram> vectors;
 	extern std::unique_ptr<const ShaderProgram> flat;
-	extern std::unique_ptr<const ShaderProgram> bezierSurfaceTriangles;
+	extern std::unique_ptr<const ShaderProgram> bezierSurfaceHeight;
 	extern std::unique_ptr<const ShaderProgram> heightmap;
 	extern std::unique_ptr<const ShaderProgram> edge;
 }

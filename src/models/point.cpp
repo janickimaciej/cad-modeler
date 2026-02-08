@@ -1,5 +1,7 @@
 #include "models/point.hpp"
 
+#include "shaderPrograms.hpp"
+
 #include <array>
 #include <iterator>
 #include <string>
@@ -129,10 +131,10 @@ int Point::m_virtualCount = 0;
 
 void Point::updateShaders() const
 {
-	m_shaderProgram.use();
-	m_shaderProgram.setUniform("posWorld", getPos());
-	m_shaderProgram.setUniform("isDark", isVirtual());
-	m_shaderProgram.setUniform("isSelected", isSelected());
+	ShaderPrograms::point->use();
+	ShaderPrograms::point->setUniform("posWorld", getPos());
+	ShaderPrograms::point->setUniform("isDark", isVirtual());
+	ShaderPrograms::point->setUniform("isSelected", isSelected());
 }
 
 void Point::notifyMove()

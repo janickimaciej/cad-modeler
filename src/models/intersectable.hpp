@@ -20,9 +20,6 @@
 
 class Intersectable : public Model
 {
-	static constexpr int smallTextureSize = 256;
-	static constexpr int bigTextureSize = 1024;
-
 	template <int size>
 	using TextureData = std::array<std::array<std::array<unsigned char, 3>, size>, size>;
 
@@ -38,6 +35,7 @@ public:
 
 	Intersectable(const glm::vec3& pos, const std::string& name,
 		const ChangeCallback& changeCallback);
+	virtual ~Intersectable() = default;
 
 	virtual glm::vec3 surface(float u, float v) const = 0;
 	virtual glm::vec3 surfaceDU(float u, float v) const = 0;
@@ -63,6 +61,9 @@ protected:
 	void useTrim(const ShaderProgram& surfaceShaderProgram) const;
 
 private:
+	static constexpr int m_smallTextureSize = 256;
+	static constexpr int m_bigTextureSize = 1024;
+
 	std::vector<IntersectionCurve*> m_intersectionCurves{};
 	std::vector<std::shared_ptr<IntersectionCurve::DestroyCallback>>
 		m_intersectionCurveDestroyNotifications{};
@@ -70,7 +71,6 @@ private:
 	std::vector<Texture> m_intersectionCurveSmallTextures{};
 	std::vector<Texture> m_intersectionCurveBigTextures{};
 	std::optional<int> m_trimmingCurve = std::nullopt;
-	const ShaderProgram& m_flatShaderProgram = *ShaderPrograms::flat;
 
 	ChangeCallback m_changeCallback;
 
@@ -103,7 +103,7 @@ Texture Intersectable::createIntersectionCurveTexture(const IntersectionCurve* c
 
 	glClearColor(0, 0.5f, 0, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	m_flatShaderProgram.use();
+	ShaderPrograms::flat->use();
 	mesh->render();
 	framebuffer.getTextureData((*textureData)[0][0].data());
 

@@ -1,14 +1,12 @@
 #pragma once
 
-#include "guis/modelGUIs/bezierSurfaceGUI.hpp"
+#include "gui/modelGUIs/bezierSurfaceGUI.hpp"
 #include "meshes/indicesMesh.hpp"
 #include "models/bezierSurfaces/bezierPatch.hpp"
 #include "models/bezierSurfaces/bezierSurfaceWrapping.hpp"
 #include "models/intersectable.hpp"
 #include "models/model.hpp"
 #include "models/point.hpp"
-#include "shaderProgram.hpp"
-#include "shaderPrograms.hpp"
 
 #include <glm/glm.hpp>
 
@@ -89,8 +87,6 @@ protected:
 	static std::vector<glm::vec3> createVertices(const std::vector<std::vector<PointPtr>>& points);
 
 private:
-	const ShaderProgram& m_gridShaderProgram = *ShaderPrograms::polyline;
-
 	BezierSurfaceGUI m_gui{*this};
 
 	bool m_renderGrid = false;

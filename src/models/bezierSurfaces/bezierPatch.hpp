@@ -1,11 +1,10 @@
 #pragma once
 
-#include "guis/modelGUIs/bezierPatchGUI.hpp"
+#include "gui/modelGUIs/bezierPatchGUI.hpp"
 #include "meshes/mesh.hpp"
 #include "models/model.hpp"
 #include "models/point.hpp"
 #include "shaderProgram.hpp"
-#include "shaderPrograms.hpp"
 
 #include <glm/glm.hpp>
 
@@ -28,6 +27,7 @@ public:
 		bool isOnNegativeUEdge, bool isOnPositiveUEdge, bool isOnNegativeVEdge,
 		bool isOnPositiveVEdge);
 	virtual ~BezierPatch();
+
 	virtual void render() const override;
 	virtual void updateGUI() override;
 
@@ -51,7 +51,6 @@ public:
 private:
 	static int m_count;
 
-	const ShaderProgram& m_shaderProgram = *ShaderPrograms::bezierSurface;
 	std::unique_ptr<Mesh> m_mesh{};
 	BezierPatchGUI m_gui{*this};
 

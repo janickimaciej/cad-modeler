@@ -13,8 +13,6 @@
 
 class Scene;
 
-static inline constexpr glm::ivec2 heightmapSize{3000, 3000};
-
 class ToolpathGenerator
 {
 public:
@@ -23,15 +21,17 @@ public:
 	void generatePaths();
 
 private:
-	using TextureData = std::array<std::array<std::array<float, 3>, heightmapSize.x>,
-		heightmapSize.y>;
-	using HeightmapData = std::array<std::array<float, heightmapSize.x>, heightmapSize.y>;
+	static constexpr glm::ivec2 m_heightmapSize{3000, 3000};
+
+	using TextureData = std::array<std::array<std::array<float, 3>, m_heightmapSize.x>,
+		m_heightmapSize.y>;
+	using HeightmapData = std::array<std::array<float, m_heightmapSize.x>, m_heightmapSize.y>;
 
 	const Scene& m_scene;
 
-	Framebuffer<float> m_heightmap{GL_FLOAT, GL_RGB32F, heightmapSize};
-	Framebuffer<float> m_offsetHeightmap{GL_FLOAT, GL_RGB32F, heightmapSize};
-	Framebuffer<float> m_edge{GL_FLOAT, GL_RGB32F, heightmapSize};
+	Framebuffer<float> m_heightmap{GL_FLOAT, GL_RGB32F, m_heightmapSize};
+	Framebuffer<float> m_offsetHeightmap{GL_FLOAT, GL_RGB32F, m_heightmapSize};
+	Framebuffer<float> m_edge{GL_FLOAT, GL_RGB32F, m_heightmapSize};
 	OrthographicCamera m_heightmapCamera;
 	Quad m_quad{};
 
@@ -50,5 +50,5 @@ private:
 	static float getHeightmapHeight(float defaultHeight, const HeightmapData& heightmapData,
 		float x, float z);
 	static float getCurvatureRadius(const glm::vec3& p1, const glm::vec3& p2, const glm::vec3& p3);
-	void savePath(const std::vector<glm::vec3>& path, float yOffset, const std::string& filename);
+	void save(const std::vector<glm::vec3>& path, float yOffset, const std::string& filename);
 };

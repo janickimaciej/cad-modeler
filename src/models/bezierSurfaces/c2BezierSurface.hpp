@@ -4,7 +4,6 @@
 #include "models/bezierSurfaces/bezierSurfaceWrapping.hpp"
 #include "models/intersectable.hpp"
 #include "models/point.hpp"
-#include "shaderProgram.hpp"
 
 #include <glm/glm.hpp>
 

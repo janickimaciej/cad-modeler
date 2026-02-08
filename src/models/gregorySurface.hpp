@@ -1,12 +1,10 @@
 #pragma once
 
-#include "guis/modelGUIs/gregorySurfaceGUI.hpp"
+#include "gui/modelGUIs/gregorySurfaceGUI.hpp"
 #include "meshes/mesh.hpp"
 #include "models/bezierSurfaces/bezierPatch.hpp"
 #include "models/model.hpp"
 #include "models/point.hpp"
-#include "shaderProgram.hpp"
-#include "shaderPrograms.hpp"
 
 #include <glm/glm.hpp>
 
@@ -38,9 +36,6 @@ public:
 
 private:
 	static int m_count;
-
-	const ShaderProgram& m_surfaceShaderProgram = *ShaderPrograms::gregorySurface;
-	const ShaderProgram& m_vectorsShaderProgram = *ShaderPrograms::vectors;
 
 	std::unique_ptr<Mesh> m_surfaceMesh{};
 	std::unique_ptr<Mesh> m_vectorsMesh{};

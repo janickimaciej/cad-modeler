@@ -17,18 +17,18 @@ void main()
 
 	if (gl_InvocationID == 0)
 	{
-		vec2 tessPosScreen[controlVerticesCount];
+		vec2 tessPosViewport[controlVerticesCount];
 		for (int i = 0; i < controlVerticesCount; ++i)
 		{
 			vec4 clipPos = projectionViewMatrix * vec4(inTessPos[i], 1);
 			clipPos /= clipPos.w;
-			tessPosScreen[i] = (clipPos.xy + 1) / 2 * viewportSize;
+			tessPosViewport[i] = (clipPos.xy + 1) / 2 * viewportSize;
 		}
-		int polylineLengthScreen = int(length(tessPosScreen[1] - tessPosScreen[0]) +
-			length(tessPosScreen[2] - tessPosScreen[1]) +
-			length(tessPosScreen[3] - tessPosScreen[2]));
+		int polylineLengthViewport = int(length(tessPosViewport[1] - tessPosViewport[0]) +
+			length(tessPosViewport[2] - tessPosViewport[1]) +
+			length(tessPosViewport[3] - tessPosViewport[2]));
 		int approximationLevel = 1;
-		int division = max(polylineLengthScreen / approximationLevel, 1);
+		int division = max(polylineLengthViewport / approximationLevel, 1);
 
 		divisionY[gl_InvocationID] = min(division / 64 + 1, 64);
 		gl_TessLevelOuter[0] = divisionY[0];

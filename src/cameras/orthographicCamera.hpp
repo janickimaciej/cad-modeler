@@ -1,14 +1,15 @@
 #pragma once
 
-#include "guis/cameraGUIs/orthographicCameraGUI.hpp"
+#include "gui/cameraGUIs/orthographicCameraGUI.hpp"
 #include "cameras/camera.hpp"
 
 class OrthographicCamera : public Camera
 {
 public:
-	OrthographicCamera(const glm::ivec2& viewportSize, float viewHeight, float nearPlane,
-		float farPlane);
+	OrthographicCamera(const glm::ivec2& viewportSize, float nearPlane, float farPlane,
+		float viewHeight);
 	virtual ~OrthographicCamera() = default;
+
 	virtual void updateGUI() override;
 	float getViewHeight() const;
 	void setViewHeight(float viewHeight);

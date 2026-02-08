@@ -14,6 +14,7 @@ public:
 	IndicesMesh(const std::vector<glm::vec3>& vertices, const std::vector<unsigned int>& indices,
 		GLenum drawType, GLint patchVertices = 0);
 	virtual ~IndicesMesh();
+
 	using Mesh::update;
 	void update(const std::vector<unsigned int>& indices);
 	virtual void render() const override;

@@ -1,8 +1,8 @@
 #pragma once
 
-#include "guis/gui.hpp"
-#include "guis/leftPanel.hpp"
-#include "guis/rightPanel.hpp"
+#include "gui/gui.hpp"
+#include "gui/leftPanel.hpp"
+#include "gui/rightPanel.hpp"
 #include "scene.hpp"
 
 #include <glad/glad.h>

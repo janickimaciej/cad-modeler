@@ -1,5 +1,8 @@
 #include "models/bezierSurfaces/bezierSurface.hpp"
 
+#include "shaderProgram.hpp"
+#include "shaderPrograms.hpp"
+
 #include <glm/gtc/constants.hpp>
 
 #include <string>
@@ -43,7 +46,7 @@ void BezierSurface::render() const
 	updateShaders();
 	if (getRenderGrid())
 	{
-		m_gridShaderProgram.use();
+		ShaderPrograms::polyline->use();
 		m_gridMesh->render();
 	}
 }
@@ -307,10 +310,10 @@ void BezierSurface::updateShaders() const
 {
 	if (m_renderGrid)
 	{
-		m_gridShaderProgram.use();
-		m_gridShaderProgram.setUniform("modelMatrix", getModelMatrix());
-		m_gridShaderProgram.setUniform("isDark", true);
-		m_gridShaderProgram.setUniform("isSelected", isSelected());
+		ShaderPrograms::polyline->use();
+		ShaderPrograms::polyline->setUniform("modelMatrix", getModelMatrix());
+		ShaderPrograms::polyline->setUniform("isDark", true);
+		ShaderPrograms::polyline->setUniform("isSelected", isSelected());
 	}
 }
 

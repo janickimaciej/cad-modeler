@@ -39,6 +39,27 @@ void Camera::updateViewportSize()
 	updateProjectionMatrix();
 }
 
+void Camera::setTargetPos(const glm::vec3& pos)
+{
+	m_targetPos = pos;
+
+	updateViewMatrix();
+}
+
+void Camera::moveX(float x)
+{
+	m_targetPos += m_radius * glm::mat3{m_viewMatrixInverse} * glm::vec3{x, 0, 0};
+
+	updateViewMatrix();
+}
+
+void Camera::moveY(float y)
+{
+	m_targetPos += m_radius * glm::mat3{m_viewMatrixInverse} * glm::vec3{0, y, 0};
+
+	updateViewMatrix();
+}
+
 void Camera::addPitch(float pitchRad)
 {
 	m_pitchRad += pitchRad;
@@ -73,27 +94,6 @@ void Camera::addYaw(float yawRad)
 	updateViewMatrix();
 }
 
-void Camera::setTargetPos(const glm::vec3& pos)
-{
-	m_targetPos = pos;
-
-	updateViewMatrix();
-}
-
-void Camera::moveX(float x)
-{
-	m_targetPos += m_radius * glm::mat3{m_viewMatrixInverse} * glm::vec3{x, 0, 0};
-
-	updateViewMatrix();
-}
-
-void Camera::moveY(float y)
-{
-	m_targetPos += m_radius * glm::mat3{m_viewMatrixInverse} * glm::vec3{0, y, 0};
-
-	updateViewMatrix();
-}
-
 glm::vec2 Camera::posToViewportPos(const glm::vec3& pos) const
 {
 	glm::vec4 clipPos = getMatrix() * glm::vec4{pos, 1};
@@ -105,15 +105,15 @@ glm::vec2 Camera::posToViewportPos(const glm::vec3& pos) const
 	};
 }
 
-glm::vec3 Camera::viewportPosToPos(const glm::vec3& prevPos, const glm::vec2& screenPos) const
+glm::vec3 Camera::viewportPosToPos(const glm::vec3& prevPos, const glm::vec2& viewportPos) const
 {
 	glm::mat4 cameraMatrix = getMatrix();
 	glm::vec4 prevClipPos = cameraMatrix * glm::vec4{prevPos, 1};
 	prevClipPos /= prevClipPos.w;
 	glm::vec4 clipPos
 	{
-		screenPos.x / m_viewportSize.x * 2 - 1,
-		-screenPos.y / m_viewportSize.y * 2 + 1,
+		viewportPos.x / m_viewportSize.x * 2 - 1,
+		-viewportPos.y / m_viewportSize.y * 2 + 1,
 		prevClipPos.z,
 		1
 	};
@@ -200,7 +200,7 @@ void Camera::updateViewMatrix()
 
 void Camera::updateShaders() const
 {
-	glm::mat4 projectionViewMatrix = m_projectionMatrix * glm::inverse(m_viewMatrixInverse);
+	glm::mat4 projectionViewMatrix = getMatrix();
 	updateShaders(projectionViewMatrix, AnaglyphMode::none);
 }
 
@@ -216,6 +216,22 @@ void Camera::updateShadersRightEye() const
 	glm::mat4 projectionViewMatrix =
 		m_rightEyeProjectionMatrix * glm::inverse(m_rightEyeViewMatrixInverse);
 	updateShaders(projectionViewMatrix, AnaglyphMode::rightEye);
+}
+
+float Camera::getAspectRatio() const
+{
+	return static_cast<float>(m_viewportSize.x) / m_viewportSize.y;
+}
+
+glm::vec3 Camera::getPos() const
+{
+	return m_targetPos + m_radius *
+		glm::vec3
+		{
+			-std::cos(m_pitchRad) * std::sin(m_yawRad),
+			-std::sin(m_pitchRad),
+			std::cos(m_pitchRad) * std::cos(m_yawRad)
+		};
 }
 
 void Camera::updateShaders(const glm::mat4& projectionViewMatrix, AnaglyphMode anaglyphMode) const
@@ -267,18 +283,7 @@ void Camera::updateShaders(const glm::mat4& projectionViewMatrix, AnaglyphMode a
 	ShaderPrograms::vectors->setUniform("projectionViewMatrix", projectionViewMatrix);
 	ShaderPrograms::vectors->setUniform("anaglyphMode", static_cast<int>(anaglyphMode));
 
-	ShaderPrograms::bezierSurfaceTriangles->use();
-	ShaderPrograms::bezierSurfaceTriangles->setUniform("projectionViewMatrix",
+	ShaderPrograms::bezierSurfaceHeight->use();
+	ShaderPrograms::bezierSurfaceHeight->setUniform("projectionViewMatrix",
 		projectionViewMatrix);
-}
-
-glm::vec3 Camera::getPos() const
-{
-	return m_targetPos + m_radius *
-		glm::vec3
-		{
-			-std::cos(m_pitchRad) * std::sin(m_yawRad),
-			-std::sin(m_pitchRad),
-			std::cos(m_pitchRad) * std::cos(m_yawRad)
-		};
 }

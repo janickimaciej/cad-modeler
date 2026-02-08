@@ -33,21 +33,21 @@
     <ClCompile Include="src\cameras\camera.cpp" />
     <ClCompile Include="src\cameras\orthographicCamera.cpp" />
     <ClCompile Include="src\cameras\perspectiveCamera.cpp" />
-    <ClCompile Include="src\guis\addBezierSurfacePanel.cpp" />
-    <ClCompile Include="src\guis\addGregorySurfacePanel.cpp" />
-    <ClCompile Include="src\guis\addIntersectionPanel.cpp" />
-    <ClCompile Include="src\guis\cameraGUIs\orthographicCameraGUI.cpp" />
-    <ClCompile Include="src\guis\cameraGUIs\perspectiveCameraGUI.cpp" />
+    <ClCompile Include="src\gui\addBezierSurfacePanel.cpp" />
+    <ClCompile Include="src\gui\addGregorySurfacePanel.cpp" />
+    <ClCompile Include="src\gui\addIntersectionPanel.cpp" />
+    <ClCompile Include="src\gui\cameraGUIs\orthographicCameraGUI.cpp" />
+    <ClCompile Include="src\gui\cameraGUIs\perspectiveCameraGUI.cpp" />
     <ClCompile Include="src\cursor.cpp" />
-    <ClCompile Include="src\guis\convertIntersectionToInterpolatingCurvePanel.cpp" />
-    <ClCompile Include="src\guis\modelGUIs\bezierPatchGUI.cpp" />
-    <ClCompile Include="src\guis\modelGUIs\gregorySurfaceGUI.cpp" />
-    <ClCompile Include="src\guis\modelGUIs\intersectableGUI.cpp" />
-    <ClCompile Include="src\guis\modelGUIs\intersectionCurveGUI.cpp" />
-    <ClCompile Include="src\guis\modelListPanel.cpp" />
-    <ClCompile Include="src\guis\rightPanel.cpp" />
-    <ClCompile Include="src\guis\valueWindows\deserializingWindow.cpp" />
-    <ClCompile Include="src\guis\valueWindows\serializingWindow.cpp" />
+    <ClCompile Include="src\gui\convertIntersectionToInterpolatingCurvePanel.cpp" />
+    <ClCompile Include="src\gui\modelGUIs\bezierPatchGUI.cpp" />
+    <ClCompile Include="src\gui\modelGUIs\gregorySurfaceGUI.cpp" />
+    <ClCompile Include="src\gui\modelGUIs\intersectableGUI.cpp" />
+    <ClCompile Include="src\gui\modelGUIs\intersectionCurveGUI.cpp" />
+    <ClCompile Include="src\gui\modelListPanel.cpp" />
+    <ClCompile Include="src\gui\rightPanel.cpp" />
+    <ClCompile Include="src\gui\valueWindows\deserializingWindow.cpp" />
+    <ClCompile Include="src\gui\valueWindows\serializingWindow.cpp" />
     <ClCompile Include="src\meshes\flatMesh.cpp" />
     <ClCompile Include="src\models\intersectable.cpp" />
     <ClCompile Include="src\meshes\mesh.cpp" />
@@ -57,17 +57,17 @@
     <ClCompile Include="src\models\intersectionCurve.cpp" />
     <ClCompile Include="src\quad.cpp" />
     <ClCompile Include="src\plane\plane.cpp" />
-    <ClCompile Include="src\guis\centerPointGUI.cpp" />
-    <ClCompile Include="src\guis\cursorGUI.cpp" />
-    <ClCompile Include="src\guis\gui.cpp" />
-    <ClCompile Include="src\guis\leftPanel.cpp" />
-    <ClCompile Include="src\guis\modelGUIs\bezierCurveGUI.cpp" />
-    <ClCompile Include="src\guis\modelGUIs\bezierSurfaceGUI.cpp" />
-    <ClCompile Include="src\guis\modelGUIs\modelGUI.cpp" />
-    <ClCompile Include="src\guis\valueWindows\renamingWindow.cpp" />
-    <ClCompile Include="src\guis\valueWindows\rotatingWindow.cpp" />
-    <ClCompile Include="src\guis\valueWindows\scalingWindow.cpp" />
-    <ClCompile Include="src\guis\valueWindows\valueWindow.cpp" />
+    <ClCompile Include="src\gui\centerPointGUI.cpp" />
+    <ClCompile Include="src\gui\cursorGUI.cpp" />
+    <ClCompile Include="src\gui\gui.cpp" />
+    <ClCompile Include="src\gui\leftPanel.cpp" />
+    <ClCompile Include="src\gui\modelGUIs\bezierCurveGUI.cpp" />
+    <ClCompile Include="src\gui\modelGUIs\bezierSurfaceGUI.cpp" />
+    <ClCompile Include="src\gui\modelGUIs\modelGUI.cpp" />
+    <ClCompile Include="src\gui\valueWindows\renamingWindow.cpp" />
+    <ClCompile Include="src\gui\valueWindows\rotatingWindow.cpp" />
+    <ClCompile Include="src\gui\valueWindows\scalingWindow.cpp" />
+    <ClCompile Include="src\gui\valueWindows\valueWindow.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\meshes\interpolatingBezierCurveMesh.cpp" />
     <ClCompile Include="src\meshes\pointMesh.cpp" />
@@ -81,8 +81,8 @@
     <ClCompile Include="src\models\bezierSurfaces\c2BezierSurface.cpp" />
     <ClCompile Include="src\models\model.cpp" />
     <ClCompile Include="src\models\torus.cpp" />
-    <ClCompile Include="src\guis\modelGUIs\pointGUI.cpp" />
-    <ClCompile Include="src\guis\modelGUIs\torusGUI.cpp" />
+    <ClCompile Include="src\gui\modelGUIs\pointGUI.cpp" />
+    <ClCompile Include="src\gui\modelGUIs\torusGUI.cpp" />
     <ClCompile Include="src\models\point.cpp" />
     <ClCompile Include="src\scene.cpp" />
     <ClCompile Include="src\serializer\models\bezierCurves\c0BezierCurveSerializer.cpp" />
@@ -116,27 +116,27 @@
     <ClInclude Include="src\cameras\orthographicCamera.hpp" />
     <ClInclude Include="src\cameras\perspectiveCamera.hpp" />
     <ClInclude Include="src\framebuffer.hpp" />
-    <ClInclude Include="src\guis\addBezierSurfacePanel.hpp" />
-    <ClInclude Include="src\guis\addGregorySurfacePanel.hpp" />
-    <ClInclude Include="src\guis\addIntersectionPanel.hpp" />
-    <ClInclude Include="src\guis\convertIntersectionToInterpolatingCurvePanel.hpp" />
-    <ClInclude Include="src\guis\guiMode.hpp" />
-    <ClInclude Include="src\guis\leftPanel.hpp" />
-    <ClInclude Include="src\guis\centerPointGUI.hpp" />
-    <ClInclude Include="src\guis\cameraGUIs\cameraGUI.hpp" />
-    <ClInclude Include="src\guis\cameraGUIs\orthographicCameraGUI.hpp" />
-    <ClInclude Include="src\guis\cameraGUIs\perspectiveCameraGUI.hpp" />
+    <ClInclude Include="src\gui\addBezierSurfacePanel.hpp" />
+    <ClInclude Include="src\gui\addGregorySurfacePanel.hpp" />
+    <ClInclude Include="src\gui\addIntersectionPanel.hpp" />
+    <ClInclude Include="src\gui\convertIntersectionToInterpolatingCurvePanel.hpp" />
+    <ClInclude Include="src\gui\guiMode.hpp" />
+    <ClInclude Include="src\gui\leftPanel.hpp" />
+    <ClInclude Include="src\gui\centerPointGUI.hpp" />
+    <ClInclude Include="src\gui\cameraGUIs\cameraGUI.hpp" />
+    <ClInclude Include="src\gui\cameraGUIs\orthographicCameraGUI.hpp" />
+    <ClInclude Include="src\gui\cameraGUIs\perspectiveCameraGUI.hpp" />
     <ClInclude Include="src\cameras\cameraType.hpp" />
     <ClInclude Include="src\cursor.hpp" />
-    <ClInclude Include="src\guis\cursorGUI.hpp" />
-    <ClInclude Include="src\guis\modelGUIs\bezierPatchGUI.hpp" />
-    <ClInclude Include="src\guis\modelGUIs\gregorySurfaceGUI.hpp" />
-    <ClInclude Include="src\guis\modelGUIs\intersectableGUI.hpp" />
-    <ClInclude Include="src\guis\modelGUIs\intersectionCurveGUI.hpp" />
-    <ClInclude Include="src\guis\modelListPanel.hpp" />
-    <ClInclude Include="src\guis\rightPanel.hpp" />
-    <ClInclude Include="src\guis\valueWindows\deserializingWindow.hpp" />
-    <ClInclude Include="src\guis\valueWindows\serializingWindow.hpp" />
+    <ClInclude Include="src\gui\cursorGUI.hpp" />
+    <ClInclude Include="src\gui\modelGUIs\bezierPatchGUI.hpp" />
+    <ClInclude Include="src\gui\modelGUIs\gregorySurfaceGUI.hpp" />
+    <ClInclude Include="src\gui\modelGUIs\intersectableGUI.hpp" />
+    <ClInclude Include="src\gui\modelGUIs\intersectionCurveGUI.hpp" />
+    <ClInclude Include="src\gui\modelListPanel.hpp" />
+    <ClInclude Include="src\gui\rightPanel.hpp" />
+    <ClInclude Include="src\gui\valueWindows\deserializingWindow.hpp" />
+    <ClInclude Include="src\gui\valueWindows\serializingWindow.hpp" />
     <ClInclude Include="src\meshes\flatMesh.hpp" />
     <ClInclude Include="src\models\intersectable.hpp" />
     <ClInclude Include="src\meshes\mesh.hpp" />
@@ -147,13 +147,13 @@
     <ClInclude Include="src\models\modelType.hpp" />
     <ClInclude Include="src\quad.hpp" />
     <ClInclude Include="src\plane\plane.hpp" />
-    <ClInclude Include="src\guis\gui.hpp" />
-    <ClInclude Include="src\guis\modelGUIs\bezierCurveGUI.hpp" />
-    <ClInclude Include="src\guis\modelGUIs\bezierSurfaceGUI.hpp" />
-    <ClInclude Include="src\guis\valueWindows\renamingWindow.hpp" />
-    <ClInclude Include="src\guis\valueWindows\rotatingWindow.hpp" />
-    <ClInclude Include="src\guis\valueWindows\scalingWindow.hpp" />
-    <ClInclude Include="src\guis\valueWindows\valueWindow.hpp" />
+    <ClInclude Include="src\gui\gui.hpp" />
+    <ClInclude Include="src\gui\modelGUIs\bezierCurveGUI.hpp" />
+    <ClInclude Include="src\gui\modelGUIs\bezierSurfaceGUI.hpp" />
+    <ClInclude Include="src\gui\valueWindows\renamingWindow.hpp" />
+    <ClInclude Include="src\gui\valueWindows\rotatingWindow.hpp" />
+    <ClInclude Include="src\gui\valueWindows\scalingWindow.hpp" />
+    <ClInclude Include="src\gui\valueWindows\valueWindow.hpp" />
     <ClInclude Include="src\meshes\interpolatingBezierCurveMesh.hpp" />
     <ClInclude Include="src\meshes\pointMesh.hpp" />
     <ClInclude Include="src\models\bezierCurves\bezierCurve.hpp" />
@@ -168,9 +168,9 @@
     <ClInclude Include="src\models\bezierSurfaces\bezierSurfaceWrapping.hpp" />
     <ClInclude Include="src\models\model.hpp" />
     <ClInclude Include="src\models\torus.hpp" />
-    <ClInclude Include="src\guis\modelGUIs\modelGUI.hpp" />
-    <ClInclude Include="src\guis\modelGUIs\pointGUI.hpp" />
-    <ClInclude Include="src\guis\modelGUIs\torusGUI.hpp" />
+    <ClInclude Include="src\gui\modelGUIs\modelGUI.hpp" />
+    <ClInclude Include="src\gui\modelGUIs\pointGUI.hpp" />
+    <ClInclude Include="src\gui\modelGUIs\torusGUI.hpp" />
     <ClInclude Include="src\models\point.hpp" />
     <ClInclude Include="src\scene.hpp" />
     <ClInclude Include="src\serializer\models\bezierCurves\c0BezierCurveSerializer.hpp" />
@@ -193,9 +193,9 @@
     <None Include="src\shaders\edgeVS.glsl" />
     <None Include="src\shaders\heightmapFS.glsl" />
     <None Include="src\shaders\heightmapVS.glsl" />
-    <None Include="src\shaders\bezierSurfaceTrianglesFS.glsl" />
-    <None Include="src\shaders\bezierSurfaceTrianglesTCS.glsl" />
-    <None Include="src\shaders\bezierSurfaceTrianglesTES.glsl" />
+    <None Include="src\shaders\bezierSurfaceHeightFS.glsl" />
+    <None Include="src\shaders\bezierSurfaceHeightTCS.glsl" />
+    <None Include="src\shaders\bezierSurfaceHeightTES.glsl" />
     <None Include="src\shaders\torusVS.glsl" />
     <None Include="src\shaders\intersectableFS.glsl" />
     <None Include="src\shaders\vectorsFS.glsl" />
@@ -338,7 +338,7 @@
       <AdditionalDependencies>glfw3.lib;opengl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
-      <Command>xcopy $(SolutionDir)src\ $(TargetDir)src\ /E/Y</Command>
+      <Command>xcopy "$(SolutionDir)src\" "$(TargetDir)src\" /E/Y</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -364,7 +364,7 @@
       <AdditionalDependencies>glfw3.lib;opengl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
-      <Command>xcopy $(SolutionDir)src\ $(TargetDir)src\ /E/Y</Command>
+      <Command>xcopy "$(SolutionDir)src\" "$(TargetDir)src\" /E/Y</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

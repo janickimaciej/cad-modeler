@@ -1,10 +1,8 @@
 #pragma once
 
-#include "guis/modelGUIs/torusGUI.hpp"
+#include "gui/modelGUIs/torusGUI.hpp"
 #include "meshes/torusMesh.hpp"
 #include "models/intersectable.hpp"
-#include "shaderProgram.hpp"
-#include "shaderPrograms.hpp"
 
 #include <glm/glm.hpp>
 
@@ -18,6 +16,7 @@ class Torus : public Intersectable
 public:
 	Torus(const Intersectable::ChangeCallback& changeCallback, const glm::vec3& pos);
 	virtual ~Torus() = default;
+
 	virtual void render() const override;
 	virtual void updateGUI() override;
 
@@ -47,7 +46,6 @@ public:
 private:
 	static int m_count;
 
-	const ShaderProgram& m_shaderProgram = *ShaderPrograms::torus;
 	std::unique_ptr<TorusMesh> m_mesh{};
 	TorusGUI m_gui{*this};
 

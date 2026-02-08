@@ -1,5 +1,7 @@
 #include "models/torus.hpp"
 
+#include "shaderPrograms.hpp"
+
 #include <glm/gtc/constants.hpp>
 
 #include <cmath>
@@ -21,7 +23,7 @@ Torus::Torus(const Intersectable::ChangeCallback& changeCallback, const glm::vec
 
 void Torus::render() const
 {
-	useTrim(m_shaderProgram);
+	useTrim(*ShaderPrograms::torus);
 	updateShaders();
 	m_mesh->render();
 }
@@ -177,12 +179,12 @@ void Torus::createMesh()
 
 void Torus::updateShaders() const
 {
-	m_shaderProgram.use();
-	m_shaderProgram.setUniform("modelMatrix", getModelMatrix());
-	m_shaderProgram.setUniform("isDark", false);
-	m_shaderProgram.setUniform("isSelected", isSelected());
-	m_shaderProgram.setUniform("textureMin", glm::vec2{0, 0});
-	m_shaderProgram.setUniform("textureMax", glm::vec2{1, 1});
+	ShaderPrograms::torus->use();
+	ShaderPrograms::torus->setUniform("modelMatrix", getModelMatrix());
+	ShaderPrograms::torus->setUniform("isDark", false);
+	ShaderPrograms::torus->setUniform("isSelected", isSelected());
+	ShaderPrograms::torus->setUniform("textureMin", glm::vec2{0, 0});
+	ShaderPrograms::torus->setUniform("textureMax", glm::vec2{1, 1});
 }
 
 void Torus::updateMesh()

@@ -1,11 +1,10 @@
 #pragma once
 
-#include "guis/modelGUIs/bezierCurveGUI.hpp"
+#include "gui/modelGUIs/bezierCurveGUI.hpp"
 #include "meshes/mesh.hpp"
 #include "models/model.hpp"
 #include "models/point.hpp"
 #include "shaderProgram.hpp"
-#include "shaderPrograms.hpp"
 
 #include <glm/glm.hpp>
 
@@ -22,6 +21,7 @@ public:
 	BezierCurve(const std::string& name, const std::vector<Point*>& points,
 		const ShaderProgram& curveShaderProgram, const SelfDestructCallback& selfDestructCallback);
 	virtual ~BezierCurve() = default;
+
 	virtual void render() const override;
 
 	virtual void updateGUI() override;
@@ -64,7 +64,6 @@ protected:
 
 private:
 	const ShaderProgram& m_curveShaderProgram;
-	const ShaderProgram& m_polylineShaderProgram = *ShaderPrograms::polyline;
 
 	BezierCurveGUI m_gui{*this};
 

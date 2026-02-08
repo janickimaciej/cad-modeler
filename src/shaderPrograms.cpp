@@ -18,7 +18,7 @@ namespace ShaderPrograms
 	std::unique_ptr<const ShaderProgram> quad{};
 	std::unique_ptr<const ShaderProgram> vectors{};
 	std::unique_ptr<const ShaderProgram> flat{};
-	std::unique_ptr<const ShaderProgram> bezierSurfaceTriangles{};
+	std::unique_ptr<const ShaderProgram> bezierSurfaceHeight{};
 	std::unique_ptr<const ShaderProgram> heightmap{};
 	std::unique_ptr<const ShaderProgram> edge{};
 
@@ -42,9 +42,9 @@ namespace ShaderPrograms
 		quad = std::make_unique<const ShaderProgram>(path("quadVS"), path("quadFS"));
 		vectors = std::make_unique<const ShaderProgram>(path("VS"), path("vectorsFS"));
 		flat = std::make_unique<const ShaderProgram>(path("flatVS"), path("FS"));
-		bezierSurfaceTriangles = std::make_unique<const ShaderProgram>(path("surfaceVS"),
-			path("bezierSurfaceTrianglesTCS"), path("bezierSurfaceTrianglesTES"),
-			path("bezierSurfaceTrianglesFS"));
+		bezierSurfaceHeight = std::make_unique<const ShaderProgram>(path("surfaceVS"),
+			path("bezierSurfaceHeightTCS"), path("bezierSurfaceHeightTES"),
+			path("bezierSurfaceHeightFS"));
 		heightmap = std::make_unique<const ShaderProgram>(path("heightmapVS"), path("heightmapFS"));
 		edge = std::make_unique<const ShaderProgram>(path("edgeVS"), path("edgeFS"));
 	}

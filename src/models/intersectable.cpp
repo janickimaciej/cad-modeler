@@ -27,9 +27,9 @@ void Intersectable::addIntersectionCurve(IntersectionCurve* curve, int surfaceIn
 	registerForNotification(curve);
 	m_intersectionCurveTrims.push_back(Trim::none);
 	m_intersectionCurveSmallTextures.push_back(
-		createIntersectionCurveTexture<smallTextureSize>(curve, surfaceIndex));
+		createIntersectionCurveTexture<m_smallTextureSize>(curve, surfaceIndex));
 	m_intersectionCurveBigTextures.push_back(
-		createIntersectionCurveTexture<bigTextureSize>(curve, surfaceIndex));
+		createIntersectionCurveTexture<m_bigTextureSize>(curve, surfaceIndex));
 }
 
 int Intersectable::intersectionCurveCount() const

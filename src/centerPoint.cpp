@@ -1,5 +1,7 @@
 #include "centerPoint.hpp"
 
+#include "shaderPrograms.hpp"
+
 #include <glm/gtc/constants.hpp>
 
 #include <cmath>
@@ -151,8 +153,8 @@ void CenterPoint::rotate(const glm::mat3& rotationMatrix)
 
 void CenterPoint::updateShaders() const
 {
-	m_shaderProgram.use();
-	m_shaderProgram.setUniform("posWorld", getPos());
+	ShaderPrograms::cursor->use();
+	ShaderPrograms::cursor->setUniform("posWorld", getPos());
 }
 
 glm::vec3 CenterPoint::matrixToEuler(const glm::mat3& rotationMatrix)

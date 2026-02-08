@@ -1,6 +1,7 @@
 #include "models/intersectionCurve.hpp"
 
 #include "intersectable.hpp"
+#include "shaderPrograms.hpp"
 
 #include <glad/glad.h>
 
@@ -145,9 +146,9 @@ void IntersectionCurve::createMesh()
 
 void IntersectionCurve::updateShaders() const
 {
-	m_shaderProgram.use();
-	m_shaderProgram.setUniform("isDark", false);
-	m_shaderProgram.setUniform("isSelected", isSelected());
+	ShaderPrograms::polyline->use();
+	ShaderPrograms::polyline->setUniform("isDark", false);
+	ShaderPrograms::polyline->setUniform("isSelected", isSelected());
 }
 
 void IntersectionCurve::updatePos()

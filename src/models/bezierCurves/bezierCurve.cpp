@@ -1,5 +1,7 @@
 #include "models/bezierCurves/bezierCurve.hpp"
 
+#include "shaderPrograms.hpp"
+
 #include <glad/glad.h>
 
 #include <cstddef>
@@ -76,7 +78,7 @@ void BezierCurve::useCurveShaderProgram() const
 
 void BezierCurve::usePolylineShaderProgram() const
 {
-	m_polylineShaderProgram.use();
+	ShaderPrograms::polyline->use();
 }
 
 void BezierCurve::updateShaders() const
@@ -88,8 +90,8 @@ void BezierCurve::updateShaders() const
 	if (getRenderPolyline())
 	{
 		usePolylineShaderProgram();
-		m_polylineShaderProgram.setUniform("isDark", true);
-		m_polylineShaderProgram.setUniform("isSelected", isSelected());
+		ShaderPrograms::polyline->setUniform("isDark", true);
+		ShaderPrograms::polyline->setUniform("isSelected", isSelected());
 	}
 }
 

@@ -1,4 +1,4 @@
-#include "guis/gui.hpp"
+#include "gui/gui.hpp"
 #include "scene.hpp"
 #include "window.hpp"
 

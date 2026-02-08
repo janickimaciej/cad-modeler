@@ -1,5 +1,7 @@
 #include "plane/plane.hpp"
 
+#include "shaderPrograms.hpp"
+
 Plane::Plane(float scale) :
 	m_scale{scale}
 { }
@@ -12,7 +14,7 @@ void Plane::render(CameraType cameraType) const
 
 void Plane::updateShaders(CameraType cameraType) const
 {
-	m_shaderProgram.use();
-	m_shaderProgram.setUniform("scale", m_scale);
-	m_shaderProgram.setUniform("cameraType", static_cast<int>(cameraType));
+	ShaderPrograms::plane->use();
+	ShaderPrograms::plane->setUniform("scale", m_scale);
+	ShaderPrograms::plane->setUniform("cameraType", static_cast<int>(cameraType));
 }

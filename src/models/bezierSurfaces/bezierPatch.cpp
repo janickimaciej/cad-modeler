@@ -1,6 +1,7 @@
 #include "models/bezierSurfaces/bezierPatch.hpp"
 
 #include "models/bezierSurfaces/bezierSurface.hpp"
+#include "shaderPrograms.hpp"
 
 #include <glad/glad.h>
 
@@ -30,13 +31,13 @@ BezierPatch::~BezierPatch()
 
 void BezierPatch::render() const
 {
-	m_useTrim(m_shaderProgram);
+	m_useTrim(*ShaderPrograms::bezierSurface);
 	updateShaders();
 
-	m_shaderProgram.use();
-	m_shaderProgram.setUniform("orientationFlipped", false);
+	ShaderPrograms::bezierSurface->use();
+	ShaderPrograms::bezierSurface->setUniform("orientationFlipped", false);
 	m_mesh->render();
-	m_shaderProgram.setUniform("orientationFlipped", true);
+	ShaderPrograms::bezierSurface->setUniform("orientationFlipped", true);
 	m_mesh->render();
 }
 
@@ -251,10 +252,10 @@ std::vector<glm::vec3> BezierPatch::createVertices()
 
 void BezierPatch::updateShaders() const
 {
-	m_shaderProgram.use();
-	m_shaderProgram.setUniform("lineCount", m_surface.getLineCount());
-	m_shaderProgram.setUniform("isDark", false);
-	m_shaderProgram.setUniform("isSelected", isSelected() || m_surface.isSelected());
+	ShaderPrograms::bezierSurface->use();
+	ShaderPrograms::bezierSurface->setUniform("lineCount", m_surface.getLineCount());
+	ShaderPrograms::bezierSurface->setUniform("isDark", false);
+	ShaderPrograms::bezierSurface->setUniform("isSelected", isSelected() || m_surface.isSelected());
 }
 
 void BezierPatch::notifyDestroy()

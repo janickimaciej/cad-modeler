@@ -2,19 +2,21 @@
 
 #include "shaderPrograms.hpp"
 
+#include <glad/glad.h>
+
 #include <algorithm>
 #include <cstddef>
 #include <iterator>
 #include <utility>
 
-static constexpr float viewHeight = 10.0f;
-static constexpr float fovYDeg = 60.0f;
 static constexpr float nearPlane = 0.1f;
 static constexpr float farPlane = 1000.0f;
+static constexpr float initFOVYDeg = 60.0f;
+static constexpr float initViewHeight = 10.0f;
 
 Scene::Scene(const glm::ivec2& viewportSize) :
-	m_perspectiveCamera{viewportSize, fovYDeg, nearPlane, farPlane},
-	m_orthographicCamera{viewportSize, viewHeight, nearPlane, farPlane},
+	m_perspectiveCamera{viewportSize, nearPlane, farPlane, initFOVYDeg},
+	m_orthographicCamera{viewportSize, nearPlane, farPlane, initViewHeight},
 	m_leftEyeFramebuffer{GL_UNSIGNED_BYTE, GL_RGB, viewportSize}
 {
 	auto firstModelIter = m_models.begin();
@@ -63,7 +65,7 @@ void Scene::render()
 		glBlendFunc(GL_ONE, GL_ONE);
 		m_leftEyeFramebuffer.bindTexture();
 		ShaderPrograms::quad->use();
-		m_quad.render();
+		m_leftEyeQuad.render();
 		glEnable(GL_DEPTH_TEST);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	}
@@ -462,9 +464,9 @@ void Scene::deleteSelectedModels()
 	deleteSelectedModels(m_intersectionCurves);
 }
 
-bool Scene::selectUniqueModel(const glm::vec2& screenPos)
+bool Scene::selectUniqueModel(const glm::vec2& viewportPos)
 {
-	std::optional<int> closestModel = getClosestModel(screenPos);
+	std::optional<int> closestModel = getClosestModel(viewportPos);
 	if (!closestModel.has_value())
 	{
 		return false;
@@ -475,9 +477,9 @@ bool Scene::selectUniqueModel(const glm::vec2& screenPos)
 	return true;
 }
 
-void Scene::toggleModel(const glm::vec2& screenPos)
+void Scene::toggleModel(const glm::vec2& viewportPos)
 {
-	std::optional<int> closestModel = getClosestModel(screenPos);
+	std::optional<int> closestModel = getClosestModel(viewportPos);
 	if (!closestModel.has_value())
 	{
 		return;
@@ -492,8 +494,8 @@ void Scene::moveUniqueSelectedModel(const glm::vec2& offset) const
 	if (selectedModel != nullptr)
 	{
 		glm::vec3 pos = selectedModel->getPos();
-		glm::vec2 screenPos = m_activeCamera->posToViewportPos(pos);
-		glm::vec3 newPos = m_activeCamera->viewportPosToPos(pos, screenPos + offset);
+		glm::vec2 viewportPos = m_activeCamera->posToViewportPos(pos);
+		glm::vec3 newPos = m_activeCamera->viewportPosToPos(pos, viewportPos + offset);
 		selectedModel->setPos(newPos);
 	}
 }
@@ -1211,20 +1213,20 @@ Model* Scene::getUniqueSelectedModel() const
 	return nullptr;
 }
 
-std::optional<int> Scene::getClosestModel(const glm::vec2& screenPos) const
+std::optional<int> Scene::getClosestModel(const glm::vec2& viewportPos) const
 {
 	std::optional<int> index = std::nullopt;
 	static constexpr float treshold = 30;
-	float minScreenDistanceSquared = treshold * treshold;
+	float minViewportDistanceSquared = treshold * treshold;
 	for (int i = 0; i < m_models.size(); ++i)
 	{
-		glm::vec2 modelScreenPos = m_activeCamera->posToViewportPos(m_models[i]->getPos());
-		glm::vec2 relativePos = modelScreenPos - screenPos;
-		float screenDistanceSquared = glm::dot(relativePos, relativePos);
-		if (screenDistanceSquared < minScreenDistanceSquared)
+		glm::vec2 modelViewportPos = m_activeCamera->posToViewportPos(m_models[i]->getPos());
+		glm::vec2 relativePos = modelViewportPos - viewportPos;
+		float viewportDistanceSquared = glm::dot(relativePos, relativePos);
+		if (viewportDistanceSquared < minViewportDistanceSquared)
 		{
 			index = i;
-			minScreenDistanceSquared = screenDistanceSquared;
+			minViewportDistanceSquared = viewportDistanceSquared;
 		}
 	}
 

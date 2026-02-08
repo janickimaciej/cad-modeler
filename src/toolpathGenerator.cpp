@@ -1,6 +1,6 @@
 #include "toolpathGenerator.hpp"
 
-#include "guis/leftPanel.hpp"
+#include "gui/leftPanel.hpp"
 #include "models/intersectable.hpp"
 #include "models/intersectionCurve.hpp"
 #include "scene.hpp"
@@ -30,7 +30,7 @@ static inline constexpr float finishingPathBaseOffset = 0.01f;
 
 ToolpathGenerator::ToolpathGenerator(const Scene& scene) :
 	m_scene{scene},
-	m_heightmapCamera{heightmapSize, 15, nearPlane, farPlane}
+	m_heightmapCamera{m_heightmapSize, 15, nearPlane, farPlane}
 {
 	m_heightmapCamera.addPitch(glm::radians(-90.0f));
 }
@@ -40,7 +40,7 @@ void ToolpathGenerator::generatePaths()
 	generateHeightmap();
 
 	auto roughingPath = generateRoughingPath();
-	savePath(roughingPath, roughingPathRadius, "path1.k16");
+	save(roughingPath, roughingPathRadius, "path1.k16");
 
 	auto flatPath = generateFlatPath();
 
@@ -57,7 +57,7 @@ void ToolpathGenerator::generatePaths()
 	flatPath.insert(flatPath.begin(), {0, yDefault, 0});
 	flatPath.push_back({0, yDefault, 0});
 
-	savePath(flatPath, 0, "path2.f10");
+	save(flatPath, 0, "path2.f10");
 
 	auto finishingPath = generateFinishingPath();
 
@@ -77,7 +77,7 @@ void ToolpathGenerator::generatePaths()
 	finishingPath.insert(finishingPath.begin(), {0, yDefault + finishingPathRadius, 0});
 	finishingPath.push_back({0, yDefault + finishingPathRadius, 0});
 
-	savePath(finishingPath, finishingPathRadius, "path3.k08");
+	save(finishingPath, finishingPathRadius, "path3.k08");
 }
 
 std::vector<glm::vec3> ToolpathGenerator::generateRoughingPath()
@@ -101,10 +101,10 @@ std::vector<glm::vec3> ToolpathGenerator::generateRoughingPath()
 
 			auto xIndexToX = [] (int xIndex)
 				{
-					return (xIndex + 0.5f) / heightmapSize.x * 15.0f - 7.5f;
+					return (xIndex + 0.5f) / m_heightmapSize.x * 15.0f - 7.5f;
 				};
 
-			float dx = 15.0f / heightmapSize.x;
+			float dx = 15.0f / m_heightmapSize.x;
 
 			for (int i = 0; i < passCount; ++i)
 			{
@@ -120,15 +120,15 @@ std::vector<glm::vec3> ToolpathGenerator::generateRoughingPath()
 				float xPrev = xStart;
 				float yPrev = lowestHeight;
 
-				float heightPrevPix = getHeight(left ? heightmapSize.x : -1, z);
-				float heightCurrPix = getHeight(left ? heightmapSize.x - 1 : 0, z);
+				float heightPrevPix = getHeight(left ? m_heightmapSize.x : -1, z);
+				float heightCurrPix = getHeight(left ? m_heightmapSize.x - 1 : 0, z);
 
 				float minCurvatureRadius = std::numeric_limits<float>::max();
 
-				for (int xIndex = 0; xIndex < heightmapSize.x; ++xIndex)
+				for (int xIndex = 0; xIndex < m_heightmapSize.x; ++xIndex)
 				{
 					float heightNextPix =
-						getHeight(left ? heightmapSize.x - 2 - xIndex : xIndex + 1, z);
+						getHeight(left ? m_heightmapSize.x - 2 - xIndex : xIndex + 1, z);
 
 					float firstDeriv = (heightNextPix - heightPrevPix) / (2.0f * dx);
 					float secondDeriv =
@@ -139,14 +139,14 @@ std::vector<glm::vec3> ToolpathGenerator::generateRoughingPath()
 						(std::abs(secondDeriv) + eps);
 					minCurvatureRadius = std::min(minCurvatureRadius, curvatureRadius);
 
-					float x = xIndexToX(left ? heightmapSize.x - 1 - xIndex : xIndex);
+					float x = xIndexToX(left ? m_heightmapSize.x - 1 - xIndex : xIndex);
 					float segmentLengthSquared =
 						std::pow(x - xPrev, 2.0f) + std::pow(heightCurrPix - yPrev, 2.0f);
 					if (segmentLengthSquared >
 						4 * (2 * minCurvatureRadius * roughingPathSegmentingOffset -
 						std::pow(roughingPathSegmentingOffset, 2)))
 					{
-						xPrev = xIndexToX(left ? heightmapSize.x - xIndex : xIndex - 1);
+						xPrev = xIndexToX(left ? m_heightmapSize.x - xIndex : xIndex - 1);
 						yPrev = heightPrevPix;
 						path.push_back({xPrev, yPrev, z});
 						minCurvatureRadius = std::numeric_limits<float>::max();
@@ -188,7 +188,7 @@ std::vector<glm::vec3> ToolpathGenerator::generateFlatPath()
 		{
 			auto offsetHeightmapData = getHeightmapData(m_offsetHeightmap);
 
-			constexpr float dz = 15.0f / heightmapSize.y;
+			constexpr float dz = 15.0f / m_heightmapSize.y;
 			constexpr int stridePix = static_cast<int>(stride / dz) + 1;
 
 			auto getHeight = [this, &offsetHeightmapData] (int xIndex, float z)
@@ -198,14 +198,14 @@ std::vector<glm::vec3> ToolpathGenerator::generateFlatPath()
 
 			auto xIndexToX = [] (int xIndex)
 				{
-					return (xIndex + 0.5f) / heightmapSize.x * 15.0f - 7.5f;
+					return (xIndex + 0.5f) / m_heightmapSize.x * 15.0f - 7.5f;
 				};
 
 			auto getLastZero = [backwards, getHeight] (float z)
 				{
-					int xIndex = backwards ? heightmapSize.x - 1 : 0;
+					int xIndex = backwards ? m_heightmapSize.x - 1 : 0;
 					int increment = backwards ? -1 : 1;
-					for (int i = 0; i <= heightmapSize.x / 2; ++i)
+					for (int i = 0; i <= m_heightmapSize.x / 2; ++i)
 					{
 						xIndex += increment;
 						constexpr float eps = 1e-9f;
@@ -296,7 +296,8 @@ std::vector<glm::vec3> ToolpathGenerator::generateContourPath(float level)
 
 	auto isEdge = [&edgeData] (int xIndex, int yIndex)
 		{
-			if (xIndex < 0 || xIndex >= heightmapSize.x || yIndex < 0 || yIndex >= heightmapSize.y)
+			if (xIndex < 0 || xIndex >= m_heightmapSize.x || yIndex < 0 ||
+				yIndex >= m_heightmapSize.y)
 			{
 				return false;
 			}
@@ -306,9 +307,9 @@ std::vector<glm::vec3> ToolpathGenerator::generateContourPath(float level)
 
 	auto getFirstPoint = [&isEdge] ()
 		{
-			for (int yIndex = 0; yIndex < heightmapSize.y; ++yIndex)
+			for (int yIndex = 0; yIndex < m_heightmapSize.y; ++yIndex)
 			{
-				for (int xIndex = 0; xIndex < heightmapSize.x; ++xIndex)
+				for (int xIndex = 0; xIndex < m_heightmapSize.x; ++xIndex)
 				{
 					if (isEdge(xIndex, yIndex))
 					{
@@ -373,7 +374,7 @@ std::vector<glm::vec3> ToolpathGenerator::generateContourPath(float level)
 
 	auto indicesToPoint = [level] (const glm::ivec2& point)
 		{
-			glm::vec2 xz = (glm::vec2{point} + 0.5f) / glm::vec2{heightmapSize} * 15.0f - 7.5f;
+			glm::vec2 xz = (glm::vec2{point} + 0.5f) / glm::vec2{m_heightmapSize} * 15.0f - 7.5f;
 			return glm::vec3{xz.x, level, xz.y};
 		};
 
@@ -871,7 +872,7 @@ void ToolpathGenerator::generateHeightmap()
 	glClearColor(0, 0, 0, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	m_heightmapCamera.use();
-	ShaderPrograms::bezierSurfaceTriangles->use();
+	ShaderPrograms::bezierSurfaceHeight->use();
 	for (const auto& surface : m_scene.m_bezierPatches)
 	{
 		surface->m_mesh->render();
@@ -887,14 +888,14 @@ void ToolpathGenerator::generateOffsetHeightmap(float radius, bool flatCutter, f
 	m_offsetHeightmap.unbind();
 
 	static constexpr glm::ivec2 viewportSize{75, 75};
-	for (int i = 0; i * viewportSize.x < heightmapSize.x; ++i)
+	for (int i = 0; i * viewportSize.x < m_heightmapSize.x; ++i)
 	{
-		for (int j = 0; j * viewportSize.y < heightmapSize.y; ++j)
+		for (int j = 0; j * viewportSize.y < m_heightmapSize.y; ++j)
 		{
 			glm::ivec2 viewportOffset{i * viewportSize.x, j * viewportSize.y};
 			m_offsetHeightmap.bind(viewportOffset, viewportSize);
 			ShaderPrograms::heightmap->use();
-			ShaderPrograms::heightmap->setUniform("heightmapSize", heightmapSize);
+			ShaderPrograms::heightmap->setUniform("heightmapSize", m_heightmapSize);
 			ShaderPrograms::heightmap->setUniform("radius", radius);
 			ShaderPrograms::heightmap->setUniform("flatCutter", flatCutter);
 			ShaderPrograms::heightmap->setUniform("base", baseHeight);
@@ -915,7 +916,7 @@ void ToolpathGenerator::generateEdge(float level)
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	ShaderPrograms::edge->use();
 	ShaderPrograms::edge->setUniform("level", level);
-	ShaderPrograms::edge->setUniform("resolution", heightmapSize);
+	ShaderPrograms::edge->setUniform("resolution", m_heightmapSize);
 	m_offsetHeightmap.bindTexture();
 	m_quad.render();
 	m_edge.unbind();
@@ -929,9 +930,9 @@ std::unique_ptr<ToolpathGenerator::HeightmapData> ToolpathGenerator::getHeightma
 	heightmap.getTextureData((*textureData)[0][0].data());
 	heightmap.unbind();
 	auto heightmapData = std::make_unique<HeightmapData>();
-	for (int i = 0; i < heightmapSize.y; ++i)
+	for (int i = 0; i < m_heightmapSize.y; ++i)
 	{
-		for (int j = 0; j < heightmapSize.x; ++j)
+		for (int j = 0; j < m_heightmapSize.x; ++j)
 		{
 			(*heightmapData)[i][j] = (*textureData)[i][j][0];
 		}
@@ -942,12 +943,12 @@ std::unique_ptr<ToolpathGenerator::HeightmapData> ToolpathGenerator::getHeightma
 float ToolpathGenerator::getHeightmapHeight(float defaultHeight, const HeightmapData& heightmapData,
 	int xIndex, float z)
 {
-	if (xIndex < 0 || xIndex >= heightmapSize.x)
+	if (xIndex < 0 || xIndex >= m_heightmapSize.x)
 	{
 		return defaultHeight;
 	}
-	float yPix = (z + 7.5f) / 15.0f * heightmapSize.y - 0.5f;
-	if (yPix < 0 || yPix >= heightmapSize.y - 1)
+	float yPix = (z + 7.5f) / 15.0f * m_heightmapSize.y - 0.5f;
+	if (yPix < 0 || yPix >= m_heightmapSize.y - 1)
 	{
 		return defaultHeight;
 	}
@@ -961,10 +962,10 @@ float ToolpathGenerator::getHeightmapHeight(float defaultHeight, const Heightmap
 float ToolpathGenerator::getHeightmapHeight(float defaultHeight, const HeightmapData& heightmapData,
 	float x, float z)
 {
-	float xPix = (x + 7.5f) / 15.0f * heightmapSize.x - 0.5f;
-	float yPix = (z + 7.5f) / 15.0f * heightmapSize.y - 0.5f;
+	float xPix = (x + 7.5f) / 15.0f * m_heightmapSize.x - 0.5f;
+	float yPix = (z + 7.5f) / 15.0f * m_heightmapSize.y - 0.5f;
 
-	if (xPix < 0 || xPix >= heightmapSize.x - 1 || yPix < 0 || yPix >= heightmapSize.y - 1)
+	if (xPix < 0 || xPix >= m_heightmapSize.x - 1 || yPix < 0 || yPix >= m_heightmapSize.y - 1)
 	{
 		return defaultHeight;
 	}
@@ -996,10 +997,10 @@ float ToolpathGenerator::getCurvatureRadius(const glm::vec3& p1, const glm::vec3
 	return glm::length(p2 - p1) / (2 * sin);
 }
 
-void ToolpathGenerator::savePath(const std::vector<glm::vec3>& path, float yOffset,
+void ToolpathGenerator::save(const std::vector<glm::vec3>& path, float yOffset,
 	const std::string& filename)
 {
-	std::ofstream file{"D:/Desktop/" + filename};
+	std::ofstream file{filename};
 	for (int i = 0; i < path.size(); ++i)
 	{
 		file << std::format("N{}G01X{:.3f}Y{:.3f}Z{:.3f}\n", i + 3, path[i].x * 10, path[i].z * 10,

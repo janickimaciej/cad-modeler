@@ -1,10 +1,8 @@
 #pragma once
 
-#include "guis/centerPointGUI.hpp"
+#include "gui/centerPointGUI.hpp"
 #include "meshes/pointMesh.hpp"
 #include "models/model.hpp"
-#include "shaderProgram.hpp"
-#include "shaderPrograms.hpp"
 
 #include <glm/glm.hpp>
 
@@ -29,8 +27,6 @@ public:
 	void scaleZ(float scale);
 
 private:
-	const ShaderProgram& m_shaderProgram = *ShaderPrograms::cursor;
-
 	const std::vector<Model*>& m_models{};
 	CenterPointGUI m_gui{*this};
 

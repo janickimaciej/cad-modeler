@@ -16,6 +16,7 @@ public:
 		const SelfDestructCallback& selfDestructCallback,
 		std::vector<std::unique_ptr<Point>>& bezierPoints);
 	virtual ~C2BezierCurve() = default;
+
 	virtual void render() const override;
 
 	void addPoints(const std::vector<Point*>& points,

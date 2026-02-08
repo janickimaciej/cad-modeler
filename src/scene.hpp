@@ -71,13 +71,13 @@ public:
 	void toggleModel(int i, ModelType type = ModelType::all);
 	void deselectAllModels();
 	void deleteSelectedModels();
-	bool selectUniqueModel(const glm::vec2& screenPos);
-	void toggleModel(const glm::vec2& screenPos);
+	bool selectUniqueModel(const glm::vec2& viewportPos);
+	void toggleModel(const glm::vec2& viewportPos);
 	void moveUniqueSelectedModel(const glm::vec2& offset) const;
 	void collapse2Points();
 	BezierPatch* getUniqueSelectedBezierPatch() const;
 	Intersectable* getUniqueSelectedIntersectable() const;
-	bool isCursorAtPos(const glm::vec2& screenPos) const;
+	bool isCursorAtPos(const glm::vec2& viewportPos) const;
 	void moveCursor(const glm::vec2& offset);
 	void moveCursorToSelectedModels();
 
@@ -141,8 +141,8 @@ private:
 	Cursor m_cursor{};
 	CenterPoint m_selectedModelsCenter{m_selectedModels};
 
-	static constexpr float gridScale = 5.0f;
-	Plane m_plane{gridScale};
+	static constexpr float m_gridScale = 5.0f;
+	Plane m_plane{m_gridScale};
 
 	PerspectiveCamera m_perspectiveCamera;
 	OrthographicCamera m_orthographicCamera;
@@ -165,7 +165,7 @@ private:
 		};
 
 	Framebuffer<unsigned char> m_leftEyeFramebuffer;
-	Quad m_quad{};
+	Quad m_leftEyeQuad{};
 	bool m_anaglyphOn = false;
 
 	ToolpathGenerator m_toolpathGenerator{*this};
@@ -179,7 +179,7 @@ private:
 	void renderGrid() const;
 
 	Model* getUniqueSelectedModel() const;
-	std::optional<int> getClosestModel(const glm::vec2& screenPos) const;
+	std::optional<int> getClosestModel(const glm::vec2& viewportPos) const;
 	std::vector<Point*> getNonVirtualSelectedPoints() const;
 	void addPoints(std::vector<std::unique_ptr<Point>> points);
 	void addBezierPatches(std::vector<std::unique_ptr<BezierPatch>> patches);
