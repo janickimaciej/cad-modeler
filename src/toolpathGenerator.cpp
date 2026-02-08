@@ -12,6 +12,7 @@
 
 static constexpr float nearPlane = 0.1f;
 static constexpr float farPlane = 1000.0f;
+static constexpr float viewWidth = 15.0f;
 
 static inline constexpr float baseHeight = 2.5f;
 static inline constexpr float yDefault = 6.6f;
@@ -30,7 +31,7 @@ static inline constexpr float finishingPathBaseOffset = 0.01f;
 
 ToolpathGenerator::ToolpathGenerator(const Scene& scene) :
 	m_scene{scene},
-	m_heightmapCamera{m_heightmapSize, 15, nearPlane, farPlane}
+	m_heightmapCamera{m_heightmapSize, nearPlane, farPlane, viewWidth}
 {
 	m_heightmapCamera.addPitch(glm::radians(-90.0f));
 }
